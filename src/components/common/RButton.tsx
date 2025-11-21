@@ -13,15 +13,16 @@ interface IButton {
   onPressButton(): void;
   styleBtn?: StyleProp<ViewStyle>;
   styleTitle?: StyleProp<TextStyle>;
+  disable?: boolean;
 }
 const RButton: FC<IButton> = ({
   onPressButton,
   title,
   styleBtn,
-  styleTitle,
+  styleTitle, disable = false
 }) => {
   return (
-    <TouchableOpacity style={[styles.btnCon, styleBtn]} onPress={onPressButton}>
+    <TouchableOpacity style={[styles.btnCon, styleBtn]} onPress={onPressButton} disabled={disable}>
       <Text style={[styles.txt, styleTitle]}>{title}</Text>
     </TouchableOpacity>
   );
@@ -31,7 +32,7 @@ export default RButton;
 
 const styles = StyleSheet.create({
   btnCon: {
-    borderRadius: 100,
+    borderRadius: 10,
     width: "100%",
     minHeight: 55,
     padding: 10,

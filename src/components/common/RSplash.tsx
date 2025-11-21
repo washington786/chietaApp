@@ -2,7 +2,7 @@ import { Image, StyleSheet } from 'react-native'
 import React from 'react'
 import RWrapper from './RWrapper'
 import RLoader from './RLoader'
-import colors from '@/colors'
+import colors from '@/config/colors'
 
 const RSplash = () => {
     return (

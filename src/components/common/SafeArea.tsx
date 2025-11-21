@@ -1,10 +1,8 @@
 import {
-  Platform,
-  SafeAreaView,
-  StatusBar,
   StyleSheet,
 } from "react-native";
 import React, { FC, ReactNode } from "react";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 interface IAreaProps {
   children: ReactNode;
@@ -17,8 +15,7 @@ export default SafeArea;
 
 const styles = StyleSheet.create({
   con: {
-    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
+    // paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
     flex: 1,
-    backgroundColor: "#fff",
   },
 });

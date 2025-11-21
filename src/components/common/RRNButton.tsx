@@ -1,7 +1,8 @@
 import React, { FC } from 'react'
 import { Button, ButtonProps } from 'react-native-paper'
-import { PickerStyle } from '@/styles';
+
 import colors from '@/config/colors';
+import { PickerStyle } from '@/styles/PickerStyle';
 
 interface props extends ButtonProps {
     isOutline: boolean;

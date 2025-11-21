@@ -25,9 +25,9 @@ const styles = StyleSheet.create({
   inputCon: {
     paddingHorizontal: 10,
     paddingVertical: 12,
-    minHeight: 50,
+    minHeight: 60,
     borderWidth: 1,
-    borderColor: colors.gray[200],
+    borderColor: colors.gray[300],
     flexDirection: "row",
     alignItems: "center",
     gap: 5,
