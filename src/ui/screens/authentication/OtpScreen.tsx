@@ -40,14 +40,13 @@ const OtpScreen = () => {
                     <RKeyboardView style={{ gap: 8 }}>
                         <OtpInput numberOfDigits={6} onTextChange={(text) => console.log(text)} focusColor={colors.primary[600]} />
 
-                        <RButton title='verify pin' onPressButton={login} styleBtn={styles.button} disable={canResend == true} />
+                        <RButton title='verify pin' onPressButton={login} styleBtn={styles.button} />
                     </RKeyboardView>
 
                     <Button
                         textColor={colors.slate['700']}
                         labelStyle={{ fontFamily: `${appFonts.medium}` }}
                         style={styles.textButton}
-                        onPress={login}
                     >
                         <Text style={{ color: colors.primary['900'], fontFamily: `${appFonts.semiBold}` }}>
                             {canResend ? 'Resend Code' : 'Resend code in '} {timer ? `00:${timer < 10 ? `0${timer}` : timer}` : ''}
