@@ -8,4 +8,8 @@ export type navigationTypes = {
     profile: undefined;
     app: undefined;
     notifications: undefined;
+    newOrgLink: undefined;
+    orgDetail: {
+        orgId?: string;
+    };
 }

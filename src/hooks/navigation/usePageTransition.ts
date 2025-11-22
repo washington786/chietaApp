@@ -32,12 +32,15 @@ const usePageTransition = () => {
     function notifications() {
         navigation.navigate("notifications");
     }
+    function newOrg() {
+        navigation.navigate("newOrgLink");
+    }
 
-    // function goToChildProfile({ childId }: { childId: string }) {
-    //     navigation.navigate("ChildProfile", { childId: childId });
-    // }
+    function goToOrgDetails({ orgId }: { orgId: string }) {
+        navigation.navigate("orgDetail", { orgId: orgId });
+    }
 
-    return { onBack, login, register, otp, resetPassword, getStarted, onAuth, notifications };
+    return { onBack, login, register, otp, resetPassword, getStarted, onAuth, notifications, newOrg, goToOrgDetails };
 }
 
 export default usePageTransition

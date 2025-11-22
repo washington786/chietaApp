@@ -1,11 +1,14 @@
 import { StyleSheet, View } from 'react-native'
-import React from 'react'
+import React, { FC } from 'react'
 import { RCol, RRow } from '@/components/common'
 import colors from '@/config/colors'
 import { Text } from 'react-native-paper'
 import Ionicons from '@expo/vector-icons/Ionicons';
 
-const ApplicationTimelines = () => {
+interface props {
+    isClosed?: boolean
+}
+const ApplicationTimelines: FC<props> = ({ isClosed = true }) => {
     return (
         <RCol style={styles.col}>
             <Text variant='titleLarge' style={[styles.txt, styles.title]}>Application timelines</Text>
@@ -21,7 +24,7 @@ const ApplicationTimelines = () => {
                     <RCol>
                         <Text variant='labelSmall' style={[styles.conText, { marginTop: 12 }]}>upcoming events:</Text>
                         <RRow style={{ alignItems: "center", gap: 4, marginTop: 6 }}>
-                            <Ionicons name="calendar-outline" size={20} color="black" />
+                            <Ionicons name={!isClosed ? "calendar-outline" : "alert-circle-outline"} size={20} color="black" />
                             <Text variant='labelSmall' style={styles.conText}>unavailable</Text>
                         </RRow>
                     </RCol>

@@ -1,17 +1,19 @@
-import { StyleSheet, TouchableOpacity, View } from 'react-native'
+import { StyleSheet, TouchableOpacity } from 'react-native'
 import React from 'react'
 import { RCol, RRow } from '@/components/common'
 import { Text } from 'react-native-paper'
 import Feather from '@expo/vector-icons/Feather';
 import colors from '@/config/colors';
 import ItemOrgs from './ItemOrgs';
+import usePageTransition from '@/hooks/navigation/usePageTransition';
 
 const LinkedOrganizations = () => {
+    const { newOrg } = usePageTransition();
     return (
         <RCol>
             <RRow style={{ alignItems: 'center', gap: 6, marginBottom: 12, justifyContent: 'space-between' }}>
                 <Text variant='titleSmall'>my linked organizations</Text>
-                <TouchableOpacity style={styles.btn}>
+                <TouchableOpacity style={styles.btn} onPress={newOrg}>
                     <Feather name="link-2" size={16} color="black" style={{ marginLeft: 6 }} />
                     <Text variant='titleSmall'>add new</Text>
                 </TouchableOpacity>

@@ -16,9 +16,6 @@ const NotificationsPage = () => {
                         <>
                             <ItemNotification isNew={true} />
                             <ItemNotification />
-                            {/* <MessageWrapper />
-                            <ApplicationTimelines />
-                            <LinkedOrganizations /> */}
                         </>
                     )
                 }}
