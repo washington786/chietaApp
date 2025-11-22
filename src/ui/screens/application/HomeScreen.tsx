@@ -1,7 +1,8 @@
 import { FlatList, StyleSheet, Text, View } from 'react-native'
 import React from 'react'
 import { SafeArea } from '@/components/common'
-import { Banner } from '@/components/modules'
+import { ApplicationTimelines, Banner, MessageWrapper } from '@/components/modules'
+import { LinkedOrganizations } from '@/components/modules/application'
 
 const HomeScreen = () => {
     return (
@@ -13,6 +14,9 @@ const HomeScreen = () => {
                 ListFooterComponent={() => {
                     return (
                         <>
+                            <MessageWrapper />
+                            <ApplicationTimelines />
+                            <LinkedOrganizations />
                             {/* <ActionsList />
                             <ActivityList /> */}
                         </>
