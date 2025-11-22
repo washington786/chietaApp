@@ -7,4 +7,5 @@ export type navigationTypes = {
     history: undefined;
     profile: undefined;
     app: undefined;
+    notifications: undefined;
 }

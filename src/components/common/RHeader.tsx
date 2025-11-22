@@ -13,6 +13,7 @@ import usePageTransition from "@/hooks/navigation/usePageTransition";
 interface prop {
     name: string;
 }
+
 const RHeader: FC<prop> = ({ name }) => {
     const { onBack } = usePageTransition();
     return (
@@ -30,7 +31,7 @@ const RHeader: FC<prop> = ({ name }) => {
                 ]}
             >
                 <Text
-                    variant="labelSmall"
+                    variant="titleLarge"
                     style={Platform.OS === "android" && styles.android}
                 >
                     {name}
@@ -46,9 +47,9 @@ const styles = StyleSheet.create({
     con: {
         flexDirection: "row",
         alignItems: "center",
-        backgroundColor: "white",
         paddingVertical: 13,
         gap: 9,
+        paddingLeft: 6
     },
     ios: {
         textAlign: "center",

@@ -1,3 +1,4 @@
+import NotificationsPage from "../pages/application/NotificationsPage";
 import AccountScreen from "./application/AccountScreen";
 import HistoryScreen from "./application/HistoryScreen";
 import HomeScreen from "./application/HomeScreen";
@@ -13,5 +14,6 @@ export {
     RegisterScreen,
     AccountScreen,
     HistoryScreen,
-    HomeScreen
+    HomeScreen,
+    NotificationsPage
 }

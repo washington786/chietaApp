@@ -1,4 +1,4 @@
-import { FlatList, StyleSheet, Text, View } from 'react-native'
+import { FlatList } from 'react-native'
 import React from 'react'
 import { SafeArea } from '@/components/common'
 import { ApplicationTimelines, Banner, MessageWrapper } from '@/components/modules'
@@ -17,8 +17,6 @@ const HomeScreen = () => {
                             <MessageWrapper />
                             <ApplicationTimelines />
                             <LinkedOrganizations />
-                            {/* <ActionsList />
-                            <ActivityList /> */}
                         </>
                     )
                 }}
@@ -28,5 +26,3 @@ const HomeScreen = () => {
 }
 
 export default HomeScreen
-
-const styles = StyleSheet.create({})

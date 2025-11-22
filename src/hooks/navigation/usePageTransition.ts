@@ -26,16 +26,18 @@ const usePageTransition = () => {
     function resetPassword() {
         navigation.navigate("reset");
     }
-
     function onAuth() {
         navigation.navigate("app");
+    }
+    function notifications() {
+        navigation.navigate("notifications");
     }
 
     // function goToChildProfile({ childId }: { childId: string }) {
     //     navigation.navigate("ChildProfile", { childId: childId });
     // }
 
-    return { onBack, login, register, otp, resetPassword, getStarted, onAuth };
+    return { onBack, login, register, otp, resetPassword, getStarted, onAuth, notifications };
 }
 
 export default usePageTransition
