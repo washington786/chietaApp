@@ -27,11 +27,15 @@ const usePageTransition = () => {
         navigation.navigate("reset");
     }
 
+    function onAuth() {
+        navigation.navigate("app");
+    }
+
     // function goToChildProfile({ childId }: { childId: string }) {
     //     navigation.navigate("ChildProfile", { childId: childId });
     // }
 
-    return { onBack, login, register, otp, resetPassword, getStarted };
+    return { onBack, login, register, otp, resetPassword, getStarted, onAuth };
 }
 
 export default usePageTransition

@@ -3,4 +3,8 @@ export type navigationTypes = {
     register: undefined;
     reset: undefined;
     otp: undefined;
+    home: undefined;
+    history: undefined;
+    profile: undefined;
+    app: undefined;
 }

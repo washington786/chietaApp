@@ -6,11 +6,12 @@ import MainNavigation from '@/navigation/MainNavigation';
 export default function App() {
 
   const { loadedApplicationFonts } = useLoadAppFonts();
-  if (!loadedApplicationFonts) return <RSplash />;
+  if (!loadedApplicationFonts) { return <RSplash /> } else {
+    return (
+      <ProviderWraper>
+        <MainNavigation />
+      </ProviderWraper>
+    );
+  }
 
-  return (
-    <ProviderWraper>
-      <MainNavigation />
-    </ProviderWraper>
-  );
 }

@@ -1,6 +1,6 @@
 import { View, Text } from 'react-native'
 import React from 'react'
-import { IonIconName } from '@/types/TabIconName';
+import { IonIconName } from '@/core/types/TabIconName';
 import { BottomTabStyles as styles } from '@/styles/BottomTabStyles';
 
 import { Ionicons } from "@expo/vector-icons"

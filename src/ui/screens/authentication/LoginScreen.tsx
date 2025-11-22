@@ -9,7 +9,7 @@ import usePageTransition from '@/hooks/navigation/usePageTransition'
 import { Authstyles as styles } from '@/styles/AuthStyles'
 
 const LoginScreen = () => {
-    const { register, resetPassword } = usePageTransition();
+    const { register, resetPassword, onAuth } = usePageTransition();
     return (
         <AuthWrapper>
             <SafeArea>
@@ -27,7 +27,7 @@ const LoginScreen = () => {
 
                         <RInput placeholder='Password' icon={'lock'} secureTextEntry />
 
-                        <RButton title='Sign In' onPressButton={() => { }} styleBtn={styles.button} />
+                        <RButton title='Sign In' onPressButton={onAuth} styleBtn={styles.button} />
                     </RKeyboardView>
 
 
