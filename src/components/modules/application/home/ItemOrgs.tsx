@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native'
+import { StyleSheet, TouchableOpacity } from 'react-native'
 import React, { FC } from 'react'
 import { RCol, RRow } from '@/components/common'
 import { Text } from 'react-native-paper'
@@ -7,18 +7,21 @@ import Feather from '@expo/vector-icons/Feather';
 
 interface props {
     isVerified?: boolean;
+    onPress?: () => void;
 }
 
-const ItemOrgs: FC<props> = ({ isVerified = true }) => {
+const ItemOrgs: FC<props> = ({ isVerified = true, onPress }) => {
     return (
-        <RCol style={styles.con}>
-            <Text variant='titleLarge' style={styles.itemText}>Retlhonolofetse Trading projects</Text>
-            <Text variant='labelLarge' style={[styles.regTxt, styles.txt]}>2018/330478/07</Text>
-            <RRow style={styles.row}>
-                <Feather name={isVerified ? "check-square" : "x-square"} size={16} color={isVerified ? colors.green[600] : colors.red[600]} />
-                <Text variant='labelMedium' style={[styles.regTxt, { color: isVerified ? colors.green[600] : colors.red[600] }]}>{isVerified ? "verified" : "unverified"}</Text>
-            </RRow>
-        </RCol>
+        <TouchableOpacity onPress={onPress}>
+            <RCol style={styles.con}>
+                <Text variant='titleLarge' style={styles.itemText}>Retlhonolofetse Trading projects</Text>
+                <Text variant='labelLarge' style={[styles.regTxt, styles.txt]}>2018/330478/07</Text>
+                <RRow style={styles.row}>
+                    <Feather name={isVerified ? "check-square" : "x-square"} size={16} color={isVerified ? colors.green[600] : colors.red[600]} />
+                    <Text variant='labelMedium' style={[styles.regTxt, { color: isVerified ? colors.green[600] : colors.red[600] }]}>{isVerified ? "verified" : "unverified"}</Text>
+                </RRow>
+            </RCol>
+        </TouchableOpacity>
     )
 }
 

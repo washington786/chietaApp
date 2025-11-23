@@ -1,4 +1,4 @@
-import { StyleSheet, TouchableOpacity, TouchableWithoutFeedback } from 'react-native'
+import { StyleSheet, TouchableOpacity } from 'react-native'
 import React, { FC } from 'react'
 import colors from '@/config/colors'
 import { RCol, RRow } from '@/components/common'
