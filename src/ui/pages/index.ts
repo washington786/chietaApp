@@ -1,9 +1,12 @@
 import { NotificationsPage } from "../screens";
 import AddNewOrganization from "./application/AddNewOrganization";
-import LinkedOrganizationDetailsPage from "./application/LinkedOrganizationDetailsPage";
+import DiscretionaryPage from "./application/DiscretionaryPage";
+import MandatoryPage from "./application/MandatoryPage";
+// import LinkedOrganizationDetailsPage from "./application/MandatoryPage";
 
 export {
-    LinkedOrganizationDetailsPage,
+    // LinkedOrganizationDetailsPage,
     AddNewOrganization,
-    NotificationsPage
+    NotificationsPage,
+    DiscretionaryPage, MandatoryPage
 }

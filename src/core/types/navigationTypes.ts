@@ -12,4 +12,10 @@ export type navigationTypes = {
     orgDetail: {
         orgId?: string;
     };
+    mandatory: {
+        orgId?: string;
+    };
+    discretionary: {
+        orgId?: string;
+    };
 }

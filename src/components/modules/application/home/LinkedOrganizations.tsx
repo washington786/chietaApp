@@ -9,8 +9,18 @@ import usePageTransition from '@/hooks/navigation/usePageTransition';
 import { useGlobalBottomSheet } from '@/hooks/navigation/BottomSheet';
 
 const LinkedOrganizations = () => {
-    const { newOrg } = usePageTransition();
-    const { open } = useGlobalBottomSheet();
+    const { newOrg, discretionaryGrants, mandatoryGrants } = usePageTransition();
+    const { open, close } = useGlobalBottomSheet();
+
+    function handleMandatoryGrants() {
+        close();
+        mandatoryGrants({ orgId: "1" });
+    }
+    function handleDiscretionaryGrants() {
+        close();
+        discretionaryGrants({ orgId: "1" });
+    }
+
     return (
         <RCol>
             <RRow style={{ alignItems: 'center', gap: 6, marginBottom: 12, justifyContent: 'space-between' }}>
@@ -21,31 +31,40 @@ const LinkedOrganizations = () => {
                 </TouchableOpacity>
             </RRow>
             <RCol>
-                <ItemOrgs onPress={() => open(<OrgDetails />, { snapPoints: ["50%"] })} />
-                <ItemOrgs isVerified={false} onPress={() => open(<OrgDetails />, { snapPoints: ["50%"] })} />
+                <ItemOrgs onPress={() => open(<OrgDetails onDiscretionaryGrants={handleDiscretionaryGrants} onMandatoryGrants={handleMandatoryGrants} />, { snapPoints: ["50%"] })} />
+                <ItemOrgs isVerified={false} onPress={() => open(<OrgDetails onDiscretionaryGrants={handleDiscretionaryGrants} onMandatoryGrants={handleMandatoryGrants} />, { snapPoints: ["50%"] })} />
             </RCol>
         </RCol>
     )
 }
 
-function OrgDetails() {
+interface OrgDetailsProps {
+    onDiscretionaryGrants?: () => void;
+    onMandatoryGrants?: () => void;
+    onDelink?: () => void;
+}
+function OrgDetails({ onDelink, onMandatoryGrants, onDiscretionaryGrants }: OrgDetailsProps) {
     return <RCol style={{ position: 'relative' }}>
         <Text variant='titleLarge'>TBESS Consulting and Services</Text>
         <Text variant='titleLarge' style={{ fontSize: 11 }}>view applications in categories</Text>
-        <TypeDetails title='Mandator grants' />
-        <TypeDetails title='Discretionary grants' />
-        <TouchableOpacity style={styles.delink}>
+        <TypeDetails title='Mandator grants' onpress={onMandatoryGrants} />
+        <TypeDetails title='Discretionary grants' onpress={onDiscretionaryGrants} />
+
+        <TouchableOpacity style={styles.delink} onPress={onDelink}>
             <Feather name="link-2" size={16} color="white" style={{ marginLeft: 6 }} />
             <Text variant='titleSmall' style={[styles.text, { textAlign: 'center', color: colors.slate[50] }]}>delink</Text>
         </TouchableOpacity>
+
     </RCol>
 }
 
 interface TypeDetailsProps {
     title?: string;
+    onpress?: () => void;
 }
-function TypeDetails({ title }: TypeDetailsProps) {
-    return <TouchableOpacity style={[styles.detbtn, { justifyContent: 'space-between' }]}>
+
+function TypeDetails({ title, onpress }: TypeDetailsProps) {
+    return <TouchableOpacity style={[styles.detbtn, { justifyContent: 'space-between' }]} onPress={onpress}>
         <Text variant='titleSmall' style={styles.text}>{title}</Text>
         <Feather name="chevron-right" size={16} color="black" style={{ marginLeft: 6 }} />
     </TouchableOpacity>
