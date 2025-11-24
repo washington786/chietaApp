@@ -1,5 +1,6 @@
 import RButton from "./RButton";
 import RCol from "./RCol";
+import RDialog from "./RDialog";
 import RDivider from "./RDivider";
 import RErrorMessage from "./RErrorMessage";
 import RImageCon from "./RImageCon";
@@ -21,8 +22,6 @@ import RWrapper from "./RWrapper";
 import RWrapperInput from "./RWrapperInput";
 import SafeArea from "./SafeArea";
 import Scroller from "./Scroller";
-
-
 
 export {
   SafeArea,
@@ -47,5 +46,6 @@ export {
   RCol,
   RWrapperInput as RChildWrapper,
   RPickerContainer,
-  RRNButton
+  RRNButton,
+  RDialog
 };

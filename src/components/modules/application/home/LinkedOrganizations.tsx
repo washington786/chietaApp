@@ -1,16 +1,29 @@
 import { StyleSheet, TouchableOpacity } from 'react-native'
-import React from 'react'
-import { RCol, RRow } from '@/components/common'
+import React, { useState } from 'react'
+import { RCol, RDialog, RRow } from '@/components/common'
 import { Text } from 'react-native-paper'
 import Feather from '@expo/vector-icons/Feather';
 import colors from '@/config/colors';
 import ItemOrgs from './ItemOrgs';
 import usePageTransition from '@/hooks/navigation/usePageTransition';
 import { useGlobalBottomSheet } from '@/hooks/navigation/BottomSheet';
+import { showToast } from '@/core';
 
 const LinkedOrganizations = () => {
     const { newOrg, discretionaryGrants, mandatoryGrants } = usePageTransition();
     const { open, close } = useGlobalBottomSheet();
+
+    const [visible, setVisible] = useState(false);
+
+    function handleDialog() {
+        close();
+        setVisible(!visible);
+    };
+
+    function handleContinue() {
+        setVisible(false);
+        showToast({ message: "successfully delinked organization from your list.", type: "success", title: "De-linking", position: "top" })
+    }
 
     function handleMandatoryGrants() {
         close();
@@ -31,9 +44,12 @@ const LinkedOrganizations = () => {
                 </TouchableOpacity>
             </RRow>
             <RCol>
-                <ItemOrgs onPress={() => open(<OrgDetails onDiscretionaryGrants={handleDiscretionaryGrants} onMandatoryGrants={handleMandatoryGrants} />, { snapPoints: ["50%"] })} />
-                <ItemOrgs isVerified={false} onPress={() => open(<OrgDetails onDiscretionaryGrants={handleDiscretionaryGrants} onMandatoryGrants={handleMandatoryGrants} />, { snapPoints: ["50%"] })} />
+                <ItemOrgs onPress={() => open(<OrgDetails onDiscretionaryGrants={handleDiscretionaryGrants} onMandatoryGrants={handleMandatoryGrants} onDelink={handleDialog} />, { snapPoints: ["50%"] })} />
+                <ItemOrgs isVerified={false} onPress={() => open(<OrgDetails onDiscretionaryGrants={handleDiscretionaryGrants} onMandatoryGrants={handleMandatoryGrants} onDelink={handleDialog} />, { snapPoints: ["50%"] })} />
             </RCol>
+            {
+                visible && <RDialog hideDialog={handleDialog} visible={visible} message='are you sure you want to de-link this organization?' title='Delink Org' onContinue={handleContinue} />
+            }
         </RCol>
     )
 }

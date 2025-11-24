@@ -7,8 +7,9 @@ import Feather from '@expo/vector-icons/Feather';
 
 interface props {
     isActive?: boolean;
+    onPress?: () => void;
 }
-const ItemOrganization: FC<props> = ({ isActive }) => {
+const ItemOrganization: FC<props> = ({ isActive, onPress }) => {
     return (
         <RCol style={styles.con}>
             <Text variant='titleLarge' style={styles.itemText}>TBESS Consulting and Services</Text>
@@ -18,7 +19,7 @@ const ItemOrganization: FC<props> = ({ isActive }) => {
                 <Feather name={isActive ? "check-square" : "x-square"} size={16} color={isActive ? colors.green[600] : colors.red[600]} />
                 <Text variant='labelMedium' style={[styles.regTxt, { color: isActive ? colors.green[600] : colors.red[600] }]}>{isActive ? "active" : "inactive"}</Text>
             </RRow>
-            <TouchableOpacity style={styles.abBtn}>
+            <TouchableOpacity style={styles.abBtn} onPress={onPress}>
                 <Feather name={"plus"} size={20} color={colors.slate[50]} />
             </TouchableOpacity>
         </RCol>
