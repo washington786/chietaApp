@@ -4,6 +4,7 @@ import { ForgotPasswordScreen, LoginScreen, NotificationsPage, OtpScreen, Regist
 import { navigationTypes } from '@/core/types/navigationTypes';
 import BottomTabNavigation from './BottomNavigation';
 import { AddNewApplicationPage, AddNewOrganization, DiscretionaryPage, MandatoryPage } from '@/ui/pages';
+import AddNewDgApplicationPage from '@/ui/pages/application/AddNewDgApplicationPage';
 
 const Stack = createNativeStackNavigator<navigationTypes>();
 
@@ -20,6 +21,11 @@ const RootStack = () => {
             <Stack.Screen name='mandatory' component={MandatoryPage} />
             <Stack.Screen name='discretionary' component={DiscretionaryPage} />
             <Stack.Screen name='newApplication' component={AddNewApplicationPage} options={{
+                presentation: "fullScreenModal",
+                animation: "slide_from_bottom",
+                headerShown: false
+            }} />
+            <Stack.Screen name='newDgApplication' component={AddNewDgApplicationPage} options={{
                 presentation: "fullScreenModal",
                 animation: "slide_from_bottom",
                 headerShown: false

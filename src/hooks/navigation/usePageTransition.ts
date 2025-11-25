@@ -38,6 +38,9 @@ const usePageTransition = () => {
     function newApplication() {
         navigation.navigate("newApplication");
     }
+    function newDgApplication() {
+        navigation.navigate("newDgApplication");
+    }
     function mandatoryGrants({ orgId }: { orgId: string }) {
         navigation.navigate("mandatory", { orgId: orgId });
     }
@@ -45,7 +48,7 @@ const usePageTransition = () => {
         navigation.navigate("discretionary", { orgId: orgId });
     }
 
-    return { onBack, login, register, otp, resetPassword, getStarted, onAuth, notifications, newOrg, mandatoryGrants, discretionaryGrants, newApplication };
+    return { onBack, login, register, otp, resetPassword, getStarted, onAuth, notifications, newOrg, mandatoryGrants, discretionaryGrants, newApplication, newDgApplication };
 }
 
 export default usePageTransition
