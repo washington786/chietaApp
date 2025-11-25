@@ -1,35 +1,39 @@
-import { StyleSheet } from 'react-native'
+import { StyleSheet, TouchableOpacity } from 'react-native'
 import React from 'react'
 import { RCol, RDivider, RRow } from '@/components/common'
 import { Text } from 'react-native-paper'
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import colors from '@/config/colors';
+import usePageTransition from '@/hooks/navigation/usePageTransition';
 
 const ApplicationItem = () => {
+    const { applicationDetails } = usePageTransition();
     return (
-        <RCol style={styles.con}>
-            <RRow style={styles.title}>
-                <MaterialCommunityIcons name="application-outline" size={18} color="black" />
-                <Text>Mandatory Grant 2024</Text>
-            </RRow>
-            <RDivider />
-            <RRow style={styles.wrap}>
-                <Text variant='labelSmall' style={[styles.text]}>Reference</Text>
-                <Text variant='titleMedium' style={[styles.text, styles.appTitle]}>mg2024</Text>
-            </RRow>
-            <RRow style={styles.wrap}>
-                <Text variant='labelSmall' style={[styles.text]}>Title</Text>
-                <Text variant='titleMedium' style={[styles.text, styles.appTitle]}>Mandatory Grant 2024</Text>
-            </RRow>
-            <RRow style={styles.wrap}>
-                <Text variant='labelSmall' style={[styles.text]}> status</Text>
-                <Text variant='titleMedium' style={[styles.text, styles.appTitle, styles.statusTxt]}>Application</Text>
-            </RRow>
-            <RRow style={styles.wrap}>
-                <Text variant='labelSmall' style={[styles.text]}>Date submitted</Text>
-                <Text variant='titleMedium' style={[styles.text, styles.appTitle]}>04/30/2024 11:59PM</Text>
-            </RRow>
-        </RCol>
+        <TouchableOpacity onPress={() => applicationDetails({ appId: "1", orgId: "1" })}>
+            <RCol style={styles.con}>
+                <RRow style={styles.title}>
+                    <MaterialCommunityIcons name="application-outline" size={18} color="black" />
+                    <Text>Mandatory Grant 2024</Text>
+                </RRow>
+                <RDivider />
+                <RRow style={styles.wrap}>
+                    <Text variant='labelSmall' style={[styles.text]}>Reference</Text>
+                    <Text variant='titleMedium' style={[styles.text, styles.appTitle]}>mg2024</Text>
+                </RRow>
+                <RRow style={styles.wrap}>
+                    <Text variant='labelSmall' style={[styles.text]}>Title</Text>
+                    <Text variant='titleMedium' style={[styles.text, styles.appTitle]}>Mandatory Grant 2024</Text>
+                </RRow>
+                <RRow style={styles.wrap}>
+                    <Text variant='labelSmall' style={[styles.text]}> status</Text>
+                    <Text variant='titleMedium' style={[styles.text, styles.appTitle, styles.statusTxt]}>Application</Text>
+                </RRow>
+                <RRow style={styles.wrap}>
+                    <Text variant='labelSmall' style={[styles.text]}>Date submitted</Text>
+                    <Text variant='titleMedium' style={[styles.text, styles.appTitle]}>04/30/2024 11:59PM</Text>
+                </RRow>
+            </RCol>
+        </TouchableOpacity>
     )
 }
 

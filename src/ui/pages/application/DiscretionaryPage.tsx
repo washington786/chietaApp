@@ -4,8 +4,7 @@ import { SafeArea } from '@/components/common'
 import RHeader from '@/components/common/RHeader'
 import { FAB } from 'react-native-paper'
 import usePageTransition from '@/hooks/navigation/usePageTransition'
-import { ApplicationItem, DgApplicationItem, InformationBanner } from '@/components/modules/application'
-import colors from '@/config/colors'
+import { DgApplicationItem, InformationBanner } from '@/components/modules/application'
 
 const DiscretionaryPage = () => {
     const { newDgApplication } = usePageTransition();

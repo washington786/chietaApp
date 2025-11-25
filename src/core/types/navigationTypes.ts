@@ -11,6 +11,10 @@ export type navigationTypes = {
     newOrgLink: undefined;
     newApplication: undefined;
     newDgApplication: undefined;
+    applicationDetails: {
+        orgId?: string;
+        appId?: string;
+    };
     orgDetail: {
         orgId?: string;
     };
