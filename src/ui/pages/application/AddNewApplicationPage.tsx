@@ -1,10 +1,9 @@
-import { FlatList, Modal, StyleSheet } from 'react-native'
+import { FlatList, StyleSheet } from 'react-native'
 import React, { useState } from 'react'
 import { RCol, SafeArea } from '@/components/common';
 import RHeader from '@/components/common/RHeader';
 import { Searchbar, Snackbar } from 'react-native-paper';
 import colors from '@/config/colors';
-import { showToast } from '@/core';
 import { ItemOrganization } from '@/components/modules/application';
 
 const AddNewApplicationPage = () => {
@@ -13,9 +12,6 @@ const AddNewApplicationPage = () => {
 
     function onDismissSnackBar() {
         setVisible(!visible);
-    }
-    function handleLinkOrganization() {
-        showToast({ message: 'Application added successfully to your organization profile', type: 'success', title: 'Organization Linking', position: "top" })
     }
 
     return (
@@ -48,7 +44,7 @@ const AddNewApplicationPage = () => {
                 action={{
                     label: 'Undo',
                     onPress: () => {
-                        // Do something
+                        //Todo:add method to update.
                     },
                 }}>
                 Application added successfully to your organization profile.
