@@ -1,7 +1,7 @@
 import { FlatList } from 'react-native'
 import React from 'react'
 import { SafeArea } from '@/components/common'
-import { ApplicationTimelines, Banner, MessageWrapper } from '@/components/modules'
+import { ApplicationTimelines, Banner, MessageWrapper } from '@/components/modules/authentication'
 import { LinkedOrganizations } from '@/components/modules/application'
 
 const HomeScreen = () => {

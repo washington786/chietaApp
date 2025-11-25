@@ -1,6 +1,6 @@
 import { Text, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
-import { AuthWrapper } from '@/components/modules';
+import { AuthWrapper } from '@/components/modules/authentication';
 import { RButton, RKeyboardView, RLogo, SafeArea } from '@/components/common';
 import usePageTransition from '@/hooks/navigation/usePageTransition';
 import { Authstyles as styles } from '@/styles/AuthStyles';

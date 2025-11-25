@@ -1,7 +1,7 @@
 import { Text, View } from 'react-native'
 import React from 'react'
 import usePageTransition from '@/hooks/navigation/usePageTransition';
-import { AuthWrapper } from '@/components/modules';
+import { AuthWrapper } from '@/components/modules/authentication';
 import { RButton, RInput, RKeyboardView, RLogo, SafeArea } from '@/components/common';
 import { Button } from 'react-native-paper';
 import { Authstyles as styles } from '@/styles/AuthStyles';
