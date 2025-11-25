@@ -4,8 +4,10 @@ import { SafeArea } from '@/components/common'
 import RHeader from '@/components/common/RHeader'
 import { ApplicationItem, InformationBanner } from '@/components/modules/application'
 import { FAB } from 'react-native-paper'
+import usePageTransition from '@/hooks/navigation/usePageTransition'
 
 const MandatoryPage = () => {
+    const { newApplication } = usePageTransition();
     return (
         <SafeArea>
             <RHeader name='Mandatory Grant Applications' />
@@ -26,7 +28,7 @@ const MandatoryPage = () => {
                 mode='flat'
                 icon="plus"
                 style={styles.fab}
-                onPress={() => console.log('Pressed')}
+                onPress={newApplication}
             />
         </SafeArea>
     )
