@@ -9,5 +9,8 @@ import DgApplicationItem from "./grants/DgApplicationItem";
 import ApplicationItem from "./grants/ApplicationItem";
 import InformationBanner from "./grants/InformationBanner";
 import AddDgApplicationItem from "./grants/AddDgApplicationItem";
+import { Expandable } from "./grants/Expandable";
+import { TextWrap } from "./grants/TextRow";
 
-export { RTabBarIcon, RCustomTabBarButton, MessageWrapper, LinkedOrganizations, ItemNotification, ItemOrganization, BottomSheetWrapper, InformationBanner, ApplicationItem, DgApplicationItem, AddDgApplicationItem }
+
+export { RTabBarIcon, RCustomTabBarButton, MessageWrapper, LinkedOrganizations, ItemNotification, ItemOrganization, BottomSheetWrapper, InformationBanner, ApplicationItem, DgApplicationItem, AddDgApplicationItem, Expandable, TextWrap }
