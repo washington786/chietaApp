@@ -13,6 +13,7 @@ const DgApplicationItem = () => {
                 <Text>DG2026-2027 Cycle 1</Text>
             </RRow>
             <RDivider />
+
             <RRow style={styles.wrap}>
                 <Text variant='labelSmall' style={[styles.text]}>SDL No</Text>
                 <Text variant='titleMedium' style={[styles.text, styles.appTitle]}>N030000122</Text>
