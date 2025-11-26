@@ -2,48 +2,47 @@ import React, { FC } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import colors from '@/config/colors';
-import { useFormikContext } from 'formik';
 
 interface Option {
     label: string;
     value: string | number;
 }
+
 interface RPickerProps {
-    name: string;
+    value: string | number;
+    onValueChange: (value: string | number) => void;
     options: Option[];
     placeholder?: string;
     disabled?: boolean;
+    error?: boolean;
 }
 
-const RPicker: FC<RPickerProps> = ({
-    name,
+const RRPicker: FC<RPickerProps> = ({
+    value,
+    onValueChange,
     options,
     placeholder = 'Select an option',
     disabled = false,
+    error = false,
 }) => {
-    const { setFieldValue, values, errors, touched } = useFormikContext<any>();
-    const value = values[name];
-
     return (
         <View
             style={[
                 styles.container,
                 disabled && styles.disabled,
-                touched[name] && errors[name] && styles.errorBorder,
+                error && styles.errorBorder,
             ]}
         >
             <Picker
                 enabled={!disabled}
                 selectedValue={value}
-                onValueChange={(itemValue) => {
-                    setFieldValue(name, itemValue);
-                }}
+                onValueChange={onValueChange}
                 dropdownIconColor={colors.gray[500]}
+                style={styles.picker}
             >
                 {placeholder && (
                     <Picker.Item label={placeholder} value="" enabled={false} />
                 )}
-
                 {options.map((option) => (
                     <Picker.Item
                         label={option.label}
@@ -56,7 +55,7 @@ const RPicker: FC<RPickerProps> = ({
     );
 };
 
-export default RPicker;
+export default RRPicker;
 
 const styles = StyleSheet.create({
     container: {
@@ -65,6 +64,10 @@ const styles = StyleSheet.create({
         borderColor: colors.gray[300],
         borderRadius: 5,
         justifyContent: 'center',
+    },
+    picker: {
+        height: '100%',
+        width: '100%',
     },
     disabled: {
         backgroundColor: colors.gray[100],

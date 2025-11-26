@@ -147,8 +147,23 @@ const purple = {
     '900': '#57049a',
     '950': '#3c0076',
 }
+
+const bossanova = {
+    '50': '#faf6fd',
+    '100': '#f4ecfb',
+    '200': '#e8d9f5',
+    '300': '#d7baed',
+    '400': '#c191e1',
+    '500': '#a465d0',
+    '600': '#8946b3',
+    '700': '#723794',
+    '800': '#5e2f79',
+    '900': '#442454',
+    '950': '#311240',
+};
+
 export const colors = {
-    primary: purple,
+    primary: bossanova,
     secondary: putty,
     yellow: yellow,
     green: green,

@@ -29,6 +29,7 @@ const styles = StyleSheet.create({
     txt: {
         fontSize: 10,
         color: colors.gray[700],
-        marginHorizontal: 1
+        marginHorizontal: 1,
+        width: "96%"
     }
 })

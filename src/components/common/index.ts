@@ -13,6 +13,7 @@ import RNotification from "./RNotification";
 import RPickerContainer from "./RPickerContainer";
 import RRNButton from "./RRNButton";
 import RRow from "./RRow";
+import RRPicker from "./RRPicker";
 import RServerError from "./RServerError";
 import RSplash from "./RSplash";
 import RSwitch from "./RSwitch";
@@ -47,5 +48,5 @@ export {
   RWrapperInput as RChildWrapper,
   RPickerContainer,
   RRNButton,
-  RDialog
+  RDialog, RRPicker
 };
