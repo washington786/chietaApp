@@ -4,9 +4,37 @@ import colors from '@/config/colors'
 import { Text } from 'react-native-paper'
 import { Expandable } from '@/components/modules/application'
 import { RUpload } from '@/components/common'
+import { BarChart } from 'react-native-gifted-charts'
+import { ApplicationRecord, dgData as data } from '@/core/types/dt'
 
 const DgApplicationDetails = () => {
     const [expandDocs, setDocs] = useState(false);
+    const [expandProv, setProv] = useState(false);
+    const [expandStatus, setStatus] = useState(false);
+    const getCountByProvince = (data: ApplicationRecord[]) => {
+        const counts: Record<string, number> = {};
+        data.forEach(item => {
+            counts[item.Province] = (counts[item.Province] || 0) + 1;
+        });
+
+        return Object.entries(counts).map(([label, value]) => ({ label, value }));
+    };
+
+    const getCountByStatus = (data: ApplicationRecord[]) => {
+        const counts: Record<string, number> = {};
+        data.forEach(item => {
+            if (item.ApprovalStatus != null) {
+                const status = String(item.ApprovalStatus);
+                counts[status] = (counts[status] || 0) + 1;
+            }
+        });
+
+        return Object.entries(counts).map(([label, value]) => ({ label, value }));
+    };
+
+    const provinceData = getCountByProvince(data);
+    const statusData = getCountByStatus(data);
+
     return (
         <FlatList data={[]}
             style={styles.con}
@@ -17,6 +45,24 @@ const DgApplicationDetails = () => {
             ListFooterComponent={() => {
                 return (
                     <>
+                        <Expandable title='Province stats' isExpanded={expandProv} onPress={() => setProv(!expandProv)}>
+                            <BarChart data={provinceData}
+                                barWidth={20}
+                                spacing={12}
+                                yAxisThickness={0}
+                                xAxisThickness={0}
+                                initialSpacing={10}
+                                maxValue={Math.max(...provinceData.map(d => d.value)) + 1} />
+                        </Expandable>
+                        <Expandable title='Status stats' isExpanded={expandStatus} onPress={() => setStatus(!expandStatus)}>
+                            <BarChart data={statusData}
+                                barWidth={20}
+                                spacing={12}
+                                yAxisThickness={0}
+                                xAxisThickness={0}
+                                initialSpacing={10}
+                                maxValue={Math.max(...statusData.map(d => d.value)) + 1} />
+                        </Expandable>
                         <Text variant='titleMedium' style={styles.title}>All uploaded Mandotory Files</Text>
 
                         <Expandable title='Supporting documents' isExpanded={expandDocs} onPress={() => setDocs(!expandDocs)}>
