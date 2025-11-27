@@ -19,10 +19,15 @@ const DgApplicationDetails = () => {
                     <>
                         <Text variant='titleMedium' style={styles.title}>All uploaded Mandotory Files</Text>
 
-                        <Expandable title='Banking, training report, & verification' isExpanded={expandDocs} onPress={() => setDocs(!expandDocs)}>
-                            <RUpload title='Proof of Banking details' onPress={() => { }} />
-                            <RUpload title='Annual training report' onPress={() => { }} />
-                            <RUpload title='verification document' onPress={() => { }} />
+                        <Expandable title='Supporting documents' isExpanded={expandDocs} onPress={() => setDocs(!expandDocs)}>
+                            <RUpload title='Tax Compliance' onPress={() => { }} />
+                            <RUpload title='Company Registration' onPress={() => { }} />
+                            <RUpload title='BBBEE Certificate/Affidavit' onPress={() => { }} />
+                            <RUpload title='proof of accredetation' onPress={() => { }} />
+                            <RUpload title='Letter of commitment' onPress={() => { }} />
+                            <RUpload title='learner schedule' onPress={() => { }} />
+                            <RUpload title='organization declaration of interest' onPress={() => { }} />
+                            <RUpload title='Proof of banking details' onPress={() => { }} />
                         </Expandable>
                     </>
                 )
