@@ -39,8 +39,8 @@ const LinkedOrganizations = () => {
             <RRow style={{ alignItems: 'center', gap: 6, marginBottom: 12, justifyContent: 'space-between' }}>
                 <Text variant='titleSmall'>my linked organizations</Text>
                 <TouchableOpacity style={styles.btn} onPress={newOrg}>
-                    <Feather name="link-2" size={16} color="black" style={{ marginLeft: 6 }} />
-                    <Text variant='titleSmall'>add new</Text>
+                    <Feather name="link-2" size={16} color="white" style={{ marginLeft: 6 }} />
+                    <Text variant='titleSmall' style={{ color: "white" }}>add new</Text>
                 </TouchableOpacity>
             </RRow>
             <RCol>
@@ -91,13 +91,13 @@ export default LinkedOrganizations
 
 const styles = StyleSheet.create({
     btn: {
-        backgroundColor: colors.blue[100],
+        backgroundColor: colors.primary[900],
         paddingHorizontal: 12,
         paddingVertical: 6,
         borderRadius: 20,
         alignItems: "center",
         flexDirection: "row",
-        gap: 3
+        gap: 3,
     },
     text: {
         flex: 1,

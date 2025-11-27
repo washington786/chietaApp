@@ -25,8 +25,11 @@ const styles = StyleSheet.create({
         gap: 2,
         borderRadius: 6,
         overflow: 'hidden',
+        // borderColor: colors.yellow[700],
+        // borderWidth: 1
     },
     txt: {
+        width: "95%",
         paddingHorizontal: 2
     }
 })

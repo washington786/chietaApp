@@ -17,12 +17,11 @@ const Banner = () => {
     return (
         <RRow style={{ alignItems: 'center', justifyContent: 'space-between', paddingVertical: 12 }}>
             <RCol style={{ flex: 1 }}>
-                <Text variant='headlineLarge' style={styles.text}>Good {currentDayTime}</Text>
-                <Text variant='bodyMedium' style={styles.text}>daniel mawasha</Text>
+                <Text variant='headlineLarge' style={[styles.text, styles.txtClr]}>Good {currentDayTime}</Text>
+                <Text variant='bodyMedium' style={[styles.text, styles.txtClr]}>daniel mawasha</Text>
             </RCol>
-            {/* TODO:ADD NOTIFICATION INDICATOR */}
             <RRow style={styles.not}>
-                <AntDesign name="notifications-outline" size={30} color="black" onPress={notifications} />
+                <AntDesign name="notifications-outline" size={30} color="white" onPress={notifications} />
                 <Badge style={styles.badge}>0</Badge>
             </RRow>
         </RRow>
@@ -35,8 +34,11 @@ const styles = StyleSheet.create({
     text: {
         textTransform: "capitalize",
     },
+    txtClr: {
+        color: colors.primary[900]
+    },
     not: {
-        alignSelf: 'center', backgroundColor: colors.violet[100], borderRadius: 100, padding: 10,
+        alignSelf: 'center', backgroundColor: colors.primary[900], borderRadius: 100, padding: 10,
         height: 50,
         width: 50,
         minHeight: 50,
