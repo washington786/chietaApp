@@ -1,39 +1,43 @@
-import { StyleSheet } from 'react-native'
+import { StyleSheet, TouchableOpacity } from 'react-native'
 import React from 'react'
 import { RCol, RDivider, RRow } from '@/components/common'
 import { Text } from 'react-native-paper'
 import colors from '@/config/colors'
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import usePageTransition from '@/hooks/navigation/usePageTransition'
 
 const DgApplicationItem = () => {
+    const { applicationDetails } = usePageTransition();
     return (
-        <RCol style={styles.con}>
-            <RRow style={styles.title}>
-                <MaterialCommunityIcons name="application-outline" size={18} color="black" />
-                <Text>DG2026-2027 Cycle 1</Text>
-            </RRow>
-            <RDivider />
-            <RRow style={styles.wrap}>
-                <Text variant='labelSmall' style={[styles.text]}>SDL No</Text>
-                <Text variant='titleMedium' style={[styles.text, styles.appTitle]}>N030000122</Text>
-            </RRow>
-            <RRow style={styles.wrap}>
-                <Text variant='labelSmall' style={[styles.text]}>Focus Area</Text>
-                <Text variant='titleMedium' style={[styles.text, styles.appTitle]}>Work Integrated Learning</Text>
-            </RRow>
-            <RRow style={styles.wrap}>
-                <Text variant='labelSmall' style={[styles.text]}>Type</Text>
-                <Text variant='titleMedium' style={[styles.text, styles.appTitle]}>Learning Projects</Text>
-            </RRow>
-            <RRow style={styles.wrap}>
-                <Text variant='labelSmall' style={[styles.text]}>Status</Text>
-                <Text variant='titleMedium' style={[styles.text, styles.appTitle, styles.statusTxt]}>Registered</Text>
-            </RRow>
-            <RRow style={styles.wrap}>
-                <Text variant='labelSmall' style={[styles.text]}>Closing Date</Text>
-                <Text variant='titleMedium' style={[styles.text, styles.appTitle]}>04/30/2024 11:59PM</Text>
-            </RRow>
-        </RCol>
+        <TouchableOpacity onPress={() => applicationDetails({ type: "dg-app", appId: "1", orgId: "1" })}>
+            <RCol style={styles.con}>
+                <RRow style={styles.title}>
+                    <MaterialCommunityIcons name="application-outline" size={18} color="black" />
+                    <Text>DG2026-2027 Cycle 1</Text>
+                </RRow>
+                <RDivider />
+                <RRow style={styles.wrap}>
+                    <Text variant='labelSmall' style={[styles.text]}>SDL No</Text>
+                    <Text variant='titleMedium' style={[styles.text, styles.appTitle]}>N030000122</Text>
+                </RRow>
+                <RRow style={styles.wrap}>
+                    <Text variant='labelSmall' style={[styles.text]}>Focus Area</Text>
+                    <Text variant='titleMedium' style={[styles.text, styles.appTitle]}>Work Integrated Learning</Text>
+                </RRow>
+                <RRow style={styles.wrap}>
+                    <Text variant='labelSmall' style={[styles.text]}>Type</Text>
+                    <Text variant='titleMedium' style={[styles.text, styles.appTitle]}>Learning Projects</Text>
+                </RRow>
+                <RRow style={styles.wrap}>
+                    <Text variant='labelSmall' style={[styles.text]}>Status</Text>
+                    <Text variant='titleMedium' style={[styles.text, styles.appTitle, styles.statusTxt]}>Registered</Text>
+                </RRow>
+                <RRow style={styles.wrap}>
+                    <Text variant='labelSmall' style={[styles.text]}>Closing Date</Text>
+                    <Text variant='titleMedium' style={[styles.text, styles.appTitle]}>04/30/2024 11:59PM</Text>
+                </RRow>
+            </RCol>
+        </TouchableOpacity>
     )
 }
 

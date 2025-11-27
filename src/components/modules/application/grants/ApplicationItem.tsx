@@ -9,7 +9,7 @@ import usePageTransition from '@/hooks/navigation/usePageTransition';
 const ApplicationItem = () => {
     const { applicationDetails } = usePageTransition();
     return (
-        <TouchableOpacity onPress={() => applicationDetails({ appId: "1", orgId: "1" })}>
+        <TouchableOpacity onPress={() => applicationDetails({ appId: "1", orgId: "1", type: "mg-app" })}>
             <RCol style={styles.con}>
                 <RRow style={styles.title}>
                     <MaterialCommunityIcons name="application-outline" size={18} color="black" />

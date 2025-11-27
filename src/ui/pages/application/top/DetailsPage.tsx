@@ -1,8 +1,7 @@
-import { FlatList, StyleSheet } from 'react-native'
+import { FlatList } from 'react-native'
 import React, { useState } from 'react'
 import { RDivider } from '@/components/common'
 import { Text } from 'react-native-paper'
-import colors from '@/config/colors';
 import { Expandable, TextWrap } from '@/components/modules/application';
 
 const DetailsPage = () => {
@@ -89,23 +88,3 @@ const DetailsPage = () => {
 }
 
 export default DetailsPage
-
-const styles = StyleSheet.create({
-    text: {
-        textTransform: "capitalize"
-    },
-    wrap: {
-        alignItems: "center",
-        justifyContent: "space-between"
-    },
-    appTitle: {
-        fontSize: 10
-    },
-    lbl: {
-        color: colors.gray[400],
-        textTransform: "capitalize"
-    },
-    capText: {
-        textTransform: "capitalize"
-    }
-})
