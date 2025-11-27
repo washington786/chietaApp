@@ -14,6 +14,7 @@ export type navigationTypes = {
     applicationDetails: {
         orgId?: string;
         appId?: string;
+        type?: string;
     };
     orgDetail: {
         orgId?: string;

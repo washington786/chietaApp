@@ -41,10 +41,11 @@ const usePageTransition = () => {
     function newDgApplication() {
         navigation.navigate("newDgApplication");
     }
-    function applicationDetails({ orgId, appId }: { orgId: string, appId: string }) {
+    function applicationDetails({ orgId, appId, type }: { orgId: string, appId: string, type: string }) {
         navigation.navigate("applicationDetails", {
             orgId: orgId,
-            appId: appId
+            appId: appId,
+            type: type
         });
     }
     function mandatoryGrants({ orgId }: { orgId: string }) {
