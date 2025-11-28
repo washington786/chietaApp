@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native'
+import { StyleSheet, TouchableOpacity } from 'react-native'
 import React from 'react'
 import { RCol, RDivider, RRow, SafeArea, Scroller } from '@/components/common'
 import { Text } from 'react-native-paper'
@@ -14,7 +14,7 @@ const AccountScreen = () => {
 
             <Scroller style={{ marginTop: 20, paddingHorizontal: 12 }}>
                 <RCol style={{ borderRadius: 10, backgroundColor: colors.primary[50] }}>
-                    <Text variant='titleSmall'>Profile Section</Text>
+                    <Text variant='titleSmall' style={{ paddingVertical: 5 }}>Profile Section</Text>
                     <RDivider />
                     <AccWrapper icon='person-sharp' title='Account settings' />
                     <AccWrapper icon='lock-closed-sharp' title='Privacy' />
@@ -39,13 +39,15 @@ interface props {
 
 function AccWrapper({ icon, title }: props) {
     return (
-        <RRow style={styles.wrap}>
-            <RRow style={styles.rw}>
-                <Ionicons name={icon} size={24} color="black" />
-                <Text variant='titleMedium' style={{ textTransform: "capitalize" }}>{title}</Text>
+        <TouchableOpacity>
+            <RRow style={styles.wrap}>
+                <RRow style={styles.rw}>
+                    <Ionicons name={icon} size={24} color="black" />
+                    <Text variant='titleMedium' style={{ textTransform: "capitalize" }}>{title}</Text>
+                </RRow>
+                <Ionicons name="chevron-forward" size={24} color="black" />
             </RRow>
-            <Ionicons name="chevron-forward" size={24} color="black" />
-        </RRow>
+        </TouchableOpacity>
     )
 }
 
