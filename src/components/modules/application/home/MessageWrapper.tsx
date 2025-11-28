@@ -17,7 +17,7 @@ export default MessageWrapper
 
 const styles = StyleSheet.create({
     con: {
-        backgroundColor: colors.violet[50],
+        backgroundColor: colors.primary[50],
         paddingHorizontal: 4,
         paddingVertical: 10,
         alignItems: 'center',
@@ -25,8 +25,8 @@ const styles = StyleSheet.create({
         gap: 2,
         borderRadius: 6,
         overflow: 'hidden',
-        // borderColor: colors.yellow[700],
-        // borderWidth: 1
+        borderColor: colors.yellow[700],
+        borderWidth: 0.3
     },
     txt: {
         width: "95%",

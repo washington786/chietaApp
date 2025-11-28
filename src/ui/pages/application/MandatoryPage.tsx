@@ -5,6 +5,7 @@ import RHeader from '@/components/common/RHeader'
 import { ApplicationItem, InformationBanner } from '@/components/modules/application'
 import { FAB } from 'react-native-paper'
 import usePageTransition from '@/hooks/navigation/usePageTransition'
+import colors from '@/config/colors'
 
 const MandatoryPage = () => {
     const { newApplication } = usePageTransition();
@@ -29,6 +30,7 @@ const MandatoryPage = () => {
                 icon="plus"
                 style={styles.fab}
                 onPress={newApplication}
+                color='white'
             />
         </SafeArea>
     )
@@ -42,6 +44,7 @@ const styles = StyleSheet.create({
         margin: 16,
         right: 0,
         bottom: 0,
-        borderRadius: 100
+        borderRadius: 100,
+        backgroundColor: colors.primary[900]
     },
 })
