@@ -20,7 +20,7 @@ const RDialog: FC<RDialogProps> = ({ hideDialog, visible, onContinue, message, t
                 </Dialog.Content>
                 <Dialog.Actions>
                     <Button textColor='red' mode='text' onPress={hideDialog}>cancel</Button>
-                    <Button mode='contained-tonal' textColor={colors.green[950]} onPress={onContinue}>continue</Button>
+                    <Button mode='contained-tonal' textColor={"white"} onPress={onContinue} style={styles.btn}>continue</Button>
                 </Dialog.Actions>
             </Dialog>
         </Portal>
@@ -29,4 +29,9 @@ const RDialog: FC<RDialogProps> = ({ hideDialog, visible, onContinue, message, t
 
 export default RDialog
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({
+    btn: {
+        borderRadius: 5,
+        backgroundColor: colors.primary[900]
+    }
+})

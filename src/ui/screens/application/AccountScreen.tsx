@@ -1,13 +1,35 @@
-import { StyleSheet, TouchableOpacity } from 'react-native'
-import React from 'react'
-import { RCol, RDivider, RRow, SafeArea, Scroller } from '@/components/common'
+import { StyleSheet } from 'react-native'
+import React, { useState } from 'react'
+import { RCol, RDialog, RDivider, SafeArea, Scroller } from '@/components/common'
 import { Text } from 'react-native-paper'
 import colors from '@/config/colors'
-import Ionicons from '@expo/vector-icons/Ionicons';
 import usePageTransition from '@/hooks/navigation/usePageTransition'
+import { showToast } from '@/core'
+import { useGlobalBottomSheet } from '@/hooks/navigation/BottomSheet'
+import { AccWrapper, DeactivateAccount } from '@/components/modules/application'
 
 const AccountScreen = () => {
     const { account, privacy, support } = usePageTransition();
+    const [visible, setVisible] = useState(false);
+    const { open, close } = useGlobalBottomSheet();
+    function handleDialog() {
+        setVisible(!visible);
+    };
+
+    function handleContinue() {
+        setVisible(false);
+        showToast({ message: "Successfully logout of your account.", type: "success", title: "Sign out", position: "top" })
+    }
+
+    function handleCloseSheet() {
+        close();
+        showToast({ message: "Successfully deactivated your account from CHIETA", type: "success", title: "Deactivated", position: "top" })
+    }
+
+    function handleBsheet() {
+        open(<DeactivateAccount onPress={handleCloseSheet} />, { "snapPoints": ["60%"] });
+    }
+
     return (
         <SafeArea>
             <RCol style={styles.conWrap}>
@@ -25,32 +47,16 @@ const AccountScreen = () => {
                 <RCol style={{ marginVertical: 10 }}>
                     <Text variant='titleSmall'>Application Section</Text>
                     <RDivider />
-                    <AccWrapper icon='exit-outline' title='sign out' />
-                    <AccWrapper icon='remove-circle-sharp' title='deactivate account' />
+                    <AccWrapper icon='exit-outline' title='sign out' onPress={handleDialog} />
+                    <AccWrapper icon='remove-circle-sharp' title='deactivate account' onPress={handleBsheet} />
                 </RCol>
             </Scroller>
 
+            {
+                visible && <RDialog hideDialog={handleDialog} visible={visible} message='are you sure you want to sign-out of account?' title='Sign out' onContinue={handleContinue} />
+            }
+
         </SafeArea>
-    )
-}
-
-interface props {
-    title?: string;
-    icon: 'person-sharp' | 'help-circle-sharp' | 'lock-closed-sharp' | 'exit-outline' | 'remove-circle-sharp';
-    onPress?: () => void;
-}
-
-function AccWrapper({ icon, title, onPress }: props) {
-    return (
-        <TouchableOpacity onPress={onPress}>
-            <RRow style={styles.wrap}>
-                <RRow style={styles.rw}>
-                    <Ionicons name={icon} size={24} color="black" />
-                    <Text variant='titleMedium' style={{ textTransform: "capitalize" }}>{title}</Text>
-                </RRow>
-                <Ionicons name="chevron-forward" size={24} color="black" />
-            </RRow>
-        </TouchableOpacity>
     )
 }
 
@@ -67,7 +73,7 @@ const styles = StyleSheet.create({
         color: colors.primary[900]
     },
 
-    //
+    //item
     wrap: {
         alignItems: "center",
         justifyContent: "space-between",
@@ -79,5 +85,15 @@ const styles = StyleSheet.create({
         gap: 5,
         flex: 1,
         paddingVertical: 2
+    },
+    //btn sheet
+    btn: {
+        borderRadius: 5,
+        backgroundColor: colors.red[800],
+        marginVertical: 12,
+        padding: 4
+    },
+    wrapperSheet: {
+        gap: 5
     }
 })
