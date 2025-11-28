@@ -4,8 +4,10 @@ import { RCol, RDivider, RRow, SafeArea, Scroller } from '@/components/common'
 import { Text } from 'react-native-paper'
 import colors from '@/config/colors'
 import Ionicons from '@expo/vector-icons/Ionicons';
+import usePageTransition from '@/hooks/navigation/usePageTransition'
 
 const AccountScreen = () => {
+    const { account, privacy, support } = usePageTransition();
     return (
         <SafeArea>
             <RCol style={styles.conWrap}>
@@ -16,9 +18,9 @@ const AccountScreen = () => {
                 <RCol style={{ borderRadius: 10, backgroundColor: colors.primary[50] }}>
                     <Text variant='titleSmall' style={{ paddingVertical: 5 }}>Profile Section</Text>
                     <RDivider />
-                    <AccWrapper icon='person-sharp' title='Account settings' />
-                    <AccWrapper icon='lock-closed-sharp' title='Privacy' />
-                    <AccWrapper icon='help-circle-sharp' title='Support' />
+                    <AccWrapper icon='person-sharp' title='Account settings' onPress={account} />
+                    <AccWrapper icon='lock-closed-sharp' title='Privacy' onPress={privacy} />
+                    <AccWrapper icon='help-circle-sharp' title='Support' onPress={support} />
                 </RCol>
                 <RCol style={{ marginVertical: 10 }}>
                     <Text variant='titleSmall'>Application Section</Text>
@@ -34,12 +36,13 @@ const AccountScreen = () => {
 
 interface props {
     title?: string;
-    icon: 'person-sharp' | 'help-circle-sharp' | 'lock-closed-sharp' | 'exit-outline' | 'remove-circle-sharp'
+    icon: 'person-sharp' | 'help-circle-sharp' | 'lock-closed-sharp' | 'exit-outline' | 'remove-circle-sharp';
+    onPress?: () => void;
 }
 
-function AccWrapper({ icon, title }: props) {
+function AccWrapper({ icon, title, onPress }: props) {
     return (
-        <TouchableOpacity>
+        <TouchableOpacity onPress={onPress}>
             <RRow style={styles.wrap}>
                 <RRow style={styles.rw}>
                     <Ionicons name={icon} size={24} color="black" />
