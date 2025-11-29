@@ -7,6 +7,7 @@ import usePageTransition from '@/hooks/navigation/usePageTransition'
 import { showToast } from '@/core'
 import { useGlobalBottomSheet } from '@/hooks/navigation/BottomSheet'
 import { AccWrapper, DeactivateAccount } from '@/components/modules/application'
+import Animated, { FadeInDown } from 'react-native-reanimated'
 
 const AccountScreen = () => {
     const { account, privacy, support } = usePageTransition();
@@ -32,29 +33,34 @@ const AccountScreen = () => {
 
     return (
         <SafeArea>
-            <RCol style={styles.conWrap}>
-                <Text variant='titleLarge' style={styles.textColor}>Account Management</Text>
-            </RCol>
+            <Animated.View entering={FadeInDown.duration(600).springify()}>
+                <RCol style={styles.conWrap}>
+                    <Text variant='titleLarge' style={styles.textColor}>Account Management</Text>
+                </RCol>
+            </Animated.View>
 
             <Scroller style={{ marginTop: 20, paddingHorizontal: 12 }}>
-                <RCol style={{ borderRadius: 10, backgroundColor: colors.primary[50] }}>
-                    <Text variant='titleSmall' style={{ paddingVertical: 5 }}>Profile Section</Text>
-                    <RDivider />
-                    <AccWrapper icon='person-sharp' title='Account settings' onPress={account} />
-                    <AccWrapper icon='lock-closed-sharp' title='Privacy' onPress={privacy} />
-                    <AccWrapper icon='help-circle-sharp' title='Support' onPress={support} />
-                </RCol>
-                <RCol style={{ marginVertical: 10 }}>
-                    <Text variant='titleSmall'>Application Section</Text>
-                    <RDivider />
-                    <AccWrapper icon='exit-outline' title='sign out' onPress={handleDialog} />
-                    <AccWrapper icon='remove-circle-sharp' title='deactivate account' onPress={handleBsheet} />
-                </RCol>
+                <Animated.View entering={FadeInDown.delay(100).duration(600).springify()}>
+                    <RCol style={{ borderRadius: 10, backgroundColor: colors.primary[50] }}>
+                        <Text variant='titleSmall' style={{ paddingVertical: 5 }}>Profile Section</Text>
+                        <RDivider />
+                        <AccWrapper icon='person-sharp' title='Account settings' onPress={account} />
+                        <AccWrapper icon='lock-closed-sharp' title='Privacy' onPress={privacy} />
+                        <AccWrapper icon='help-circle-sharp' title='Support' onPress={support} />
+                    </RCol>
+                </Animated.View>
+                <Animated.View entering={FadeInDown.delay(200).duration(600).springify()}>
+                    <RCol style={{ marginVertical: 10 }}>
+                        <Text variant='titleSmall'>Application Section</Text>
+                        <RDivider />
+                        <AccWrapper icon='exit-outline' title='sign out' onPress={handleDialog} />
+                        <AccWrapper icon='remove-circle-sharp' title='deactivate account' onPress={handleBsheet} />
+                    </RCol>
+                </Animated.View>
             </Scroller>
 
-            {
-                visible && <RDialog hideDialog={handleDialog} visible={visible} message='are you sure you want to sign-out of account?' title='Sign out' onContinue={handleContinue} />
-            }
+            <RDialog hideDialog={handleDialog} visible={visible} message='are you sure you want to sign-out of account?' title='Sign out' onContinue={handleContinue} />
+
 
         </SafeArea>
     )
