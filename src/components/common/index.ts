@@ -2,6 +2,7 @@ import RButton from "./RButton";
 import RCol from "./RCol";
 import RDialog from "./RDialog";
 import RDivider from "./RDivider";
+import REmpty from "./REmpty";
 import RErrorMessage from "./RErrorMessage";
 import RImageCon from "./RImageCon";
 import RInput from "./RInput";
@@ -48,5 +49,5 @@ export {
   RWrapperInput as RChildWrapper,
   RPickerContainer,
   RRNButton,
-  RDialog, RRPicker
+  RDialog, RRPicker, REmpty
 };
