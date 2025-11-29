@@ -9,7 +9,7 @@ const RCustomTabBarButton = (props: any) => {
             android_ripple={{ color: colors.primary[50], borderless: true }}
             style={({ pressed }) => [
                 props.style,
-                pressed && { opacity: 0.7 },
+                pressed && { opacity: 0.1 },
             ]}
         />
     );

@@ -29,7 +29,7 @@ const ApplicationTimelines: FC<props> = ({ isClosed = true }) => {
                         </RRow>
                     </RCol>
 
-                    <View style={{ position: "absolute", bottom: 0, right: 0, backgroundColor: colors.red[100], padding: 6, width: "50%", alignItems: "center", borderTopLeftRadius: 100 }}>
+                    <View style={{ position: "absolute", bottom: 0, right: 0, backgroundColor: colors.red[400], padding: 6, width: "50%", alignItems: "center", borderTopLeftRadius: 100 }}>
                         <Text variant='titleSmall' style={styles.conText}>closed</Text>
                     </View>
                 </RCol>
@@ -59,11 +59,15 @@ export default ApplicationTimelines
 
 const styles = StyleSheet.create({
     title: {
-        fontSize: 14
+        fontSize: 14,
+        color: "white"
     },
     col: {
         marginVertical: 10,
-        paddingVertical: 4
+        paddingVertical: 4,
+        backgroundColor: colors.primary[950],
+        paddingHorizontal: 5,
+        borderRadius: 10
     },
     txt: {
         textTransform: "capitalize"
@@ -73,9 +77,10 @@ const styles = StyleSheet.create({
         padding: 6,
         position: "relative",
         borderWidth: 1,
-        borderColor: colors.slate[200]
+        borderColor: colors.slate[200],
+        overflow: "hidden"
     },
     conText: {
-        color: colors.slate[600]
+        color: colors.slate[700],
     }
 })

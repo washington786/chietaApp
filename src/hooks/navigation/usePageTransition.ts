@@ -41,6 +41,15 @@ const usePageTransition = () => {
     function newDgApplication() {
         navigation.navigate("newDgApplication");
     }
+    function account() {
+        navigation.navigate("account");
+    }
+    function privacy() {
+        navigation.navigate("privacy");
+    }
+    function support() {
+        navigation.navigate("support");
+    }
     function applicationDetails({ orgId, appId, type }: { orgId: string, appId: string, type: string }) {
         navigation.navigate("applicationDetails", {
             orgId: orgId,
@@ -51,11 +60,14 @@ const usePageTransition = () => {
     function mandatoryGrants({ orgId }: { orgId: string }) {
         navigation.navigate("mandatory", { orgId: orgId });
     }
+    function historyItemDetails({ appId }: { appId: string }) {
+        navigation.navigate("historyDetails", { appId: appId });
+    }
     function discretionaryGrants({ orgId }: { orgId: string }) {
         navigation.navigate("discretionary", { orgId: orgId });
     }
 
-    return { onBack, login, register, otp, resetPassword, getStarted, onAuth, notifications, newOrg, mandatoryGrants, discretionaryGrants, newApplication, newDgApplication, applicationDetails };
+    return { onBack, login, register, otp, resetPassword, getStarted, onAuth, notifications, newOrg, mandatoryGrants, discretionaryGrants, newApplication, newDgApplication, applicationDetails, account, privacy, support, historyItemDetails };
 }
 
 export default usePageTransition
