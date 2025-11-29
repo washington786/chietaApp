@@ -13,5 +13,8 @@ import { Expandable } from "./grants/Expandable";
 import { TextWrap } from "./grants/TextRow";
 import { AccWrapper } from "./account/AccWrapper";
 import { DeactivateAccount } from "./account/DeactivateAccount";
+import { AppTrackingItem } from "./history/AppTrackingItem";
+import ProgressTracker from "./history/ProgressTracker";
 
-export { RTabBarIcon, RCustomTabBarButton, MessageWrapper, LinkedOrganizations, ItemNotification, ItemOrganization, BottomSheetWrapper, InformationBanner, ApplicationItem, DgApplicationItem, AddDgApplicationItem, Expandable, TextWrap, AccWrapper, DeactivateAccount }
+
+export { RTabBarIcon, RCustomTabBarButton, MessageWrapper, LinkedOrganizations, ItemNotification, ItemOrganization, BottomSheetWrapper, InformationBanner, ApplicationItem, DgApplicationItem, AddDgApplicationItem, Expandable, TextWrap, AccWrapper, DeactivateAccount, AppTrackingItem, ProgressTracker }

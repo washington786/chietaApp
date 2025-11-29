@@ -14,6 +14,9 @@ export type navigationTypes = {
     account: undefined;
     privacy: undefined;
     support: undefined;
+    historyDetails: {
+        appId: string;
+    };
     applicationDetails: {
         orgId?: string;
         appId?: string;

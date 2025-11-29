@@ -6,6 +6,7 @@ import AddNewApplicationPage from "./application/AddNewApplicationPage";
 import AddNewOrganization from "./application/AddNewOrganization";
 import ApplicationDetailsPage from "./application/ApplicationDetailsPage";
 import DiscretionaryPage from "./application/DiscretionaryPage";
+import ApplicationStatusDetails from "./application/history/ApplicationStatusDetails";
 import MandatoryPage from "./application/MandatoryPage";
 
 
@@ -15,5 +16,6 @@ export {
     DiscretionaryPage, MandatoryPage, AddNewApplicationPage, ApplicationDetailsPage,
     SupportPage,
     PrivacyPage,
-    AccountSettingsPage
+    AccountSettingsPage,
+    ApplicationStatusDetails
 }

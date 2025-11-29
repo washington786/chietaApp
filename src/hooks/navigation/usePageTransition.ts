@@ -60,11 +60,14 @@ const usePageTransition = () => {
     function mandatoryGrants({ orgId }: { orgId: string }) {
         navigation.navigate("mandatory", { orgId: orgId });
     }
+    function historyItemDetails({ appId }: { appId: string }) {
+        navigation.navigate("historyDetails", { appId: appId });
+    }
     function discretionaryGrants({ orgId }: { orgId: string }) {
         navigation.navigate("discretionary", { orgId: orgId });
     }
 
-    return { onBack, login, register, otp, resetPassword, getStarted, onAuth, notifications, newOrg, mandatoryGrants, discretionaryGrants, newApplication, newDgApplication, applicationDetails, account, privacy, support };
+    return { onBack, login, register, otp, resetPassword, getStarted, onAuth, notifications, newOrg, mandatoryGrants, discretionaryGrants, newApplication, newDgApplication, applicationDetails, account, privacy, support, historyItemDetails };
 }
 
 export default usePageTransition
