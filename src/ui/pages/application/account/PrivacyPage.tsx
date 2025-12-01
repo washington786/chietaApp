@@ -4,7 +4,8 @@ import RHeader from '@/components/common/RHeader'
 import { Scroller } from '@/components/common'
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import privacyPolicySections from '@/core/helpers/privacy';
-
+import { Text as RText } from 'react-native-paper'
+import colors from '@/config/colors';
 const PrivacyPage = () => {
     return (
         <>
@@ -24,8 +25,8 @@ const PrivacyPage = () => {
                             entering={FadeInDown.delay(100 + index * 80).duration(500)}
                             style={styles.section}
                         >
-                            <Text style={styles.sectionTitle}>{section.title}</Text>
-                            <Text style={styles.sectionContent}>{section.content}</Text>
+                            <RText variant='titleLarge'>{section.title}</RText>
+                            <RText variant='bodySmall' style={styles.sectionContent}>{section.content}</RText>
                         </Animated.View>
                     ))}
 
@@ -49,21 +50,13 @@ const styles = StyleSheet.create({
         marginBottom: 40,
         marginTop: 10,
     },
-    iconCircle: {
-        width: 90,
-        height: 90,
-        borderRadius: 45,
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginBottom: 20,
-    },
     mainTitle: { fontSize: 28, fontWeight: '800', textAlign: 'center' },
     updated: { fontSize: 14, marginTop: 8 },
     section: { marginBottom: 28 },
     sectionTitle: { fontSize: 19, fontWeight: '700', marginBottom: 10 },
-    sectionContent: { fontSize: 16, lineHeight: 26, opacity: 0.9 },
+    sectionContent: { fontSize: 10, lineHeight: 26, opacity: 0.9, fontWeight: "thin", color: colors.gray[600], textAlign: "justify" },
     footer: { marginTop: 30, alignItems: 'center' },
     footerText: {
-        fontSize: 16, fontStyle: 'italic'
+        fontSize: 8, color: colors.gray[600]
     }
 })

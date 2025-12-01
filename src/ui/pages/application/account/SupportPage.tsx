@@ -5,6 +5,7 @@ import { Scroller } from '@/components/common'
 import Animated, { FadeInDown } from 'react-native-reanimated'
 import { Feather, MaterialIcons } from '@expo/vector-icons';
 import { contactOptions, faqs } from '@/core/helpers/support'
+import colors from '@/config/colors'
 
 const SupportPage = () => {
 
@@ -84,35 +85,25 @@ const styles = StyleSheet.create({
     subtitle: { fontSize: 16, color: '#636e72', marginTop: 6 },
     sectionHeader: { fontSize: 20, fontWeight: '700', color: '#2d3436', marginBottom: 16 },
     contactCard: {
-        backgroundColor: '#fff',
+        backgroundColor: colors.slate[100],
         padding: 18,
         borderRadius: 16,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
         marginBottom: 12,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.08,
-        shadowRadius: 8,
-        elevation: 3,
     },
     contactLeft: { flexDirection: 'row', alignItems: 'center' },
     contactTitle: { fontSize: 17, fontWeight: '600', color: '#2d3436' },
     contactSubtitle: { fontSize: 15, color: '#636e72', marginTop: 2 },
     faqCard: {
-        backgroundColor: '#fff',
+        backgroundColor: colors.zinc[100],
         padding: 18,
         borderRadius: 16,
         marginBottom: 12,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.08,
-        shadowRadius: 8,
-        elevation: 3,
     },
     faqQuestion: { fontSize: 16, fontWeight: '700', color: '#2d3436', marginBottom: 6 },
-    faqAnswer: { fontSize: 15, color: '#555', lineHeight: 22 },
+    faqAnswer: { fontSize: 12, color: colors.slate[600], lineHeight: 22 },
     footer: { marginTop: 30, alignItems: 'center' },
-    footerText: { fontSize: 15, color: '#636e72', fontStyle: 'italic' },
+    footerText: { fontSize: 8, color: '#636e72' },
 })
