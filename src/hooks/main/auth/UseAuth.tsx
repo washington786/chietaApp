@@ -116,7 +116,35 @@ const UseAuth = () => {
         }
     }
 
-    return { login, register, resetPassword }
+    const verifyOtp = async (payload: verifyOtpRequest) => {
+        try {
+            const response = await fetch("", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Accept: "application/json",
+                },
+                body: JSON.stringify(payload)
+            })
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => { });
+                throw new Error(errorData.message || `Invalid Otp to reset password. ${response.status}`);
+            }
+
+            const data = await response.json();
+
+            return data;
+
+        } catch (error) {
+            if (error instanceof Error) {
+                console.log(`Failed to reset password: ${error.message}`);
+                throw error;
+            }
+        }
+    }
+
+    return { login, register, resetPassword, verifyOtp }
 }
 
 export default UseAuth
