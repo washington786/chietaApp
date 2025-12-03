@@ -93,7 +93,7 @@ const styles = StyleSheet.create({
     btn: {
         backgroundColor: colors.primary[900],
         paddingHorizontal: 12,
-        paddingVertical: 6,
+        paddingVertical: 10,
         borderRadius: 20,
         alignItems: "center",
         flexDirection: "row",
@@ -104,7 +104,7 @@ const styles = StyleSheet.create({
         textTransform: 'capitalize'
     },
     detbtn: {
-        backgroundColor: colors.slate[100],
+        backgroundColor: colors.zinc[100],
         paddingHorizontal: 16,
         paddingVertical: 14,
         borderRadius: 10,
