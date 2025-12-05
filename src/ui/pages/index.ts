@@ -7,8 +7,8 @@ import AddNewOrganization from "./application/AddNewOrganization";
 import ApplicationDetailsPage from "./application/ApplicationDetailsPage";
 import DiscretionaryPage from "./application/DiscretionaryPage";
 import ApplicationStatusDetails from "./application/history/ApplicationStatusDetails";
+import LinkOrgPage from "./application/LinkOrgPage";
 import MandatoryPage from "./application/MandatoryPage";
-
 
 export {
     AddNewOrganization,
@@ -17,5 +17,6 @@ export {
     SupportPage,
     PrivacyPage,
     AccountSettingsPage,
-    ApplicationStatusDetails
+    ApplicationStatusDetails,
+    LinkOrgPage
 }
