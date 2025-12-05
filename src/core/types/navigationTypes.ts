@@ -15,6 +15,7 @@ export type navigationTypes = {
     privacy: undefined;
     support: undefined;
     newPassword: undefined;
+    changePassword: undefined;
     orgLinking: {
         orgId: string;
     };

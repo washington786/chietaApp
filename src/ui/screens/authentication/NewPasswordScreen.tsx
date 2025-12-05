@@ -1,15 +1,12 @@
 import React, { useState } from 'react'
 import { AuthWrapper, SuccessWrapper } from '@/components/modules/authentication'
-import { RButton, RCol, RInput, RKeyboardView, RLogo, SafeArea } from '@/components/common'
+import { RButton, RInput, RKeyboardView, RLogo, SafeArea } from '@/components/common'
 import { Authstyles as styles } from '@/styles/AuthStyles';
 import appFonts from '@/config/fonts';
 import usePageTransition from '@/hooks/navigation/usePageTransition';
 import { Text } from 'react-native-paper';
 import { View } from 'react-native';
 
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
-import colors from '@/config/colors';
 
 const NewPasswordScreen = () => {
     const { login } = usePageTransition();

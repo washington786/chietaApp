@@ -3,7 +3,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { ForgotPasswordScreen, LoginScreen, NewPasswordScreen, NotificationsPage, OtpScreen, RegisterScreen } from '@/ui/screens';
 import { navigationTypes } from '@/core/types/navigationTypes';
 import BottomTabNavigation from './BottomNavigation';
-import { AccountSettingsPage, AddNewApplicationPage, AddNewOrganization, ApplicationDetailsPage, ApplicationStatusDetails, DiscretionaryPage, LinkOrgPage, MandatoryPage, PrivacyPage, SupportPage } from '@/ui/pages';
+import { AccountSettingsPage, AddNewApplicationPage, AddNewOrganization, ApplicationDetailsPage, ApplicationStatusDetails, ChangePassword, DiscretionaryPage, LinkOrgPage, MandatoryPage, PrivacyPage, SupportPage } from '@/ui/pages';
 import AddNewDgApplicationPage from '@/ui/pages/application/AddNewDgApplicationPage';
 
 const Stack = createNativeStackNavigator<navigationTypes>();
@@ -21,6 +21,7 @@ const RootStack = () => {
             <Stack.Screen name='newOrgLink' component={AddNewOrganization} />
             <Stack.Screen name='mandatory' component={MandatoryPage} />
             <Stack.Screen name='account' component={AccountSettingsPage} />
+            <Stack.Screen name='changePassword' component={ChangePassword} />
             <Stack.Screen name='privacy' component={PrivacyPage} />
             <Stack.Screen name='support' component={SupportPage} />
             <Stack.Screen name='discretionary' component={DiscretionaryPage} />

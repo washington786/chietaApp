@@ -10,7 +10,7 @@ import { AccWrapper, DeactivateAccount } from '@/components/modules/application'
 import Animated, { FadeInDown } from 'react-native-reanimated'
 
 const AccountScreen = () => {
-    const { account, privacy, support } = usePageTransition();
+    const { account, privacy, support, changePassword } = usePageTransition();
     const [visible, setVisible] = useState(false);
     const { open, close } = useGlobalBottomSheet();
     function handleDialog() {
@@ -45,6 +45,7 @@ const AccountScreen = () => {
                         <Text variant='titleSmall' style={{ paddingVertical: 5 }}>Profile Section</Text>
                         <RDivider />
                         <AccWrapper icon='person-sharp' title='Account settings' onPress={account} />
+                        <AccWrapper icon='lock-closed-outline' title='Change Password' onPress={changePassword} />
                         <AccWrapper icon='lock-closed-sharp' title='Privacy' onPress={privacy} />
                         <AccWrapper icon='help-circle-sharp' title='Support' onPress={support} />
                     </RCol>

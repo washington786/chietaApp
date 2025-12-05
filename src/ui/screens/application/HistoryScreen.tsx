@@ -1,6 +1,6 @@
 import { FlatList, StyleSheet, View } from 'react-native'
 import React from 'react'
-import { RCol, SafeArea } from '@/components/common'
+import { RCol, REmpty, SafeArea } from '@/components/common'
 import { Text } from 'react-native-paper'
 import colors from '@/config/colors'
 import { AppTrackingItem } from '@/components/modules/application'
@@ -32,6 +32,7 @@ const HistoryScreen = () => {
                 initialNumToRender={10}
                 maxToRenderPerBatch={10}
                 windowSize={21}
+                ListEmptyComponent={REmpty}
             />
         </SafeArea>
     )

@@ -1,6 +1,6 @@
 import { FlatList, View } from 'react-native'
 import React from 'react'
-import { SafeArea } from '@/components/common'
+import { REmpty, SafeArea } from '@/components/common'
 import RHeader from '@/components/common/RHeader'
 import { ItemNotification } from '@/components/modules/application'
 import Animated, { FadeInDown } from 'react-native-reanimated'
@@ -18,7 +18,7 @@ const NotificationsPage = () => {
     return (
         <SafeArea>
             <RHeader name='Notifications' />
-            <FlatList data={[1, 2, 3]}
+            <FlatList data={[1, 2, 3, 4]}
                 style={{ paddingHorizontal: 12, paddingVertical: 6, flex: 1, flexGrow: 1 }}
                 renderItem={renderList}
                 showsVerticalScrollIndicator={false}
@@ -27,6 +27,7 @@ const NotificationsPage = () => {
                 initialNumToRender={10}
                 maxToRenderPerBatch={10}
                 windowSize={21}
+                ListEmptyComponent={REmpty}
             />
         </SafeArea>
     )
