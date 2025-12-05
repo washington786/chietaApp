@@ -51,6 +51,7 @@ const usePageTransition = () => {
         navigation.navigate("privacy");
     }
 
+
     function support() {
         navigation.navigate("support");
     }
