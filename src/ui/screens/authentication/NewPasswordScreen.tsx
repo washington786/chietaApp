@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { AuthWrapper } from '@/components/modules/authentication'
+import { AuthWrapper, SuccessWrapper } from '@/components/modules/authentication'
 import { RButton, RCol, RInput, RKeyboardView, RLogo, SafeArea } from '@/components/common'
 import { Authstyles as styles } from '@/styles/AuthStyles';
 import appFonts from '@/config/fonts';
@@ -37,7 +37,7 @@ const NewPasswordScreen = () => {
 
     if (success) {
         return (
-            <SuccessWrapper onPress={login} />
+            <SuccessWrapper onPress={login} buttonTitle='go to login' title='Password Updated!' description='Your password has been changed successfully. You can now log in with your new password.' />
         )
     }
 
@@ -64,52 +64,6 @@ const NewPasswordScreen = () => {
             </SafeArea>
         </AuthWrapper>
     )
-}
-
-
-interface props {
-    onPress: () => void;
-}
-function SuccessWrapper({ onPress }: props) {
-    return <>
-        <View style={{
-            flex: 1,
-            backgroundColor: '#fff',
-            justifyContent: 'center',
-            alignItems: 'center',
-            paddingHorizontal: 24,
-        }}>
-            {/* Success Icon with subtle entrance */}
-            <Animated.View entering={FadeInDown.duration(600).springify()}>
-                <RCol style={{ alignItems: "center", marginBottom: 8 }}>
-                    <RCol style={{ width: 80, height: 80, borderRadius: 100, backgroundColor: colors.green[100], alignItems: "center", justifyContent: "center" }}>
-                        <MaterialCommunityIcons name="check-circle" size={70} color={colors.green[800]} />
-                    </RCol>
-                </RCol>
-            </Animated.View>
-
-            {/* Title & Message */}
-            <Animated.View entering={FadeInUp.delay(200).duration(600)}>
-                <Text variant='headlineSmall' style={{ textAlign: "center", color: colors.slate[900], marginBottom: 3 }}>
-                    Password Updated!
-                </Text>
-                <Text variant='bodySmall' style={{ textAlign: "center", color: colors.slate[900], paddingHorizontal: 6 }}>
-                    Your password has been changed successfully. You can now log in with your new password.
-                </Text>
-            </Animated.View>
-
-            {/* Button */}
-            <Animated.View
-                entering={FadeInUp.delay(400).duration(600)}
-                style={{ width: "100%", marginVertical: 10, paddingHorizontal: 8 }}
-            >
-                <RButton
-                    title="Go to Login"
-                    onPressButton={onPress}
-                />
-            </Animated.View>
-        </View>
-    </>
 }
 
 export default NewPasswordScreen

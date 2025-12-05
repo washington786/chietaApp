@@ -14,7 +14,7 @@ interface props {
     buttonTitle: string;
 }
 
-export function SuccessWrapper({ onPress }: props) {
+export function SuccessWrapper({ onPress, buttonTitle, description, title }: props) {
     return <>
         <View style={{
             flex: 1,
@@ -35,10 +35,10 @@ export function SuccessWrapper({ onPress }: props) {
             {/* Title & Message */}
             <Animated.View entering={FadeInUp.delay(200).duration(600)}>
                 <Text variant='headlineMedium' style={{ textAlign: "center", color: colors.slate[900], marginBottom: 3 }}>
-                    Password Updated!
+                    {title}
                 </Text>
                 <Text variant='bodySmall' style={{ textAlign: "center", color: colors.slate[900], paddingHorizontal: 6, marginVertical: 8 }}>
-                    Your password has been changed successfully. You can now log in with your new password.
+                    {description}
                 </Text>
             </Animated.View>
 
@@ -48,7 +48,7 @@ export function SuccessWrapper({ onPress }: props) {
                 style={{ width: "100%", marginVertical: 10, paddingHorizontal: 8 }}
             >
                 <RButton
-                    title="Go to Login"
+                    title={buttonTitle}
                     onPressButton={onPress}
                 />
             </Animated.View>
