@@ -1,5 +1,6 @@
 import { NotificationsPage } from "../screens";
 import AccountSettingsPage from "./application/account/AccountSettingsPage";
+import ChangePassword from "./application/account/ChangePassword";
 import PrivacyPage from "./application/account/PrivacyPage";
 import SupportPage from "./application/account/SupportPage";
 import AddNewApplicationPage from "./application/AddNewApplicationPage";
@@ -18,5 +19,6 @@ export {
     PrivacyPage,
     AccountSettingsPage,
     ApplicationStatusDetails,
-    LinkOrgPage
+    LinkOrgPage,
+    ChangePassword
 }

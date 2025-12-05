@@ -4,8 +4,10 @@ import HistoryScreen from "./application/HistoryScreen";
 import HomeScreen from "./application/HomeScreen";
 import ForgotPasswordScreen from "./authentication/ForgotPasswordScreen";
 import LoginScreen from "./authentication/LoginScreen";
+import NewPasswordScreen from "./authentication/NewPasswordScreen";
 import OtpScreen from "./authentication/OtpScreen";
 import RegisterScreen from "./authentication/RegisterScreen";
+
 
 export {
     ForgotPasswordScreen,
@@ -15,5 +17,6 @@ export {
     AccountScreen,
     HistoryScreen,
     HomeScreen,
-    NotificationsPage
+    NotificationsPage,
+    NewPasswordScreen
 }

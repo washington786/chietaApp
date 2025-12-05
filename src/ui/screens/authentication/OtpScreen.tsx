@@ -10,7 +10,7 @@ import appFonts from '@/config/fonts';
 import { OtpInput } from "react-native-otp-entry";
 
 const OtpScreen = () => {
-    const { login } = usePageTransition();
+    const { newPassword } = usePageTransition();
     const [canResend, setCanResend] = useState<Boolean>(false);
     const [timer, setTimer] = useState<number>(60);
     useEffect(() => {
@@ -40,7 +40,7 @@ const OtpScreen = () => {
                     <RKeyboardView style={{ gap: 8 }}>
                         <OtpInput numberOfDigits={6} onTextChange={(text) => console.log(text)} focusColor={colors.primary[600]} />
 
-                        <RButton title='verify pin' onPressButton={login} styleBtn={styles.button} />
+                        <RButton title='verify pin' onPressButton={newPassword} styleBtn={styles.button} />
                     </RKeyboardView>
 
                     <Button
