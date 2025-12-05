@@ -10,7 +10,7 @@ import { useGlobalBottomSheet } from '@/hooks/navigation/BottomSheet';
 import { showToast } from '@/core';
 
 const LinkedOrganizations = () => {
-    const { newOrg, discretionaryGrants, mandatoryGrants } = usePageTransition();
+    const { newOrg, discretionaryGrants, mandatoryGrants, linkOrgDoc } = usePageTransition();
     const { open, close } = useGlobalBottomSheet();
 
     const [visible, setVisible] = useState(false);
@@ -29,9 +29,14 @@ const LinkedOrganizations = () => {
         close();
         mandatoryGrants({ orgId: "1" });
     }
+
     function handleDiscretionaryGrants() {
         close();
         discretionaryGrants({ orgId: "1" });
+    }
+
+    function handleOrgLinking() {
+        linkOrgDoc({ orgId: "1" });
     }
 
     return (
@@ -43,13 +48,18 @@ const LinkedOrganizations = () => {
                     <Text variant='titleSmall' style={{ color: "white" }}>add new</Text>
                 </TouchableOpacity>
             </RRow>
+
             <RCol>
-                <ItemOrgs onPress={() => open(<OrgDetails onDiscretionaryGrants={handleDiscretionaryGrants} onMandatoryGrants={handleMandatoryGrants} onDelink={handleDialog} />, { snapPoints: ["50%"] })} />
-                <ItemOrgs isVerified={false} onPress={() => open(<OrgDetails onDiscretionaryGrants={handleDiscretionaryGrants} onMandatoryGrants={handleMandatoryGrants} onDelink={handleDialog} />, { snapPoints: ["50%"] })} />
+                <ItemOrgs onPress={() => open(<OrgDetails onDiscretionaryGrants={handleDiscretionaryGrants} onMandatoryGrants={handleMandatoryGrants} onDelink={handleDialog} />, { snapPoints: ["50%"] })} isLinkingRequired={false} />
+
+                <ItemOrgs
+                    isVerified={false}
+                    onNewLinking={handleOrgLinking}
+                    isLinkingRequired={true}
+                />
             </RCol>
-            {
-                visible && <RDialog hideDialog={handleDialog} visible={visible} message='are you sure you want to de-link this organization?' title='Delink Org' onContinue={handleContinue} />
-            }
+
+            <RDialog hideDialog={handleDialog} visible={visible} message='are you sure you want to de-link this organization?' title='Delink Org' onContinue={handleContinue} />
         </RCol>
     )
 }
