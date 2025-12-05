@@ -51,6 +51,9 @@ const usePageTransition = () => {
     function support() {
         navigation.navigate("support");
     }
+    function newPassword() {
+        navigation.replace("newPassword");
+    }
 
     function linkOrgDoc({ orgId }: { orgId: string }) {
         navigation.navigate("orgDetail", { orgId: orgId });
@@ -73,7 +76,7 @@ const usePageTransition = () => {
         navigation.navigate("discretionary", { orgId: orgId });
     }
 
-    return { onBack, login, register, otp, resetPassword, getStarted, onAuth, notifications, newOrg, mandatoryGrants, discretionaryGrants, newApplication, newDgApplication, applicationDetails, account, privacy, support, historyItemDetails, linkOrgDoc };
+    return { onBack, login, register, otp, resetPassword, getStarted, onAuth, notifications, newOrg, mandatoryGrants, discretionaryGrants, newApplication, newDgApplication, applicationDetails, account, privacy, support, historyItemDetails, linkOrgDoc, newPassword };
 }
 
 export default usePageTransition

@@ -44,7 +44,7 @@ function InfoWrapper() {
     return (
         <RRow style={styles.con}>
             <AntDesign name="info-circle" size={24} color="white" />
-            <Text variant='bodySmall' style={styles.txt}>Please upload your organization appointment letter to start.</Text>
+            <Text variant='bodySmall' style={styles.txt}>Upload a signed grant application/sdf appointment letter on a company letter head.</Text>
         </RRow>
     )
 }
@@ -63,7 +63,8 @@ const styles = StyleSheet.create({
     },
     txt: {
         color: colors.blue[50],
-        fontFamily: `${appFonts.extaLight}`
+        fontFamily: `${appFonts.extaLight}`,
+        marginHorizontal: 8
     },
     wrap: {
         marginVertical: 16
@@ -71,5 +72,6 @@ const styles = StyleSheet.create({
     btn: {
         marginTop: 8,
         backgroundColor: colors.primary[900]
-    }
+    },
+
 })
