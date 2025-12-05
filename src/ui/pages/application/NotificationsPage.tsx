@@ -1,4 +1,4 @@
-import { FlatList, StyleSheet, View } from 'react-native'
+import { FlatList, View } from 'react-native'
 import React from 'react'
 import { SafeArea } from '@/components/common'
 import RHeader from '@/components/common/RHeader'
