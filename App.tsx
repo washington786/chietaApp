@@ -29,7 +29,7 @@ export default function App() {
 
       return () => clearTimeout(timer)
     }
-  }, [loadedApplicationFonts])
+  }, [loadedApplicationFonts]);
 
   const onLayoutRootView = useCallback(async () => {
     if (appIsReady) {
