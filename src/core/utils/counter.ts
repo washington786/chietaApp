@@ -1,21 +1,6 @@
 import dayjs, { Dayjs } from 'dayjs';
+import { PeriodInfo } from '../types/period';
 
-export type PeriodStatus = 'upcoming' | 'active' | 'closed';
-
-export interface PeriodInfo {
-    status: PeriodStatus;
-    daysRemaining: number | null;
-    totalDurationDays: number;
-    isOpen: boolean;
-    isClosed: boolean;
-}
-
-/**
- * Calculates the status and countdown between open and close dates.
- * @param openDate - When the period opens (Dayjs or Date string)
- * @param closeDate - When the period closes (Dayjs or Date string)
- * @returns PeriodInfo
- */
 export const getPeriodInfo = (openDate: Dayjs | string, closeDate: Dayjs | string): PeriodInfo => {
     const now = dayjs();
     const open = dayjs(openDate);
@@ -23,34 +8,41 @@ export const getPeriodInfo = (openDate: Dayjs | string, closeDate: Dayjs | strin
 
     const totalDurationDays = close.diff(open, 'day');
 
+    // Case 1: Upcoming
     if (now.isBefore(open)) {
-        // Upcoming
-        const daysUntilOpen = open.diff(now, 'day');
         return {
             status: 'upcoming',
-            daysRemaining: daysUntilOpen,
+            countdown: null,
             totalDurationDays,
-            isOpen: false,
-            isClosed: false,
-        };
-    } else if (now.isAfter(close)) {
-        // Closed
-        return {
-            status: 'closed',
-            daysRemaining: null,
-            totalDurationDays,
-            isOpen: false,
-            isClosed: true,
-        };
-    } else {
-        // Active
-        const daysRemaining = close.diff(now, 'day');
-        return {
-            status: 'active',
-            daysRemaining,
-            totalDurationDays,
-            isOpen: true,
-            isClosed: false,
         };
     }
+
+    // Case 2: Closed
+    if (now.isAfter(close)) {
+        return {
+            status: 'closed',
+            countdown: null,
+            totalDurationDays,
+        };
+    }
+
+    const diffMs = close.diff(now);
+    const totalSeconds = Math.floor(diffMs / 1000);
+
+    const days = Math.floor(totalSeconds / (24 * 3600));
+    const hours = Math.floor((totalSeconds % (24 * 3600)) / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+
+    return {
+        status: 'active',
+        countdown: {
+            days,
+            hours,
+            minutes,
+            seconds,
+            totalSeconds,
+        },
+        totalDurationDays,
+    };
 };
