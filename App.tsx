@@ -8,6 +8,9 @@ import { BottomSheetWrapper } from '@/components/modules/application'
 import useLoadAppFonts from '@/hooks/loadfonts/useLoadFonts'
 import MainNavigation from '@/navigation/MainNavigation'
 import Toast from 'react-native-toast-message'
+import { Provider } from 'react-redux'
+import { PersistGate } from 'redux-persist/integration/react'
+import { persistor, store } from '@/store/store'
 
 SplashScreen.preventAutoHideAsync().catch(() => {
   let tm = setTimeout(() => SplashScreen.preventAutoHideAsync(), 100)
@@ -34,22 +37,22 @@ export default function App() {
     }
   }, [appIsReady])
 
-  console.log(`fonts: ${loadedApplicationFonts}`);
-  console.log(`app ready: ${appIsReady}`);
-
-
   if (!loadedApplicationFonts || !appIsReady) {
     return <RSplash />
   }
 
   return (
     <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
-      <BottomSheetWrapper>
-        <ProviderWraper>
-          <MainNavigation />
-          <Toast />
-        </ProviderWraper>
-      </BottomSheetWrapper>
+      <Provider store={store}>
+        <PersistGate loading={null} persistor={persistor}>
+          <BottomSheetWrapper>
+            <ProviderWraper>
+              <MainNavigation />
+              <Toast />
+            </ProviderWraper>
+          </BottomSheetWrapper>
+        </PersistGate>
+      </Provider>
     </View>
   )
 }
