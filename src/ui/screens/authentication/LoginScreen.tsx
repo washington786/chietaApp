@@ -38,10 +38,10 @@ const LoginScreen = () => {
                         {({ handleSubmit, handleBlur, handleChange, touched, errors, values }) => (
                             <RKeyboardView style={{ gap: 12 }}>
 
-                                <RInput placeholder='Email' icon={'mail'} onChangeText={handleChange('email')} onBlur={handleBlur('email')} />
+                                <RInput placeholder='Email' icon={'mail'} onChangeText={handleChange('email')} onBlur={handleBlur('email')} value={values.email} />
                                 {touched.email && errors.email && (<RErrorMessage error={errors.email} />)}
 
-                                <RInput placeholder='Password' icon={'lock'} secureTextEntry onChangeText={handleChange("password")} onBlur={handleBlur("password")} />
+                                <RInput placeholder='Password' icon={'lock'} secureTextEntry onChangeText={handleChange("password")} onBlur={handleBlur("password")} value={values.password} />
                                 {touched.password && errors.password && (<RErrorMessage error={errors.password} />)}
 
                                 <RButton title='Sign In' onPressButton={handleSubmit} styleBtn={styles.button} />
