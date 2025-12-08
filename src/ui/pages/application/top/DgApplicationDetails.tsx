@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 import colors from '@/config/colors'
 import { Text } from 'react-native-paper'
 import { Expandable } from '@/components/modules/application'
-import { RCol, RInput, RUpload } from '@/components/common'
+import { RButton, RCol, RInput, RUpload } from '@/components/common'
 import { Picker } from '@react-native-picker/picker'
 import { main_manicipalities, mainDistricts, provinces } from '@/core/helpers/data'
 import { Province } from '@/core/types/provTypes'
@@ -32,6 +32,8 @@ const DgApplicationDetails = () => {
     function handleMunicipalityChange(val: string) {
         setSelectedMunipality(val);
     }
+
+    // document upload
 
     return (
         <FlatList data={[]}
@@ -103,6 +105,8 @@ const DgApplicationDetails = () => {
                             <RUpload title='organization declaration of interest' onPress={() => { }} />
                             <RUpload title='Proof of banking details' onPress={() => { }} />
                         </Expandable>
+
+                        <RButton onPressButton={() => { }} title='Submit application' styleBtn={styles.btn} />
                     </>
                 )
             }}
@@ -128,4 +132,8 @@ const styles = StyleSheet.create({
         overflow: 'hidden',
         minHeight: 60,
     },
+    btn: {
+        backgroundColor: colors.primary[900],
+        marginTop: 10
+    }
 })
