@@ -2,14 +2,25 @@ import { Platform, Text, View } from 'react-native'
 import React from 'react'
 import { AuthWrapper } from '@/components/modules/authentication';
 import usePageTransition from '@/hooks/navigation/usePageTransition';
-import { RButton, RInput, RKeyboardView, RLogo, RRow, RText, SafeArea } from '@/components/common';
+import { RButton, RErrorMessage, RInput, RKeyboardView, RLogo, RRow, RText, SafeArea } from '@/components/common';
 import { Authstyles as styles } from '@/styles/AuthStyles';
 import appFonts from '@/config/fonts';
 import { IconButton } from 'react-native-paper';
 import colors from '@/config/colors';
+import { Formik } from 'formik';
+import { resetPasswordSchema } from '@/core';
+
+const initialValues = {
+    email: ''
+}
 
 const ForgotPasswordScreen = () => {
     const { onBack, otp } = usePageTransition();
+
+    const handleSubmit = () => {
+        otp();
+    }
+
     return (
         <AuthWrapper>
             <SafeArea>
@@ -34,12 +45,21 @@ const ForgotPasswordScreen = () => {
                         please enter your email address to reset your password.
                     </Text>
 
-                    <RKeyboardView style={{ gap: 12 }}>
+                    <Formik initialValues={initialValues} onSubmit={handleSubmit} validationSchema={resetPasswordSchema}>
+                        {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
+                            <RKeyboardView style={{ gap: 12 }}>
 
-                        <RInput placeholder='Email' icon={'mail'} />
+                                <RInput placeholder='Email' icon={'mail'} onChangeText={handleChange('email')} onBlur={handleBlur('email')} value={values.email} />
 
-                        <RButton title='reset password' onPressButton={otp} styleBtn={styles.button} />
-                    </RKeyboardView>
+                                {
+                                    errors.email && touched.email && <RErrorMessage error={errors.email} />
+                                }
+
+                                <RButton title='reset password' onPressButton={handleSubmit} styleBtn={styles.button} />
+                            </RKeyboardView>
+                        )}
+                    </Formik>
+
 
                 </View>
             </SafeArea>

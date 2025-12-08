@@ -4,12 +4,24 @@ import colors from '@/config/colors'
 import { Button } from 'react-native-paper'
 import appFonts from '@/config/fonts'
 import { AuthWrapper } from '@/components/modules/authentication'
-import { RButton, RInput, RKeyboardView, RLogo, SafeArea } from '@/components/common'
+import { RButton, RErrorMessage, RInput, RKeyboardView, RLogo, SafeArea } from '@/components/common'
 import usePageTransition from '@/hooks/navigation/usePageTransition'
 import { Authstyles as styles } from '@/styles/AuthStyles'
+import { Formik } from 'formik'
+import { loginSchema } from '@/core'
+
+const formValues = {
+    email: '',
+    password: ''
+}
 
 const LoginScreen = () => {
     const { register, resetPassword, onAuth } = usePageTransition();
+
+    const handleSubmit = () => {
+        onAuth();
+    }
+
     return (
         <AuthWrapper>
             <SafeArea>
@@ -22,13 +34,20 @@ const LoginScreen = () => {
                         Sign in to continue to your account
                     </Text>
 
-                    <RKeyboardView style={{ gap: 12 }}>
-                        <RInput placeholder='Email' icon={'mail'} />
+                    <Formik initialValues={formValues} onSubmit={handleSubmit} validationSchema={loginSchema}>
+                        {({ handleSubmit, handleBlur, handleChange, touched, errors, values }) => (
+                            <RKeyboardView style={{ gap: 12 }}>
 
-                        <RInput placeholder='Password' icon={'lock'} secureTextEntry />
+                                <RInput placeholder='Email' icon={'mail'} onChangeText={handleChange('email')} onBlur={handleBlur('email')} value={values.email} />
+                                {touched.email && errors.email && (<RErrorMessage error={errors.email} />)}
 
-                        <RButton title='Sign In' onPressButton={onAuth} styleBtn={styles.button} />
-                    </RKeyboardView>
+                                <RInput placeholder='Password' icon={'lock'} secureTextEntry onChangeText={handleChange("password")} onBlur={handleBlur("password")} value={values.password} />
+                                {touched.password && errors.password && (<RErrorMessage error={errors.password} />)}
+
+                                <RButton title='Sign In' onPressButton={handleSubmit} styleBtn={styles.button} />
+                            </RKeyboardView>
+                        )}
+                    </Formik>
 
 
                     <Button

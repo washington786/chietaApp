@@ -15,14 +15,11 @@ export default RErrorMessage
 
 const styles = StyleSheet.create({
     con: {
-        backgroundColor: colors.primary[600],
         minHeight: 40,
-        alignItems: "center",
-        justifyContent: "center",
-        paddingVertical: 5,
-        borderRadius: 4
+        alignItems: "flex-start",
+        justifyContent: "flex-start",
     },
     text: {
-        color: colors.slate[50]
+        color: colors.red[600]
     }
 })

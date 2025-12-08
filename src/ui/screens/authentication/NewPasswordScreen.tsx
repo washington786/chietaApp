@@ -1,12 +1,18 @@
 import React, { useState } from 'react'
 import { AuthWrapper, SuccessWrapper } from '@/components/modules/authentication'
-import { RButton, RInput, RKeyboardView, RLogo, SafeArea } from '@/components/common'
+import { RButton, RErrorMessage, RInput, RKeyboardView, RLogo, SafeArea } from '@/components/common'
 import { Authstyles as styles } from '@/styles/AuthStyles';
 import appFonts from '@/config/fonts';
 import usePageTransition from '@/hooks/navigation/usePageTransition';
 import { Text } from 'react-native-paper';
 import { View } from 'react-native';
+import { Formik } from 'formik';
+import { newPasswordSchema } from '@/core';
 
+const initialValues = {
+    password: '',
+    confirmPassword: ''
+}
 
 const NewPasswordScreen = () => {
     const { login } = usePageTransition();
@@ -38,6 +44,10 @@ const NewPasswordScreen = () => {
         )
     }
 
+    const handleSubmit = () => {
+        submit();
+    }
+
     return (
         <AuthWrapper>
             <SafeArea>
@@ -50,12 +60,24 @@ const NewPasswordScreen = () => {
                         enter your new password to continue to reset.
                     </Text>
 
-                    <RKeyboardView style={{ gap: 8 }}>
-                        <RInput placeholder='New Password' />
-                        <RInput placeholder='Confirm Password' />
+                    <Formik initialValues={initialValues} onSubmit={handleSubmit} validationSchema={newPasswordSchema}>
+                        {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
+                            <RKeyboardView style={{ gap: 8 }}>
+                                <RInput placeholder='New Password' onBlur={handleBlur('password')} onChangeText={handleChange('password')} value={values.password} />
 
-                        <RButton title='submit' onPressButton={submit} styleBtn={styles.button} />
-                    </RKeyboardView>
+                                {
+                                    errors.password && touched.password && <RErrorMessage error={errors.password} />
+                                }
+
+                                <RInput placeholder='Confirm Password' value={values.confirmPassword} onBlur={handleBlur('confirmPassword')} onChangeText={handleChange('confirmPassword')} />
+                                {
+                                    errors.confirmPassword && touched.confirmPassword && <RErrorMessage error={errors.confirmPassword} />
+                                }
+
+                                <RButton title='submit' onPressButton={handleSubmit} styleBtn={styles.button} />
+                            </RKeyboardView>
+                        )}
+                    </Formik>
 
                 </View>
             </SafeArea>
