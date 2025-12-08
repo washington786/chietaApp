@@ -98,7 +98,7 @@ const styles = StyleSheet.create({
         textTransform: "capitalize"
     },
     con: {
-        backgroundColor: colors.slate[100], flex: 1, borderRadius: 10,
+        backgroundColor: colors.zinc[50], flex: 1, borderRadius: 10,
         padding: 6,
         position: "relative",
         borderWidth: 1,

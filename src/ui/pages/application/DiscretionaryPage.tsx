@@ -5,6 +5,7 @@ import RHeader from '@/components/common/RHeader'
 import { FAB } from 'react-native-paper'
 import usePageTransition from '@/hooks/navigation/usePageTransition'
 import { DgApplicationItem, InformationBanner } from '@/components/modules/application'
+import colors from '@/config/colors'
 
 const DiscretionaryPage = () => {
     const { newDgApplication } = usePageTransition();
@@ -30,6 +31,7 @@ const DiscretionaryPage = () => {
                 icon="plus"
                 style={styles.fab}
                 onPress={newDgApplication}
+                color='white'
             />
         </SafeArea>
     )
@@ -43,6 +45,7 @@ const styles = StyleSheet.create({
         margin: 16,
         right: 0,
         bottom: 0,
-        borderRadius: 100
+        borderRadius: 100,
+        backgroundColor: colors.primary[900],
     },
 })

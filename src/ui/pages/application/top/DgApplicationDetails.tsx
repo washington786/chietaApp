@@ -3,37 +3,37 @@ import React, { useState } from 'react'
 import colors from '@/config/colors'
 import { Text } from 'react-native-paper'
 import { Expandable } from '@/components/modules/application'
-import { RUpload } from '@/components/common'
-import { BarChart } from 'react-native-gifted-charts'
-import { ApplicationRecord, dgData as data } from '@/core/types/dt'
+import { RButton, RCol, RInput, RUpload } from '@/components/common'
+import { Picker } from '@react-native-picker/picker'
+import { main_manicipalities, mainDistricts, provinces } from '@/core/helpers/data'
+import { Province } from '@/core/types/provTypes'
 
 const DgApplicationDetails = () => {
     const [expandDocs, setDocs] = useState(false);
     const [expandProv, setProv] = useState(false);
-    const [expandStatus, setStatus] = useState(false);
-    const getCountByProvince = (data: ApplicationRecord[]) => {
-        const counts: Record<string, number> = {};
-        data.forEach(item => {
-            counts[item.Province] = (counts[item.Province] || 0) + 1;
-        });
+    const [expandProg, setProg] = useState(false);
 
-        return Object.entries(counts).map(([label, value]) => ({ label, value }));
-    };
+    const [selectedProvince, setProvince] = useState<Province>("");
+    const [selectedDistrict, setSelectedDistrict] = useState<string>("");
+    const [selectedMunicipality, setSelectedMunipality] = useState<string>("");
 
-    const getCountByStatus = (data: ApplicationRecord[]) => {
-        const counts: Record<string, number> = {};
-        data.forEach(item => {
-            if (item.ApprovalStatus != null) {
-                const status = String(item.ApprovalStatus);
-                counts[status] = (counts[status] || 0) + 1;
-            }
-        });
+    const [district, setDistrict] = useState<string[]>([]);
+    const [manucipality, setManucipality] = useState<string[]>([]);
 
-        return Object.entries(counts).map(([label, value]) => ({ label, value }));
-    };
+    function handleProvChange(val: Province) {
+        setProvince(val)
+        setDistrict(mainDistricts[val] || [])
+        setManucipality(main_manicipalities[val] || [])
+    }
 
-    const provinceData = getCountByProvince(data);
-    const statusData = getCountByStatus(data);
+    function handleDistrictChange(val: string) {
+        setSelectedDistrict(val);
+    }
+    function handleMunicipalityChange(val: string) {
+        setSelectedMunipality(val);
+    }
+
+    // document upload
 
     return (
         <FlatList data={[]}
@@ -45,23 +45,53 @@ const DgApplicationDetails = () => {
             ListFooterComponent={() => {
                 return (
                     <>
-                        <Expandable title='Province stats' isExpanded={expandProv} onPress={() => setProv(!expandProv)}>
-                            <BarChart data={provinceData}
-                                barWidth={20}
-                                spacing={12}
-                                yAxisThickness={0}
-                                xAxisThickness={0}
-                                initialSpacing={10}
-                                maxValue={Math.max(...provinceData.map(d => d.value)) + 1} />
+                        <Text variant='titleMedium' style={styles.title}>Capture Application</Text>
+                        <Expandable title='Learner Details' isExpanded={expandProv} onPress={() => setProv(!expandProv)}>
+
+                            <RInput placeholder='#Continuing' />
+                            <RInput placeholder='#New' />
+                            <RInput placeholder='#Female' />
+                            <RInput placeholder='#HDI' />
+                            <RInput placeholder='#Youth' />
+                            <RInput placeholder='#Disabled' />
+                            <RInput placeholder='#Rural' />
+
+
+                            <RCol style={styles.pickerContainer}>
+                                <Picker onValueChange={handleProvChange} selectedValue={selectedProvince}>
+                                    <Picker.Item label="Select Province" value="" />
+                                    {provinces.map((province, index) => (
+                                        <Picker.Item key={index} label={province} value={province} />
+                                    ))}
+                                </Picker>
+                            </RCol>
+
+                            <RCol style={styles.pickerContainer}>
+
+                                <Picker onValueChange={handleDistrictChange} selectedValue={selectedDistrict}>
+                                    <Picker.Item label="Select District" value="" />
+                                    {
+                                        district.map((district, index) => <Picker.Item label={district} value={district} key={`${index}-${district}`} />)
+                                    }
+                                </Picker>
+                            </RCol>
+                            <RCol style={styles.pickerContainer}>
+
+                                <Picker onValueChange={handleMunicipalityChange} selectedValue={selectedMunicipality}>
+                                    <Picker.Item label="Select Municipality" value="" />
+                                    {
+                                        manucipality.map((manucipality, index) => <Picker.Item label={manucipality} value={district} key={`${index}-${district}`} />)
+                                    }
+                                </Picker>
+                            </RCol>
                         </Expandable>
-                        <Expandable title='Status stats' isExpanded={expandStatus} onPress={() => setStatus(!expandStatus)}>
-                            <BarChart data={statusData}
-                                barWidth={20}
-                                spacing={12}
-                                yAxisThickness={0}
-                                xAxisThickness={0}
-                                initialSpacing={10}
-                                maxValue={Math.max(...statusData.map(d => d.value)) + 1} />
+                        <Text variant='titleMedium' style={styles.title}>Program</Text>
+                        <Expandable title='Programme Details' isExpanded={expandProg} onPress={() => setProg(!expandProg)}>
+
+                            <RInput placeholder='Programme Type' />
+                            <RInput placeholder='Leearning Programme' />
+                            <RInput placeholder='SubCategory' />
+                            <RInput placeholder='Intervention' />
                         </Expandable>
                         <Text variant='titleMedium' style={styles.title}>All uploaded Mandotory Files</Text>
 
@@ -75,6 +105,8 @@ const DgApplicationDetails = () => {
                             <RUpload title='organization declaration of interest' onPress={() => { }} />
                             <RUpload title='Proof of banking details' onPress={() => { }} />
                         </Expandable>
+
+                        <RButton onPressButton={() => { }} title='Submit application' styleBtn={styles.btn} />
                     </>
                 )
             }}
@@ -91,5 +123,17 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: colors.primary[950],
         marginVertical: 10
+    },
+    pickerContainer: {
+        borderWidth: 1,
+        borderColor: colors.slate[200],
+        borderRadius: 6,
+        marginBottom: 16,
+        overflow: 'hidden',
+        minHeight: 60,
+    },
+    btn: {
+        backgroundColor: colors.primary[900],
+        marginTop: 10
     }
 })
