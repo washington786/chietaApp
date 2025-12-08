@@ -4,15 +4,20 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import { setupListeners } from '@reduxjs/toolkit/query'
 import { api } from './api/api';
 import AuthReducer from './slice/AuthSlice';
+import notificationReducer from './slice/NotificationSlice';
 
 const persistConfig = {
     key: 'root',
     storage: AsyncStorage,
-    whitelist: ['auth'],
+}
+const persistNotificationConfig = {
+    key: 'notification',
+    storage: AsyncStorage,
 }
 
 const rootReducer = {
     auth: persistReducer(persistConfig, AuthReducer),
+    notification: persistReducer(persistNotificationConfig, notificationReducer),
     [api.reducerPath]: api.reducer,
 }
 

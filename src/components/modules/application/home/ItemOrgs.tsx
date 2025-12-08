@@ -8,18 +8,38 @@ import Feather from '@expo/vector-icons/Feather';
 interface props {
     isVerified?: boolean;
     onPress?: () => void;
+    isLinkingRequired?: boolean;
+    onNewLinking?: () => void;
 }
 
-const ItemOrgs: FC<props> = ({ isVerified = true, onPress }) => {
+const ItemOrgs: FC<props> = ({ isVerified = true, onPress, isLinkingRequired = false, onNewLinking }) => {
+
+    function handlePress() {
+        if (isLinkingRequired) {
+            onNewLinking?.();
+        } else {
+            onPress?.();
+        }
+    }
+
     return (
-        <TouchableOpacity onPress={onPress}>
+        <TouchableOpacity onPress={handlePress}>
             <RCol style={styles.con}>
+
+                {
+                    isLinkingRequired && <RCol style={styles.new}>
+                        <Text variant='bodySmall' style={styles.color}>new</Text>
+                    </RCol>
+                }
+
                 <Text variant='titleLarge' style={styles.itemText}>Retlhonolofetse Trading projects</Text>
                 <Text variant='labelLarge' style={[styles.regTxt, styles.txt]}>2018/330478/07</Text>
+
                 <RRow style={styles.row}>
                     <Feather name={isVerified ? "check-square" : "x-square"} size={16} color={isVerified ? colors.green[600] : colors.red[600]} />
                     <Text variant='labelMedium' style={[styles.regTxt, { color: isVerified ? colors.green[600] : colors.red[600] }]}>{isVerified ? "verified" : "unverified"}</Text>
                 </RRow>
+
             </RCol>
         </TouchableOpacity>
     )
@@ -53,5 +73,18 @@ const styles = StyleSheet.create({
         alignItems: "center",
         gap: 4,
         marginVertical: 4
+    },
+    new: {
+        backgroundColor: colors.yellow[600],
+        width: 40,
+        alignItems: "center",
+        justifyContent: "center",
+        padding: 2,
+        marginVertical: 2,
+        marginHorizontal: 2,
+        borderRadius: 100
+    },
+    color: {
+        color: colors.slate[50],
     }
 })

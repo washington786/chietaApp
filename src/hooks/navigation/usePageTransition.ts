@@ -44,12 +44,25 @@ const usePageTransition = () => {
     function account() {
         navigation.navigate("account");
     }
+    function changePassword() {
+        navigation.navigate("changePassword");
+    }
     function privacy() {
         navigation.navigate("privacy");
     }
+
+
     function support() {
         navigation.navigate("support");
     }
+    function newPassword() {
+        navigation.replace("newPassword");
+    }
+
+    function linkOrgDoc({ orgId }: { orgId: string }) {
+        navigation.navigate("orgDetail", { orgId: orgId });
+    }
+
     function applicationDetails({ orgId, appId, type }: { orgId: string, appId: string, type: string }) {
         navigation.navigate("applicationDetails", {
             orgId: orgId,
@@ -67,7 +80,7 @@ const usePageTransition = () => {
         navigation.navigate("discretionary", { orgId: orgId });
     }
 
-    return { onBack, login, register, otp, resetPassword, getStarted, onAuth, notifications, newOrg, mandatoryGrants, discretionaryGrants, newApplication, newDgApplication, applicationDetails, account, privacy, support, historyItemDetails };
+    return { onBack, login, register, otp, resetPassword, getStarted, onAuth, notifications, newOrg, mandatoryGrants, discretionaryGrants, newApplication, newDgApplication, applicationDetails, account, privacy, support, historyItemDetails, linkOrgDoc, newPassword, changePassword };
 }
 
 export default usePageTransition

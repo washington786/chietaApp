@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "chietaApp",
-    "slug": "chietaApp",
+    "name": "Chieta",
+    "slug": "Chieta",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -21,7 +21,10 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "android.permission.READ_EXTERNAL_STORAGE"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -33,7 +36,17 @@
           "iCloudContainerEnvironment": "Production"
         }
       ],
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/notification-icon.png",
+          "color": "#50248f",
+          "sounds": [
+            "./assets/notification-sound.wav"
+          ]
+        }
+      ]
     ]
   }
 }

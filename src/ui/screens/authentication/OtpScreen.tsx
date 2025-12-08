@@ -1,16 +1,22 @@
 import { Text, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { AuthWrapper } from '@/components/modules/authentication';
-import { RButton, RKeyboardView, RLogo, SafeArea } from '@/components/common';
+import { RButton, RErrorMessage, RKeyboardView, RLogo, SafeArea } from '@/components/common';
 import usePageTransition from '@/hooks/navigation/usePageTransition';
 import { Authstyles as styles } from '@/styles/AuthStyles';
 import { Button } from 'react-native-paper';
 import colors from '@/config/colors';
 import appFonts from '@/config/fonts';
 import { OtpInput } from "react-native-otp-entry";
+import { Formik } from 'formik';
+import { otpSchema } from '@/core';
+
+const initialValues = {
+    otp: ''
+}
 
 const OtpScreen = () => {
-    const { login } = usePageTransition();
+    const { newPassword } = usePageTransition();
     const [canResend, setCanResend] = useState<Boolean>(false);
     const [timer, setTimer] = useState<number>(60);
     useEffect(() => {
@@ -25,6 +31,11 @@ const OtpScreen = () => {
 
         return () => clearInterval(timeout);
     }, [timer]);
+
+    const handleSubmit = () => {
+        newPassword();
+    };
+
     return (
         <AuthWrapper>
             <SafeArea>
@@ -37,11 +48,18 @@ const OtpScreen = () => {
                         enter the 6-digit code sent to your email address.
                     </Text>
 
-                    <RKeyboardView style={{ gap: 8 }}>
-                        <OtpInput numberOfDigits={6} onTextChange={(text) => console.log(text)} focusColor={colors.primary[600]} />
+                    <Formik initialValues={initialValues} onSubmit={handleSubmit} validationSchema={otpSchema}>
+                        {({ setFieldValue, handleBlur, handleSubmit, errors, touched }) => (
+                            <RKeyboardView style={{ gap: 8 }}>
+                                <OtpInput numberOfDigits={6} onTextChange={(text) => setFieldValue('otp', text)} onBlur={() => handleBlur('otp')} focusColor={colors.primary[600]} type='numeric' />
+                                {
+                                    errors.otp && touched.otp && <RErrorMessage error={errors.otp} />
+                                }
 
-                        <RButton title='verify pin' onPressButton={login} styleBtn={styles.button} />
-                    </RKeyboardView>
+                                <RButton title='verify pin' onPressButton={handleSubmit} styleBtn={styles.button} />
+                            </RKeyboardView>
+                        )}
+                    </Formik>
 
                     <Button
                         textColor={colors.slate['700']}
