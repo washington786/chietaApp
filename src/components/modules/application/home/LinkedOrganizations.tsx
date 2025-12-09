@@ -1,4 +1,4 @@
-import { StyleSheet, TouchableOpacity } from 'react-native'
+import { FlatList, StyleSheet, TouchableOpacity } from 'react-native'
 import React, { useState } from 'react'
 import { RCol, RDialog, RRow } from '@/components/common'
 import { Text } from 'react-native-paper'
@@ -8,10 +8,18 @@ import ItemOrgs from './ItemOrgs';
 import usePageTransition from '@/hooks/navigation/usePageTransition';
 import { useGlobalBottomSheet } from '@/hooks/navigation/BottomSheet';
 import { showToast } from '@/core';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/store/store';
+import { OrganisationDto } from '@/core/models/organizationDto';
 
 const LinkedOrganizations = () => {
     const { newOrg, discretionaryGrants, mandatoryGrants, linkOrgDoc } = usePageTransition();
     const { open, close } = useGlobalBottomSheet();
+
+    const { linkedOrganizations, loading } = useSelector((state: RootState) => state.linkedOrganization);
+
+    console.log(linkedOrganizations);
+
 
     const [visible, setVisible] = useState(false);
 
@@ -64,11 +72,24 @@ const LinkedOrganizations = () => {
     )
 }
 
+interface LinkedListProps {
+    linkedOrgs?: OrganisationDto[];
+}
+function LinkedList({ linkedOrgs }: LinkedListProps) {
+    return (<FlatList
+        data={linkedOrgs}
+        renderItem={null}
+        keyExtractor={(item) => `${item}`}
+    />)
+}
+
+
 interface OrgDetailsProps {
     onDiscretionaryGrants?: () => void;
     onMandatoryGrants?: () => void;
     onDelink?: () => void;
 }
+
 function OrgDetails({ onDelink, onMandatoryGrants, onDiscretionaryGrants }: OrgDetailsProps) {
     return <RCol style={{ position: 'relative' }}>
         <Text variant='titleLarge'>TBESS Consulting and Services</Text>

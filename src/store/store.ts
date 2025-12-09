@@ -5,6 +5,7 @@ import { setupListeners } from '@reduxjs/toolkit/query'
 import { api } from './api/api';
 import AuthReducer from './slice/AuthSlice';
 import notificationReducer from './slice/NotificationSlice';
+import organizationReducer from './slice/Organization';
 
 const persistConfig = {
     key: 'root',
@@ -18,7 +19,9 @@ const persistNotificationConfig = {
 const rootReducer = {
     auth: persistReducer(persistConfig, AuthReducer),
     notification: persistReducer(persistNotificationConfig, notificationReducer),
+    linkedOrganization: organizationReducer,
     [api.reducerPath]: api.reducer,
+
 }
 
 export const store = configureStore({
