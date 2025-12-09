@@ -4,17 +4,21 @@ import colors from '@/config/colors'
 import { RCol, RRow } from '@/components/common'
 import { Text } from 'react-native-paper'
 import Feather from '@expo/vector-icons/Feather';
+import { OrganisationDto } from '@/core/models/organizationDto'
 
 interface props {
-    isActive?: boolean;
     onPress?: () => void;
+    item?: OrganisationDto
 }
-const ItemOrganization: FC<props> = ({ isActive, onPress }) => {
+const ItemOrganization: FC<props> = ({ onPress, item }) => {
+    const { organisationName, organisationRegistrationNumber, status, organisationTradingName } = item || {};
+    const isActive = status?.toLocaleLowerCase() === "active";
+
     return (
         <RCol style={styles.con}>
-            <Text variant='titleLarge' style={styles.itemText}>TBESS Consulting and Services</Text>
-            <Text variant='titleLarge' style={[styles.itemText, styles.trdeName]}>TBESS Consulting and Services Pty LTD</Text>
-            <Text variant='labelLarge' style={[styles.regTxt, styles.txt]}>#2018/330478/07</Text>
+            <Text variant='titleLarge' style={styles.itemText}>{organisationTradingName}</Text>
+            <Text variant='titleLarge' style={[styles.itemText, styles.trdeName]}>{organisationName}</Text>
+            <Text variant='labelLarge' style={[styles.regTxt, styles.txt]}>#{organisationRegistrationNumber}</Text>
             <RRow style={styles.row}>
                 <Feather name={isActive ? "check-square" : "x-square"} size={16} color={isActive ? colors.green[600] : colors.red[600]} />
                 <Text variant='labelMedium' style={[styles.regTxt, { color: isActive ? colors.green[600] : colors.red[600] }]}>{isActive ? "active" : "inactive"}</Text>
