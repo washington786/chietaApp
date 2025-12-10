@@ -55,7 +55,8 @@ const LinkedOrganizations = () => {
             </RRow>
 
             <RCol>
-                <LinkedOrganization org={[]} onNewLinking={handleOrgLinking} onPress={() => open(<OrgDetails onDiscretionaryGrants={handleDiscretionaryGrants} onMandatoryGrants={handleMandatoryGrants} onDelink={handleDialog} orgName={`Name`} />, { snapPoints: ["50%"] })} isLinkingRequired={true} newOrgs={linkedOrganizations} />
+
+                <LinkedOrganization org={organizations} onNewLinking={handleOrgLinking} onPress={() => open(<OrgDetails onDiscretionaryGrants={handleDiscretionaryGrants} onMandatoryGrants={handleMandatoryGrants} onDelink={handleDialog} orgName={`Name`} />, { snapPoints: ["50%"] })} isLinkingRequired={false} newOrgs={linkedOrganizations} isLinkingRequiredNew={true} />
 
                 {/* <ItemOrgs onPress={() => open(<OrgDetails onDiscretionaryGrants={handleDiscretionaryGrants} onMandatoryGrants={handleMandatoryGrants} onDelink={handleDialog} />, { snapPoints: ["50%"] })} isLinkingRequired={false} />
 
@@ -75,11 +76,12 @@ interface linkedProps {
     org: OrganisationDto[],
     onPress?: () => void;
     isLinkingRequired?: boolean;
+    isLinkingRequiredNew?: boolean;
     onNewLinking?: () => void;
     newOrgs?: OrganisationDto[];
 }
 
-const LinkedOrganization: FC<linkedProps> = ({ org, isLinkingRequired = false, onNewLinking, onPress, newOrgs }) => {
+const LinkedOrganization: FC<linkedProps> = ({ org, isLinkingRequired = false, isLinkingRequiredNew = true, onNewLinking, onPress, newOrgs }) => {
 
     const renderList = ({ index, item }: { index: number, item: OrganisationDto }) => {
         return (
@@ -93,7 +95,7 @@ const LinkedOrganization: FC<linkedProps> = ({ org, isLinkingRequired = false, o
         if (!onNewLinking) return null;
         return (
             <Animated.View key={`tracking-${item.id}`} entering={FadeInDown.duration(600).delay(index * 100).springify()}>
-                <ItemOrgs org={item} onNewLinking={onNewLinking} isLinkingRequired={isLinkingRequired} />
+                <ItemOrgs org={item} onNewLinking={onNewLinking} isLinkingRequired={isLinkingRequiredNew} />
             </Animated.View>
         )
     }
@@ -104,6 +106,7 @@ const LinkedOrganization: FC<linkedProps> = ({ org, isLinkingRequired = false, o
             style={{ paddingVertical: 5, flex: 1, flexGrow: 1 }}
             renderItem={renderList}
             showsVerticalScrollIndicator={false}
+            showsHorizontalScrollIndicator={false}
             ItemSeparatorComponent={() => <View style={{ height: 5 }} />}
             removeClippedSubviews={false}
             initialNumToRender={10}
@@ -113,11 +116,14 @@ const LinkedOrganization: FC<linkedProps> = ({ org, isLinkingRequired = false, o
                 <FlatList data={newOrgs}
                     keyExtractor={(item) => `linked-orgs-${item.id}`}
                     renderItem={renderAddNewItem}
+                    ListHeaderComponent={<Text>New Items</Text>}
                     ItemSeparatorComponent={() => <View style={{ height: 5 }} />}
                     removeClippedSubviews={false}
                     initialNumToRender={1}
                     maxToRenderPerBatch={1}
                     windowSize={21}
+                    showsVerticalScrollIndicator={false}
+                    showsHorizontalScrollIndicator={false}
                 />
             }
         />
