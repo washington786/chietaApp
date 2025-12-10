@@ -4,15 +4,16 @@ import { RCol, RRow } from '@/components/common'
 import { Text } from 'react-native-paper'
 import colors from '@/config/colors'
 import Feather from '@expo/vector-icons/Feather';
+import { OrganisationDto } from '@/core/models/organizationDto'
 
 interface props {
-    isVerified?: boolean;
     onPress?: () => void;
     isLinkingRequired?: boolean;
     onNewLinking?: () => void;
+    org?: OrganisationDto
 }
 
-const ItemOrgs: FC<props> = ({ isVerified = true, onPress, isLinkingRequired = false, onNewLinking }) => {
+const ItemOrgs: FC<props> = ({ onPress, isLinkingRequired = false, onNewLinking, org }) => {
 
     function handlePress() {
         if (isLinkingRequired) {
@@ -21,6 +22,8 @@ const ItemOrgs: FC<props> = ({ isVerified = true, onPress, isLinkingRequired = f
             onPress?.();
         }
     }
+
+    const isVerified = org?.status ? "verified" : "unverified";
 
     return (
         <TouchableOpacity onPress={handlePress}>
@@ -32,8 +35,8 @@ const ItemOrgs: FC<props> = ({ isVerified = true, onPress, isLinkingRequired = f
                     </RCol>
                 }
 
-                <Text variant='titleLarge' style={styles.itemText}>Retlhonolofetse Trading projects</Text>
-                <Text variant='labelLarge' style={[styles.regTxt, styles.txt]}>2018/330478/07</Text>
+                <Text variant='titleLarge' style={styles.itemText}>{org?.organisationName}</Text>
+                <Text variant='labelLarge' style={[styles.regTxt, styles.txt]}>#{org?.organisationRegistrationNumber}</Text>
 
                 <RRow style={styles.row}>
                     <Feather name={isVerified ? "check-square" : "x-square"} size={16} color={isVerified ? colors.green[600] : colors.red[600]} />
