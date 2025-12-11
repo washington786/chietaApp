@@ -15,6 +15,7 @@ import { AccWrapper } from "./account/AccWrapper";
 import { DeactivateAccount } from "./account/DeactivateAccount";
 import { AppTrackingItem } from "./history/AppTrackingItem";
 import ProgressTracker from "./history/ProgressTracker";
+import RUploadSuccess from "./organization/RUploadSuccess";
 
 
-export { RTabBarIcon, RCustomTabBarButton, MessageWrapper, LinkedOrganizations, ItemNotification, ItemOrganization, BottomSheetWrapper, InformationBanner, ApplicationItem, DgApplicationItem, AddDgApplicationItem, Expandable, TextWrap, AccWrapper, DeactivateAccount, AppTrackingItem, ProgressTracker }
+export { RTabBarIcon, RCustomTabBarButton, MessageWrapper, LinkedOrganizations, ItemNotification, ItemOrganization, BottomSheetWrapper, InformationBanner, ApplicationItem, DgApplicationItem, AddDgApplicationItem, Expandable, TextWrap, AccWrapper, DeactivateAccount, AppTrackingItem, ProgressTracker, RUploadSuccess }

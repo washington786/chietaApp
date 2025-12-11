@@ -1,5 +1,5 @@
-import { FlatList, StyleSheet, TouchableOpacity } from 'react-native'
-import React, { useState } from 'react'
+import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native'
+import React, { FC, useState } from 'react'
 import { RCol, RDialog, RRow } from '@/components/common'
 import { Text } from 'react-native-paper'
 import Feather from '@expo/vector-icons/Feather';
@@ -8,18 +8,15 @@ import ItemOrgs from './ItemOrgs';
 import usePageTransition from '@/hooks/navigation/usePageTransition';
 import { useGlobalBottomSheet } from '@/hooks/navigation/BottomSheet';
 import { showToast } from '@/core';
+import Animated, { FadeInDown } from 'react-native-reanimated';
+import { OrganisationDto } from '@/core/models/organizationDto';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store/store';
-import { OrganisationDto } from '@/core/models/organizationDto';
 
 const LinkedOrganizations = () => {
     const { newOrg, discretionaryGrants, mandatoryGrants, linkOrgDoc } = usePageTransition();
     const { open, close } = useGlobalBottomSheet();
-
-    const { linkedOrganizations, loading } = useSelector((state: RootState) => state.linkedOrganization);
-
-    console.log(linkedOrganizations);
-
+    const { linkedOrganizations, organizations } = useSelector((state: RootState) => state.linkedOrganization);
 
     const [visible, setVisible] = useState(false);
 
@@ -58,13 +55,16 @@ const LinkedOrganizations = () => {
             </RRow>
 
             <RCol>
-                <ItemOrgs onPress={() => open(<OrgDetails onDiscretionaryGrants={handleDiscretionaryGrants} onMandatoryGrants={handleMandatoryGrants} onDelink={handleDialog} />, { snapPoints: ["50%"] })} isLinkingRequired={false} />
+
+                <LinkedOrganization org={organizations} onNewLinking={handleOrgLinking} onPress={() => open(<OrgDetails onDiscretionaryGrants={handleDiscretionaryGrants} onMandatoryGrants={handleMandatoryGrants} onDelink={handleDialog} orgName={`Name`} />, { snapPoints: ["50%"] })} isLinkingRequired={false} newOrgs={linkedOrganizations} isLinkingRequiredNew={true} />
+
+                {/* <ItemOrgs onPress={() => open(<OrgDetails onDiscretionaryGrants={handleDiscretionaryGrants} onMandatoryGrants={handleMandatoryGrants} onDelink={handleDialog} />, { snapPoints: ["50%"] })} isLinkingRequired={false} />
 
                 <ItemOrgs
-                    isVerified={false}
                     onNewLinking={handleOrgLinking}
                     isLinkingRequired={true}
-                />
+
+                /> */}
             </RCol>
 
             <RDialog hideDialog={handleDialog} visible={visible} message='are you sure you want to de-link this organization?' title='Delink Org' onContinue={handleContinue} />
@@ -72,27 +72,73 @@ const LinkedOrganizations = () => {
     )
 }
 
-interface LinkedListProps {
-    linkedOrgs?: OrganisationDto[];
-}
-function LinkedList({ linkedOrgs }: LinkedListProps) {
-    return (<FlatList
-        data={linkedOrgs}
-        renderItem={null}
-        keyExtractor={(item) => `${item}`}
-    />)
+interface linkedProps {
+    org: OrganisationDto[],
+    onPress?: () => void;
+    isLinkingRequired?: boolean;
+    isLinkingRequiredNew?: boolean;
+    onNewLinking?: () => void;
+    newOrgs?: OrganisationDto[];
 }
 
+const LinkedOrganization: FC<linkedProps> = ({ org, isLinkingRequired = false, isLinkingRequiredNew = true, onNewLinking, onPress, newOrgs }) => {
+
+    const renderList = ({ index, item }: { index: number, item: OrganisationDto }) => {
+        return (
+            <Animated.View key={`tracking-${item}-${Date.now()}`} entering={FadeInDown.duration(600).delay(index * 100).springify()}>
+                <ItemOrgs org={item} onPress={onPress} isLinkingRequired={isLinkingRequired} />
+            </Animated.View>
+        )
+    }
+
+    const renderAddNewItem = ({ index, item }: { index: number, item: OrganisationDto }) => {
+        if (!onNewLinking) return null;
+        return (
+            <Animated.View key={`tracking-${item.id}`} entering={FadeInDown.duration(600).delay(index * 100).springify()}>
+                <ItemOrgs org={item} onNewLinking={onNewLinking} isLinkingRequired={isLinkingRequiredNew} />
+            </Animated.View>
+        )
+    }
+
+    return (
+        <FlatList data={org}
+            keyExtractor={(item) => `linked-orgs-${item.id}`}
+            style={{ paddingVertical: 5, flex: 1, flexGrow: 1 }}
+            renderItem={renderList}
+            showsVerticalScrollIndicator={false}
+            showsHorizontalScrollIndicator={false}
+            ItemSeparatorComponent={() => <View style={{ height: 5 }} />}
+            removeClippedSubviews={false}
+            initialNumToRender={10}
+            maxToRenderPerBatch={10}
+            windowSize={21}
+            ListFooterComponent={
+                <FlatList data={newOrgs}
+                    keyExtractor={(item) => `linked-orgs-${item.id}`}
+                    renderItem={renderAddNewItem}
+                    ListHeaderComponent={<Text>New Items</Text>}
+                    ItemSeparatorComponent={() => <View style={{ height: 5 }} />}
+                    removeClippedSubviews={false}
+                    initialNumToRender={1}
+                    maxToRenderPerBatch={1}
+                    windowSize={21}
+                    showsVerticalScrollIndicator={false}
+                    showsHorizontalScrollIndicator={false}
+                />
+            }
+        />
+    )
+}
 
 interface OrgDetailsProps {
     onDiscretionaryGrants?: () => void;
     onMandatoryGrants?: () => void;
     onDelink?: () => void;
+    orgName: string;
 }
-
-function OrgDetails({ onDelink, onMandatoryGrants, onDiscretionaryGrants }: OrgDetailsProps) {
+function OrgDetails({ onDelink, onMandatoryGrants, onDiscretionaryGrants, orgName }: OrgDetailsProps) {
     return <RCol style={{ position: 'relative' }}>
-        <Text variant='titleLarge'>TBESS Consulting and Services</Text>
+        <Text variant='titleLarge'>{orgName}</Text>
         <Text variant='titleLarge' style={{ fontSize: 11 }}>view applications in categories</Text>
         <TypeDetails title='Mandator grants' onpress={onMandatoryGrants} />
         <TypeDetails title='Discretionary grants' onpress={onDiscretionaryGrants} />

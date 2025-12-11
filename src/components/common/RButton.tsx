@@ -4,11 +4,12 @@ import {
   Text,
   TextStyle,
   TouchableOpacity,
+  TouchableOpacityProps,
   ViewStyle,
 } from "react-native";
 import React, { FC } from "react";
 
-interface IButton {
+interface IButton extends TouchableOpacityProps {
   title: string;
   onPressButton(): void;
   styleBtn?: StyleProp<ViewStyle>;

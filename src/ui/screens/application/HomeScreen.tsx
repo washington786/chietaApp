@@ -10,6 +10,7 @@ const HomeScreen = () => {
             <FlatList data={[]}
                 style={{ paddingHorizontal: 12, paddingVertical: 6, flex: 1, flexGrow: 1 }}
                 renderItem={null}
+                showsVerticalScrollIndicator={false}
                 ListHeaderComponent={<Banner />}
                 ListFooterComponent={() => {
                     return (
