@@ -12,6 +12,7 @@ import Animated, { FadeInDown } from 'react-native-reanimated'
 import useDocumentPicker from '@/hooks/main/UseDocumentPicker'
 import { DocumentPickerResult } from 'expo-document-picker'
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { RUploadSuccess } from '@/components/modules/application'
 
 const LinkOrgPage = () => {
     const { onBack } = usePageTransition();
@@ -60,10 +61,7 @@ const LinkOrgPage = () => {
                         }
 
                         {
-                            file && file.assets && <RRow style={{ alignItems: "center", gap: 4 }}>
-                                <Ionicons name="checkmark-done-circle" size={24} color={colors.green[500]} />
-                                <Text variant='titleMedium'>{file.assets[0]?.name}</Text>
-                            </RRow>
+                            file && file.assets && <RUploadSuccess file={file} />
                         }
 
                         <RButton title='submit' onPressButton={handleSubmit} styleBtn={styles.btn} />
