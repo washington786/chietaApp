@@ -1,17 +1,15 @@
-import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native'
-import React, { FC, useState } from 'react'
+import { StyleSheet, TouchableOpacity } from 'react-native'
+import React, { useState } from 'react'
 import { RCol, RDialog, RRow } from '@/components/common'
 import { Text } from 'react-native-paper'
 import Feather from '@expo/vector-icons/Feather';
 import colors from '@/config/colors';
-import ItemOrgs from './ItemOrgs';
 import usePageTransition from '@/hooks/navigation/usePageTransition';
 import { useGlobalBottomSheet } from '@/hooks/navigation/BottomSheet';
 import { showToast } from '@/core';
-import Animated, { FadeInDown } from 'react-native-reanimated';
-import { OrganisationDto } from '@/core/models/organizationDto';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store/store';
+import { LinkedOrganizationList } from './LinkedOrganizationList';
 
 const LinkedOrganizations = () => {
     const { newOrg, discretionaryGrants, mandatoryGrants, linkOrgDoc } = usePageTransition();
@@ -55,78 +53,11 @@ const LinkedOrganizations = () => {
             </RRow>
 
             <RCol>
-
-                <LinkedOrganization org={organizations} onNewLinking={handleOrgLinking} onPress={() => open(<OrgDetails onDiscretionaryGrants={handleDiscretionaryGrants} onMandatoryGrants={handleMandatoryGrants} onDelink={handleDialog} orgName={`Name`} />, { snapPoints: ["50%"] })} isLinkingRequired={false} newOrgs={linkedOrganizations} isLinkingRequiredNew={true} />
-
-                {/* <ItemOrgs onPress={() => open(<OrgDetails onDiscretionaryGrants={handleDiscretionaryGrants} onMandatoryGrants={handleMandatoryGrants} onDelink={handleDialog} />, { snapPoints: ["50%"] })} isLinkingRequired={false} />
-
-                <ItemOrgs
-                    onNewLinking={handleOrgLinking}
-                    isLinkingRequired={true}
-
-                /> */}
+                <LinkedOrganizationList org={organizations} onNewLinking={handleOrgLinking} onPress={() => open(<OrgDetails onDiscretionaryGrants={handleDiscretionaryGrants} onMandatoryGrants={handleMandatoryGrants} onDelink={handleDialog} orgName={`Name`} />, { snapPoints: ["50%"] })} isLinkingRequired={false} newOrgs={linkedOrganizations} isLinkingRequiredNew={true} />
             </RCol>
 
             <RDialog hideDialog={handleDialog} visible={visible} message='are you sure you want to de-link this organization?' title='Delink Org' onContinue={handleContinue} />
         </RCol>
-    )
-}
-
-interface linkedProps {
-    org: OrganisationDto[],
-    onPress?: () => void;
-    isLinkingRequired?: boolean;
-    isLinkingRequiredNew?: boolean;
-    onNewLinking?: () => void;
-    newOrgs?: OrganisationDto[];
-}
-
-const LinkedOrganization: FC<linkedProps> = ({ org, isLinkingRequired = false, isLinkingRequiredNew = true, onNewLinking, onPress, newOrgs }) => {
-
-    const renderList = ({ index, item }: { index: number, item: OrganisationDto }) => {
-        return (
-            <Animated.View key={`tracking-${item}-${Date.now()}`} entering={FadeInDown.duration(600).delay(index * 100).springify()}>
-                <ItemOrgs org={item} onPress={onPress} isLinkingRequired={isLinkingRequired} />
-            </Animated.View>
-        )
-    }
-
-    const renderAddNewItem = ({ index, item }: { index: number, item: OrganisationDto }) => {
-        if (!onNewLinking) return null;
-        return (
-            <Animated.View key={`tracking-${item.id}`} entering={FadeInDown.duration(600).delay(index * 100).springify()}>
-                <ItemOrgs org={item} onNewLinking={onNewLinking} isLinkingRequired={isLinkingRequiredNew} />
-            </Animated.View>
-        )
-    }
-
-    return (
-        <FlatList data={org}
-            keyExtractor={(item) => `linked-orgs-${item.id}`}
-            style={{ paddingVertical: 5, flex: 1, flexGrow: 1 }}
-            renderItem={renderList}
-            showsVerticalScrollIndicator={false}
-            showsHorizontalScrollIndicator={false}
-            ItemSeparatorComponent={() => <View style={{ height: 5 }} />}
-            removeClippedSubviews={false}
-            initialNumToRender={10}
-            maxToRenderPerBatch={10}
-            windowSize={21}
-            ListFooterComponent={
-                <FlatList data={newOrgs}
-                    keyExtractor={(item) => `linked-orgs-${item.id}`}
-                    renderItem={renderAddNewItem}
-                    ListHeaderComponent={<Text>New Items</Text>}
-                    ItemSeparatorComponent={() => <View style={{ height: 5 }} />}
-                    removeClippedSubviews={false}
-                    initialNumToRender={1}
-                    maxToRenderPerBatch={1}
-                    windowSize={21}
-                    showsVerticalScrollIndicator={false}
-                    showsHorizontalScrollIndicator={false}
-                />
-            }
-        />
     )
 }
 
@@ -136,6 +67,7 @@ interface OrgDetailsProps {
     onDelink?: () => void;
     orgName: string;
 }
+
 function OrgDetails({ onDelink, onMandatoryGrants, onDiscretionaryGrants, orgName }: OrgDetailsProps) {
     return <RCol style={{ position: 'relative' }}>
         <Text variant='titleLarge'>{orgName}</Text>
@@ -162,7 +94,6 @@ function TypeDetails({ title, onpress }: TypeDetailsProps) {
         <Feather name="chevron-right" size={16} color="black" style={{ marginLeft: 6 }} />
     </TouchableOpacity>
 }
-
 
 export default LinkedOrganizations
 
@@ -192,4 +123,4 @@ const styles = StyleSheet.create({
     delink: {
         justifyContent: 'center', marginTop: 12, position: 'absolute', bottom: -70, right: 0, padding: 10, borderRadius: 100, backgroundColor: colors.red[500], alignItems: 'center'
     }
-})
+});

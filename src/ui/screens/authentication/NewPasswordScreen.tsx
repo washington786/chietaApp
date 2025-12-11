@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { AuthWrapper, SuccessWrapper } from '@/components/modules/authentication'
-import { RButton, RErrorMessage, RInput, RKeyboardView, RLogo, SafeArea } from '@/components/common'
+import { RButton, RErrorMessage, RInput, RKeyboardView, RLogo, SafeArea, Scroller } from '@/components/common'
 import { Authstyles as styles } from '@/styles/AuthStyles';
 import appFonts from '@/config/fonts';
 import usePageTransition from '@/hooks/navigation/usePageTransition';
@@ -49,39 +49,41 @@ const NewPasswordScreen = () => {
     }
 
     return (
-        <AuthWrapper>
-            <SafeArea>
-                <RLogo stylesLogo={{ alignContent: "center", marginTop: 40, marginBottom: 20, width: "auto" }} />
-                <View style={styles.content}>
-                    <Text style={[styles.title, { fontFamily: `${appFonts.bold}`, fontWeight: "500", textTransform: "capitalize" }]}>
-                        New Password
-                    </Text>
-                    <Text style={[styles.description]}>
-                        enter your new password to continue to reset.
-                    </Text>
+        <Scroller>
+            <AuthWrapper>
+                <SafeArea>
+                    <RLogo stylesLogo={{ alignContent: "center", marginTop: 40, marginBottom: 20, width: "auto" }} />
+                    <View style={styles.content}>
+                        <Text style={[styles.title, { fontFamily: `${appFonts.bold}`, fontWeight: "500", textTransform: "capitalize" }]}>
+                            New Password
+                        </Text>
+                        <Text style={[styles.description]}>
+                            enter your new password to continue to reset.
+                        </Text>
 
-                    <Formik initialValues={initialValues} onSubmit={handleSubmit} validationSchema={newPasswordSchema}>
-                        {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
-                            <RKeyboardView style={{ gap: 8 }}>
-                                <RInput placeholder='New Password' onBlur={handleBlur('password')} onChangeText={handleChange('password')} value={values.password} />
+                        <Formik initialValues={initialValues} onSubmit={handleSubmit} validationSchema={newPasswordSchema}>
+                            {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
+                                <RKeyboardView style={{ gap: 8 }}>
+                                    <RInput placeholder='New Password' onBlur={handleBlur('password')} onChangeText={handleChange('password')} value={values.password} />
 
-                                {
-                                    errors.password && touched.password && <RErrorMessage error={errors.password} />
-                                }
+                                    {
+                                        errors.password && touched.password && <RErrorMessage error={errors.password} />
+                                    }
 
-                                <RInput placeholder='Confirm Password' value={values.confirmPassword} onBlur={handleBlur('confirmPassword')} onChangeText={handleChange('confirmPassword')} />
-                                {
-                                    errors.confirmPassword && touched.confirmPassword && <RErrorMessage error={errors.confirmPassword} />
-                                }
+                                    <RInput placeholder='Confirm Password' value={values.confirmPassword} onBlur={handleBlur('confirmPassword')} onChangeText={handleChange('confirmPassword')} />
+                                    {
+                                        errors.confirmPassword && touched.confirmPassword && <RErrorMessage error={errors.confirmPassword} />
+                                    }
 
-                                <RButton title='submit' onPressButton={handleSubmit} styleBtn={styles.button} />
-                            </RKeyboardView>
-                        )}
-                    </Formik>
+                                    <RButton title='submit' onPressButton={handleSubmit} styleBtn={styles.button} />
+                                </RKeyboardView>
+                            )}
+                        </Formik>
 
-                </View>
-            </SafeArea>
-        </AuthWrapper>
+                    </View>
+                </SafeArea>
+            </AuthWrapper>
+        </Scroller>
     )
 }
 

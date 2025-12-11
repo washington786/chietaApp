@@ -1,0 +1,71 @@
+import Animated, { FadeInDown } from "react-native-reanimated";
+import ItemOrgs from "./ItemOrgs";
+import { OrganisationDto } from "@/core/models/organizationDto";
+import { FlatList, View } from "react-native";
+import { RCol } from "@/components/common";
+import { Text } from "react-native-paper";
+import Feather from '@expo/vector-icons/Feather';
+import { FC } from "react";
+import colors from "@/config/colors";
+
+interface linkedProps {
+    org: OrganisationDto[],
+    onPress?: () => void;
+    isLinkingRequired?: boolean;
+    isLinkingRequiredNew?: boolean;
+    onNewLinking?: (item: OrganisationDto) => void;
+    newOrgs?: OrganisationDto[];
+}
+
+export const LinkedOrganizationList: FC<linkedProps> = ({ org, isLinkingRequired = false, isLinkingRequiredNew = true, onNewLinking, onPress, newOrgs }) => {
+
+    const renderList = ({ item }: { index: number, item: OrganisationDto }) => {
+        return (
+            <ItemOrgs org={item} onPress={onPress} isLinkingRequired={isLinkingRequired} key={`item-${item.id}`} />
+        )
+    }
+
+    const renderAddNewItem = ({ index, item }: { index: number, item: OrganisationDto }) => {
+        if (!onNewLinking) return null;
+        return (
+            <Animated.View key={`item-${item.id}`} entering={FadeInDown.duration(600).delay(index * 100).springify()}>
+                <ItemOrgs org={item} onNewLinking={() => onNewLinking(item)} isLinkingRequired={isLinkingRequiredNew} />
+            </Animated.View>
+        )
+    }
+
+    return (
+        <FlatList data={org}
+            keyExtractor={(item) => `linked-orgs-${item.id}`}
+            style={{ paddingVertical: 5, flex: 1, flexGrow: 1 }}
+            renderItem={renderList}
+            showsVerticalScrollIndicator={false}
+            showsHorizontalScrollIndicator={false}
+            ItemSeparatorComponent={() => <View style={{ height: 5 }} />}
+            removeClippedSubviews={false}
+            initialNumToRender={10}
+            maxToRenderPerBatch={10}
+            ListEmptyComponent={<>
+                <RCol style={{ alignItems: 'center', justifyContent: 'center', paddingVertical: 20 }}>
+                    <Feather name="box" size={16} color="gray" style={{ marginLeft: 6 }} />
+                    <Text variant='bodyMedium' style={{ color: colors.slate[400] }}>No linked organizations found.</Text>
+                </RCol>
+            </>}
+            windowSize={21}
+            ListFooterComponent={
+                <FlatList data={newOrgs}
+                    keyExtractor={(item) => `linked-orgs-${item.id}`}
+                    renderItem={renderAddNewItem}
+                    ListHeaderComponent={<>{newOrgs && newOrgs?.length > 0 && <Text>New Items</Text>}</>}
+                    ItemSeparatorComponent={() => <View style={{ height: 5 }} />}
+                    removeClippedSubviews={false}
+                    initialNumToRender={1}
+                    maxToRenderPerBatch={1}
+                    windowSize={21}
+                    showsVerticalScrollIndicator={false}
+                    showsHorizontalScrollIndicator={false}
+                />
+            }
+        />
+    )
+}

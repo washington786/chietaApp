@@ -1,7 +1,7 @@
 import { Text, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { AuthWrapper } from '@/components/modules/authentication';
-import { RButton, RErrorMessage, RKeyboardView, RLogo, SafeArea } from '@/components/common';
+import { RButton, RErrorMessage, RKeyboardView, RLogo, SafeArea, Scroller } from '@/components/common';
 import usePageTransition from '@/hooks/navigation/usePageTransition';
 import { Authstyles as styles } from '@/styles/AuthStyles';
 import { Button } from 'react-native-paper';
@@ -37,44 +37,46 @@ const OtpScreen = () => {
     };
 
     return (
-        <AuthWrapper>
-            <SafeArea>
-                <RLogo stylesLogo={{ alignContent: "center", marginTop: 40, marginBottom: 20, width: "auto" }} />
-                <View style={styles.content}>
-                    <Text style={[styles.title, { fontFamily: `${appFonts.bold}`, fontWeight: "500", textTransform: "capitalize" }]}>
-                        verify one time password
-                    </Text>
-                    <Text style={[styles.description]}>
-                        enter the 6-digit code sent to your email address.
-                    </Text>
-
-                    <Formik initialValues={initialValues} onSubmit={handleSubmit} validationSchema={otpSchema}>
-                        {({ setFieldValue, handleBlur, handleSubmit, errors, touched }) => (
-                            <RKeyboardView style={{ gap: 8 }}>
-                                <OtpInput numberOfDigits={6} onTextChange={(text) => setFieldValue('otp', text)} onBlur={() => handleBlur('otp')} focusColor={colors.primary[600]} type='numeric' />
-                                {
-                                    errors.otp && touched.otp && <RErrorMessage error={errors.otp} />
-                                }
-
-                                <RButton title='verify pin' onPressButton={handleSubmit} styleBtn={styles.button} />
-                            </RKeyboardView>
-                        )}
-                    </Formik>
-
-                    <Button
-                        textColor={colors.slate['700']}
-                        labelStyle={{ fontFamily: `${appFonts.medium}` }}
-                        style={styles.textButton}
-                    >
-                        <Text style={{ color: colors.primary['900'], fontFamily: `${appFonts.semiBold}` }}>
-                            {canResend ? 'Resend Code' : 'Resend code in '} {timer ? `00:${timer < 10 ? `0${timer}` : timer}` : ''}
+        <Scroller>
+            <AuthWrapper>
+                <SafeArea>
+                    <RLogo stylesLogo={{ alignContent: "center", marginTop: 40, marginBottom: 20, width: "auto" }} />
+                    <View style={styles.content}>
+                        <Text style={[styles.title, { fontFamily: `${appFonts.bold}`, fontWeight: "500", textTransform: "capitalize" }]}>
+                            verify one time password
+                        </Text>
+                        <Text style={[styles.description]}>
+                            enter the 6-digit code sent to your email address.
                         </Text>
 
-                    </Button>
+                        <Formik initialValues={initialValues} onSubmit={handleSubmit} validationSchema={otpSchema}>
+                            {({ setFieldValue, handleBlur, handleSubmit, errors, touched }) => (
+                                <RKeyboardView style={{ gap: 8 }}>
+                                    <OtpInput numberOfDigits={6} onTextChange={(text) => setFieldValue('otp', text)} onBlur={() => handleBlur('otp')} focusColor={colors.primary[600]} type='numeric' />
+                                    {
+                                        errors.otp && touched.otp && <RErrorMessage error={errors.otp} />
+                                    }
 
-                </View>
-            </SafeArea>
-        </AuthWrapper>
+                                    <RButton title='verify pin' onPressButton={handleSubmit} styleBtn={styles.button} />
+                                </RKeyboardView>
+                            )}
+                        </Formik>
+
+                        <Button
+                            textColor={colors.slate['700']}
+                            labelStyle={{ fontFamily: `${appFonts.medium}` }}
+                            style={styles.textButton}
+                        >
+                            <Text style={{ color: colors.primary['900'], fontFamily: `${appFonts.semiBold}` }}>
+                                {canResend ? 'Resend Code' : 'Resend code in '} {timer ? `00:${timer < 10 ? `0${timer}` : timer}` : ''}
+                            </Text>
+
+                        </Button>
+
+                    </View>
+                </SafeArea>
+            </AuthWrapper >
+        </Scroller >
     )
 }
 

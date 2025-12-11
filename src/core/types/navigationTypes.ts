@@ -29,6 +29,7 @@ export type navigationTypes = {
     };
     orgDetail: {
         orgId?: string;
+        org: any;
     };
     mandatory: {
         orgId?: string;

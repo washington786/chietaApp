@@ -11,12 +11,13 @@ import { showToast } from '@/core'
 import Animated, { FadeInDown } from 'react-native-reanimated'
 import useDocumentPicker from '@/hooks/main/UseDocumentPicker'
 import { DocumentPickerResult } from 'expo-document-picker'
-import Ionicons from '@expo/vector-icons/Ionicons';
 import { RUploadSuccess } from '@/components/modules/application'
 
 const LinkOrgPage = () => {
     const { onBack } = usePageTransition();
+
     const { pickDocument, error, isLoading } = useDocumentPicker();
+
     const [file, setFile] = useState<DocumentPickerResult>();
 
     if (error) {
@@ -67,7 +68,6 @@ const LinkOrgPage = () => {
                         <RButton title='submit' onPressButton={handleSubmit} styleBtn={styles.btn} />
                     </RCol>
                 </Animated.View>
-
             </Scroller>
         </>
     )

@@ -59,7 +59,7 @@ const usePageTransition = () => {
         navigation.replace("newPassword");
     }
 
-    function linkOrgDoc({ orgId }: { orgId: string }) {
+    function linkOrgDoc({ orgId }: { orgId: string, }) {
         navigation.navigate("orgDetail", { orgId: orgId });
     }
 
@@ -70,12 +70,15 @@ const usePageTransition = () => {
             type: type
         });
     }
+
     function mandatoryGrants({ orgId }: { orgId: string }) {
         navigation.navigate("mandatory", { orgId: orgId });
     }
+
     function historyItemDetails({ appId }: { appId: string }) {
         navigation.navigate("historyDetails", { appId: appId });
     }
+
     function discretionaryGrants({ orgId }: { orgId: string }) {
         navigation.navigate("discretionary", { orgId: orgId });
     }

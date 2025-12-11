@@ -85,7 +85,7 @@ const AddNewOrganization = () => {
                 initialNumToRender={10}
                 maxToRenderPerBatch={10}
                 windowSize={21}
-                ListEmptyComponent={<REmpty title='No Organizations' subtitle='Sorry, no organizations are available to link. Please add an organization.' icon='briefcase' />}
+                ListEmptyComponent={<REmpty title='No Organizations' subtitle='Sorry, no organizations are available to link. Please add an organization on web platform.' icon='briefcase' />}
             />
         </SafeArea>
     )

@@ -110,6 +110,7 @@ const DgApplicationDetails = () => {
             showToast({ message: "failed to upload document", title: "Upload", type: "error", position: "top" })
         }
     }
+
     async function handleLearnerSchedule() {
         try {
             const result = await pickDocument();
@@ -120,6 +121,7 @@ const DgApplicationDetails = () => {
             showToast({ message: "failed to upload document", title: "Upload", type: "error", position: "top" })
         }
     }
+
     async function handleOrgInterest() {
         try {
             const result = await pickDocument();
@@ -130,6 +132,7 @@ const DgApplicationDetails = () => {
             showToast({ message: "failed to upload document", title: "Upload", type: "error", position: "top" })
         }
     }
+
     async function handleBankDetails() {
         try {
             const result = await pickDocument();
