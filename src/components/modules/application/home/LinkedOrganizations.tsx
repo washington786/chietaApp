@@ -1,6 +1,6 @@
 import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native'
 import React, { FC, useState } from 'react'
-import { RCol, RDialog, REmpty, RRow } from '@/components/common'
+import { RCol, RDialog, RRow } from '@/components/common'
 import { Text } from 'react-native-paper'
 import Feather from '@expo/vector-icons/Feather';
 import colors from '@/config/colors';
