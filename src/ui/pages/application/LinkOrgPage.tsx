@@ -16,7 +16,7 @@ import { RouteProp, useRoute } from '@react-navigation/native'
 import { navigationTypes } from '@/core/types/navigationTypes'
 import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch, RootState } from '@/store/store'
-import { removeLinkedOrganizationAsync, updateAppointmentLetterStatus } from '@/store/slice/thunks/OrganizationThunks';
+import { removeLinkedOrganizationAsync, updateAppointmentLetterStatus, updateApprovalStatus } from '@/store/slice/thunks/OrganizationThunks';
 import { Step } from '@/core/types/steps'
 import { Feather } from '@expo/vector-icons'
 
@@ -43,8 +43,8 @@ const LinkOrgPage = () => {
 
     const { orgId } = route.params;
 
-    console.log(orgId);
     const [removeDialog, setRemoveVisible] = useState(false);
+    const [cancelDialog, setCancelVisible] = useState(false);
 
     const { pickDocument, error, isLoading } = useDocumentPicker();
 
@@ -71,6 +71,17 @@ const LinkOrgPage = () => {
             showToast({ message: "Successfully submitted your appointment.", title: "Submitted", type: "success", position: "bottom" });
         }).catch((error) => {
             console.log(error);
+            showToast({ message: error || "Failed to submit appointment letter.", title: "Error", type: "error", position: "top" });
+        });
+    }
+
+    function handleCancel() {
+        dispatch(updateApprovalStatus({ status: 'cancelled', orgId: Number(orgId) })).unwrap().then(() => {
+            setCancelVisible(false);
+            showToast({ message: "Successfully cancelled your appointment letter.", title: "Cancelled", type: "success", position: "bottom" });
+        }).catch((error) => {
+            console.log(error);
+            setCancelVisible(false);
             showToast({ message: error || "Failed to submit appointment letter.", title: "Error", type: "error", position: "top" });
         });
     }
@@ -105,6 +116,14 @@ const LinkOrgPage = () => {
                             <Text variant='labelLarge'>Application Details</Text>
 
                             <RCol style={styles.wrapper}>
+
+                                {
+                                    foundOrg.approvalStatus === 'cancelled' &&
+                                    <RCol style={{ paddingHorizontal: 12, paddingVertical: 6, position: 'absolute', top: 10, right: 10, backgroundColor: colors.red[500], borderRadius: 100 }}>
+                                        <Text style={{ color: "white" }}>Cancelled</Text>
+                                    </RCol>
+                                }
+
                                 <Text variant='titleSmall' style={styles.orgTitle}>{foundOrg.organisationTradingName}</Text>
                                 <Text variant='bodySmall' style={styles.orgTitle}>{foundOrg.organisationRegistrationNumber}</Text>
                                 <RRow style={[styles.rowtFlex, styles.center, styles.gap, styles.row]}>
@@ -152,7 +171,10 @@ const LinkOrgPage = () => {
                             <RCol>
                                 <ProgressTracker steps={steps} />
                             </RCol>
-                            <RButton title='cancel linking' onPressButton={handleSubmit} styleBtn={styles.rmbtn} />
+                            {
+                                foundOrg.approvalStatus !== 'cancelled' &&
+                                <RButton title='cancel linking' onPressButton={() => setCancelVisible(true)} styleBtn={styles.rmbtn} />
+                            }
                         </>
                     }
                 </Animated.View>
@@ -167,6 +189,8 @@ const LinkOrgPage = () => {
                     />
                 }
                 <RDialog message='Are you sure you want to remove this organization from linking and uploading documents?' title='Remove Organization' hideDialog={() => setRemoveVisible(false)} visible={removeDialog} onContinue={handleRemoveOrg} />
+
+                <RDialog message='Are you sure you want to cancel this organization from linking?' title='Cancel Organization' hideDialog={() => setCancelVisible(false)} visible={cancelDialog} onContinue={handleCancel} />
             </Scroller>
         </>
     )
@@ -238,6 +262,7 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         paddingHorizontal: 8,
         paddingVertical: 10,
-        marginVertical: 10
+        marginVertical: 10,
+        position: "relative"
     }
 })

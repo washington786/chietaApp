@@ -98,12 +98,17 @@ export const updateAppointmentLetterStatus = createAsyncThunk(
 export const updateApprovalStatus = createAsyncThunk(
     'organization/updateApprovalStatus',
     async (
-        { orgId, status }: { orgId: number; status: 'approved' | 'rejected' },
-        { rejectWithValue, getState }
+        { orgId, status }: { orgId: number; status: 'approved' | 'rejected' | 'cancelled' },
+        { rejectWithValue }
     ) => {
         try {
-            const state = getState() as { organization: OrganizationState };
-            const currentList = state.organization.linkedOrganizations;
+            const stored = await SecureStore.getItemAsync('LINKED_ORGANIZATIONS');
+            const currentList: LinkedOrganization[] = stored ? JSON.parse(stored) : [];
+
+            const orgExists = currentList.some(org => org.id === orgId);
+            if (!orgExists) {
+                return rejectWithValue('Organization not found');
+            }
 
             const updatedList = currentList.map(org =>
                 org.id === orgId ? { ...org, approvalStatus: status } : org

@@ -30,6 +30,7 @@ export const initialOrganizationState: OrganizationState = {
 const organizationSlice = createSlice({
     name: 'organization',
     initialState: initialOrganizationState,
+
     reducers: {
         setAllOrganizations: (state, action: PayloadAction<OrganisationDto[]>) => {
             state.organizations = action.payload;
@@ -55,6 +56,7 @@ const organizationSlice = createSlice({
             state.linkedOrganizations = [];
         },
     },
+
     extraReducers: (builder) => {
         builder
             // Load linked orgs
