@@ -5,7 +5,7 @@ import { linkOrganizationAsync, loadLinkedOrganizationsAsync, loadOrganizations,
 
 export interface LinkedOrganization extends OrganisationDto {
     isUploadedAppointmentLetter: boolean;
-    approvalStatus: 'submitted' | 'pending' | 'approved' | 'rejected';
+    approvalStatus: 'submitted' | 'pending' | 'approved' | 'rejected' | 'cancelled';
 }
 
 export interface OrganizationState {
