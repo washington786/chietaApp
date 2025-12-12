@@ -1,7 +1,7 @@
 import { OrganisationDto } from "@/core/models/organizationDto";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import * as SecureStore from 'expo-secure-store';
-import { LinkedOrganization, OrganizationState } from "../Organization";
+import { LinkedOrganization } from "../Organization";
 import { org_data } from "@/core/types/dummy";
 
 export const linkOrganizationAsync = createAsyncThunk(
@@ -22,7 +22,7 @@ export const linkOrganizationAsync = createAsyncThunk(
                 approvalStatus: 'pending',
             };
 
-            const updatedList = [...existing, newLinkedOrg];
+            const updatedList = [newLinkedOrg, ...existing];
             await SecureStore.setItemAsync('LINKED_ORGANIZATIONS', JSON.stringify(updatedList));
             return updatedList;
         } catch (error) {
@@ -106,6 +106,7 @@ export const updateApprovalStatus = createAsyncThunk(
             const currentList: LinkedOrganization[] = stored ? JSON.parse(stored) : [];
 
             const orgExists = currentList.some(org => org.id === orgId);
+
             if (!orgExists) {
                 return rejectWithValue('Organization not found');
             }

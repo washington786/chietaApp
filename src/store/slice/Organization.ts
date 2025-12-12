@@ -2,7 +2,6 @@ import { OrganisationDto } from '@/core/models/organizationDto';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { linkOrganizationAsync, loadLinkedOrganizationsAsync, loadOrganizations, removeLinkedOrganizationAsync, updateAppointmentLetterStatus, updateApprovalStatus } from './thunks/OrganizationThunks';
 
-
 export interface LinkedOrganization extends OrganisationDto {
     isUploadedAppointmentLetter: boolean;
     approvalStatus: 'submitted' | 'pending' | 'approved' | 'rejected' | 'cancelled';
@@ -25,7 +24,6 @@ export const initialOrganizationState: OrganizationState = {
     error: null,
     linkedOrganizations: [],
 };
-
 
 const organizationSlice = createSlice({
     name: 'organization',

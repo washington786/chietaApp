@@ -11,9 +11,9 @@ import { OrganisationDto } from '@/core/models/organizationDto'
 import { org_data } from '@/core/types/dummy'
 import usePageTransition from '@/hooks/navigation/usePageTransition'
 import { useDispatch, useSelector } from 'react-redux'
-import { linkOrganizationAsync, setAllOrganizations, setSearchQuery } from '@/store/slice/Organization'
-import { RootState } from '@/store/store'
-import useAppDispatch from '@/hooks/main/useAppDispatch'
+import { setAllOrganizations, setSearchQuery } from '@/store/slice/Organization'
+import { AppDispatch, RootState } from '@/store/store'
+import { linkOrganizationAsync } from '@/store/slice/thunks/OrganizationThunks'
 
 const AddNewOrganization = () => {
     const { filteredOrganizations, searchQuery } = useSelector(
@@ -21,7 +21,7 @@ const AddNewOrganization = () => {
     );
 
     const { onBack } = usePageTransition();
-    const dispatch = useAppDispatch();
+    const dispatch = useDispatch<AppDispatch>();
 
     useEffect(() => {
         dispatch(setAllOrganizations(org_data));
@@ -39,7 +39,8 @@ const AddNewOrganization = () => {
                     position: 'bottom',
                 });
             })
-            .catch((error) => {
+            .catch((error: any) => {
+                console.log(error);
                 showToast({
                     message: error || 'Failed to link organization',
                     type: 'error',

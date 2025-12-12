@@ -25,12 +25,10 @@ export const LinkedOrganizationList: FC<linkedProps> = ({ org, isLinkingRequired
         )
     }
 
-    const renderAddNewItem = ({ index, item }: { index: number, item: OrganisationDto }) => {
+    const renderAddNewItem = ({ item }: { index: number, item: OrganisationDto }) => {
         if (!onNewLinking) return null;
         return (
-            <Animated.View key={`item-${item.id}`} entering={FadeInDown.duration(600).delay(index * 100).springify()}>
-                <ItemOrgs org={item} onNewLinking={() => onNewLinking(item)} isLinkingRequired={isLinkingRequiredNew} />
-            </Animated.View>
+            <ItemOrgs org={item} onNewLinking={() => onNewLinking(item)} isLinkingRequired={isLinkingRequiredNew} key={`${item.id}`} />
         )
     }
 
