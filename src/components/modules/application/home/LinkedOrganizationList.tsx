@@ -10,7 +10,7 @@ import colors from "@/config/colors";
 
 interface linkedProps {
     org: OrganisationDto[],
-    onPress?: () => void;
+    onPress: (selected: OrganisationDto) => void;
     isLinkingRequired?: boolean;
     isLinkingRequiredNew?: boolean;
     onNewLinking?: (item: OrganisationDto) => void;
@@ -21,7 +21,7 @@ export const LinkedOrganizationList: FC<linkedProps> = ({ org, isLinkingRequired
 
     const renderList = ({ item }: { index: number, item: OrganisationDto }) => {
         return (
-            <ItemOrgs org={item} onPress={onPress} isLinkingRequired={isLinkingRequired} key={`item-${item.id}`} />
+            <ItemOrgs org={item} onPress={() => onPress(item)} isLinkingRequired={isLinkingRequired} key={`item-${item.id}`} />
         )
     }
 
@@ -56,7 +56,7 @@ export const LinkedOrganizationList: FC<linkedProps> = ({ org, isLinkingRequired
                 <FlatList data={newOrgs}
                     keyExtractor={(item) => `linked-orgs-${item.id}`}
                     renderItem={renderAddNewItem}
-                    ListHeaderComponent={<>{newOrgs && newOrgs?.length > 0 && <Text>New Items</Text>}</>}
+                    ListHeaderComponent={<>{newOrgs && newOrgs?.length > 0 && <Text style={{ paddingVertical: 8 }}>New Organization(s)</Text>}</>}
                     ItemSeparatorComponent={() => <View style={{ height: 5 }} />}
                     removeClippedSubviews={false}
                     initialNumToRender={1}

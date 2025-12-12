@@ -1,91 +1,8 @@
 import { OrganisationDto } from '@/core/models/organizationDto';
-import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
-import * as SecureStore from 'expo-secure-store';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { linkOrganizationAsync, loadLinkedOrganizationsAsync, loadOrganizations, removeLinkedOrganizationAsync, updateAppointmentLetterStatus, updateApprovalStatus } from './thunks/OrganizationThunks';
 
-export const linkOrganizationAsync = createAsyncThunk(
-    'organization/linkOrganizationAsync',
-    async (org: OrganisationDto, { rejectWithValue }) => {
-        try {
-            const stored = await SecureStore.getItemAsync('LINKED_ORGANIZATIONS');
-            const existing: LinkedOrganization[] = stored ? JSON.parse(stored) : [];
 
-            const alreadyLinked = existing.some(item => item.id === org.id);
-            if (alreadyLinked) {
-                return rejectWithValue('Organization already linked');
-            }
-
-            const newLinkedOrg: LinkedOrganization = {
-                ...org,
-                isUploadedAppointmentLetter: false,
-                approvalStatus: 'pending',
-            };
-
-            const updatedList = [...existing, newLinkedOrg];
-            await SecureStore.setItemAsync('LINKED_ORGANIZATIONS', JSON.stringify(updatedList));
-            return updatedList;
-        } catch (error) {
-            return rejectWithValue('Failed to link organization');
-        }
-    }
-);
-
-export const loadLinkedOrganizationsAsync = createAsyncThunk(
-    'organization/loadLinkedOrganizationsAsync',
-    async (_, { rejectWithValue }) => {
-        try {
-            const stored = await SecureStore.getItemAsync('LINKED_ORGANIZATIONS');
-            return stored ? JSON.parse(stored) : [];
-        } catch (error) {
-            return rejectWithValue('Failed to load linked organizations');
-        }
-    }
-);
-
-export const updateAppointmentLetterStatus = createAsyncThunk(
-    'organization/updateAppointmentLetterStatus',
-    async (
-        { orgId, isUploaded }: { orgId: number; isUploaded: boolean },
-        { rejectWithValue, getState }
-    ) => {
-        try {
-            const state = getState() as { organization: OrganizationState };
-            const currentList = state.organization.linkedOrganizations;
-
-            const updatedList = currentList.map(org =>
-                org.id === orgId
-                    ? { ...org, isUploadedAppointmentLetter: isUploaded }
-                    : org
-            );
-
-            await SecureStore.setItemAsync('LINKED_ORGANIZATIONS', JSON.stringify(updatedList));
-            return updatedList;
-        } catch (error) {
-            return rejectWithValue('Failed to update appointment letter status');
-        }
-    }
-);
-
-export const updateApprovalStatus = createAsyncThunk(
-    'organization/updateApprovalStatus',
-    async (
-        { orgId, status }: { orgId: number; status: 'approved' | 'rejected' },
-        { rejectWithValue, getState }
-    ) => {
-        try {
-            const state = getState() as { organization: OrganizationState };
-            const currentList = state.organization.linkedOrganizations;
-
-            const updatedList = currentList.map(org =>
-                org.id === orgId ? { ...org, approvalStatus: status } : org
-            );
-
-            await SecureStore.setItemAsync('LINKED_ORGANIZATIONS', JSON.stringify(updatedList));
-            return updatedList;
-        } catch (error) {
-            return rejectWithValue('Failed to update approval status');
-        }
-    }
-);
 export interface LinkedOrganization extends OrganisationDto {
     isUploadedAppointmentLetter: boolean;
     approvalStatus: 'submitted' | 'pending' | 'approved' | 'rejected';
@@ -139,8 +56,8 @@ const organizationSlice = createSlice({
         },
     },
     extraReducers: (builder) => {
-        // Load linked orgs
         builder
+            // Load linked orgs
             .addCase(loadLinkedOrganizationsAsync.fulfilled, (state, action) => {
                 state.linkedOrganizations = action.payload;
                 state.loading = false;
@@ -176,6 +93,28 @@ const organizationSlice = createSlice({
             // Update approval status
             .addCase(updateApprovalStatus.fulfilled, (state, action) => {
                 state.linkedOrganizations = action.payload;
+            })
+
+            // Load organizations
+            .addCase(loadOrganizations.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(loadOrganizations.fulfilled, (state, action) => {
+                state.organizations = action.payload;
+                state.loading = false;
+            })
+            .addCase(loadOrganizations.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.error.message || 'Failed to load available organizations';
+            })
+
+            //remove
+            .addCase(removeLinkedOrganizationAsync.fulfilled, (state, action) => {
+                state.linkedOrganizations = action.payload;
+            })
+            .addCase(removeLinkedOrganizationAsync.rejected, (state, action) => {
+                state.error = action.payload as string || 'Unknown error';
             });
     },
 });
