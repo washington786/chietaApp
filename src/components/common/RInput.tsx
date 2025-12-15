@@ -14,7 +14,7 @@ const RInput: FC<props> = (props) => {
       {props.icon && (
         <Feather size={20} name={props.icon} color={colors.gray[400]} />
       )}
-      <TextInput {...props} style={styles.input} />
+      <TextInput {...props} style={styles.input} autoCapitalize="none" />
     </View>
   );
 };

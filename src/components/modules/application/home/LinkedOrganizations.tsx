@@ -83,7 +83,7 @@ interface OrgDetailsProps {
     orgName: string;
 }
 
-function OrgDetails({ onDelink, onMandatoryGrants, onDiscretionaryGrants, orgName }: OrgDetailsProps) {
+export function OrgDetails({ onDelink, onMandatoryGrants, onDiscretionaryGrants, orgName }: OrgDetailsProps) {
     return <RCol style={{ position: 'relative' }}>
         <Text variant='titleLarge'>{orgName}</Text>
         <Text variant='titleLarge' style={{ fontSize: 11 }}>view applications in categories</Text>
