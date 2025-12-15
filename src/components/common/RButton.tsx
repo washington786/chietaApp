@@ -8,6 +8,7 @@ import {
   ViewStyle,
 } from "react-native";
 import React, { FC } from "react";
+import RLoaderAnimation from "./RLoaderAnimation";
 
 interface IButton extends TouchableOpacityProps {
   title: string;
@@ -15,18 +16,25 @@ interface IButton extends TouchableOpacityProps {
   styleBtn?: StyleProp<ViewStyle>;
   styleTitle?: StyleProp<TextStyle>;
   disable?: boolean;
+  isSubmitting?: boolean;
 }
 const RButton: FC<IButton> = ({
   onPressButton,
   title,
   styleBtn,
   styleTitle,
-  disable = false
+  disable = false,
+  isSubmitting = false
 }) => {
   return (
-    <TouchableOpacity style={[styles.btnCon, styleBtn]} onPress={onPressButton} disabled={disable}>
-      <Text style={[styles.txt, styleTitle]}>{title}</Text>
-    </TouchableOpacity>
+    <>
+      <TouchableOpacity style={[styles.btnCon, styleBtn]} onPress={onPressButton} disabled={disable}>
+        <Text style={[styles.txt, styleTitle]}>{title}</Text>
+      </TouchableOpacity>
+      {
+        isSubmitting && <RLoaderAnimation />
+      }
+    </>
   );
 };
 

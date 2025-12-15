@@ -55,14 +55,14 @@ const usePageTransition = () => {
     function support() {
         navigation.navigate("support");
     }
+    function linkedOrganizations() {
+        navigation.navigate("linkedOrganizationsProfile");
+    }
 
     function newPassword() {
         navigation.replace("newPassword");
     }
 
-    function linkedOrganizations() {
-        navigation.navigate("linkedOrganizationsProfile");
-    }
 
     function linkOrgDoc({ orgId }: { orgId: string, }) {
         navigation.navigate("orgDetail", { orgId: orgId });
