@@ -39,9 +39,9 @@ const LinkOrgPage = () => {
     const route = useRoute<RouteProp<navigationTypes, 'orgLinking'>>();
     const { linkedOrganizations } = useSelector((state: RootState) => state.linkedOrganization);
 
-    const dispatch = useDispatch<AppDispatch>();
-
     const { orgId } = route.params;
+
+    const dispatch = useDispatch<AppDispatch>();
 
     const [removeDialog, setRemoveVisible] = useState(false);
     const [cancelDialog, setCancelVisible] = useState(false);

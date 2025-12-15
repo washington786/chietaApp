@@ -2,10 +2,9 @@ import { RRow } from "@/components/common";
 import { StyleSheet, TouchableOpacity } from "react-native";
 import { Text } from "react-native-paper";
 import Ionicons from '@expo/vector-icons/Ionicons';
-
 interface props {
     title?: string;
-    icon: 'person-sharp' | 'help-circle-sharp' | 'lock-closed-sharp' | 'exit-outline' | 'remove-circle-sharp' | 'lock-closed-outline';
+    icon: 'person-sharp' | 'help-circle-sharp' | 'lock-closed-sharp' | 'exit-outline' | 'remove-circle-sharp' | 'lock-closed-outline' | 'file-tray-outline';
     onPress?: () => void;
 }
 

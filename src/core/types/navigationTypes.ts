@@ -11,11 +11,14 @@ export type navigationTypes = {
     newOrgLink: undefined;
     newApplication: undefined;
     newDgApplication: undefined;
+
     account: undefined;
     privacy: undefined;
     support: undefined;
     newPassword: undefined;
     changePassword: undefined;
+    linkedOrganizationsProfile: undefined;
+
     orgLinking: {
         orgId: string;
     };
@@ -28,8 +31,8 @@ export type navigationTypes = {
         type?: string;
     };
     orgDetail: {
-        orgId?: string;
-        org: any;
+        orgId: string;
+        org?: any;
     };
     mandatory: {
         orgId?: string;

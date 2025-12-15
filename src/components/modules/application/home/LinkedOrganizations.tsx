@@ -67,7 +67,7 @@ const LinkedOrganizations = () => {
                     onPress={(selectedOrg: OrganisationDto) => open(
                         <OrgDetails
                             onDiscretionaryGrants={() => handleDiscretionaryGrants(selectedOrg)} onMandatoryGrants={() => handleMandatoryGrants(selectedOrg)} onDelink={handleDialog} orgName={`${selectedOrg.organisationTradingName}`} />, { snapPoints: ["50%"] })} isLinkingRequired={false}
-                    newOrgs={linkedOrganizations}
+                    newOrgs={linkedOrganizations.filter(l => l.approvalStatus !== 'cancelled')}
                     isLinkingRequiredNew={true} />
             </RCol>
 
