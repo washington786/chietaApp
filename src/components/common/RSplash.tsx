@@ -10,6 +10,7 @@ import Animated, {
 } from 'react-native-reanimated'
 import RText from './RText'
 import colors from '@/config/colors'
+import RLoaderAnimation from './RLoaderAnimation'
 
 const RSplash = () => {
     const logoScale = useSharedValue(0.8);
@@ -35,9 +36,7 @@ const RSplash = () => {
                 </Animated.View>
 
                 <Animated.View entering={FadeInDown.delay(800).duration(1000)}>
-                    <View style={styles.loaderContainer}>
-                        <View style={styles.loaderBar} />
-                    </View>
+                    <RLoaderAnimation />
                 </Animated.View>
             </Animated.View>
 
