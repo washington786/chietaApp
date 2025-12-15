@@ -20,7 +20,8 @@ const RButton: FC<IButton> = ({
   onPressButton,
   title,
   styleBtn,
-  styleTitle, disable = false
+  styleTitle,
+  disable = false
 }) => {
   return (
     <TouchableOpacity style={[styles.btnCon, styleBtn]} onPress={onPressButton} disabled={disable}>

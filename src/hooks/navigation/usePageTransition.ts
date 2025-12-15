@@ -61,7 +61,7 @@ const usePageTransition = () => {
     }
 
     function linkedOrganizations() {
-        navigation.replace("linkedOrganizationsProfile");
+        navigation.navigate("linkedOrganizationsProfile");
     }
 
     function linkOrgDoc({ orgId }: { orgId: string, }) {
