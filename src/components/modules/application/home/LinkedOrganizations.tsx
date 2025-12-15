@@ -1,6 +1,6 @@
 import { StyleSheet, TouchableOpacity } from 'react-native'
 import React, { useEffect, useState } from 'react'
-import { RCol, RDialog, RRow } from '@/components/common'
+import { RCol, RDialog, RListLoading, RRow } from '@/components/common'
 import { Text } from 'react-native-paper'
 import Feather from '@expo/vector-icons/Feather';
 import colors from '@/config/colors';
@@ -16,7 +16,8 @@ import { OrganisationDto } from '@/core/models/organizationDto';
 const LinkedOrganizations = () => {
     const { newOrg, discretionaryGrants, mandatoryGrants, linkOrgDoc } = usePageTransition();
     const { open, close } = useGlobalBottomSheet();
-    const { linkedOrganizations, organizations } = useSelector((state: RootState) => state.linkedOrganization);
+    const { linkedOrganizations, organizations, loading, error } = useSelector((state: RootState) => state.linkedOrganization);
+
     const dispatch = useDispatch<AppDispatch>();
 
     const [visible, setVisible] = useState(false);
@@ -50,30 +51,39 @@ const LinkedOrganizations = () => {
         linkOrgDoc({ orgId: String(org.id) });
     }
 
-    return (
-        <RCol>
-            <RRow style={{ alignItems: 'center', gap: 6, marginBottom: 12, justifyContent: 'space-between' }}>
-                <Text variant='titleSmall'>my linked organizations</Text>
-                <TouchableOpacity style={styles.btn} onPress={newOrg}>
-                    <Feather name="link-2" size={16} color="white" style={{ marginLeft: 6 }} />
-                    <Text variant='titleSmall' style={{ color: "white" }}>add new</Text>
-                </TouchableOpacity>
-            </RRow>
+    if (error) {
+        showToast({ message: error, type: "error", title: "Error", position: "top" });
+    }
 
+    if (loading) {
+        return (<RListLoading count={7} />);
+    } else {
+        return (
             <RCol>
-                <LinkedOrganizationList
-                    org={organizations}
-                    onNewLinking={(selected) => handleOrgLinking(selected)}
-                    onPress={(selectedOrg: OrganisationDto) => open(
-                        <OrgDetails
-                            onDiscretionaryGrants={() => handleDiscretionaryGrants(selectedOrg)} onMandatoryGrants={() => handleMandatoryGrants(selectedOrg)} onDelink={handleDialog} orgName={`${selectedOrg.organisationTradingName}`} />, { snapPoints: ["50%"] })} isLinkingRequired={false}
-                    newOrgs={linkedOrganizations.filter(l => l.approvalStatus !== 'cancelled')}
-                    isLinkingRequiredNew={true} />
-            </RCol>
+                <RRow style={{ alignItems: 'center', gap: 6, marginBottom: 12, justifyContent: 'space-between' }}>
+                    <Text variant='titleSmall'>my linked organizations</Text>
+                    <TouchableOpacity style={styles.btn} onPress={newOrg}>
+                        <Feather name="link-2" size={16} color="white" style={{ marginLeft: 6 }} />
+                        <Text variant='titleSmall' style={{ color: "white" }}>add new</Text>
+                    </TouchableOpacity>
+                </RRow>
 
-            <RDialog hideDialog={handleDialog} visible={visible} message='are you sure you want to de-link this organization?' title='Delink Org' onContinue={handleContinue} />
-        </RCol>
-    )
+                <RCol>
+                    <LinkedOrganizationList
+                        org={organizations}
+                        onNewLinking={(selected) => handleOrgLinking(selected)}
+                        onPress={(selectedOrg: OrganisationDto) => open(
+                            <OrgDetails
+                                onDiscretionaryGrants={() => handleDiscretionaryGrants(selectedOrg)} onMandatoryGrants={() => handleMandatoryGrants(selectedOrg)} onDelink={handleDialog} orgName={`${selectedOrg.organisationTradingName}`} />, { snapPoints: ["50%"] })} isLinkingRequired={false}
+                        newOrgs={linkedOrganizations.filter(l => l.approvalStatus !== 'cancelled')}
+                        isLinkingRequiredNew={true} />
+                </RCol>
+
+                <RDialog hideDialog={handleDialog} visible={visible} message='are you sure you want to de-link this organization?' title='Delink Org' onContinue={handleContinue} />
+            </RCol>
+        )
+    }
+
 }
 
 interface OrgDetailsProps {
