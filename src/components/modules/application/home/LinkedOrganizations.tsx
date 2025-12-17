@@ -18,6 +18,8 @@ const LinkedOrganizations = () => {
     const { open, close } = useGlobalBottomSheet();
     const { linkedOrganizations, organizations, loading, error } = useSelector((state: RootState) => state.linkedOrganization);
 
+    const orgs = organizations.slice(0, 2);
+
     const dispatch = useDispatch<AppDispatch>();
 
     const [visible, setVisible] = useState(false);
@@ -70,7 +72,7 @@ const LinkedOrganizations = () => {
 
                 <RCol>
                     <LinkedOrganizationList
-                        org={organizations}
+                        org={orgs}
                         onNewLinking={(selected) => handleOrgLinking(selected)}
                         onPress={(selectedOrg: OrganisationDto) => open(
                             <OrgDetails

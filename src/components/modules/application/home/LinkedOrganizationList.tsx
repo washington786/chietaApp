@@ -1,4 +1,3 @@
-import Animated, { FadeInDown } from "react-native-reanimated";
 import ItemOrgs from "./ItemOrgs";
 import { OrganisationDto } from "@/core/models/organizationDto";
 import { FlatList, View } from "react-native";
@@ -51,18 +50,19 @@ export const LinkedOrganizationList: FC<linkedProps> = ({ org, isLinkingRequired
             </>}
             windowSize={21}
             ListFooterComponent={
-                <FlatList data={newOrgs}
-                    keyExtractor={(item) => `linked-orgs-${item.id}`}
-                    renderItem={renderAddNewItem}
-                    ListHeaderComponent={<>{newOrgs && newOrgs?.length > 0 && <Text style={{ paddingVertical: 8 }}>New Organization(s)</Text>}</>}
-                    ItemSeparatorComponent={() => <View style={{ height: 5 }} />}
-                    removeClippedSubviews={false}
-                    initialNumToRender={1}
-                    maxToRenderPerBatch={1}
-                    windowSize={21}
-                    showsVerticalScrollIndicator={false}
-                    showsHorizontalScrollIndicator={false}
-                />
+                newOrgs && newOrgs.length > 0 ?
+                    <FlatList data={newOrgs}
+                        keyExtractor={(item) => `linked-orgs-${item.id}`}
+                        renderItem={renderAddNewItem}
+                        ListHeaderComponent={<>{newOrgs && newOrgs?.length > 0 && <Text style={{ paddingVertical: 8 }}>New Organization(s)</Text>}</>}
+                        ItemSeparatorComponent={() => <View style={{ height: 5 }} />}
+                        removeClippedSubviews={false}
+                        initialNumToRender={1}
+                        maxToRenderPerBatch={1}
+                        windowSize={21}
+                        showsVerticalScrollIndicator={false}
+                        showsHorizontalScrollIndicator={false}
+                    /> : null
             }
         />
     )
