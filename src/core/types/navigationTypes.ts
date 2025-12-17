@@ -23,7 +23,8 @@ export type navigationTypes = {
         orgId: string;
     };
     historyDetails: {
-        appId: string;
+        appId: string | number;
+        item?: any;
     };
     applicationDetails: {
         orgId?: string;

@@ -1,10 +1,10 @@
 
-import { DiscretionaryProjectDetailsApproval } from '@/core/models/DiscretionaryDto';
+import { DiscretionaryGrantApplication } from '@/core/models/DiscretionaryDto';
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 
-const fetchDiscretionaryProjects = async (): Promise<DiscretionaryProjectDetailsApproval[]> => {
-    const { mockDiscretionaryProjectDetailsApprovals } = await import('@/core/types/dummy');
-    return mockDiscretionaryProjectDetailsApprovals;
+const fetchDiscretionaryProjects = async (): Promise<DiscretionaryGrantApplication[]> => {
+    const { sampleDiscretionaryGrantApplications } = await import('@/core/types/dummy');
+    return sampleDiscretionaryGrantApplications;
 };
 
 // Async Thunk
@@ -22,8 +22,8 @@ export const fetchDiscretionaryProjectsAsync = createAsyncThunk(
 
 // State
 export interface DiscretionaryProjectsState {
-    items: DiscretionaryProjectDetailsApproval[];
-    filteredItems: DiscretionaryProjectDetailsApproval[];
+    items: DiscretionaryGrantApplication[];
+    filteredItems: DiscretionaryGrantApplication[];
     searchQuery: string;
     loading: boolean;
     error: string | null;
@@ -37,25 +37,25 @@ const initialState: DiscretionaryProjectsState = {
     error: null,
 };
 
-// Slice
-const discretionaryProjectsSlice = createSlice({
-    name: 'discretionaryProjects',
+const discretionaryGrantsSlice = createSlice({
+    name: 'discretionaryGrants',
     initialState,
     reducers: {
         setSearchQuery: (state, action: PayloadAction<string>) => {
             state.searchQuery = action.payload;
-            const query = action.payload.toLowerCase().trim();
-            if (!query) {
+            const q = action.payload.toLowerCase().trim();
+            if (!q) {
                 state.filteredItems = state.items;
                 return;
             }
-            state.filteredItems = state.items.filter(
-                (item) =>
-                    (item.reason && item.reason.toLowerCase().includes(query)) ||
-                    (item.province && item.province.toLowerCase().includes(query)) ||
-                    (item.municipality && item.municipality.toLowerCase().includes(query)) ||
-                    (item.contractNumber && item.contractNumber.includes(query)) ||
-                    (item.approvalStatus && item.approvalStatus.toLowerCase().includes(query))
+            state.filteredItems = state.items.filter(item =>
+                item.organisation_Name.toLowerCase().includes(q) ||
+                item.organisation_Trade_Name.toLowerCase().includes(q) ||
+                item.sdl.includes(q) ||
+                item.contract_Number.includes(q) ||
+                item.province.toLowerCase().includes(q) ||
+                item.status.toLowerCase().includes(q) ||
+                item.approvalStatus.approvalStatusId
             );
         },
     },
@@ -77,5 +77,6 @@ const discretionaryProjectsSlice = createSlice({
     },
 });
 
-export const { setSearchQuery } = discretionaryProjectsSlice.actions;
-export default discretionaryProjectsSlice.reducer;
+export const { setSearchQuery } = discretionaryGrantsSlice.actions;
+const discretionaryProjectsReducer = discretionaryGrantsSlice.reducer;
+export default discretionaryProjectsReducer;

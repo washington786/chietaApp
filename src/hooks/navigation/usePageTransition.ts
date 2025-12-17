@@ -80,8 +80,8 @@ const usePageTransition = () => {
         navigation.navigate("mandatory", { orgId: orgId });
     }
 
-    function historyItemDetails({ appId }: { appId: string }) {
-        navigation.navigate("historyDetails", { appId: appId });
+    function historyItemDetails({ appId, item }: { appId: string | number, item: any }) {
+        navigation.navigate("historyDetails", { appId: appId, item: item });
     }
 
     function discretionaryGrants({ orgId }: { orgId: string }) {

@@ -138,3 +138,63 @@ export interface DiscretionaryStatus {
     usrUpd: string | null;
     dteCreated: string;
 }
+
+export interface DiscretionaryGrantApplication {
+    id: number;
+    sdl: string;
+    organisationId: number;
+    organisation_Name: string;
+    organisation_Trade_Name: string;
+    contract_Number: string;
+    projectId: number;
+    applicationStatusId: number;
+    projectType: string;
+    project: string;
+    focusArea: string;
+    subCategory: string;
+    intervention: string;
+    otherIntervention: string | null;
+    number_Continuing: number;
+    number_New: number;
+    costPerLearner: number;
+    geC_Continuing: number;
+    geC_New: number;
+    geC_CostPerLearner: number;
+    gaC_Continuing: number;
+    gaC_New: number;
+    gaC_CostPerLearner: number;
+    gC_Continuing: number;
+    gC_New: number;
+    gC_CostPerLearner: number;
+    hdi: number;
+    female: number;
+    youth: number;
+    number_Disabled: number;
+    rural: number;
+    province: string;
+    municipality: string;
+    status: string;
+    sqmrAppIndicator: string;
+    vision2025goal: string;
+    leviesuptodate: string;
+    previousWSP: string;
+    previousParticipation: string;
+    approvalStatus: ApprovalStatus;
+    gecStatus: ApprovalStatus;
+    gacStatus: ApprovalStatus;
+    gcStatus: ApprovalStatus;
+    comment: string;
+    dateCreated: string;
+}
+
+export interface ApprovalStatus {
+    id: number;
+    applicationId: number;
+    approvalTypeId: number;
+    approvalStatusId: number;
+    comments: string;
+    dateCreated: string;
+    userId: number;
+    dteUpd: string | null;
+    userUpd: number;
+}
