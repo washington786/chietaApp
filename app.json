@@ -46,6 +46,13 @@
             "./assets/notification-sound.wav"
           ]
         }
+      ],
+      "expo-file-system",
+      [
+        "react-native-pdf",
+        {
+          "useLocalPdf": true
+        }
       ]
     ]
   }
