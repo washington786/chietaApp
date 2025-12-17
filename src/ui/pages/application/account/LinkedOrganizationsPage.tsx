@@ -1,5 +1,5 @@
 import { FlatList, StyleSheet, Text, View } from 'react-native'
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import RHeader from '@/components/common/RHeader'
 import { RCol, REmpty, RListLoading, RLoaderAnimation, SkeletonLoader } from '@/components/common'
 import ItemOrgs from '@/components/modules/application/home/ItemOrgs'
@@ -11,6 +11,8 @@ import usePageTransition from '@/hooks/navigation/usePageTransition'
 import { OrgDetails } from '@/components/modules/application/home/LinkedOrganizations'
 import { Searchbar } from 'react-native-paper'
 import colors from '@/config/colors'
+import { showToast } from '@/core'
+import { UnifiedOrgItem } from '@/core/types/unifiedData'
 
 const LinkedOrganizationsPage = () => {
     const { discretionaryGrants, mandatoryGrants, linkOrgDoc } = usePageTransition();
@@ -61,16 +63,50 @@ const LinkedOrganizationsPage = () => {
         .map(l => organizations.find(o => o.id === l.id))
         .filter(Boolean) as OrganisationDto[];
 
-    const renderList = ({ item }: { index: number, item: OrganisationDto }) => {
-        return (
-            <ItemOrgs org={item} onPress={() => onPress(item)} />
-        )
-    }
+    const unifiedList = useMemo(() => {
+        const allItems: UnifiedOrgItem[] = [];
 
-    const renderAddNewItem = ({ item }: { index: number, item: OrganisationDto }) => {
-        return (
-            <ItemOrgs org={item} onNewLinking={() => handleOrgLinking(item)} isLinkingRequired={true} key={`${item.id}`} />
-        )
+        // Add main organizations
+        organizations.forEach(org => {
+            allItems.push({ type: 'main', data: org });
+        });
+
+        // Add footer organizations (linked, not cancelled)
+        linkedOrganizations
+            .filter(l => l.approvalStatus !== 'cancelled')
+            .map(l => organizations.find(o => o.id === l.id))
+            .filter(Boolean)
+            .forEach(org => {
+                allItems.push({ type: 'footer', data: org as OrganisationDto });
+            });
+
+        // Now filter the entire list
+        if (!searchQuery.trim()) return allItems;
+
+        const query = searchQuery.toLowerCase();
+        return allItems.filter(item =>
+            item.data.organisationName.toLowerCase().includes(query) ||
+            item.data.organisationTradingName.toLowerCase().includes(query) ||
+            item.data.organisationRegistrationNumber.includes(searchQuery)
+        );
+    }, [organizations, linkedOrganizations, searchQuery]);
+
+    const renderItem = ({ item }: { item: UnifiedOrgItem }) => {
+        if (item.type === 'main') {
+            return <ItemOrgs org={item.data} onPress={() => onPress(item.data)} />;
+        } else {
+            return (
+                <ItemOrgs
+                    org={item.data}
+                    onNewLinking={() => handleOrgLinking(item.data)}
+                    isLinkingRequired={true}
+                />
+            );
+        }
+    };
+
+    if (error) {
+        showToast({ message: error, type: "error", title: "Error", position: "top" });
     }
 
     if (loading) {
@@ -82,34 +118,23 @@ const LinkedOrganizationsPage = () => {
                 <RCol style={styles.con}>
                     <Searchbar value={searchQuery} onChangeText={onChangeSearch} style={styles.search} placeholder='Search Organization' />
                 </RCol>
-                {/* <RLoaderAnimation /> */}
-                <FlatList data={filteredOrganizations}
-                    keyExtractor={(item) => `linked-orgs-${item.id}`}
+                <FlatList
+                    data={unifiedList}
+                    keyExtractor={(item) => `${item.type}-${item.data.id}`}
+                    renderItem={renderItem}
                     style={{ paddingVertical: 5, flex: 1, flexGrow: 1, paddingHorizontal: 12 }}
-                    renderItem={renderList}
                     showsVerticalScrollIndicator={false}
-                    showsHorizontalScrollIndicator={false}
                     ItemSeparatorComponent={() => <View style={{ height: 5 }} />}
                     removeClippedSubviews={false}
                     initialNumToRender={10}
                     maxToRenderPerBatch={10}
-                    ListEmptyComponent={<REmpty title='No Organizations' subtitle='sorry, you currenlty do not have any organizations linked to your profile. Please link organization first.' icon='briefcase' />}
                     windowSize={21}
-                    ListFooterComponent={
-                        footerOrganizations.length > 0 ? (
-                            <FlatList data={footerOrganizations}
-                                keyExtractor={(item) => `linked-orgs-${item.id}`}
-                                renderItem={renderAddNewItem}
-                                ItemSeparatorComponent={() => <View style={{ height: 5 }} />}
-                                removeClippedSubviews={false}
-                                initialNumToRender={1}
-                                maxToRenderPerBatch={1}
-                                windowSize={21}
-                                showsVerticalScrollIndicator={false}
-                                showsHorizontalScrollIndicator={false}
-                            />
-                        ) : null
-
+                    ListEmptyComponent={
+                        <REmpty
+                            title="No Organizations"
+                            subtitle="Sorry, you currently do not have any organizations linked to your profile. Please link an organization first."
+                            icon="briefcase"
+                        />
                     }
                 />
             </>
