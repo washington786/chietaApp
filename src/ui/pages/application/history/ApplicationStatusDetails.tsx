@@ -7,35 +7,28 @@ import colors from '@/config/colors'
 import Feather from '@expo/vector-icons/Feather';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { ProgressTracker } from '@/components/modules/application'
-import { Step } from '@/core/types/steps'
 import Ionicons from '@expo/vector-icons/Ionicons';
-
-const steps: Step[] = [
-    {
-        title: 'Application Submitted',
-        date: '18/11/2025',
-        status: 'completed' as const,
-    },
-    {
-        title: 'RSA Review completed',
-        date: '12/12/2025',
-        status: 'completed' as const,
-    },
-    {
-        title: 'GAC & GEC Review',
-        date: '12/12/2025',
-        status: 'pending' as const,
-    },
-];
+import { RouteProp, useRoute } from '@react-navigation/native'
+import { navigationTypes } from '@/core/types/navigationTypes'
+import { DiscretionaryGrantApplication } from '@/core/models/DiscretionaryDto'
+import { getDynamicSteps } from '@/core/utils/stepsUtil'
 
 const ApplicationStatusDetails = () => {
+    const route = useRoute<RouteProp<navigationTypes, 'historyDetails'>>();
+    const item = route.params.item as DiscretionaryGrantApplication;
+
+    const steps = getDynamicSteps(item);
+
+    const fmDate = new Date(item.dateCreated).toLocaleDateString('en-za', { day: "numeric", month: "numeric", year: "numeric", minute: "numeric", hour: "numeric", dayPeriod: "short" });
+
+
     return (
         <>
             <RHeader name='Track Application' />
             <Scroller style={styles.container}>
                 <Text variant='labelLarge'>Application Details</Text>
                 <RCol style={styles.wrapper}>
-                    <Text variant='titleSmall' style={styles.orgTitle}>Retlhonolofetse Trading Projects</Text>
+                    <Text variant='titleSmall' style={styles.orgTitle}>{item.organisation_Name}</Text>
                     <Text variant='bodySmall' style={styles.orgTitle}>2018/330478/07</Text>
                     <RRow style={[styles.rowtFlex, styles.center, styles.gap, styles.row]}>
                         <Feather name="rotate-cw" size={18} color="black" />
@@ -43,21 +36,25 @@ const ApplicationStatusDetails = () => {
                     </RRow>
                     <RRow style={[styles.rowtFlex, styles.center, styles.gap, styles.row]}>
                         <Feather name="calendar" size={18} color="black" />
-                        <Text variant='labelMedium'>18/11/2025 12:00 PM</Text>
+                        <Text variant='labelMedium'>{fmDate}</Text>
                     </RRow>
                 </RCol>
-                <RRow style={styles.messageBox}>
-                    <MaterialIcons name="celebration" size={24} color="black" />
-                    <Text variant='bodySmall'>congrats, you have completed your discretionary grant application. view status below</Text>
+                <RRow style={[styles.messageBox, styles.msg]}>
+                    <MaterialIcons name="celebration" size={24} color="white" />
+                    <Text variant='bodySmall' style={styles.txtClr}>congrats, you have completed your discretionary grant application. view status below</Text>
                 </RRow>
                 <Text variant='labelLarge'>Application Status</Text>
                 <RCol style={styles.statusBox}>
                     <ProgressTracker steps={steps} />
                 </RCol>
-                <RRow style={[styles.messageBox, { width: "100%" }]}>
-                    <Ionicons name="chatbox-outline" size={24} color="black" />
-                    <Text variant='bodySmall' style={{ width: "90%" }}>we are sorry, your application has been rejected by the committee due to insufficient supporting documents. Be on the look for next open window.</Text>
-                </RRow>
+
+                {
+                    item.comment &&
+                    <RRow style={[styles.messageBox, { width: "100%" }]}>
+                        <Ionicons name="chatbox-outline" size={24} color="black" />
+                        <Text variant='bodySmall' style={{ width: "90%" }}>{item.comment}</Text>
+                    </RRow>
+                }
             </Scroller>
         </>
     )
@@ -109,4 +106,10 @@ const styles = StyleSheet.create({
         paddingVertical: 10,
         marginVertical: 10,
     },
+    msg: {
+        backgroundColor: colors.green[500]
+    },
+    txtClr: {
+        color: "white"
+    }
 })
