@@ -128,3 +128,13 @@ export interface DiscretionaryProject {
     userId: string | null;
     dateCreated: string;
 }
+
+export interface DiscretionaryStatus {
+    id: number;
+    status: number;
+    statusDesc: string | null;
+    typ: string | null;
+    dteUpd: string | null;
+    usrUpd: string | null;
+    dteCreated: string;
+}
