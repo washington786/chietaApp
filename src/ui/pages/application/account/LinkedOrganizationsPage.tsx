@@ -1,7 +1,7 @@
-import { FlatList, StyleSheet, Text, View } from 'react-native'
+import { FlatList, StyleSheet, View } from 'react-native'
 import React, { useMemo, useState } from 'react'
 import RHeader from '@/components/common/RHeader'
-import { RCol, REmpty, RListLoading, RLoaderAnimation, SkeletonLoader } from '@/components/common'
+import { RCol, REmpty, RListLoading } from '@/components/common'
 import ItemOrgs from '@/components/modules/application/home/ItemOrgs'
 import { OrganisationDto } from '@/core/models/organizationDto'
 import { useSelector } from 'react-redux'
@@ -15,12 +15,15 @@ import { showToast } from '@/core'
 import { UnifiedOrgItem } from '@/core/types/unifiedData'
 
 const LinkedOrganizationsPage = () => {
+
     const { discretionaryGrants, mandatoryGrants, linkOrgDoc } = usePageTransition();
+
     const { linkedOrganizations, error, loading, organizations } = useSelector((state: RootState) => state.linkedOrganization);
 
     const [visible, setVisible] = useState(false);
 
     const [searchQuery, setSearchQuery] = useState('');
+
     const onChangeSearch = (query: string) => setSearchQuery(query);
 
     const { close, open } = useGlobalBottomSheet();
@@ -49,19 +52,6 @@ const LinkedOrganizationsPage = () => {
             <OrgDetails
                 onDiscretionaryGrants={() => handleDiscretionaryGrants(org)} onMandatoryGrants={() => handleMandatoryGrants(org)} onDelink={handleDialog} orgName={`${org.organisationTradingName}`} />, { snapPoints: ["50%"] })
     }
-
-    // Filter main organization list
-    const filteredOrganizations = organizations.filter(org =>
-        org.organisationName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        org.organisationTradingName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        org.organisationRegistrationNumber.includes(searchQuery)
-    );
-
-    // Footer data: linked orgs that are not cancelled
-    const footerOrganizations = linkedOrganizations
-        .filter(l => l.approvalStatus !== 'cancelled')
-        .map(l => organizations.find(o => o.id === l.id))
-        .filter(Boolean) as OrganisationDto[];
 
     const unifiedList = useMemo(() => {
         const allItems: UnifiedOrgItem[] = [];
