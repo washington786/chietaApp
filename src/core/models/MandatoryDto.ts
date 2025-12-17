@@ -135,3 +135,15 @@ export interface MandatoryGrantBiodataDto {
     usrUpd: string | null;
     dteUpd: string | null;
 }
+
+export interface MandatoryExtensionDto {
+    id: number;
+    applicationId: number;
+    requestStatus: string | null;
+    dateRequested: string;
+    reasonForRequest: string | null;
+    dateCreated: string;
+    userId: string | null;
+    dteUpd: string | null;
+    usrUpd: string | null;
+}
