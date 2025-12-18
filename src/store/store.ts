@@ -7,6 +7,7 @@ import AuthReducer from './slice/AuthSlice';
 import notificationReducer from './slice/NotificationSlice';
 import organizationReducer from './slice/Organization';
 import discretionaryProjectsReducer from './slice/ProjectSlice';
+import mandatoryGrantReducer from './slice/MandatorySlice';
 
 const persistConfig = {
     key: 'root',
@@ -22,6 +23,7 @@ const rootReducer = {
     notification: persistReducer(persistNotificationConfig, notificationReducer),
     linkedOrganization: organizationReducer,
     discretionaryProjects: discretionaryProjectsReducer,
+    mandatoryGrant: mandatoryGrantReducer,
     [api.reducerPath]: api.reducer,
 
 }

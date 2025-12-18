@@ -1,4 +1,5 @@
 import { DiscretionaryStatus } from "../models/DiscretionaryDto";
+import { MandatoryStatus } from "../models/MandatoryDto";
 
 export const provinces = [
     'Eastern Cape', 'Free State', 'Gauteng',
@@ -423,3 +424,61 @@ export const discretionaryStatus_QR: DiscretionaryStatus[] = [
 ];
 
 export const discretionary_status: DiscretionaryStatus[] = discretionaryStatus_Grant.concat(discretionaryStatus_Proj).concat(discretionaryStatus_Inst).concat(discretionaryStatus_Prog).concat(discretionaryStatus_Enq).concat(discretionaryStatus_AdFnd).concat(discretionaryStatus_Reqn).concat(discretionaryStatus_Rvw).concat(discretionaryStatus_QR);
+
+//statuses
+export const mandatoryStatuses: MandatoryStatus[] = [
+    {
+        id: 1,
+        statusDesc: "Application",
+        typ: "Grants",
+        dateCreated: "2023-02-15T07:49:21.517Z",
+    },
+    {
+        id: 2,
+        statusDesc: "Submitted by Online User",
+        typ: "Grants",
+        dateCreated: "2023-02-15T07:50:37.610Z",
+    },
+    {
+        id: 3,
+        statusDesc: "Extension Granted",
+        typ: "Grants",
+        dateCreated: "2023-05-01T10:11:21.300Z",
+    },
+    {
+        id: 4,
+        statusDesc: "RSA Review Completed",
+        typ: "Grants",
+        dateCreated: "2023-06-27T06:13:36.160Z",
+    },
+    {
+        id: 5,
+        statusDesc: "RM Review Completed",
+        typ: "Grants",
+        dateCreated: "2023-06-27T06:13:47.930Z",
+    },
+    {
+        id: 6,
+        statusDesc: "Exec Review Completed",
+        typ: "Grants",
+        dateCreated: "2023-06-27T06:13:57.397Z",
+    },
+    {
+        id: 7,
+        statusDesc: "Evaluations Complete",
+        typ: "Grants",
+        dateCreated: "2023-06-27T06:14:07.943Z",
+    },
+    {
+        id: 8,
+        statusDesc: "Rejected after Full Assessment",
+        typ: "Grants",
+        dateCreated: "2023-06-27T06:14:16.630Z",
+    },
+    {
+        id: 9,
+        statusDesc: "Approved",
+        typ: "Grants",
+        dateCreated: "2024-10-09T00:00:00.000Z",
+    }
+];

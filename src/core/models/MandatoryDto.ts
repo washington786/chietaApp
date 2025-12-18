@@ -147,3 +147,11 @@ export interface MandatoryExtensionDto {
     dteUpd: string | null;
     usrUpd: string | null;
 }
+
+
+export interface MandatoryStatus {
+    id: number;
+    statusDesc: string;
+    typ: string;
+    dateCreated: string;
+}

@@ -1,36 +1,47 @@
 import { StyleSheet, TouchableOpacity } from 'react-native'
-import React from 'react'
+import React, { FC } from 'react'
 import { RCol, RDivider, RRow } from '@/components/common'
 import { Text } from 'react-native-paper'
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import colors from '@/config/colors';
 import usePageTransition from '@/hooks/navigation/usePageTransition';
+import { MandatoryApplicationDto } from '@/core/models/MandatoryDto';
+import { getMandatoryStatus } from '@/core/utils/mandatoryStatus';
 
-const ApplicationItem = () => {
+interface props {
+    item?: MandatoryApplicationDto;
+}
+const ApplicationItem: FC<props> = ({ item }) => {
     const { applicationDetails } = usePageTransition();
+    const { description, referenceNo, submissionDte, grantStatusId } = item as MandatoryApplicationDto;
+    const fmDate = new Date(submissionDte).toLocaleDateString('en-za', { year: "numeric", month: "numeric", day: "numeric", minute: "numeric", hour: "numeric" });
+    const title = description.split('-')[0];
+
+    let status = getMandatoryStatus(grantStatusId);
+
     return (
         <TouchableOpacity onPress={() => applicationDetails({ appId: "1", orgId: "1", type: "mg-app" })}>
             <RCol style={styles.con}>
                 <RRow style={styles.title}>
                     <MaterialCommunityIcons name="application-outline" size={18} color="black" />
-                    <Text>Mandatory Grant 2024</Text>
+                    <Text>{description}</Text>
                 </RRow>
                 <RDivider />
                 <RRow style={styles.wrap}>
                     <Text variant='labelSmall' style={[styles.text]}>Reference</Text>
-                    <Text variant='titleMedium' style={[styles.text, styles.appTitle]}>mg2024</Text>
+                    <Text variant='titleMedium' style={[styles.text, styles.appTitle]}>{referenceNo}</Text>
                 </RRow>
                 <RRow style={styles.wrap}>
                     <Text variant='labelSmall' style={[styles.text]}>Title</Text>
-                    <Text variant='titleMedium' style={[styles.text, styles.appTitle]}>Mandatory Grant 2024</Text>
+                    <Text variant='titleMedium' style={[styles.text, styles.appTitle]}>{title}</Text>
                 </RRow>
                 <RRow style={styles.wrap}>
                     <Text variant='labelSmall' style={[styles.text]}> status</Text>
-                    <Text variant='titleMedium' style={[styles.text, styles.appTitle, styles.statusTxt]}>Application</Text>
+                    <Text variant='titleMedium' style={[styles.text, styles.appTitle, styles.statusTxt]}>{status}</Text>
                 </RRow>
                 <RRow style={styles.wrap}>
                     <Text variant='labelSmall' style={[styles.text]}>Date submitted</Text>
-                    <Text variant='titleMedium' style={[styles.text, styles.appTitle]}>04/30/2024 11:59PM</Text>
+                    <Text variant='titleMedium' style={[styles.text, styles.appTitle]}>{fmDate}</Text>
                 </RRow>
             </RCol>
         </TouchableOpacity>
