@@ -20,7 +20,7 @@ const ApplicationItem: FC<props> = ({ item }) => {
     let status = getMandatoryStatus(grantStatusId);
 
     return (
-        <TouchableOpacity onPress={() => applicationDetails({ appId: "1", orgId: "1", type: "mg-app" })}>
+        <TouchableOpacity onPress={() => applicationDetails({ appId: String(item?.id), orgId: String(item?.organisationId), type: "mg-app" })}>
             <RCol style={styles.con}>
                 <RRow style={styles.title}>
                     <MaterialCommunityIcons name="application-outline" size={18} color="black" />
