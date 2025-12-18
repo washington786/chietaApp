@@ -13,20 +13,20 @@ import { Text } from "react-native-paper";
 import colors from "@/config/colors";
 
 interface Props {
-  route: { params: { payment: MandatoryGrantPaymentDto } };
-  navigation: any;
+    route: { params: { payment: MandatoryGrantPaymentDto } };
+    navigation: any;
 }
 
 const PdfViewerPage = ({ route, navigation }: Props) => {
-  const { onBack } = usePageTransition();
-  const payment = route.params.payment;
-  const year = payment.grantYear;
-  const monthName = new Date(0, payment.month - 1).toLocaleString("en-US", {
-    month: "long",
-  });
+    const { onBack } = usePageTransition();
+    const payment = route.params.payment;
+    const year = payment.grantYear;
+    const monthName = new Date(0, payment.month - 1).toLocaleString("en-US", {
+        month: "long",
+    });
 
-  // Generate simple but nice-looking HTML PDF
-  const htmlContent = `
+    // Generate simple but nice-looking HTML PDF
+    const htmlContent = `
     <!DOCTYPE html>
 <html>
   <head>
@@ -34,7 +34,7 @@ const PdfViewerPage = ({ route, navigation }: Props) => {
     <style>
       body {
         font-family: "Helvetica Neue", Arial, sans-serif;
-        padding: 40px 30px;
+        padding: 20px 5px;
         background: #ffffff;
         color: #333;
         line-height: 1.6;
@@ -182,97 +182,97 @@ const PdfViewerPage = ({ route, navigation }: Props) => {
 
   `;
 
-  useLayoutEffect(() => {
-    navigation.setOptions({ title: `${monthName} ${year}` });
-  }, [navigation]);
+    useLayoutEffect(() => {
+        navigation.setOptions({ title: `${monthName} ${year}` });
+    }, [navigation]);
 
-  const downloadPdf = async () => {
-    try {
-      // 1. Generate PDF
-      const { uri } = await Print.printToFileAsync({ html: htmlContent });
+    const downloadPdf = async () => {
+        try {
+            // 1. Generate PDF
+            const { uri } = await Print.printToFileAsync({ html: htmlContent });
 
-      // 2. Save to document
-      const filename = `${monthName}-${year}-Payment.pdf`;
-      const dest = `${FileSystem.Directory.pickDirectoryAsync()}${filename}`;
-      await FileSystem.moveAsync({ from: uri, to: dest });
+            // 2. Save to document
+            const filename = `${monthName}-${year}-Payment.pdf`;
+            const dest = `${FileSystem.Directory.pickDirectoryAsync()}${filename}`;
+            await FileSystem.moveAsync({ from: uri, to: dest });
 
-      // 3. Share with user
-      await Sharing.shareAsync(dest, {
-        UTI: ".pdf",
-        mimeType: "application/pdf",
-      });
-    } catch (err) {
-      console.error("PDF error:", err);
-      showToast({
-        message: `Could not generate PDF. ${err}`,
-        title: "",
-        type: "error",
-        position: "top",
-      });
-    }
-  };
+            // 3. Share with user
+            await Sharing.shareAsync(dest, {
+                UTI: ".pdf",
+                mimeType: "application/pdf",
+            });
+        } catch (err) {
+            console.error("PDF error:", err);
+            showToast({
+                message: `Could not generate PDF. ${err}`,
+                title: "",
+                type: "error",
+                position: "top",
+            });
+        }
+    };
 
-  return (
-    <SafeArea>
-      <RRow
-        style={{
-          alignItems: "flex-end",
-          justifyContent: "flex-end",
-          paddingHorizontal: 12,
-        }}
-      >
-        <Ionicons name="close" size={24} color="black" onPress={onBack} />
-      </RRow>
-      <WebView
-        source={{ html: htmlContent }}
-        style={{ flex: 1 }}
-        startInLoadingState={true}
-        showsVerticalScrollIndicator={false}
-        renderLoading={() => (
-          <View style={styles.loader}>
-            <RLoaderAnimation />
-            <Text variant="bodySmall" style={{ alignSelf: "center" }}>
-              loading statement...
-            </Text>
-          </View>
-        )}
-      />
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity onPress={downloadPdf}>
-          <RRow
-            style={{
-              alignItems: "center",
-              justifyContent: "center",
-              backgroundColor: colors.primary[900],
-              paddingVertical: 8,
-              borderRadius: 10,
-              gap: 6,
-            }}
-          >
-            <Ionicons name="download" size={30} color="white" />
-            <Text variant="titleMedium" style={{ color: "white" }}>
-              download file
-            </Text>
-          </RRow>
-        </TouchableOpacity>
-      </View>
-    </SafeArea>
-  );
+    return (
+        <SafeArea>
+            <RRow
+                style={{
+                    alignItems: "flex-end",
+                    justifyContent: "flex-end",
+                    paddingHorizontal: 12,
+                }}
+            >
+                <Ionicons name="close" size={24} color="black" onPress={onBack} />
+            </RRow>
+            <WebView
+                source={{ html: htmlContent }}
+                style={{ flex: 1 }}
+                startInLoadingState={true}
+                showsVerticalScrollIndicator={false}
+                renderLoading={() => (
+                    <View style={styles.loader}>
+                        <RLoaderAnimation />
+                        <Text variant="bodySmall" style={{ alignSelf: "center" }}>
+                            loading statement...
+                        </Text>
+                    </View>
+                )}
+            />
+            <View style={styles.buttonContainer}>
+                <TouchableOpacity onPress={downloadPdf}>
+                    <RRow
+                        style={{
+                            alignItems: "center",
+                            justifyContent: "center",
+                            backgroundColor: colors.primary[900],
+                            paddingVertical: 8,
+                            borderRadius: 10,
+                            gap: 6,
+                        }}
+                    >
+                        <Ionicons name="download" size={30} color="white" />
+                        <Text variant="titleMedium" style={{ color: "white" }}>
+                            download file
+                        </Text>
+                    </RRow>
+                </TouchableOpacity>
+            </View>
+        </SafeArea>
+    );
 };
 
 const styles = StyleSheet.create({
-  loader: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: "#fff",
-    justifyContent: "center",
-  },
-  buttonContainer: {
-    padding: 12,
-    backgroundColor: "#fff",
-    borderTopWidth: 1,
-    borderColor: "#eee",
-  },
-  btn: {},
+    loader: {
+        ...StyleSheet.absoluteFillObject,
+        backgroundColor: "#fff",
+        justifyContent: "center",
+    },
+    buttonContainer: {
+        padding: 12,
+        backgroundColor: "#fff",
+        borderTopWidth: 1,
+        borderColor: "#eee",
+    },
+    btn: {},
 });
 
 export default PdfViewerPage;
