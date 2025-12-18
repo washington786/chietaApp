@@ -1,7 +1,7 @@
 import React, { useLayoutEffect } from "react";
 import { View, StyleSheet, TouchableOpacity } from "react-native";
 import WebView from "react-native-webview";
-import * as FileSystem from "expo-file-system";
+import { Directory, Paths, File } from "expo-file-system";
 import { RLoaderAnimation, RRow, SafeArea } from "@/components/common";
 import { MandatoryGrantPaymentDto } from "@/core/models/MandatoryDto";
 import * as Print from "expo-print";
@@ -188,26 +188,30 @@ const PdfViewerPage = ({ route, navigation }: Props) => {
 
     const downloadPdf = async () => {
         try {
-            // 1. Generate PDF
-            const { uri } = await Print.printToFileAsync({ html: htmlContent });
+            // 1. Generate PDF from HTML
+            const { uri: tempUri } = await Print.printToFileAsync({ html: htmlContent });
 
-            // 2. Save to document
+            // 2. Define destination using modern API
             const filename = `${monthName}-${year}-Payment.pdf`;
-            const dest = `${FileSystem.Directory.pickDirectoryAsync()}${filename}`;
-            await FileSystem.moveAsync({ from: uri, to: dest });
+            const documentsDir = new Directory(Paths.document);
+            const destFile = new File(documentsDir, filename);
 
-            // 3. Share with user
-            await Sharing.shareAsync(dest, {
-                UTI: ".pdf",
-                mimeType: "application/pdf",
+            // 3. Move file using modern API
+            const sourceFile = new File(tempUri);
+            await sourceFile.move(destFile);
+
+            // 4. Share the file
+            await Sharing.shareAsync(destFile.uri, {
+                UTI: '.pdf',
+                mimeType: 'application/pdf',
             });
         } catch (err) {
-            console.error("PDF error:", err);
+            console.error('PDF error:', err);
             showToast({
-                message: `Could not generate PDF. ${err}`,
-                title: "",
-                type: "error",
-                position: "top",
+                message: 'Could not generate PDF',
+                title: 'Error',
+                type: 'error',
+                position: 'top',
             });
         }
     };
