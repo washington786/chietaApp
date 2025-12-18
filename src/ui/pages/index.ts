@@ -11,6 +11,8 @@ import DiscretionaryPage from "./application/DiscretionaryPage";
 import ApplicationStatusDetails from "./application/history/ApplicationStatusDetails";
 import LinkOrgPage from "./application/LinkOrgPage";
 import MandatoryPage from "./application/MandatoryPage";
+import PdfViewerPage from "./application/top/PdfViewerPage";
+
 
 export {
     AddNewOrganization,
@@ -22,5 +24,6 @@ export {
     ApplicationStatusDetails,
     LinkOrgPage,
     ChangePassword,
-    LinkedOrganizationsPage
+    LinkedOrganizationsPage,
+    PdfViewerPage
 }

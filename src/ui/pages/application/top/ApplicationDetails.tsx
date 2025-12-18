@@ -1,18 +1,42 @@
 import { FlatList, StyleSheet } from 'react-native'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Expandable } from '@/components/modules/application'
 import { BarChart } from 'react-native-gifted-charts';
-import { RUpload } from '@/components/common';
+import { RListLoading, RUpload } from '@/components/common';
 import { Text } from 'react-native-paper';
 import colors from '@/config/colors';
-import { bio, data } from '@/core/types/dt';
+// import { bio, data } from '@/core/types/dt';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '@/store/store';
+import { showToast } from '@/core';
+import { fetchMandatoryGrantData } from '@/store/slice/thunks/MandatoryThunks';
+import { useRoute } from '@react-navigation/native';
+import { MandatoryGrantBiodataDto } from '@/core/models/MandatoryDto';
+interface PageTypes {
+    appId: string,
+    orgId: string
+}
 
 const ApplicationDetails = () => {
+
+    // const { appId } = useRoute().params as PageTypes;
+
+    const { biodata, error, loading } = useSelector((state: RootState) => state.mandatoryGrant);
+
+    const dispatch = useDispatch<AppDispatch>();
+
+    useEffect(() => {
+        dispatch(fetchMandatoryGrantData());
+    }, [dispatch]);
+
     const [expandBio, setBio] = useState(false);
     const [expandDocs, setDocs] = useState(false);
     const [expandRace, setRace] = useState(false);
     const [expandGender, setGender] = useState(false);
-    const getCountByProvince = (data: bio[]) => {
+
+    // const orgData = biodata.find((bio) => bio.applicationId === appId);
+
+    const getCountByProvince = (data: MandatoryGrantBiodataDto[]) => {
         const counts: Record<string, number> = {};
         data.forEach(item => {
             counts[item.province] = (counts[item.province] || 0) + 1;
@@ -20,26 +44,35 @@ const ApplicationDetails = () => {
 
         return Object.entries(counts).map(([label, value]) => ({ label, value }));
     };
-    const getCountByGender = (data: bio[]) => {
+    const getCountByGender = (data: MandatoryGrantBiodataDto[]) => {
         const counts: Record<string, number> = {};
         data.forEach(item => {
-            counts[item.gender] = (counts[item.gender] || 0) + 1;
+            counts[item.gender!] = (counts[item.gender!] || 0) + 1;
         });
 
         return Object.entries(counts).map(([label, value]) => ({ label, value }));
     };
-    const getCountByRace = (data: bio[]) => {
+    const getCountByRace = (data: MandatoryGrantBiodataDto[]) => {
         const counts: Record<string, number> = {};
         data.forEach(item => {
-            counts[item.race] = (counts[item.race] || 0) + 1;
+            counts[item.race!] = (counts[item.race!] || 0) + 1;
         });
 
         return Object.entries(counts).map(([label, value]) => ({ label, value }));
     };
 
-    const provinceData = getCountByProvince(data);
-    const genderData = getCountByGender(data);
-    const raceDate = getCountByRace(data);
+    const provinceData = getCountByProvince(biodata!);
+    const genderData = getCountByGender(biodata!);
+    const raceDate = getCountByRace(biodata!);
+
+    if (error) {
+        showToast({ title: "Error Fetching", message: error, type: "error", position: "top" });
+    }
+
+    if (loading) {
+        return <RListLoading count={4} />
+    }
+
     return (
         <FlatList data={[]}
             style={styles.con}

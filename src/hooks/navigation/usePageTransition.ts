@@ -80,6 +80,10 @@ const usePageTransition = () => {
         navigation.navigate("mandatory", { orgId: orgId });
     }
 
+    function pdfViewer({ payment }: { payment: any }) {
+        navigation.navigate("pdfViewer", { payment: payment });
+    }
+
     function historyItemDetails({ appId, item }: { appId: string | number, item: any }) {
         navigation.navigate("historyDetails", { appId: appId, item: item });
     }
@@ -88,7 +92,7 @@ const usePageTransition = () => {
         navigation.navigate("discretionary", { orgId: orgId });
     }
 
-    return { onBack, login, register, otp, resetPassword, getStarted, onAuth, notifications, newOrg, mandatoryGrants, discretionaryGrants, newApplication, newDgApplication, applicationDetails, account, privacy, support, historyItemDetails, linkOrgDoc, newPassword, changePassword, linkedOrganizations };
+    return { onBack, login, register, otp, resetPassword, getStarted, onAuth, notifications, newOrg, mandatoryGrants, discretionaryGrants, newApplication, newDgApplication, applicationDetails, account, privacy, support, historyItemDetails, linkOrgDoc, newPassword, changePassword, linkedOrganizations, pdfViewer };
 }
 
 export default usePageTransition

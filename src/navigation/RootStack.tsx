@@ -3,7 +3,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { ForgotPasswordScreen, LoginScreen, NewPasswordScreen, NotificationsPage, OtpScreen, RegisterScreen } from '@/ui/screens';
 import { navigationTypes } from '@/core/types/navigationTypes';
 import BottomTabNavigation from './BottomNavigation';
-import { AccountSettingsPage, AddNewApplicationPage, AddNewOrganization, ApplicationDetailsPage, ApplicationStatusDetails, ChangePassword, DiscretionaryPage, LinkedOrganizationsPage, LinkOrgPage, MandatoryPage, PrivacyPage, SupportPage } from '@/ui/pages';
+import { AccountSettingsPage, AddNewApplicationPage, AddNewOrganization, ApplicationDetailsPage, ApplicationStatusDetails, ChangePassword, DiscretionaryPage, LinkedOrganizationsPage, LinkOrgPage, MandatoryPage, PdfViewerPage, PrivacyPage, SupportPage } from '@/ui/pages';
 import AddNewDgApplicationPage from '@/ui/pages/application/AddNewDgApplicationPage';
 
 const Stack = createNativeStackNavigator<navigationTypes>();
@@ -32,6 +32,7 @@ const RootStack = () => {
             <Stack.Screen name='historyDetails' component={ApplicationStatusDetails} />
 
             <Stack.Screen name='orgDetail' component={LinkOrgPage} />
+            <Stack.Screen name='pdfViewer' component={PdfViewerPage} />
 
             <Stack.Screen name='newApplication' component={AddNewApplicationPage} options={{
                 presentation: "fullScreenModal",

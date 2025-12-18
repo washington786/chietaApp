@@ -1,14 +1,46 @@
 import { FlatList } from 'react-native'
-import React, { useState } from 'react'
-import { RDivider } from '@/components/common'
+import React, { useEffect, useState } from 'react'
+import { RDivider, RListLoading } from '@/components/common'
 import { Text } from 'react-native-paper'
 import { Expandable, TextWrap } from '@/components/modules/application';
+import { useRoute } from '@react-navigation/native';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '@/store/store';
+import { showToast } from '@/core';
+import { fetchMandatoryGrantData } from '@/store/slice/thunks/MandatoryThunks';
+
+interface PageTypes {
+    appId: string,
+    orgId: string
+}
 
 const DetailsPage = () => {
+
+    const route = useRoute();
+
+    const { orgId } = route.params as PageTypes;
+
+    const { bankingLists, loading, error } = useSelector((state: RootState) => state.mandatoryGrant);
+
+    const dispatch = useDispatch<AppDispatch>();
+
+    useEffect(() => {
+        dispatch(fetchMandatoryGrantData());
+    }, [dispatch]);
+
+    const appBankDetails = bankingLists.find((bank) => bank.organisationId === parseInt(orgId));
 
     const [expandSdf, setExpandSdf] = useState(false);
     const [expandOrg, setExpandOrg] = useState(false);
     const [expandBank, setExpandBank] = useState(false);
+
+    if (error) {
+        showToast({ title: "Error Fetching", message: error, type: "error", position: "top" });
+    }
+
+    if (loading) {
+        return <RListLoading count={3} />
+    }
 
     return (
         <FlatList data={[]}
@@ -21,12 +53,12 @@ const DetailsPage = () => {
                 return (
                     <>
                         <Expandable title='bank details' isExpanded={expandBank} onPress={() => setExpandBank(!expandBank)}>
-                            <TextWrap desc='Bank' title='Standard Bank' />
-                            <TextWrap desc='Branch Name' title='Standard Bank' />
-                            <TextWrap desc='code' title='051001' />
-                            <TextWrap desc='Account number' title='00000000000' />
-                            <TextWrap desc='Account holder' title='Retlhonolofetse Trading And ' />
-                            <TextWrap desc='Type' title='cheque' />
+                            <TextWrap desc='Bank' title={appBankDetails?.bank_Name} />
+                            <TextWrap desc='Branch Name' title={appBankDetails?.branch_Name} />
+                            <TextWrap desc='code' title={appBankDetails?.branch_Code} />
+                            <TextWrap desc='Account Number' title={'*'.repeat(10)} />
+                            <TextWrap desc='Account holder' title={appBankDetails?.account_Holder} />
+                            <TextWrap desc='Type' title={String(appBankDetails?.accountType)} />
                         </Expandable>
 
                         <Expandable title='sdf details' isExpanded={expandSdf} onPress={() => setExpandSdf(!expandSdf)}>

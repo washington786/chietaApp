@@ -14,13 +14,15 @@ interface props {
 const ApplicationItem: FC<props> = ({ item }) => {
     const { applicationDetails } = usePageTransition();
     const { description, referenceNo, submissionDte, grantStatusId } = item as MandatoryApplicationDto;
+
     const fmDate = new Date(submissionDte).toLocaleDateString('en-za', { year: "numeric", month: "numeric", day: "numeric", minute: "numeric", hour: "numeric" });
+
     const title = description.split('-')[0];
 
     let status = getMandatoryStatus(grantStatusId);
 
     return (
-        <TouchableOpacity onPress={() => applicationDetails({ appId: String(item?.id), orgId: String(item?.organisationId), type: "mg-app" })}>
+        <TouchableOpacity onPress={() => applicationDetails({ appId: String(item?.userId), orgId: String(item?.organisationId), type: "mg-app" })}>
             <RCol style={styles.con}>
                 <RRow style={styles.title}>
                     <MaterialCommunityIcons name="application-outline" size={18} color="black" />

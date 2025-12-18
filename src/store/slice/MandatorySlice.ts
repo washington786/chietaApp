@@ -4,11 +4,11 @@ import type {
     OrganisationPostalAddressDto,
     DocumentDto,
     MandatoryGrantPaymentDto,
-    MandatoryBankingListDto,
     MandatoryGrantBiodataDto,
 } from '@/core/models/MandatoryDto';
 import { createSlice } from '@reduxjs/toolkit';
 import { fetchMandatoryGrantData } from './thunks/MandatoryThunks';
+import { BankDetail } from '@/core/models/BankDto';
 
 export interface MandatoryGrantState {
     // Applications
@@ -20,7 +20,7 @@ export interface MandatoryGrantState {
     documents: DocumentDto[];
     // Payments & Banking
     payments: MandatoryGrantPaymentDto[];
-    bankingLists: MandatoryBankingListDto[];
+    bankingLists: BankDetail[];
     // Biodata
     biodata: MandatoryGrantBiodataDto[];
     // UI State
