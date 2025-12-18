@@ -19,6 +19,10 @@ export type navigationTypes = {
     changePassword: undefined;
     linkedOrganizationsProfile: undefined;
 
+    pdfViewer: {
+        payment: any;
+    },
+
     orgLinking: {
         orgId: string;
     };

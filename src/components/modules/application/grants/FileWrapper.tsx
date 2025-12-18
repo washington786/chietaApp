@@ -13,9 +13,9 @@ export function FileWrapper({ onPress, fileName = 'file' }: fileProps) {
     return (
         <TouchableOpacity onPress={onPress}>
             <RRow style={{ alignItems: "center", justifyContent: "space-between", paddingVertical: 12, marginVertical: 5, backgroundColor: colors.slate[100], borderRadius: 10, paddingHorizontal: 4 }}>
-                <RRow style={{ alignItems: "center", flex: 0.2, gap: 4 }}>
+                <RRow style={{ alignItems: "center", flex: 1, gap: 4 }}>
                     <AntDesign name="file-pdf" size={24} color="black" />
-                    <Text variant='labelLarge'>{fileName}.pdf</Text>
+                    <Text variant='labelLarge' numberOfLines={1}>{fileName}.pdf</Text>
                 </RRow>
                 <Ionicons name="download" size={24} color="black" />
             </RRow>

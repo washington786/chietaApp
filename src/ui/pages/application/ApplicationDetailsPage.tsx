@@ -13,13 +13,13 @@ type ApplicationParams = {
 };
 
 const ApplicationDetailsPage = () => {
-    const route = useRoute<RouteProp<navigationTypes>>();
-    const { type } = route.params as ApplicationParams;
+    const route = useRoute<RouteProp<navigationTypes, 'applicationDetails'>>();
+    const { type, appId, orgId } = route.params as ApplicationParams;
 
     return (
         <SafeArea>
             <RHeader name={'Applications Details'} />
-            <TopNav type={type} />
+            <TopNav type={type} appId={appId} orgId={orgId} />
         </SafeArea>
     )
 }
