@@ -54,7 +54,7 @@ export default function App() {
           </BottomSheetWrapper>
         </PersistGate>
       </Provider>
-      <StatusBar backgroundColor={colors.primary[950]} barStyle={"default"} networkActivityIndicatorVisible={true} animated={true} />
+      <StatusBar backgroundColor={colors.primary[950]} barStyle={"dark-content"} networkActivityIndicatorVisible={true} animated={true} />
     </View>
   )
 }
