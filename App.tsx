@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react'
-import { View } from 'react-native'
+import { StatusBar, View } from 'react-native'
 import * as SplashScreen from 'expo-splash-screen'
 
 import { RSplash } from '@/components/common'
@@ -11,6 +11,7 @@ import Toast from 'react-native-toast-message'
 import { Provider } from 'react-redux'
 import { PersistGate } from 'redux-persist/integration/react'
 import { persistor, store } from '@/store/store'
+import colors from '@/config/colors'
 
 SplashScreen.preventAutoHideAsync().catch(() => {
   let tm = setTimeout(() => SplashScreen.preventAutoHideAsync(), 100)
@@ -53,6 +54,7 @@ export default function App() {
           </BottomSheetWrapper>
         </PersistGate>
       </Provider>
+      <StatusBar backgroundColor={colors.primary[950]} barStyle={"dark-content"} networkActivityIndicatorVisible={true} animated={true} />
     </View>
   )
 }

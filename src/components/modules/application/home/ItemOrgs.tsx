@@ -38,8 +38,9 @@ const ItemOrgs: FC<props> = ({ onPress, isLinkingRequired = false, onNewLinking,
                 <Text variant='titleLarge' style={styles.itemText}>{org?.organisationName}</Text>
                 <Text variant='labelLarge' style={[styles.regTxt, styles.txt]}>#{org?.organisationRegistrationNumber}</Text>
 
-                <RRow style={styles.row}>
-                    <Feather name={isVerified ? "check-square" : "x-square"} size={16} color={isVerified ? colors.green[600] : colors.red[600]} />
+                <RRow style={[styles.row, styles.verified]}>
+                    {/* <Ionicons name="checkmark-circle" size={18} color="#16a34a" /> */}
+                    <Feather name={isVerified ? "check-circle" : "x-circle"} size={16} color={isVerified ? colors.green[600] : colors.red[600]} />
                     <Text variant='labelMedium' style={[styles.regTxt, { color: isVerified ? colors.green[600] : colors.red[600] }]}>{isVerified ? "verified" : "unverified"}</Text>
                 </RRow>
 
@@ -89,5 +90,16 @@ const styles = StyleSheet.create({
     },
     color: {
         color: colors.slate[50],
+    },
+    verified: {
+        backgroundColor: colors.green[50],
+        padding: 6,
+        borderRadius: 100,
+        width: "30%",
+        minWidth: "30%",
+        maxWidth: "30%",
+        justifyContent: "center",
+        alignSelf: "flex-end",
+        alignItems: "center"
     }
 })
