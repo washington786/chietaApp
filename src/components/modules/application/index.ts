@@ -19,6 +19,6 @@ import RUploadSuccess from "./organization/RUploadSuccess";
 import { LinkedOrganizationList } from "./home/LinkedOrganizationList";
 import Stats from "./home/Stats";
 import NewTimelines from "./home/NewTimelines";
+import NewHome from "./home/newHome";
 
-
-export { RTabBarIcon, RCustomTabBarButton, MessageWrapper, LinkedOrganizations, ItemNotification, ItemOrganization, BottomSheetWrapper, InformationBanner, ApplicationItem, DgApplicationItem, AddDgApplicationItem, Expandable, TextWrap, AccWrapper, DeactivateAccount, AppTrackingItem, ProgressTracker, RUploadSuccess, LinkedOrganizationList, Stats, NewTimelines }
+export { RTabBarIcon, RCustomTabBarButton, MessageWrapper, LinkedOrganizations, ItemNotification, ItemOrganization, BottomSheetWrapper, InformationBanner, ApplicationItem, DgApplicationItem, AddDgApplicationItem, Expandable, TextWrap, AccWrapper, DeactivateAccount, AppTrackingItem, ProgressTracker, RUploadSuccess, LinkedOrganizationList, Stats, NewTimelines, NewHome }
