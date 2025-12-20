@@ -2,7 +2,7 @@ import { FlatList } from 'react-native'
 import React from 'react'
 import { SafeArea } from '@/components/common'
 import { ApplicationTimelines, Banner, MessageWrapper } from '@/components/modules/authentication'
-import { LinkedOrganizations } from '@/components/modules/application'
+import { LinkedOrganizations, NewTimelines, Stats } from '@/components/modules/application'
 
 const HomeScreen = () => {
     return (
@@ -16,6 +16,8 @@ const HomeScreen = () => {
                     return (
                         <>
                             <MessageWrapper />
+                            {/* <Stats /> */}
+                            {/* <NewTimelines /> */}
                             <ApplicationTimelines />
                             <LinkedOrganizations />
                         </>

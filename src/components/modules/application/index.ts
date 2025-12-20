@@ -17,6 +17,8 @@ import { AppTrackingItem } from "./history/AppTrackingItem";
 import ProgressTracker from "./history/ProgressTracker";
 import RUploadSuccess from "./organization/RUploadSuccess";
 import { LinkedOrganizationList } from "./home/LinkedOrganizationList";
+import Stats from "./home/Stats";
+import NewTimelines from "./home/NewTimelines";
 
 
-export { RTabBarIcon, RCustomTabBarButton, MessageWrapper, LinkedOrganizations, ItemNotification, ItemOrganization, BottomSheetWrapper, InformationBanner, ApplicationItem, DgApplicationItem, AddDgApplicationItem, Expandable, TextWrap, AccWrapper, DeactivateAccount, AppTrackingItem, ProgressTracker, RUploadSuccess, LinkedOrganizationList }
+export { RTabBarIcon, RCustomTabBarButton, MessageWrapper, LinkedOrganizations, ItemNotification, ItemOrganization, BottomSheetWrapper, InformationBanner, ApplicationItem, DgApplicationItem, AddDgApplicationItem, Expandable, TextWrap, AccWrapper, DeactivateAccount, AppTrackingItem, ProgressTracker, RUploadSuccess, LinkedOrganizationList, Stats, NewTimelines }

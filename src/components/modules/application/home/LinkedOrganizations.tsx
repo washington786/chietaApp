@@ -1,4 +1,4 @@
-import { StyleSheet, TouchableOpacity } from 'react-native'
+import { StyleSheet, TouchableOpacity, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { RCol, RDialog, RListLoading, RRow } from '@/components/common'
 import { Text } from 'react-native-paper'
@@ -61,14 +61,21 @@ const LinkedOrganizations = () => {
         return (<RListLoading count={7} />);
     } else {
         return (
-            <RCol>
+            <RCol style={{ marginTop: 12 }}>
                 <RRow style={{ alignItems: 'center', gap: 6, marginBottom: 12, justifyContent: 'space-between' }}>
                     <Text variant='titleSmall'>my linked organizations</Text>
                     <TouchableOpacity style={styles.btn} onPress={newOrg}>
                         <Feather name="link-2" size={16} color="white" style={{ marginLeft: 6 }} />
                         <Text variant='titleSmall' style={{ color: "white" }}>add new</Text>
                     </TouchableOpacity>
+
                 </RRow>
+                {/* <View style={styles.linkedOrgsHeader}>
+                    <Text style={styles.linkedOrgsTitle}>My Linked Organizations</Text>
+                    <TouchableOpacity>
+                        <Text style={styles.viewAll}>view all</Text>
+                    </TouchableOpacity>
+                </View> */}
 
                 <RCol>
                     <LinkedOrganizationList
@@ -149,5 +156,9 @@ const styles = StyleSheet.create({
     },
     delink: {
         justifyContent: 'center', marginTop: 12, position: 'absolute', bottom: -70, right: 0, padding: 10, borderRadius: 100, backgroundColor: colors.red[500], alignItems: 'center'
-    }
+    },
+    linkedOrgsHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
+    linkedOrgsTitle: { fontSize: 15, fontWeight: '600', color: '#222' },
+    viewAll: { color: '#4F8CFF', fontWeight: '500' },
+
 });
