@@ -62,14 +62,14 @@ const LinkedOrganizations = () => {
     } else {
         return (
             <RCol style={{ marginTop: 12 }}>
-                <RRow style={{ alignItems: 'center', gap: 6, marginBottom: 12, justifyContent: 'space-between' }}>
+                {/* <RRow style={{ alignItems: 'center', gap: 6, marginBottom: 12, justifyContent: 'space-between' }}>
                     <Text variant='titleSmall'>my linked organizations</Text>
                     <TouchableOpacity style={styles.btn} onPress={newOrg}>
                         <Feather name="link-2" size={16} color="white" style={{ marginLeft: 6 }} />
                         <Text variant='titleSmall' style={{ color: "white" }}>add new</Text>
                     </TouchableOpacity>
 
-                </RRow>
+                </RRow> */}
                 {/* <View style={styles.linkedOrgsHeader}>
                     <Text style={styles.linkedOrgsTitle}>My Linked Organizations</Text>
                     <TouchableOpacity>
