@@ -1,40 +1,45 @@
 import { StyleSheet, TouchableOpacity } from 'react-native'
-import React from 'react'
+import React, { FC } from 'react'
 import { RCol, RDivider, RRow } from '@/components/common'
 import { Text } from 'react-native-paper'
 import colors from '@/config/colors'
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import usePageTransition from '@/hooks/navigation/usePageTransition'
+import { DiscretionaryProjectDto } from '@/core/models/DiscretionaryDto'
 
-const DgApplicationItem = () => {
+interface props {
+    item: DiscretionaryProjectDto;
+}
+const DgApplicationItem: FC<props> = ({ item }) => {
     const { applicationDetails } = usePageTransition();
+    const { focusArea, sdlNumber, projectStatus, endDate, projectType, fullName } = item;
     return (
-        <TouchableOpacity onPress={() => applicationDetails({ type: "dg-app", appId: "1", orgId: "1" })}>
+        <TouchableOpacity onPress={() => applicationDetails({ type: "dg-app", appId: `${item.id}`, orgId: `${item.organisationId}` })}>
             <RCol style={styles.con}>
                 <RRow style={styles.title}>
                     <MaterialCommunityIcons name="application-outline" size={18} color="black" />
-                    <Text>DG2026-2027 Cycle 1</Text>
+                    <Text>{fullName}</Text>
                 </RRow>
                 <RDivider />
                 <RRow style={styles.wrap}>
                     <Text variant='labelSmall' style={[styles.text]}>SDL No</Text>
-                    <Text variant='titleMedium' style={[styles.text, styles.appTitle]}>N030000122</Text>
+                    <Text variant='titleMedium' style={[styles.text, styles.appTitle]}>{sdlNumber}</Text>
                 </RRow>
                 <RRow style={styles.wrap}>
                     <Text variant='labelSmall' style={[styles.text]}>Focus Area</Text>
-                    <Text variant='titleMedium' style={[styles.text, styles.appTitle]}>Work Integrated Learning</Text>
+                    <Text variant='titleMedium' style={[styles.text, styles.appTitle]}>{focusArea}</Text>
                 </RRow>
                 <RRow style={styles.wrap}>
                     <Text variant='labelSmall' style={[styles.text]}>Type</Text>
-                    <Text variant='titleMedium' style={[styles.text, styles.appTitle]}>Learning Projects</Text>
+                    <Text variant='titleMedium' style={[styles.text, styles.appTitle]}>{projectType}</Text>
                 </RRow>
                 <RRow style={styles.wrap}>
                     <Text variant='labelSmall' style={[styles.text]}>Status</Text>
-                    <Text variant='titleMedium' style={[styles.text, styles.appTitle, styles.statusTxt]}>Registered</Text>
+                    <Text variant='titleMedium' style={[styles.text, styles.appTitle, styles.statusTxt]}>{projectStatus}</Text>
                 </RRow>
                 <RRow style={styles.wrap}>
                     <Text variant='labelSmall' style={[styles.text]}>Closing Date</Text>
-                    <Text variant='titleMedium' style={[styles.text, styles.appTitle]}>04/30/2024 11:59PM</Text>
+                    <Text variant='titleMedium' style={[styles.text, styles.appTitle]}>{endDate}</Text>
                 </RRow>
             </RCol>
         </TouchableOpacity>

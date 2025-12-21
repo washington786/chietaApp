@@ -76,58 +76,58 @@ export interface DiscretionaryProjectDetails {
     userId: string | null;
 }
 
-export interface DiscretionaryProject {
-    id: number;
-    organisationId: number;
-    projectStatusId: number;
-    projectStatDte: string;
-    projShortNam: string | null;
-    projectNam: string | null;
-    grantWindowId: number;
-    windowParamId: number;
-    projectTypeId: number;
-    submittedBy: string | null;
-    submissionDte: string;
-    totInitReq: number;
-    totProj: number;
-    totReq: number;
-    totFund: number;
-    totExpend: number;
-    totRcvd: number;
-    totDisb: number;
-    totGrant: number;
-    projMgrId: number | null;
-    auditor: string | null;
-    auditYyIncl: string | null;
-    poAppr: boolean | null;
-    poApprDte: string | null;
-    poApprNote: string | null;
-    finAppr: boolean | null;
-    finApprDte: string | null;
-    finApprNote: string | null;
-    reference: string | null;
-    fileLoctn: string | null;
-    photoLoctn: string | null;
-    captureDte: string;
-    nextLogNum: number;
-    archiveYn: boolean | null;
-    archSetDte: string | null;
-    appRef: string | null;
-    crPath: string | null;
-    gisLong: number | null;
-    gisLat: number | null;
-    dteUpd: string | null;
-    usrUpd: string | null;
-    dteCreated: string;
-    totOwnCntrb: number;
-    totAddFund: number;
-    rsaId: number | null;
-    rsaAssignedBy: string | null;
-    rsaAssignDate: string | null;
-    regManagerId: number | null;
-    userId: string | null;
-    dateCreated: string;
-}
+// export interface DiscretionaryProject {
+//     id: number;
+//     organisationId: number;
+//     projectStatusId: number;
+//     projectStatDte: string;
+//     projShortNam: string | null;
+//     projectNam: string | null;
+//     grantWindowId: number;
+//     windowParamId: number;
+//     projectTypeId: number;
+//     submittedBy: string | null;
+//     submissionDte: string;
+//     totInitReq: number;
+//     totProj: number;
+//     totReq: number;
+//     totFund: number;
+//     totExpend: number;
+//     totRcvd: number;
+//     totDisb: number;
+//     totGrant: number;
+//     projMgrId: number | null;
+//     auditor: string | null;
+//     auditYyIncl: string | null;
+//     poAppr: boolean | null;
+//     poApprDte: string | null;
+//     poApprNote: string | null;
+//     finAppr: boolean | null;
+//     finApprDte: string | null;
+//     finApprNote: string | null;
+//     reference: string | null;
+//     fileLoctn: string | null;
+//     photoLoctn: string | null;
+//     captureDte: string;
+//     nextLogNum: number;
+//     archiveYn: boolean | null;
+//     archSetDte: string | null;
+//     appRef: string | null;
+//     crPath: string | null;
+//     gisLong: number | null;
+//     gisLat: number | null;
+//     dteUpd: string | null;
+//     usrUpd: string | null;
+//     dteCreated: string;
+//     totOwnCntrb: number;
+//     totAddFund: number;
+//     rsaId: number | null;
+//     rsaAssignedBy: string | null;
+//     rsaAssignDate: string | null;
+//     regManagerId: number | null;
+//     userId: string | null;
+//     dateCreated: string;
+// }
 
 export interface DiscretionaryStatus {
     id: number;
@@ -197,4 +197,56 @@ export interface ApprovalStatus {
     userId: number;
     dteUpd: string | null;
     userUpd: number;
+}
+
+// Optional: normalized naming suggestion
+
+export interface DiscretionaryProjectDto {
+
+    id: number;
+
+    title: string;
+
+    projectType: string;
+
+    focusArea: string;
+
+    subCategory: string;
+
+    projectId: number;
+
+    applicationId: number;
+
+    organisationId: number;
+
+    projectStatus: string;
+
+    statusDate: string;
+
+    endDate: string;
+
+    shortName: string;
+
+    fullName: string;
+
+    submissionDate: string;
+
+    sdlNumber: string;
+
+    organisationName: string;
+
+    sdfId: number;
+
+    rsaId: number | string;
+
+    windowId: number;
+
+    projectTypeId: number;
+
+    windowParamId: number;
+
+    contractStartDate: string;
+
+    contractEndDate: string;
+
 }
