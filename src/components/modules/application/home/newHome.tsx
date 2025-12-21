@@ -50,7 +50,7 @@ const StatCard = memo(
 );
 
 const NewHome = () => {
-    const [expanded, setExpanded] = useState(true);
+    const [expanded, setExpanded] = useState(false);
     const [addLinking, setAdd] = useState<boolean>(false);
     const { newOrg, notifications, linkedOrganizations } = usePageTransition();
 

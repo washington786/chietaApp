@@ -8,6 +8,7 @@ import {
     mockBankingLists,
     mockBiodataRecords,
 } from '@/core/types/dummy';
+import { RootState } from '@/store/store';
 
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -19,12 +20,22 @@ export const fetchMandatoryGrantData = createAsyncThunk(
             // Simulate network delay
             await delay(800);
 
+            const linkedProjects = mockMandatoryApplications.map(p => ({
+                ...p,
+                isLinked: true,
+            }));
+
+            const allProjects = mockMandatoryApplications.map(p => {
+                const isLinked = linkedProjects.some(lp => lp.id === p.id);
+                return { ...p, isLinked: isLinked };
+            });
+
             // const applications = await api.getApplications();
             // const addresses = await api.getAddresses();
 
             // For now: return mock data
             return {
-                applications: mockMandatoryApplications,
+                applications: allProjects,
                 physicalAddresses: mockPhysicalAddresses,
                 postalAddresses: mockPostalAddresses,
                 documents: mockDocuments,

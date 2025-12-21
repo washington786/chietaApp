@@ -42,7 +42,8 @@ const DiscretionaryPage = () => {
         return (
             <SafeArea>
                 <RHeader name='Discretionary Grant Applications' />
-                <FlatList data={linked}
+                <FlatList
+                    data={linked}
                     style={{ paddingHorizontal: 12, paddingVertical: 6, flex: 1, flexGrow: 1 }}
                     renderItem={renderList}
                     ListHeaderComponent={< InformationBanner title='list of Discretionary grants applied for.You can only submit during open grant window.' />}
