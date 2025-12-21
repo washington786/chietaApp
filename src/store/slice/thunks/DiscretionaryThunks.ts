@@ -13,7 +13,7 @@ const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 // Async Thunk: Load all mandatory grant data
 export const fetchDiscretionaryGrantData = createAsyncThunk(
-    'mandatoryGrant/fetchAll',
+    'discretionaryGrant/fetchAll',
     async (_, { rejectWithValue }) => {
         try {
             // Simulate network delay

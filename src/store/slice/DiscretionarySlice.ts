@@ -10,7 +10,7 @@ import { BankDetail } from '@/core/models/BankDto';
 import { DiscretionaryProjectDto } from '../../core/models/DiscretionaryDto'
 import { fetchDiscretionaryGrantData } from './thunks/DiscretionaryThunks';
 
-export interface MandatoryGrantState {
+export interface DiscretionaryGrantState {
     // Applications
     applications: DiscretionaryProjectDto[];
     // Addresses
@@ -21,14 +21,14 @@ export interface MandatoryGrantState {
     // Payments & Banking
     payments: MandatoryGrantPaymentDto[];
     bankingLists: BankDetail[];
-    // Biodata
+    // // Biodata
     biodata: MandatoryGrantBiodataDto[];
     // UI State
     loading: boolean;
     error: string | null;
 }
 
-const initialState: MandatoryGrantState = {
+const initialState: DiscretionaryGrantState = {
     applications: [],
     physicalAddresses: [],
     postalAddresses: [],
@@ -41,7 +41,7 @@ const initialState: MandatoryGrantState = {
 };
 
 const discretionaryGrantSlice = createSlice({
-    name: 'mandatoryGrant',
+    name: 'discretionaryGrant',
     initialState,
     reducers: {
         clearDiscretionaryGrantData: () => initialState,

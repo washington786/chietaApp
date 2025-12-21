@@ -17,8 +17,6 @@ const DiscretionaryPage = () => {
     const { newDgApplication } = usePageTransition();
     const { applications, loading, error } = useSelector((state: RootState) => state.discretionaryGrant);
 
-    console.log(applications);
-
     const dispatch = useDispatch<AppDispatch>();
 
     useEffect(() => {
@@ -39,46 +37,33 @@ const DiscretionaryPage = () => {
 
     if (loading) {
         return <RListLoading count={7} />
+    } else {
+        return (
+            <SafeArea>
+                <RHeader name='Discretionary Grant Applications' />
+                <FlatList data={applications}
+                    style={{ paddingHorizontal: 12, paddingVertical: 6, flex: 1, flexGrow: 1 }}
+                    renderItem={renderList}
+                    ListHeaderComponent={< InformationBanner title='list of Discretionary grants applied for.You can only submit during open grant window.' />}
+                    showsVerticalScrollIndicator={false}
+                    ItemSeparatorComponent={() => <View style={{ height: 5 }} />}
+                    removeClippedSubviews={false}
+                    initialNumToRender={10}
+                    maxToRenderPerBatch={10}
+                    windowSize={21}
+                    ListEmptyComponent={<REmpty title='No Applications Found' subtitle={`when you have applications, they'll appear here`} />}
+                />
+                <FAB
+                    mode='flat'
+                    icon="plus"
+                    style={styles.fab}
+                    onPress={newDgApplication}
+                    color='white'
+                />
+            </SafeArea>
+        )
     }
 
-    return (
-        <SafeArea>
-            <RHeader name='Discretionary Grant Applications' />
-            {/* <FlatList data={[]}
-                style={{ paddingHorizontal: 12, paddingVertical: 6, flex: 1, flexGrow: 1 }}
-                renderItem={null}
-                ListHeaderComponent={}
-                ListHeaderComponentStyle={{ padding: 2 }}
-                ListFooterComponent={() => {
-                    return (
-                        <>
-                            <DgApplicationItem />
-                            <DgApplicationItem />
-                        </>
-                    )
-                }}
-            /> */}
-            <FlatList data={applications}
-                style={{ paddingHorizontal: 12, paddingVertical: 6, flex: 1, flexGrow: 1 }}
-                renderItem={renderList}
-                ListHeaderComponent={< InformationBanner title='list of Discretionary grants applied for.You can only submit during open grant window.' />}
-                showsVerticalScrollIndicator={false}
-                ItemSeparatorComponent={() => <View style={{ height: 5 }} />}
-                removeClippedSubviews={false}
-                initialNumToRender={10}
-                maxToRenderPerBatch={10}
-                windowSize={21}
-                ListEmptyComponent={<REmpty title='No Applications Found' subtitle={`when you have applications, they'll appear here`} />}
-            />
-            <FAB
-                mode='flat'
-                icon="plus"
-                style={styles.fab}
-                onPress={newDgApplication}
-                color='white'
-            />
-        </SafeArea>
-    )
 }
 
 export default DiscretionaryPage
