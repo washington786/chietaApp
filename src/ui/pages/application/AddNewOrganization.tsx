@@ -1,5 +1,5 @@
 import { FlatList, StyleSheet, View } from 'react-native'
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { RCol, REmpty, SafeArea } from '@/components/common'
 import RHeader from '@/components/common/RHeader'
 import { ItemOrganization } from '@/components/modules/application'
@@ -19,6 +19,8 @@ const AddNewOrganization = () => {
     const { filteredOrganizations, searchQuery } = useSelector(
         (state: RootState) => state.linkedOrganization
     );
+
+    const [showSearch, setSearchVisible] = useState(false);
 
     const { onBack } = usePageTransition();
     const dispatch = useDispatch<AppDispatch>();
@@ -64,22 +66,26 @@ const AddNewOrganization = () => {
 
     return (
         <SafeArea>
-            <RHeader name='Link An Organization' />
+            <RHeader name='Link An Organization' hasRightIcon={true} iconRight='search' onPressRight={() => setSearchVisible(!showSearch)} />
+            {
+                showSearch &&
+                <RCol style={styles.col}>
+                    <Searchbar
+                        placeholder="Search"
+                        onChangeText={handleSearch}
+                        value={searchQuery}
+                        style={styles.searchBar}
+                    />
+                </RCol>
+            }
             <FlatList data={filteredOrganizations}
                 style={{ paddingHorizontal: 12, paddingVertical: 6, flex: 1, flexGrow: 1 }}
                 renderItem={renderList}
                 keyExtractor={(item, index) => `organization-${item.organisationName}-${index}`}
-                stickyHeaderIndices={[0]}
-                ListHeaderComponent={
-                    <RCol style={styles.col}>
-                        <Searchbar
-                            placeholder="Search"
-                            onChangeText={handleSearch}
-                            value={searchQuery}
-                            style={styles.searchBar}
-                        />
-                    </RCol>
-                }
+                // stickyHeaderIndices={[0]}
+                // ListHeaderComponent={
+
+                // }
                 showsVerticalScrollIndicator={false}
                 ItemSeparatorComponent={() => <View style={{ height: 5 }} />}
                 removeClippedSubviews={false}
@@ -97,9 +103,10 @@ export default AddNewOrganization
 const styles = StyleSheet.create({
     col: {
         paddingVertical: 6,
-        marginVertical: 10,
+        marginVertical: 5,
+        paddingHorizontal: 12
     },
     searchBar: {
-        backgroundColor: colors.slate[100]
+        backgroundColor: colors.slate[100],
     }
 })

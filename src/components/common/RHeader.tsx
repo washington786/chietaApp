@@ -1,6 +1,7 @@
 import {
     Platform,
     StyleSheet,
+    TouchableOpacity,
     TouchableWithoutFeedback,
     View,
 } from "react-native";
@@ -9,15 +10,21 @@ import React, { FC } from "react";
 import { Feather } from "@expo/vector-icons";
 import { Text } from "react-native-paper";
 import usePageTransition from "@/hooks/navigation/usePageTransition";
+import RRow from "./RRow";
+import Ionicons from '@expo/vector-icons/Ionicons';
+import colors from "@/config/colors";
 
 interface prop {
     name: string;
+    hasRightIcon?: boolean;
+    iconRight?: 'search';
+    onPressRight?(): void;
 }
 
-const RHeader: FC<prop> = ({ name }) => {
+const RHeader: FC<prop> = ({ name, hasRightIcon = false, onPressRight, iconRight }) => {
     const { onBack } = usePageTransition();
     return (
-        <View style={styles.con}>
+        <RRow style={styles.con}>
             <TouchableWithoutFeedback onPress={onBack}>
                 <Feather
                     name={Platform.OS === "ios" ? "chevron-left" : "arrow-left"}
@@ -37,7 +44,12 @@ const RHeader: FC<prop> = ({ name }) => {
                     {name}
                 </Text>
             </View>
-        </View>
+            {
+                hasRightIcon && <TouchableOpacity style={{ alignSelf: "flex-end", alignItems: "center", justifyContent: "flex-end", paddingRight: 12 }} onPress={onPressRight}>
+                    <Ionicons name={iconRight} size={28} color={colors.gray[600]} />
+                </TouchableOpacity>
+            }
+        </RRow>
     );
 };
 
