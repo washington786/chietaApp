@@ -73,19 +73,17 @@ const AddNewDgApplicationPage = () => {
         return (
             <SafeArea>
                 <RHeader name='Add Dg Application' />
+                <RCol style={styles.col}>
+                    <Searchbar
+                        placeholder="Search application"
+                        onChangeText={setSearchQuery}
+                        value={searchQuery}
+                        style={styles.searchBar}
+                    />
+                </RCol>
                 <FlatList data={filteredApplications}
                     style={{ paddingHorizontal: 12, paddingVertical: 6, flexGrow: 1, flex: 1 }}
                     renderItem={renderList}
-                    ListHeaderComponent={
-                        <RCol style={styles.col}>
-                            <Searchbar
-                                placeholder="Search application"
-                                onChangeText={setSearchQuery}
-                                value={searchQuery}
-                                style={styles.searchBar}
-                            />
-                        </RCol>
-                    }
                     showsVerticalScrollIndicator={false}
                     ItemSeparatorComponent={() => <View style={{ height: 5 }} />}
                     removeClippedSubviews={false}
@@ -110,7 +108,8 @@ export default AddNewDgApplicationPage
 
 const styles = StyleSheet.create({
     col: {
-        paddingVertical: 6
+        paddingVertical: 6,
+        paddingHorizontal: 12
     },
     searchBar: {
         backgroundColor: colors.slate[100]

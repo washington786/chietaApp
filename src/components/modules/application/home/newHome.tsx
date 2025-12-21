@@ -52,7 +52,7 @@ const StatCard = memo(
 const NewHome = () => {
     const [expanded, setExpanded] = useState(true);
     const [addLinking, setAdd] = useState<boolean>(false);
-    const { newOrg, notifications } = usePageTransition();
+    const { newOrg, notifications, linkedOrganizations } = usePageTransition();
 
     function handleLinkNewOrg() {
         setAdd(!addLinking);
@@ -164,7 +164,7 @@ const NewHome = () => {
                         {/* Linked Orgs Header */}
                         <RRow style={styles.sectionHeader}>
                             <Text style={styles.sectionTitle}>My Linked Organizations</Text>
-                            <TouchableOpacity>
+                            <TouchableOpacity onPress={linkedOrganizations}>
                                 <Text style={styles.viewAllText}>View all</Text>
                             </TouchableOpacity>
                         </RRow>
