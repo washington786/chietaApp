@@ -20,7 +20,7 @@ const ItemOrganization: FC<props> = ({ onPress, item }) => {
             <Text variant='titleLarge' style={[styles.itemText, styles.trdeName]}>{organisationName}</Text>
             <Text variant='labelLarge' style={[styles.regTxt, styles.txt]}>#{organisationRegistrationNumber}</Text>
             <RRow style={styles.row}>
-                <Feather name={isActive ? "check-square" : "x-square"} size={16} color={isActive ? colors.green[600] : colors.red[600]} />
+                <Feather name={isActive ? "check-circle" : "x-circle"} size={16} color={isActive ? colors.green[600] : colors.red[600]} />
                 <Text variant='labelMedium' style={[styles.regTxt, { color: isActive ? colors.green[600] : colors.red[600] }]}>{isActive ? "active" : "inactive"}</Text>
             </RRow>
             <TouchableOpacity style={styles.abBtn} onPress={onPress}>

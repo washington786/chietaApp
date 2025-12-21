@@ -1279,6 +1279,7 @@ export const mockMandatoryApplications: MandatoryApplicationDto[] = [
         submittedPrevious: true,
         usrIdUpd: 105,
         dteUpd: "2025-03-20T14:45:00Z",
+        linked: true
     },
     {
         id: 5002,
@@ -1297,6 +1298,7 @@ export const mockMandatoryApplications: MandatoryApplicationDto[] = [
         submittedPrevious: false,
         usrIdUpd: 106,
         dteUpd: "2025-03-21T11:20:00Z",
+        linked: true
     },
     {
         id: 5003,

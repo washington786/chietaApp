@@ -6,7 +6,7 @@ import type {
     MandatoryGrantPaymentDto,
     MandatoryGrantBiodataDto,
 } from '@/core/models/MandatoryDto';
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { fetchMandatoryGrantData } from './thunks/MandatoryThunks';
 import { BankDetail } from '@/core/models/BankDto';
 
@@ -45,6 +45,13 @@ const mandatoryGrantSlice = createSlice({
     initialState,
     reducers: {
         clearMandatoryGrantData: () => initialState,
+        linkMgApplication: (state, action: PayloadAction<number>) => {
+            state.applications = state.applications.map(app =>
+                app.id === action.payload
+                    ? { ...app, linked: !app.linked }
+                    : app
+            );
+        }
     },
     extraReducers: (builder) => {
         builder
@@ -70,6 +77,6 @@ const mandatoryGrantSlice = createSlice({
     },
 });
 
-export const { clearMandatoryGrantData } = mandatoryGrantSlice.actions;
+export const { clearMandatoryGrantData, linkMgApplication } = mandatoryGrantSlice.actions;
 const mandatoryGrantReducer = mandatoryGrantSlice.reducer;
 export default mandatoryGrantReducer;

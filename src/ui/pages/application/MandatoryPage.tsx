@@ -18,6 +18,8 @@ const MandatoryPage = () => {
 
     const { applications, loading, error } = useSelector((state: RootState) => state.mandatoryGrant);
 
+    const linked = applications.filter(p => p.linked === true);
+
     const dispatch = useDispatch<AppDispatch>();
 
     useEffect(() => {
@@ -42,7 +44,7 @@ const MandatoryPage = () => {
         return (
             <SafeArea>
                 <RHeader name='Mandatory Grant Applications' />
-                <FlatList data={applications}
+                <FlatList data={linked}
                     style={{ paddingHorizontal: 12, paddingVertical: 6, flex: 1, flexGrow: 1 }}
                     renderItem={renderList}
                     ListHeaderComponent={<InformationBanner title='view your applications and apply for new grants. You can only submit during open grant window.' />}

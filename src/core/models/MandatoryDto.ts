@@ -15,6 +15,7 @@ export interface MandatoryApplicationDto {
     submittedPrevious: boolean;
     usrIdUpd: number;
     dteUpd: string | Date;
+    linked?: boolean
 }
 
 export interface OrganisationPhysicalAddressDto {
