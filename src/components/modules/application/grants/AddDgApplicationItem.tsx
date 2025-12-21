@@ -6,40 +6,43 @@ import { Text } from 'react-native-paper';
 
 import Feather from '@expo/vector-icons/Feather';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { DiscretionaryProjectDto } from '@/core/models/DiscretionaryDto';
 
 interface props {
-  isActive?: boolean;
-  onPress?: () => void;
+  onPress: (id?: number) => void;
+  item?: DiscretionaryProjectDto;
 }
-const AddDgApplicationItem: FC<props> = ({ isActive, onPress }) => {
+const AddDgApplicationItem: FC<props> = ({ onPress, item }) => {
+  const { fullName, focusArea, projectType, subCategory, title, projectStatus: isActive } = item as DiscretionaryProjectDto;
+
   return (
     <RCol style={styles.con}>
       <RRow style={styles.title}>
         <MaterialCommunityIcons name="application-outline" size={18} color="black" />
-        <Text>DG2026-2027 Cycle 1</Text>
+        <Text>{fullName}</Text>
       </RRow>
       <RDivider />
       <RRow style={styles.wrap}>
         <Text variant='labelSmall' style={[styles.text]}>Focus Area</Text>
-        <Text variant='titleMedium' style={[styles.text, styles.appTitle]}>Work Integrated Learning</Text>
+        <Text variant='titleMedium' style={[styles.text, styles.appTitle]}>{focusArea}</Text>
       </RRow>
       <RRow style={styles.wrap}>
         <Text variant='labelSmall' style={[styles.text]}>Type</Text>
-        <Text variant='titleMedium' style={[styles.text, styles.appTitle]}>Learning Projects</Text>
+        <Text variant='titleMedium' style={[styles.text, styles.appTitle]}>{projectType}</Text>
       </RRow>
       <RRow style={styles.wrap}>
         <Text variant='labelSmall' style={[styles.text]}>Intervention</Text>
-        <Text variant='titleMedium' style={[styles.text, styles.appTitle]}>Learning Projects</Text>
+        <Text variant='titleMedium' style={[styles.text, styles.appTitle]}>{title}</Text>
       </RRow>
       <RRow style={styles.wrap}>
         <Text variant='labelSmall' style={[styles.text]}>Sub-Category</Text>
-        <Text variant='titleMedium' style={[styles.text, styles.appTitle]}>Learning Projects</Text>
+        <Text variant='titleMedium' style={[styles.text, styles.appTitle]}>{subCategory}</Text>
       </RRow>
       <RRow style={styles.row}>
-        <Feather name={isActive ? "check-square" : "x-square"} size={16} color={isActive ? colors.green[600] : colors.red[600]} />
+        <Feather name={isActive ? "check-circle" : "x-circle"} size={16} color={isActive ? colors.green[600] : colors.red[600]} />
         <Text variant='labelMedium' style={[styles.regTxt, { color: isActive ? colors.green[600] : colors.red[600] }]}>{isActive ? "active" : "inactive"}</Text>
       </RRow>
-      <TouchableOpacity style={styles.abBtn} onPress={onPress}>
+      <TouchableOpacity style={styles.abBtn} onPress={() => onPress(item?.id)}>
         <Feather name={"plus"} size={20} color={colors.slate[50]} />
       </TouchableOpacity>
     </RCol>

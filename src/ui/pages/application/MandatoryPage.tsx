@@ -18,9 +18,6 @@ const MandatoryPage = () => {
 
     const { applications, loading, error } = useSelector((state: RootState) => state.mandatoryGrant);
 
-    console.log(applications);
-
-
     const dispatch = useDispatch<AppDispatch>();
 
     useEffect(() => {
