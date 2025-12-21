@@ -1,4 +1,6 @@
 import {
+  Platform,
+  StatusBar,
   StyleSheet,
 } from "react-native";
 import React, { FC, ReactNode } from "react";

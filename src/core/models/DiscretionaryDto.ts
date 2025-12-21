@@ -249,4 +249,6 @@ export interface DiscretionaryProjectDto {
 
     contractEndDate: string;
 
+    isLinked?: boolean;
+
 }

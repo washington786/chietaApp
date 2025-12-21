@@ -5,7 +5,7 @@ import type {
     MandatoryGrantPaymentDto,
     MandatoryGrantBiodataDto,
 } from '@/core/models/MandatoryDto';
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { BankDetail } from '@/core/models/BankDto';
 import { DiscretionaryProjectDto } from '../../core/models/DiscretionaryDto'
 import { fetchDiscretionaryGrantData } from './thunks/DiscretionaryThunks';
@@ -45,6 +45,12 @@ const discretionaryGrantSlice = createSlice({
     initialState,
     reducers: {
         clearDiscretionaryGrantData: () => initialState,
+        linkProjectToOrganization: (state, action: PayloadAction<number>) => {
+            const project = state.applications.find(p => p.id === action.payload);
+            if (project) {
+                project.isLinked = !project.isLinked;
+            };
+        }
     },
     extraReducers: (builder) => {
         builder
@@ -70,6 +76,6 @@ const discretionaryGrantSlice = createSlice({
     },
 });
 
-export const { clearDiscretionaryGrantData } = discretionaryGrantSlice.actions;
+export const { clearDiscretionaryGrantData, linkProjectToOrganization } = discretionaryGrantSlice.actions;
 const discretionaryGrantReducer = discretionaryGrantSlice.reducer;
 export default discretionaryGrantReducer;

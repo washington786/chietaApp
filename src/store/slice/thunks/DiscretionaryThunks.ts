@@ -7,6 +7,7 @@ import {
     mockBankingLists,
     mockBiodataRecords,
     mockDiscretionaryProjects,
+    mockAllDiscretionaryProjects
 } from '@/core/types/dummy';
 
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
@@ -22,9 +23,19 @@ export const fetchDiscretionaryGrantData = createAsyncThunk(
             // const applications = await api.getApplications();
             // const addresses = await api.getAddresses();
 
+            const linkedProjects = mockDiscretionaryProjects.map(p => ({
+                ...p,
+                isLinked: true,
+            }));
+
+            const allProjects = mockAllDiscretionaryProjects.map(p => {
+                const isLinked = linkedProjects.some(lp => lp.id === p.id);
+                return { ...p, isLinked: isLinked };
+            });
+
             // For now: return mock data
             return {
-                applications: mockDiscretionaryProjects,
+                applications: allProjects,
                 physicalAddresses: mockPhysicalAddresses,
                 postalAddresses: mockPostalAddresses,
                 documents: mockDocuments,

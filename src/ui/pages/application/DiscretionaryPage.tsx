@@ -17,6 +17,7 @@ const DiscretionaryPage = () => {
     const { newDgApplication } = usePageTransition();
     const { applications, loading, error } = useSelector((state: RootState) => state.discretionaryGrant);
 
+    const linked = applications.filter((p) => p.isLinked);
     const dispatch = useDispatch<AppDispatch>();
 
     useEffect(() => {
@@ -41,7 +42,7 @@ const DiscretionaryPage = () => {
         return (
             <SafeArea>
                 <RHeader name='Discretionary Grant Applications' />
-                <FlatList data={applications}
+                <FlatList data={linked}
                     style={{ paddingHorizontal: 12, paddingVertical: 6, flex: 1, flexGrow: 1 }}
                     renderItem={renderList}
                     ListHeaderComponent={< InformationBanner title='list of Discretionary grants applied for.You can only submit during open grant window.' />}
