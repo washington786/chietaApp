@@ -82,10 +82,6 @@ const AddNewOrganization = () => {
                 style={{ paddingHorizontal: 12, paddingVertical: 6, flex: 1, flexGrow: 1 }}
                 renderItem={renderList}
                 keyExtractor={(item, index) => `organization-${item.organisationName}-${index}`}
-                // stickyHeaderIndices={[0]}
-                // ListHeaderComponent={
-
-                // }
                 showsVerticalScrollIndicator={false}
                 ItemSeparatorComponent={() => <View style={{ height: 5 }} />}
                 removeClippedSubviews={false}

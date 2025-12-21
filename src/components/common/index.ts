@@ -43,7 +43,6 @@ export {
   RUpload,
   RImageCon,
   RServerError,
-  RNetworkAlert,
   RErrorMessage,
   RNotification,
   RSplash,
@@ -53,5 +52,5 @@ export {
   RWrapperInput as RChildWrapper,
   RPickerContainer,
   RRNButton,
-  RDialog, RRPicker, REmpty, RLoaderAnimation, SkeletonLoader, RListLoading
+  RDialog, RRPicker, REmpty, RLoaderAnimation, SkeletonLoader, RListLoading, RNetworkAlert
 };

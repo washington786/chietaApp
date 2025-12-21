@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { StatusBar, View } from 'react-native'
 import * as SplashScreen from 'expo-splash-screen'
 
-import { RSplash } from '@/components/common'
+import { RNetworkAlert, RSplash } from '@/components/common'
 import ProviderWraper from '@/components/common/ProviderWraper'
 import { BottomSheetWrapper } from '@/components/modules/application'
 import useLoadAppFonts from '@/hooks/loadfonts/useLoadFonts'
@@ -44,6 +44,7 @@ export default function App() {
 
   return (
     <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
+      <RNetworkAlert />
       <Provider store={store}>
         <PersistGate loading={null} persistor={persistor}>
           <BottomSheetWrapper>
