@@ -15,6 +15,8 @@ import { RCol, RRow } from '@/components/common';
 import LinkedOrganizations from './LinkedOrganizations';
 import usePageTransition from '@/hooks/navigation/usePageTransition';
 import { getTimeOfDay } from '@/core';
+import { usePeriodInfo } from '@/hooks/main/UsePeriodInfo';
+import { formatCountdown } from '@/core/utils/dayTime';
 
 interface StatItem {
     icon: keyof typeof Ionicons.glyphMap;
@@ -65,6 +67,15 @@ const NewHome = () => {
     const time = new Date().getTime();
 
     const currentDayTime = getTimeOfDay(new Date(time));
+
+    const mgOpen = '2025-12-01';
+    const mgClose = '2025-12-23';
+
+    const dgOpen = '2025-12-01';
+    const dgClose = '2025-12-23';
+
+    const mgPeriod = usePeriodInfo(mgOpen, mgClose, { autoUpdate: true });
+    const dgPeriod = usePeriodInfo(dgOpen, dgClose, { autoUpdate: true });
 
     return (
         <SafeAreaView style={styles.container}>
@@ -148,12 +159,12 @@ const NewHome = () => {
 
                                             <View style={styles.countdownContainer}>
                                                 <Ionicons name="time-outline" size={30} color="#fff" />
-                                                <Text style={styles.countdownValue}>00 00 00 00</Text>
+                                                <Text style={styles.countdownValue}>{label.includes("Mandatory Grants") ? formatCountdown(mgPeriod.countdown) : formatCountdown(dgPeriod.countdown)}</Text>
                                                 <Text style={styles.countdownUnit}>dd hh mm ss</Text>
                                             </View>
 
                                             <View style={styles.statusBadge}>
-                                                <Text style={styles.statusText}>Closed</Text>
+                                                <Text style={styles.statusText}>{label.includes("Mandatory Grants") ? mgPeriod.status : dgPeriod.status}</Text>
                                             </View>
                                         </Card>
                                     ))}
