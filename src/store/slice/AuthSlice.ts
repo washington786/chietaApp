@@ -39,7 +39,7 @@ const API_BASE_URL = 'https://ims.chieta.org.za:22743'
 /**
  * Login with email and password
  */
-export const login = createAsyncThunk<
+const login = createAsyncThunk<
     LoginResponse,
     LoginRequest,
     { rejectValue: AuthError }
@@ -99,7 +99,7 @@ export const login = createAsyncThunk<
 /**
  * Register new user
  */
-export const register = createAsyncThunk<
+const register = createAsyncThunk<
     RegisterResponse,
     RegisterRequest,
     { rejectValue: AuthError }
@@ -160,7 +160,7 @@ export const register = createAsyncThunk<
 /**
  * Send password reset code
  */
-export const resetPassword = createAsyncThunk<
+const resetPassword = createAsyncThunk<
     { message: string },
     ResetPasswordRequest,
     { rejectValue: AuthError }
@@ -204,7 +204,7 @@ export const resetPassword = createAsyncThunk<
 /**
  * Verify OTP and complete password reset
  */
-export const verifyOtp = createAsyncThunk<
+const verifyOtp = createAsyncThunk<
     { message: string },
     VerifyOtpRequest & { newPassword: string },
     { rejectValue: AuthError }
@@ -250,7 +250,7 @@ export const verifyOtp = createAsyncThunk<
 /**
  * Change password (requires authentication)
  */
-export const changePassword = createAsyncThunk<
+const changePassword = createAsyncThunk<
     { message: string },
     ChangePasswordRequest,
     { rejectValue: AuthError; state: { auth: AuthState } }
@@ -309,7 +309,7 @@ export const changePassword = createAsyncThunk<
 /**
  * Refresh access token
  */
-export const refreshTokenThunk = createAsyncThunk<
+const refreshTokenThunk = createAsyncThunk<
     RefreshTokenResponse,
     undefined,
     { rejectValue: AuthError; state: { auth: AuthState } }
@@ -366,6 +366,55 @@ export const refreshTokenThunk = createAsyncThunk<
     }
 )
 
+/**
+ * Restore session from secure storage
+ * Checks if token is still valid before restoring
+ */
+const restoreSession = createAsyncThunk<
+    { user: UserDto; token: string; refreshToken?: string; expiresIn?: number } | null,
+    void,
+    { rejectValue: AuthError }
+>('auth/restoreSession', async (_, { rejectWithValue }) => {
+    try {
+        const storedToken = await SecureStore.getItemAsync('accessToken')
+        const storedRefreshToken = await SecureStore.getItemAsync('refreshToken')
+        const storedUser = await SecureStore.getItemAsync('user')
+        const storedExpiresIn = await SecureStore.getItemAsync('expiresIn')
+
+        if (!storedToken || !storedUser) {
+            return null
+        }
+
+        // Parse stored data
+        const user = JSON.parse(storedUser)
+        const expiresIn = storedExpiresIn ? parseInt(storedExpiresIn) : 0
+
+        // Check if token is still valid
+        const tokenExpiry = extractTokenExpiry(storedToken)
+        if (tokenExpiry && tokenExpiry <= 0) {
+            // Token expired, try to refresh
+            if (storedRefreshToken) {
+                // If refresh available, let another thunk handle it
+                return null
+            }
+            // Clear expired token
+            await SecureStore.deleteItemAsync('accessToken')
+            await SecureStore.deleteItemAsync('user')
+            return null
+        }
+
+        return {
+            user,
+            token: storedToken,
+            refreshToken: storedRefreshToken || undefined,
+            expiresIn,
+        }
+    } catch (error) {
+        console.error('Failed to restore session:', error)
+        return null
+    }
+})
+
 const authSlice = createSlice({
     name: 'auth',
     initialState,
@@ -396,6 +445,8 @@ const authSlice = createSlice({
             state.expiresIn = null
             state.isAuthenticated = false
             state.error = null
+            // Clear from secure storage
+            clearCredentialsFromSecureStore()
         },
     },
     extraReducers: (builder) => {
@@ -413,6 +464,8 @@ const authSlice = createSlice({
                 state.expiresIn = action.payload.expiresIn
                 state.isAuthenticated = true
                 state.error = null
+                // Save to secure storage
+                saveCredentialsToSecureStore(action.payload.user, action.payload.accessToken, action.payload.refreshToken, action.payload.expiresIn)
             })
             .addCase(login.rejected, (state, action) => {
                 state.isLoading = false
@@ -436,6 +489,8 @@ const authSlice = createSlice({
                 state.expiresIn = action.payload.expiresIn
                 state.isAuthenticated = true
                 state.error = null
+                // Save to secure storage
+                saveCredentialsToSecureStore(action.payload.user, action.payload.accessToken, action.payload.refreshToken, action.payload.expiresIn)
             })
             .addCase(register.rejected, (state, action) => {
                 state.isLoading = false
@@ -499,6 +554,22 @@ const authSlice = createSlice({
                 }
             })
 
+        // Restore Session
+        builder
+            .addCase(restoreSession.fulfilled, (state, action) => {
+                if (action.payload) {
+                    state.user = action.payload.user
+                    state.token = action.payload.token
+                    state.refreshToken = action.payload.refreshToken || null
+                    state.expiresIn = action.payload.expiresIn || null
+                    state.isAuthenticated = true
+                    state.error = null
+                }
+            })
+            .addCase(restoreSession.rejected, () => {
+                // Session restore failed, keep initial state (show login)
+            })
+
         // Refresh Token
         builder
             .addCase(refreshTokenThunk.pending, (state) => {
@@ -529,6 +600,62 @@ export const { setCredentials, clearError, logout } = authSlice.actions
 const AuthReducer = authSlice.reducer
 
 export default AuthReducer
+
+// Export thunks for external use
+export {
+    login,
+    register,
+    resetPassword,
+    verifyOtp,
+    changePassword,
+    refreshTokenThunk,
+    restoreSession,
+}
+
+/**
+ * Save credentials to secure storage
+ */
+function saveCredentialsToSecureStore(
+    user: UserDto,
+    token: string,
+    refreshToken?: string,
+    expiresIn?: number
+) {
+    SecureStore.setItemAsync('user', JSON.stringify(user)).catch((error) =>
+        console.error('Failed to save user to secure store:', error)
+    )
+    SecureStore.setItemAsync('accessToken', token).catch((error) =>
+        console.error('Failed to save token to secure store:', error)
+    )
+    if (refreshToken) {
+        SecureStore.setItemAsync('refreshToken', refreshToken).catch((error) =>
+            console.error('Failed to save refresh token to secure store:', error)
+        )
+    }
+    if (expiresIn) {
+        SecureStore.setItemAsync('expiresIn', expiresIn.toString()).catch((error) =>
+            console.error('Failed to save expiresIn to secure store:', error)
+        )
+    }
+}
+
+/**
+ * Clear credentials from secure storage
+ */
+function clearCredentialsFromSecureStore() {
+    SecureStore.deleteItemAsync('user').catch((error) =>
+        console.error('Failed to delete user from secure store:', error)
+    )
+    SecureStore.deleteItemAsync('accessToken').catch((error) =>
+        console.error('Failed to delete token from secure store:', error)
+    )
+    SecureStore.deleteItemAsync('refreshToken').catch((error) =>
+        console.error('Failed to delete refresh token from secure store:', error)
+    )
+    SecureStore.deleteItemAsync('expiresIn').catch((error) =>
+        console.error('Failed to delete expiresIn from secure store:', error)
+    )
+}
 
 /**
  * Helper function to extract expiry time from JWT token

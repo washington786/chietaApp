@@ -1,5 +1,5 @@
 import { Text, View } from 'react-native'
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef } from 'react'
 import colors from '@/config/colors'
 import { Button } from 'react-native-paper'
 import appFonts from '@/config/fonts'
@@ -10,8 +10,9 @@ import { Authstyles as styles } from '@/styles/AuthStyles'
 import { Formik } from 'formik'
 import { loginSchema, showToast } from '@/core'
 import UseAuth from '@/hooks/main/auth/UseAuth'
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 import { RootState } from '@/store/store'
+import { clearError } from '@/store/slice/AuthSlice'
 
 const formValues = {
     email: '',
@@ -20,9 +21,10 @@ const formValues = {
 
 const LoginScreen = () => {
     const { register, resetPassword, onAuth } = usePageTransition();
-
+    const dispatch = useDispatch();
     const { login } = UseAuth();
     const { isLoading, error } = useSelector((state: RootState) => state.auth)
+    const prevErrorRef = useRef<typeof error>(null);
 
     const handleSubmit = async (email: string, password: string) => {
         const result = await login({
@@ -36,10 +38,12 @@ const LoginScreen = () => {
     }
 
     useEffect(() => {
-        if (error) {
+        if (error && !prevErrorRef.current) {
             showToast({ message: error.message, type: 'error', title: 'Login Error', position: "top" });
+            dispatch(clearError());
         }
-    }, [error])
+        prevErrorRef.current = error;
+    }, [error, dispatch])
 
     return (
         <Scroller>

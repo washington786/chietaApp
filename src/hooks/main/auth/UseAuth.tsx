@@ -5,6 +5,7 @@ import {
     verifyOtp as verifyOtpThunk,
     changePassword as changePasswordThunk,
     logout as logoutAction,
+    restoreSession,
 } from '@/store/slice/AuthSlice'
 import {
     LoginRequest,
@@ -67,6 +68,14 @@ const UseAuth = () => {
         dispatch(logoutAction())
     }
 
+    /**
+     * Restore user session from secure storage
+     * Called on app startup to check if user is still logged in
+     */
+    const restoreUserSession = async () => {
+        return dispatch(restoreSession())
+    }
+
     return {
         login,
         register,
@@ -74,6 +83,7 @@ const UseAuth = () => {
         verifyOtp,
         changePassword,
         logout,
+        restoreUserSession,
     }
 }
 
