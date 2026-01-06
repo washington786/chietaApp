@@ -20,6 +20,16 @@ const RootStackNavigator = () => {
     const navigation = useNavigation<NavigationProp<navigationTypes>>()
     const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated)
 
+    // Navigate to login when user logs out
+    useEffect(() => {
+        if (!isAuthenticated) {
+            navigation.reset({
+                index: 0,
+                routes: [{ name: 'login' }],
+            })
+        }
+    }, [isAuthenticated, navigation])
+
     // Set up navigation listener to enforce authentication on protected routes
     useEffect(() => {
         const unsubscribe = navigation.addListener('beforeRemove', (e: any) => {
