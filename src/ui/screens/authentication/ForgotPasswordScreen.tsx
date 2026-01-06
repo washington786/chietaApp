@@ -8,7 +8,11 @@ import appFonts from '@/config/fonts';
 import { IconButton } from 'react-native-paper';
 import colors from '@/config/colors';
 import { Formik } from 'formik';
-import { resetPasswordSchema } from '@/core';
+import { resetPasswordSchema, showToast } from '@/core';
+import UseAuth from '@/hooks/main/auth/UseAuth';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/store/store';
+import { ResetPasswordRequest } from '@/core/models/UserDto';
 
 const initialValues = {
     email: ''
@@ -17,8 +21,36 @@ const initialValues = {
 const ForgotPasswordScreen = () => {
     const { onBack, otp } = usePageTransition();
 
-    const handleSubmit = () => {
-        otp();
+    const { resetPassword } = UseAuth();
+    const { isLoading, error, isAuthenticated } = useSelector(
+        (state: RootState) => state.auth
+    );
+
+    const handleSubmit = async (values: ResetPasswordRequest) => {
+        const { email } = values;
+        await resetPassword({
+            email: email,
+
+        });
+
+        if (isAuthenticated) {
+            otp();
+            showToast({
+                message: "One time pin sent to your email",
+                type: "success",
+                title: "Success",
+                position: "top",
+            });
+        }
+    }
+
+    if (error) {
+        showToast({
+            message: error.message,
+            type: "error",
+            title: "Login Error",
+            position: "top",
+        });
     }
 
     return (
@@ -46,17 +78,17 @@ const ForgotPasswordScreen = () => {
                             please enter your email address to reset your password.
                         </Text>
 
-                        <Formik initialValues={initialValues} onSubmit={handleSubmit} validationSchema={resetPasswordSchema}>
+                        <Formik initialValues={initialValues} onSubmit={(values) => handleSubmit(values)} validationSchema={resetPasswordSchema}>
                             {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
                                 <RKeyboardView style={{ gap: 12 }}>
-
+                                    ƒ
                                     <RInput placeholder='Email' icon={'mail'} onChangeText={handleChange('email')} onBlur={handleBlur('email')} value={values.email} />
 
                                     {
                                         errors.email && touched.email && <RErrorMessage error={errors.email} />
                                     }
 
-                                    <RButton title='reset password' onPressButton={handleSubmit} styleBtn={styles.button} />
+                                    <RButton title='reset password' onPressButton={handleSubmit} styleBtn={styles.button} isSubmitting={isLoading} />
                                 </RKeyboardView>
                             )}
                         </Formik>
