@@ -51,6 +51,12 @@ const RegisterScreen = () => {
 
         if (isAuthenticated) {
             onAuth();
+            showToast({
+                message: "Registration successful",
+                type: "success",
+                title: "Success",
+                position: "top",
+            });
         }
     }
 
