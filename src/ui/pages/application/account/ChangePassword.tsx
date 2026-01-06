@@ -9,18 +9,33 @@ import UseAuth from '@/hooks/main/auth/UseAuth'
 import { useSelector } from 'react-redux'
 import { RootState } from '@/store/store'
 import { changePasswordSchema } from '@/core/validators/newPasswordValidator'
+import { useEffect, useRef } from 'react'
 
 const ChangePassword = () => {
     const { changePassword } = UseAuth()
     const { isLoading, error } = useSelector(
         (state: RootState) => state.auth
     )
+    const prevErrorRef = useRef<typeof error>(null);
 
     const initialValues = {
         oldPassword: '',
         password: '',
         confirmPassword: ''
     }
+
+    // Handle errors via useEffect
+    useEffect(() => {
+        if (error && !prevErrorRef.current) {
+            showToast({
+                message: error.message,
+                type: "error",
+                title: "Error",
+                position: "top",
+            })
+        }
+        prevErrorRef.current = error;
+    }, [error])
 
     const handleSubmit = async (values: any) => {
         const result = await changePassword({
@@ -37,15 +52,6 @@ const ChangePassword = () => {
                 position: "top",
             })
         }
-    }
-
-    if (error) {
-        showToast({
-            message: error.message,
-            type: "error",
-            title: "Error",
-            position: "top",
-        })
     }
 
     return (
