@@ -8,7 +8,10 @@ import { RButton, RErrorMessage, RInput, RKeyboardView, RLogo, SafeArea, Scrolle
 import usePageTransition from '@/hooks/navigation/usePageTransition'
 import { Authstyles as styles } from '@/styles/AuthStyles'
 import { Formik } from 'formik'
-import { loginSchema } from '@/core'
+import { loginSchema, showToast } from '@/core'
+import UseAuth from '@/hooks/main/auth/UseAuth'
+import { useSelector } from 'react-redux'
+import { RootState } from '@/store/store'
 
 const formValues = {
     email: '',
@@ -18,8 +21,22 @@ const formValues = {
 const LoginScreen = () => {
     const { register, resetPassword, onAuth } = usePageTransition();
 
-    const handleSubmit = () => {
-        onAuth();
+    const { login } = UseAuth();
+    const { isLoading, error, isAuthenticated } = useSelector((state: RootState) => state.auth)
+
+    const handleSubmit = async (email: string, password: string) => {
+        await login({
+            email: email,
+            password: password
+        })
+
+        if (isAuthenticated) {
+            onAuth();
+        }
+    }
+
+    if (error) {
+        showToast({ message: error.message, type: 'error', title: 'Login Error', position: "top" });
     }
 
     return (
@@ -35,7 +52,7 @@ const LoginScreen = () => {
                             Sign in to continue to your account
                         </Text>
 
-                        <Formik initialValues={formValues} onSubmit={handleSubmit} validationSchema={loginSchema}>
+                        <Formik initialValues={formValues} onSubmit={(values) => handleSubmit(values.email, values.password)} validationSchema={loginSchema}>
                             {({ handleSubmit, handleBlur, handleChange, touched, errors, values }) => (
                                 <RKeyboardView style={{ gap: 12 }}>
 
@@ -45,7 +62,7 @@ const LoginScreen = () => {
                                     <RInput placeholder='Password' icon={'lock'} secureTextEntry onChangeText={handleChange("password")} onBlur={handleBlur("password")} value={values.password} />
                                     {touched.password && errors.password && (<RErrorMessage error={errors.password} />)}
 
-                                    <RButton title='Sign In' onPressButton={handleSubmit} styleBtn={styles.button} />
+                                    <RButton title='Sign In' onPressButton={handleSubmit} styleBtn={styles.button} isSubmitting={isLoading} />
                                 </RKeyboardView>
                             )}
                         </Formik>
