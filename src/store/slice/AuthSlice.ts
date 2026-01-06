@@ -1,39 +1,555 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit'
+import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit'
+import {
+    UserDto,
+    LoginRequest,
+    LoginResponse,
+    RegisterRequest,
+    RegisterResponse,
+    ResetPasswordRequest,
+    VerifyOtpRequest,
+    ChangePasswordRequest,
+    RefreshTokenRequest,
+    RefreshTokenResponse,
+    AuthError,
+} from '@/core/models/UserDto'
+import * as SecureStore from 'expo-secure-store'
 
 interface AuthState {
-    user: { id: string; name: string; email: string } | null;
-    token: string | null;
-    isLoading: boolean;
-    error: null;
+    user: UserDto | null
+    token: string | null
+    refreshToken: string | null
+    expiresIn: number | null
+    isLoading: boolean
+    error: AuthError | null
+    isAuthenticated: boolean
 }
 
 const initialState: AuthState = {
     user: null,
     token: null,
-    error: null,
+    refreshToken: null,
+    expiresIn: null,
     isLoading: false,
+    error: null,
+    isAuthenticated: false,
 }
+
+const API_BASE_URL = 'https://ims.chieta.org.za:22743'
+
+/**
+ * Login with email and password
+ */
+export const login = createAsyncThunk<
+    LoginResponse,
+    LoginRequest,
+    { rejectValue: AuthError }
+>('auth/login', async (payload, { rejectWithValue }) => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/TokenAuth/Authenticate`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Accept: 'application/json',
+            },
+            body: JSON.stringify({
+                userNameOrEmailAddress: payload.email,
+                password: payload.password,
+                rememberClient: payload.rememberMe || false,
+            }),
+        })
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({
+                message: 'Login failed',
+            }))
+            return rejectWithValue({
+                code: 'LOGIN_ERROR',
+                message: errorData.message || `Login failed with status ${response.status}`,
+                details: errorData.details,
+            })
+        }
+
+        const data = await response.json()
+
+        // Decode JWT to get expiry
+        const expiresIn = extractTokenExpiry(data.result?.accessToken)
+
+        return {
+            user: {
+                id: data.result?.userId || '',
+                email: payload.email,
+                firstName: data.result?.firstName || '',
+                lastName: data.result?.lastName || '',
+                username: data.result?.userName || '',
+                isActive: true,
+                isEmailConfirmed: true,
+            },
+            accessToken: data.result?.accessToken || '',
+            refreshToken: data.result?.refreshToken || undefined,
+            expiresIn: expiresIn || 3600,
+        }
+    } catch (error) {
+        return rejectWithValue({
+            code: 'NETWORK_ERROR',
+            message: error instanceof Error ? error.message : 'Network error occurred',
+        })
+    }
+})
+
+/**
+ * Register new user
+ */
+export const register = createAsyncThunk<
+    RegisterResponse,
+    RegisterRequest,
+    { rejectValue: AuthError }
+>('auth/register', async (payload, { rejectWithValue }) => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/services/app/Account/Register`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Accept: 'application/json',
+            },
+            body: JSON.stringify({
+                firstName: payload.firstName,
+                lastName: payload.lastName,
+                emailAddress: payload.email,
+                userName: payload.username,
+                password: payload.password,
+            }),
+        })
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({
+                message: 'Registration failed',
+            }))
+            return rejectWithValue({
+                code: 'REGISTRATION_ERROR',
+                message: errorData.message || `Registration failed with status ${response.status}`,
+                details: errorData.details,
+            })
+        }
+
+        const data = await response.json()
+
+        const expiresIn = extractTokenExpiry(data.result?.accessToken)
+
+        return {
+            user: {
+                id: data.result?.userId || '',
+                email: payload.email,
+                firstName: payload.firstName,
+                lastName: payload.lastName,
+                username: payload.username,
+                isActive: true,
+                isEmailConfirmed: false,
+            },
+            accessToken: data.result?.accessToken || '',
+            refreshToken: data.result?.refreshToken || undefined,
+            expiresIn: expiresIn || 3600,
+        }
+    } catch (error) {
+        return rejectWithValue({
+            code: 'NETWORK_ERROR',
+            message: error instanceof Error ? error.message : 'Network error occurred',
+        })
+    }
+})
+
+/**
+ * Send password reset code
+ */
+export const resetPassword = createAsyncThunk<
+    { message: string },
+    ResetPasswordRequest,
+    { rejectValue: AuthError }
+>('auth/resetPassword', async (payload, { rejectWithValue }) => {
+    try {
+        const response = await fetch(
+            `${API_BASE_URL}/api/services/app/Account/SendPasswordResetCode`,
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Accept: 'application/json',
+                },
+                body: JSON.stringify({
+                    emailAddress: payload.email,
+                }),
+            }
+        )
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({
+                message: 'Password reset failed',
+            }))
+            return rejectWithValue({
+                code: 'RESET_PASSWORD_ERROR',
+                message: errorData.message || `Password reset failed with status ${response.status}`,
+                details: errorData.details,
+            })
+        }
+
+        const data = await response.json()
+        return { message: data.result?.message || 'Password reset code sent successfully' }
+    } catch (error) {
+        return rejectWithValue({
+            code: 'NETWORK_ERROR',
+            message: error instanceof Error ? error.message : 'Network error occurred',
+        })
+    }
+})
+
+/**
+ * Verify OTP and complete password reset
+ */
+export const verifyOtp = createAsyncThunk<
+    { message: string },
+    VerifyOtpRequest & { newPassword: string },
+    { rejectValue: AuthError }
+>('auth/verifyOtp', async (payload, { rejectWithValue }) => {
+    try {
+        const response = await fetch(
+            `${API_BASE_URL}/api/services/app/Account/ResetPassword`,
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Accept: 'application/json',
+                },
+                body: JSON.stringify({
+                    emailAddress: payload.email,
+                    resetCode: payload.otp,
+                    password: payload.newPassword,
+                }),
+            }
+        )
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({
+                message: 'OTP verification failed',
+            }))
+            return rejectWithValue({
+                code: 'OTP_VERIFICATION_ERROR',
+                message: errorData.message || `OTP verification failed with status ${response.status}`,
+                details: errorData.details,
+            })
+        }
+
+        const data = await response.json()
+        return { message: data.result?.message || 'Password reset successfully' }
+    } catch (error) {
+        return rejectWithValue({
+            code: 'NETWORK_ERROR',
+            message: error instanceof Error ? error.message : 'Network error occurred',
+        })
+    }
+})
+
+/**
+ * Change password (requires authentication)
+ */
+export const changePassword = createAsyncThunk<
+    { message: string },
+    ChangePasswordRequest,
+    { rejectValue: AuthError; state: { auth: AuthState } }
+>(
+    'auth/changePassword',
+    async (payload, { rejectWithValue, getState }) => {
+        try {
+            const state = getState()
+            const token = state.auth.token
+
+            if (!token) {
+                return rejectWithValue({
+                    code: 'UNAUTHORIZED',
+                    message: 'User not authenticated',
+                })
+            }
+
+            const response = await fetch(
+                `${API_BASE_URL}/api/services/app/Account/ChangePassword`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Accept: 'application/json',
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({
+                        currentPassword: payload.oldPassword,
+                        newPassword: payload.password,
+                    }),
+                }
+            )
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({
+                    message: 'Password change failed',
+                }))
+                return rejectWithValue({
+                    code: 'CHANGE_PASSWORD_ERROR',
+                    message: errorData.message || `Password change failed with status ${response.status}`,
+                    details: errorData.details,
+                })
+            }
+
+            const data = await response.json()
+            return { message: data.result?.message || 'Password changed successfully' }
+        } catch (error) {
+            return rejectWithValue({
+                code: 'NETWORK_ERROR',
+                message: error instanceof Error ? error.message : 'Network error occurred',
+            })
+        }
+    }
+)
+
+/**
+ * Refresh access token
+ */
+export const refreshTokenThunk = createAsyncThunk<
+    RefreshTokenResponse,
+    undefined,
+    { rejectValue: AuthError; state: { auth: AuthState } }
+>(
+    'auth/refreshToken',
+    async (_, { rejectWithValue, getState }) => {
+        try {
+            const state = getState()
+            const refreshToken = state.auth.refreshToken
+
+            if (!refreshToken) {
+                return rejectWithValue({
+                    code: 'NO_REFRESH_TOKEN',
+                    message: 'No refresh token available',
+                })
+            }
+
+            const response = await fetch(
+                `${API_BASE_URL}/api/TokenAuth/RefreshToken`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Accept: 'application/json',
+                    },
+                    body: JSON.stringify({
+                        refreshToken: refreshToken,
+                    }),
+                }
+            )
+
+            if (!response.ok) {
+                return rejectWithValue({
+                    code: 'TOKEN_REFRESH_ERROR',
+                    message: 'Failed to refresh token',
+                })
+            }
+
+            const data = await response.json()
+
+            const expiresIn = extractTokenExpiry(data.result?.accessToken)
+
+            return {
+                accessToken: data.result?.accessToken || '',
+                refreshToken: data.result?.refreshToken || undefined,
+                expiresIn: expiresIn || 3600,
+            }
+        } catch (error) {
+            return rejectWithValue({
+                code: 'NETWORK_ERROR',
+                message: error instanceof Error ? error.message : 'Network error occurred',
+            })
+        }
+    }
+)
 
 const authSlice = createSlice({
     name: 'auth',
     initialState,
     reducers: {
-        setCredentials: (state, action: PayloadAction<{ user: any; token: string }>) => {
+        setCredentials: (
+            state,
+            action: PayloadAction<{
+                user: UserDto
+                token: string
+                refreshToken?: string
+                expiresIn?: number
+            }>
+        ) => {
             state.user = action.payload.user
             state.token = action.payload.token
+            state.refreshToken = action.payload.refreshToken || null
+            state.expiresIn = action.payload.expiresIn || 3600
+            state.isAuthenticated = true
+            state.error = null
         },
-        setOrganization: (state, action) => {
-            state.error = action.payload
+        clearError: (state) => {
+            state.error = null
         },
         logout: (state) => {
             state.user = null
             state.token = null
+            state.refreshToken = null
+            state.expiresIn = null
+            state.isAuthenticated = false
+            state.error = null
         },
+    },
+    extraReducers: (builder) => {
+        // Login
+        builder
+            .addCase(login.pending, (state) => {
+                state.isLoading = true
+                state.error = null
+            })
+            .addCase(login.fulfilled, (state, action) => {
+                state.isLoading = false
+                state.user = action.payload.user
+                state.token = action.payload.accessToken
+                state.refreshToken = action.payload.refreshToken || null
+                state.expiresIn = action.payload.expiresIn
+                state.isAuthenticated = true
+                state.error = null
+            })
+            .addCase(login.rejected, (state, action) => {
+                state.isLoading = false
+                state.error = action.payload || {
+                    code: 'LOGIN_ERROR',
+                    message: 'Login failed',
+                }
+            })
+
+        // Register
+        builder
+            .addCase(register.pending, (state) => {
+                state.isLoading = true
+                state.error = null
+            })
+            .addCase(register.fulfilled, (state, action) => {
+                state.isLoading = false
+                state.user = action.payload.user
+                state.token = action.payload.accessToken
+                state.refreshToken = action.payload.refreshToken || null
+                state.expiresIn = action.payload.expiresIn
+                state.isAuthenticated = true
+                state.error = null
+            })
+            .addCase(register.rejected, (state, action) => {
+                state.isLoading = false
+                state.error = action.payload || {
+                    code: 'REGISTRATION_ERROR',
+                    message: 'Registration failed',
+                }
+            })
+
+        // Reset Password
+        builder
+            .addCase(resetPassword.pending, (state) => {
+                state.isLoading = true
+                state.error = null
+            })
+            .addCase(resetPassword.fulfilled, (state) => {
+                state.isLoading = false
+                state.error = null
+            })
+            .addCase(resetPassword.rejected, (state, action) => {
+                state.isLoading = false
+                state.error = action.payload || {
+                    code: 'RESET_PASSWORD_ERROR',
+                    message: 'Password reset failed',
+                }
+            })
+
+        // Verify OTP
+        builder
+            .addCase(verifyOtp.pending, (state) => {
+                state.isLoading = true
+                state.error = null
+            })
+            .addCase(verifyOtp.fulfilled, (state) => {
+                state.isLoading = false
+                state.error = null
+            })
+            .addCase(verifyOtp.rejected, (state, action) => {
+                state.isLoading = false
+                state.error = action.payload || {
+                    code: 'OTP_VERIFICATION_ERROR',
+                    message: 'OTP verification failed',
+                }
+            })
+
+        // Change Password
+        builder
+            .addCase(changePassword.pending, (state) => {
+                state.isLoading = true
+                state.error = null
+            })
+            .addCase(changePassword.fulfilled, (state) => {
+                state.isLoading = false
+                state.error = null
+            })
+            .addCase(changePassword.rejected, (state, action) => {
+                state.isLoading = false
+                state.error = action.payload || {
+                    code: 'CHANGE_PASSWORD_ERROR',
+                    message: 'Password change failed',
+                }
+            })
+
+        // Refresh Token
+        builder
+            .addCase(refreshTokenThunk.pending, (state) => {
+                // Don't show loading indicator for token refresh
+            })
+            .addCase(refreshTokenThunk.fulfilled, (state, action) => {
+                state.token = action.payload.accessToken
+                state.refreshToken = action.payload.refreshToken || state.refreshToken
+                state.expiresIn = action.payload.expiresIn
+                state.error = null
+            })
+            .addCase(refreshTokenThunk.rejected, (state, action) => {
+                // If refresh fails, logout user
+                state.user = null
+                state.token = null
+                state.refreshToken = null
+                state.isAuthenticated = false
+                state.error = action.payload || {
+                    code: 'TOKEN_REFRESH_ERROR',
+                    message: 'Session expired',
+                }
+            })
     },
 })
 
-export const { setCredentials, setOrganization, logout } = authSlice.actions;
+export const { setCredentials, clearError, logout } = authSlice.actions
 
-const AuthReducer = authSlice.reducer;
+const AuthReducer = authSlice.reducer
 
-export default AuthReducer;
+export default AuthReducer
+
+/**
+ * Helper function to extract expiry time from JWT token
+ */
+function extractTokenExpiry(token?: string): number | null {
+    if (!token) return null
+
+    try {
+        const parts = token.split('.')
+        if (parts.length !== 3) return null
+
+        const payload = JSON.parse(atob(parts[1]))
+        const exp = payload.exp
+
+        if (!exp) return null
+
+        // Return seconds until expiry (subtract current time)
+        const now = Math.floor(Date.now() / 1000)
+        return Math.max(exp - now, 0)
+    } catch (error) {
+        console.error('Failed to extract token expiry:', error)
+        return null
+    }
+}
