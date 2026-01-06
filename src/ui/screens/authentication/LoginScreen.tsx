@@ -1,5 +1,5 @@
 import { Text, View } from 'react-native'
-import React from 'react'
+import React, { useEffect } from 'react'
 import colors from '@/config/colors'
 import { Button } from 'react-native-paper'
 import appFonts from '@/config/fonts'
@@ -22,22 +22,24 @@ const LoginScreen = () => {
     const { register, resetPassword, onAuth } = usePageTransition();
 
     const { login } = UseAuth();
-    const { isLoading, error, isAuthenticated } = useSelector((state: RootState) => state.auth)
+    const { isLoading, error } = useSelector((state: RootState) => state.auth)
 
     const handleSubmit = async (email: string, password: string) => {
-        await login({
+        const result = await login({
             email: email,
             password: password
         })
 
-        if (isAuthenticated) {
+        if (result.type === 'auth/login/fulfilled') {
             onAuth();
         }
     }
 
-    if (error) {
-        showToast({ message: error.message, type: 'error', title: 'Login Error', position: "top" });
-    }
+    useEffect(() => {
+        if (error) {
+            showToast({ message: error.message, type: 'error', title: 'Login Error', position: "top" });
+        }
+    }, [error])
 
     return (
         <Scroller>

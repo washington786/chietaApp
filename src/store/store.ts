@@ -4,6 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import { setupListeners } from '@reduxjs/toolkit/query'
 import { api } from './api/api';
 import AuthReducer from './slice/AuthSlice';
+import PasswordResetReducer from './slice/PasswordResetSlice';
 import notificationReducer from './slice/NotificationSlice';
 import organizationReducer from './slice/Organization';
 import discretionaryProjectsReducer from './slice/ProjectSlice';
@@ -21,6 +22,7 @@ const persistNotificationConfig = {
 
 const rootReducer = {
     auth: persistReducer(persistConfig, AuthReducer),
+    passwordReset: PasswordResetReducer,
     notification: persistReducer(persistNotificationConfig, notificationReducer),
     linkedOrganization: organizationReducer,
     discretionaryProjects: discretionaryProjectsReducer,

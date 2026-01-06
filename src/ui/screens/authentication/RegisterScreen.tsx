@@ -35,13 +35,13 @@ const RegisterScreen = () => {
     const { login, onAuth } = usePageTransition();
 
     const { register } = UseAuth();
-    const { isLoading, error, isAuthenticated } = useSelector(
+    const { isLoading, error } = useSelector(
         (state: RootState) => state.auth
     );
 
     const handleSubmit = async (values: RegisterRequest) => {
         const { email, firstName, lastName, password, username } = values;
-        await register({
+        const result = await register({
             email: email,
             password: password,
             firstName: firstName,
@@ -49,14 +49,14 @@ const RegisterScreen = () => {
             username: username
         });
 
-        if (isAuthenticated) {
-            onAuth();
+        if (result.type === 'auth/register/fulfilled') {
             showToast({
                 message: "Registration successful",
                 type: "success",
                 title: "Success",
                 position: "top",
             });
+            onAuth();
         }
     }
 

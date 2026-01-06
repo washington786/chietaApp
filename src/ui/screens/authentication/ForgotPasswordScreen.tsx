@@ -10,9 +10,11 @@ import colors from '@/config/colors';
 import { Formik } from 'formik';
 import { resetPasswordSchema, showToast } from '@/core';
 import UseAuth from '@/hooks/main/auth/UseAuth';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '@/store/store';
 import { ResetPasswordRequest } from '@/core/models/UserDto';
+import { initializeReset } from '@/store/slice/PasswordResetSlice';
+import { AppDispatch } from '@/store/store';
 
 const initialValues = {
     email: ''
@@ -20,27 +22,32 @@ const initialValues = {
 
 const ForgotPasswordScreen = () => {
     const { onBack, otp } = usePageTransition();
+    const dispatch = useDispatch<AppDispatch>();
 
     const { resetPassword } = UseAuth();
-    const { isLoading, error, isAuthenticated } = useSelector(
+    const { isLoading, error } = useSelector(
         (state: RootState) => state.auth
     );
 
     const handleSubmit = async (values: ResetPasswordRequest) => {
         const { email } = values;
-        await resetPassword({
+        const result = await resetPassword({
             email: email,
-
         });
 
-        if (isAuthenticated) {
-            otp();
+        if (result.type === 'auth/resetPassword/fulfilled') {
+            // Store email in Redux state for password reset flow
+            dispatch(initializeReset({ email: email }));
+
             showToast({
                 message: "One time pin sent to your email",
                 type: "success",
                 title: "Success",
                 position: "top",
             });
+
+            // Navigate to OTP screen without passing email as param
+            otp();
         }
     }
 
