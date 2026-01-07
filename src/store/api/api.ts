@@ -73,6 +73,10 @@ export const api = createApi({
             query: (tenantId) => `/api/services/app/Organisation/GetOrgDetailsbyTenant?tenantId=${tenantId}`,
             providesTags: ['Organization'],
         }),
+        getUserOrganizations: builder.query({
+            query: (userId: string) => `/api/services/app/Organisation/GetSdfLinked?userid=${userId}`,
+            providesTags: ['Organization'],
+        }),
 
         /**
          * Document Endpoints
@@ -136,6 +140,7 @@ export const {
     useGetGrantsQuery,
     useGetOrganizationQuery,
     useGetOrganizationByTenantQuery,
+    useGetUserOrganizationsQuery,
     useUploadDocumentMutation,
     useDownloadDocumentMutation,
     useGetBanksQuery,
