@@ -394,6 +394,69 @@ const updateProfile = createAsyncThunk<
 )
 
 /**
+ * Delete user account
+ * Permanently removes the account from the system
+ */
+const deleteAccount = createAsyncThunk<
+    { message: string },
+    void,
+    { rejectValue: AuthError; state: { auth: AuthState } }
+>(
+    'auth/deleteAccount',
+    async (_, { rejectWithValue, getState }) => {
+        try {
+            const state = getState()
+            const token = state.auth.token
+            const user = state.auth.user
+
+            if (!token) {
+                return rejectWithValue({
+                    code: 'UNAUTHORIZED',
+                    message: 'User not authenticated',
+                })
+            }
+
+            if (!user) {
+                return rejectWithValue({
+                    code: 'NO_USER',
+                    message: 'No user data found',
+                })
+            }
+
+            const response = await fetch(
+                `${API_BASE_URL}/api/services/app/User/Delete?Id=${user.id}`,
+                {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Accept: 'application/json',
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            )
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({
+                    message: 'Account deletion failed',
+                }))
+                return rejectWithValue({
+                    code: 'DELETE_ACCOUNT_ERROR',
+                    message: errorData.message || `Account deletion failed with status ${response.status}`,
+                    details: errorData.details,
+                })
+            }
+
+            return { message: 'Account deleted successfully' }
+        } catch (error) {
+            return rejectWithValue({
+                code: 'NETWORK_ERROR',
+                message: error instanceof Error ? error.message : 'Network error occurred',
+            })
+        }
+    }
+)
+
+/**
  * Refresh access token
  */
 const refreshTokenThunk = createAsyncThunk<
@@ -662,6 +725,31 @@ const authSlice = createSlice({
                 }
             })
 
+        // Delete Account
+        builder
+            .addCase(deleteAccount.pending, (state) => {
+                state.isLoading = true
+                state.error = null
+            })
+            .addCase(deleteAccount.fulfilled, (state) => {
+                // Clear all auth state
+                state.isLoading = false
+                state.user = null
+                state.token = null
+                state.refreshToken = null
+                state.isAuthenticated = false
+                state.error = null
+                // Clear secure storage
+                clearCredentialsFromSecureStore()
+            })
+            .addCase(deleteAccount.rejected, (state, action) => {
+                state.isLoading = false
+                state.error = action.payload || {
+                    code: 'DELETE_ACCOUNT_ERROR',
+                    message: 'Account deletion failed',
+                }
+            })
+
         // Restore Session
         builder
             .addCase(restoreSession.fulfilled, (state, action) => {
@@ -719,6 +807,7 @@ export {
     updateProfile,
     refreshTokenThunk,
     restoreSession,
+    deleteAccount,
 }
 
 /**

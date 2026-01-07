@@ -5,6 +5,7 @@ import {
     verifyOtp as verifyOtpThunk,
     changePassword as changePasswordThunk,
     updateProfile as updateProfileThunk,
+    deleteAccount as deleteAccountThunk,
     logout as logoutAction,
     restoreSession,
 } from '@/store/slice/AuthSlice'
@@ -86,6 +87,14 @@ const UseAuth = () => {
         return dispatch(restoreSession())
     }
 
+    /**
+     * Delete user account permanently
+     * User cannot login again after account deletion
+     */
+    const deleteAccount = async () => {
+        return dispatch(deleteAccountThunk())
+    }
+
     return {
         login,
         register,
@@ -95,6 +104,7 @@ const UseAuth = () => {
         updateProfile,
         logout,
         restoreUserSession,
+        deleteAccount,
     }
 }
 

@@ -14,7 +14,7 @@ import { RootState } from '@/store/store'
 
 const AccountScreen = () => {
     const { account, privacy, support, changePassword, linkedOrganizations } = usePageTransition();
-    const { logout } = UseAuth();
+    const { logout, deleteAccount } = UseAuth();
 
     const [visible, setVisible] = useState(false);
     const prevErrorRef = useRef<typeof error>(null);
@@ -46,13 +46,19 @@ const AccountScreen = () => {
         showToast({ message: "Successfully logout of your account.", type: "success", title: "Sign out", position: "top" })
     }
 
-    function handleCloseSheet() {
-        close();
-        showToast({ message: "Successfully deactivated your account from CHIETA", type: "success", title: "Deactivated", position: "top" })
+    async function handleCloseSheet() {
+        try {
+            await deleteAccount();
+            close();
+            showToast({ message: "Successfully deactivated your account from CHIETA", type: "success", title: "Deactivated", position: "top" })
+        } catch (error) {
+            console.error('Failed to delete account:', error)
+            showToast({ message: "Failed to deactivate account. Please try again.", type: "error", title: "Error", position: "top" })
+        }
     }
 
     function handleBsheet() {
-        open(<DeactivateAccount onPress={handleCloseSheet} />, { "snapPoints": ["60%"] });
+        open(<DeactivateAccount onPress={handleCloseSheet} isLoading={isLoading} />, { "snapPoints": ["60%"] });
     }
 
     return (
