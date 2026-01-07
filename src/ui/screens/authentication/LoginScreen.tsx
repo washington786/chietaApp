@@ -1,5 +1,5 @@
 import { Text, View } from 'react-native'
-import React from 'react'
+import React, { useEffect, useRef } from 'react'
 import colors from '@/config/colors'
 import { Button } from 'react-native-paper'
 import appFonts from '@/config/fonts'
@@ -8,7 +8,11 @@ import { RButton, RErrorMessage, RInput, RKeyboardView, RLogo, SafeArea, Scrolle
 import usePageTransition from '@/hooks/navigation/usePageTransition'
 import { Authstyles as styles } from '@/styles/AuthStyles'
 import { Formik } from 'formik'
-import { loginSchema } from '@/core'
+import { loginSchema, showToast } from '@/core'
+import UseAuth from '@/hooks/main/auth/UseAuth'
+import { useSelector, useDispatch } from 'react-redux'
+import { RootState } from '@/store/store'
+import { clearError } from '@/store/slice/AuthSlice'
 
 const formValues = {
     email: '',
@@ -17,10 +21,29 @@ const formValues = {
 
 const LoginScreen = () => {
     const { register, resetPassword, onAuth } = usePageTransition();
+    const dispatch = useDispatch();
+    const { login } = UseAuth();
+    const { isLoading, error } = useSelector((state: RootState) => state.auth)
+    const prevErrorRef = useRef<typeof error>(null);
 
-    const handleSubmit = () => {
-        onAuth();
+    const handleSubmit = async (email: string, password: string) => {
+        const result = await login({
+            email: email,
+            password: password
+        })
+
+        if (result.type === 'auth/login/fulfilled') {
+            onAuth();
+        }
     }
+
+    useEffect(() => {
+        if (error && !prevErrorRef.current) {
+            showToast({ message: error.message, type: 'error', title: 'Login Error', position: "top" });
+            dispatch(clearError());
+        }
+        prevErrorRef.current = error;
+    }, [error, dispatch])
 
     return (
         <Scroller>
@@ -35,7 +58,7 @@ const LoginScreen = () => {
                             Sign in to continue to your account
                         </Text>
 
-                        <Formik initialValues={formValues} onSubmit={handleSubmit} validationSchema={loginSchema}>
+                        <Formik initialValues={formValues} onSubmit={(values) => handleSubmit(values.email, values.password)} validationSchema={loginSchema}>
                             {({ handleSubmit, handleBlur, handleChange, touched, errors, values }) => (
                                 <RKeyboardView style={{ gap: 12 }}>
 
@@ -45,7 +68,7 @@ const LoginScreen = () => {
                                     <RInput placeholder='Password' icon={'lock'} secureTextEntry onChangeText={handleChange("password")} onBlur={handleBlur("password")} value={values.password} />
                                     {touched.password && errors.password && (<RErrorMessage error={errors.password} />)}
 
-                                    <RButton title='Sign In' onPressButton={handleSubmit} styleBtn={styles.button} />
+                                    <RButton title='Sign In' onPressButton={handleSubmit} styleBtn={styles.button} isSubmitting={isLoading} />
                                 </RKeyboardView>
                             )}
                         </Formik>

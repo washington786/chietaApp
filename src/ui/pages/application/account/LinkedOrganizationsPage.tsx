@@ -1,11 +1,11 @@
 import { FlatList, StyleSheet, View } from 'react-native'
-import React, { useMemo, useState } from 'react'
+import React, { useMemo, useState, useEffect, useRef } from 'react'
 import RHeader from '@/components/common/RHeader'
 import { RCol, REmpty, RListLoading } from '@/components/common'
 import ItemOrgs from '@/components/modules/application/home/ItemOrgs'
 import { OrganisationDto } from '@/core/models/organizationDto'
-import { useSelector } from 'react-redux'
-import { RootState } from '@/store/store'
+import { useSelector, useDispatch } from 'react-redux'
+import { RootState, AppDispatch } from '@/store/store'
 import { useGlobalBottomSheet } from '@/hooks/navigation/BottomSheet'
 import usePageTransition from '@/hooks/navigation/usePageTransition'
 import { OrgDetails } from '@/components/modules/application/home/LinkedOrganizations'
@@ -13,20 +13,41 @@ import { Searchbar } from 'react-native-paper'
 import colors from '@/config/colors'
 import { showToast } from '@/core'
 import { UnifiedOrgItem } from '@/core/types/unifiedData'
+import { loadLinkedOrganizationsAsync, loadOrganizations } from '@/store/slice/thunks/OrganizationThunks'
 
 const LinkedOrganizationsPage = () => {
+
+    const [showSearch, setShowSearch] = useState(false);
 
     const { discretionaryGrants, mandatoryGrants, linkOrgDoc } = usePageTransition();
 
     const { linkedOrganizations, error, loading, organizations } = useSelector((state: RootState) => state.linkedOrganization);
+    const { user } = useSelector((state: RootState) => state.auth);
+
+    const dispatch = useDispatch<AppDispatch>();
 
     const [visible, setVisible] = useState(false);
 
     const [searchQuery, setSearchQuery] = useState('');
+    const prevErrorRef = useRef<typeof error>(null);
 
     const onChangeSearch = (query: string) => setSearchQuery(query);
 
     const { close, open } = useGlobalBottomSheet();
+
+    useEffect(() => {
+        if (user && user?.id) {
+            dispatch(loadOrganizations(user.id));
+        }
+        dispatch(loadLinkedOrganizationsAsync());
+    }, [dispatch, user?.id]);
+
+    useEffect(() => {
+        if (error && !prevErrorRef.current) {
+            showToast({ message: error, type: "error", title: "Error", position: "top" });
+        }
+        prevErrorRef.current = error;
+    }, [error]);
 
     function handleMandatoryGrants(org: OrganisationDto) {
         close();
@@ -95,18 +116,14 @@ const LinkedOrganizationsPage = () => {
         }
     };
 
-    if (error) {
-        showToast({ message: error, type: "error", title: "Error", position: "top" });
-    }
-
     if (loading) {
         return (<RListLoading count={7} />);
     } else {
         return (
             <>
-                <RHeader name='My Organizations' />
+                <RHeader name='My Organizations' hasRightIcon onPressRight={() => setShowSearch(!showSearch)} iconRight='search' />
                 <RCol style={styles.con}>
-                    <Searchbar value={searchQuery} onChangeText={onChangeSearch} style={styles.search} placeholder='Search Organization' />
+                    {showSearch && <Searchbar value={searchQuery} onChangeText={onChangeSearch} style={styles.search} placeholder='Search Organization' />}
                 </RCol>
                 <FlatList
                     data={unifiedList}

@@ -2,7 +2,16 @@ export type navigationTypes = {
     login: undefined;
     register: undefined;
     reset: undefined;
-    otp: undefined;
+
+    otp: {
+        email?: string;
+    } | undefined;
+
+    newPassword: {
+        email?: string;
+        otp?: string;
+    } | undefined;
+
     home: undefined;
     history: undefined;
     profile: undefined;
@@ -15,7 +24,6 @@ export type navigationTypes = {
     account: undefined;
     privacy: undefined;
     support: undefined;
-    newPassword: undefined;
     changePassword: undefined;
     linkedOrganizationsProfile: undefined;
 

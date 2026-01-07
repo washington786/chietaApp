@@ -1,150 +1,111 @@
-import { setCredentials } from "@/store/slice/AuthSlice";
-import { useDispatch } from "react-redux";
+import {
+    login as loginThunk,
+    register as registerThunk,
+    resetPassword as resetPasswordThunk,
+    verifyOtp as verifyOtpThunk,
+    changePassword as changePasswordThunk,
+    updateProfile as updateProfileThunk,
+    deleteAccount as deleteAccountThunk,
+    logout as logoutAction,
+    restoreSession,
+} from '@/store/slice/AuthSlice'
+import {
+    LoginRequest,
+    RegisterRequest,
+    ResetPasswordRequest,
+    VerifyOtpRequest,
+    ChangePasswordRequest,
+    UpdateProfileRequest,
+} from '@/core/models/UserDto'
 
-interface login {
-    email: string;
-    password: string;
-}
-
-interface register {
-    email: string;
-    password: string;
-    firstname: string;
-    lastname: string;
-    username: string;
-}
-
-interface authResponse {
-    user: {
-        id: string;
-        name: string;
-        email: string;
-    };
-    token: string;
-}
-
-interface resetPassword {
-    email: string;
-}
-interface verifyOtpRequest {
-    email: string;
-    otp: string;
-}
+import useAppDispatch from '../useAppDispatch'
 
 const UseAuth = () => {
+    const dispatch = useAppDispatch()
 
-    const dispatch = useDispatch();
-
-    const login = async (payload: login) => {
-        try {
-            const response = await fetch("", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Accept: "application/json",
-                },
-                body: JSON.stringify(payload)
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}));
-                throw new Error(errorData.message || "Login failed");
-            }
-
-            const { user, token }: authResponse = await response.json();
-
-            dispatch(setCredentials({ token: token, user: user }));
-        } catch (error) {
-
-            if (error instanceof Error) {
-                console.log(`Failed to login: ${error.message}`);
-
-            }
-            throw error;
-        }
+    /**
+     * Login with email and password
+     * Dispatches login thunk and handles the async operation
+     */
+    const login = async (payload: LoginRequest) => {
+        return dispatch(loginThunk(payload))
     }
 
-    const register = async (payload: register) => {
-        try {
-            const response = await fetch("", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Accept: "application/json",
-                },
-                body: JSON.stringify(payload)
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => { });
-                throw new Error(errorData.message || `Failed to register. with ${response.status}`);
-            }
-
-            const { user, token }: authResponse = await response.json();
-
-            dispatch(setCredentials({ token, user }));
-        } catch (error) {
-            if (error instanceof Error) {
-                console.log(`Failed to login: ${error.message}`);
-
-            }
-            throw error;
-        }
+    /**
+     * Register new user account
+     * Dispatches register thunk and handles the async operation
+     */
+    const register = async (payload: RegisterRequest) => {
+        return dispatch(registerThunk(payload))
     }
 
-    const resetPassword = async (payload: resetPassword) => {
-        try {
-            const response = await fetch("", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Accept: "application/json",
-                },
-                body: JSON.stringify(payload)
-            })
-
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => { });
-                throw new Error(errorData.message || `Failed to reset password. ${response.status}`);
-            }
-
-        } catch (error) {
-            if (error instanceof Error) {
-                console.log(`Failed to reset password: ${error.message}`);
-                throw error;
-            }
-        }
+    /**
+     * Send password reset code to email
+     * Dispatches resetPassword thunk and handles the async operation
+     */
+    const resetPassword = async (payload: ResetPasswordRequest) => {
+        return dispatch(resetPasswordThunk(payload))
     }
 
-    const verifyOtp = async (payload: verifyOtpRequest) => {
-        try {
-            const response = await fetch("", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Accept: "application/json",
-                },
-                body: JSON.stringify(payload)
-            })
-
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => { });
-                throw new Error(errorData.message || `Invalid Otp to reset password. ${response.status}`);
-            }
-
-            const data = await response.json();
-
-            return data;
-
-        } catch (error) {
-            if (error instanceof Error) {
-                console.log(`Failed to reset password: ${error.message}`);
-                throw error;
-            }
-        }
+    /**
+     * Verify OTP and reset password
+     * Dispatches verifyOtp thunk with OTP code and new password
+     */
+    const verifyOtp = async (payload: VerifyOtpRequest & { newPassword: string }) => {
+        return dispatch(verifyOtpThunk(payload))
     }
 
-    return { login, register, resetPassword, verifyOtp }
+    /**
+     * Change password for authenticated user
+     * Requires old password and new password
+     */
+    const changePassword = async (payload: ChangePasswordRequest) => {
+        return dispatch(changePasswordThunk(payload))
+    }
+
+    /**
+     * Update user profile information
+     * Updates firstName, lastName, username, and email
+     */
+    const updateProfile = async (payload: UpdateProfileRequest) => {
+        return dispatch(updateProfileThunk(payload))
+    }
+
+    /**
+     * Logout user and clear authentication state
+     * Clears user, token, and auth state
+     */
+    const logout = () => {
+        dispatch(logoutAction())
+    }
+
+    /**
+     * Restore user session from secure storage
+     * Called on app startup to check if user is still logged in
+     */
+    const restoreUserSession = async () => {
+        return dispatch(restoreSession())
+    }
+
+    /**
+     * Delete user account permanently
+     * User cannot login again after account deletion
+     */
+    const deleteAccount = async () => {
+        return dispatch(deleteAccountThunk())
+    }
+
+    return {
+        login,
+        register,
+        resetPassword,
+        verifyOtp,
+        changePassword,
+        updateProfile,
+        logout,
+        restoreUserSession,
+        deleteAccount,
+    }
 }
 
 export default UseAuth

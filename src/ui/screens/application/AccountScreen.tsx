@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native'
-import React, { useState } from 'react'
-import { RCol, RDialog, RDivider, SafeArea, Scroller } from '@/components/common'
+import React, { useState, useEffect, useRef } from 'react'
+import { RCol, RDialog, RDivider, RLoaderAnimation, SafeArea, Scroller } from '@/components/common'
 import { Text } from 'react-native-paper'
 import colors from '@/config/colors'
 import usePageTransition from '@/hooks/navigation/usePageTransition'
@@ -8,27 +8,57 @@ import { showToast } from '@/core'
 import { useGlobalBottomSheet } from '@/hooks/navigation/BottomSheet'
 import { AccWrapper, DeactivateAccount } from '@/components/modules/application'
 import Animated, { FadeInDown } from 'react-native-reanimated'
+import UseAuth from '@/hooks/main/auth/UseAuth'
+import { useSelector } from 'react-redux'
+import { RootState } from '@/store/store'
 
 const AccountScreen = () => {
     const { account, privacy, support, changePassword, linkedOrganizations } = usePageTransition();
+    const { logout, deleteAccount } = UseAuth();
+
     const [visible, setVisible] = useState(false);
+    const prevErrorRef = useRef<typeof error>(null);
+
+    const { error, isLoading } = useSelector((state: RootState) => state.auth);
+
     const { open, close } = useGlobalBottomSheet();
+
+    // Handle errors via useEffect
+    useEffect(() => {
+        if (error && !prevErrorRef.current) {
+            showToast({
+                message: error.message,
+                type: "error",
+                title: "Error",
+                position: "top",
+            })
+        }
+        prevErrorRef.current = error;
+    }, [error])
+
     function handleDialog() {
         setVisible(!visible);
     };
 
     function handleContinue() {
         setVisible(false);
+        logout();
         showToast({ message: "Successfully logout of your account.", type: "success", title: "Sign out", position: "top" })
     }
 
-    function handleCloseSheet() {
-        close();
-        showToast({ message: "Successfully deactivated your account from CHIETA", type: "success", title: "Deactivated", position: "top" })
+    async function handleCloseSheet() {
+        try {
+            await deleteAccount();
+            close();
+            showToast({ message: "Successfully deactivated your account from CHIETA", type: "success", title: "Deactivated", position: "top" })
+        } catch (error) {
+            console.error('Failed to delete account:', error)
+            showToast({ message: "Failed to deactivate account. Please try again.", type: "error", title: "Error", position: "top" })
+        }
     }
 
     function handleBsheet() {
-        open(<DeactivateAccount onPress={handleCloseSheet} />, { "snapPoints": ["60%"] });
+        open(<DeactivateAccount onPress={handleCloseSheet} isLoading={isLoading} />, { "snapPoints": ["60%"] });
     }
 
     return (
@@ -57,6 +87,8 @@ const AccountScreen = () => {
                         <RDivider />
                         <AccWrapper icon='exit-outline' title='sign out' onPress={handleDialog} />
                         <AccWrapper icon='remove-circle-sharp' title='deactivate account' onPress={handleBsheet} />
+
+                        {isLoading && <RLoaderAnimation />}
                     </RCol>
                 </Animated.View>
             </Scroller>

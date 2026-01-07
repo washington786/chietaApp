@@ -1,5 +1,5 @@
 import { StyleSheet, TouchableOpacity, View } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { RCol, RDialog, RListLoading, RRow } from '@/components/common'
 import { Text } from 'react-native-paper'
 import Feather from '@expo/vector-icons/Feather';
@@ -17,17 +17,32 @@ const LinkedOrganizations = () => {
     const { newOrg, discretionaryGrants, mandatoryGrants, linkOrgDoc } = usePageTransition();
     const { open, close } = useGlobalBottomSheet();
     const { linkedOrganizations, organizations, loading, error } = useSelector((state: RootState) => state.linkedOrganization);
+    const { user } = useSelector((state: RootState) => state.auth);
+
+    console.log('====================================');
+    console.log(linkedOrganizations);
+    console.log('====================================');
 
     const orgs = organizations.slice(0, 2);
 
     const dispatch = useDispatch<AppDispatch>();
 
     const [visible, setVisible] = useState(false);
+    const prevErrorRef = useRef<typeof error>(null);
 
     useEffect(() => {
-        dispatch(loadOrganizations());
+        if (user && user?.id) {
+            dispatch(loadOrganizations(user.id));
+        }
         dispatch(loadLinkedOrganizationsAsync());
-    }, [dispatch]);
+    }, [dispatch, user?.id]);
+
+    useEffect(() => {
+        if (error && !prevErrorRef.current) {
+            showToast({ message: error, type: "error", title: "Error", position: "top" });
+        }
+        prevErrorRef.current = error;
+    }, [error]);
 
     function handleDialog() {
         close();
@@ -53,30 +68,11 @@ const LinkedOrganizations = () => {
         linkOrgDoc({ orgId: String(org.id) });
     }
 
-    if (error) {
-        showToast({ message: error, type: "error", title: "Error", position: "top" });
-    }
-
     if (loading) {
         return (<RListLoading count={7} />);
     } else {
         return (
             <RCol style={{ marginTop: 12 }}>
-                {/* <RRow style={{ alignItems: 'center', gap: 6, marginBottom: 12, justifyContent: 'space-between' }}>
-                    <Text variant='titleSmall'>my linked organizations</Text>
-                    <TouchableOpacity style={styles.btn} onPress={newOrg}>
-                        <Feather name="link-2" size={16} color="white" style={{ marginLeft: 6 }} />
-                        <Text variant='titleSmall' style={{ color: "white" }}>add new</Text>
-                    </TouchableOpacity>
-
-                </RRow> */}
-                {/* <View style={styles.linkedOrgsHeader}>
-                    <Text style={styles.linkedOrgsTitle}>My Linked Organizations</Text>
-                    <TouchableOpacity>
-                        <Text style={styles.viewAll}>view all</Text>
-                    </TouchableOpacity>
-                </View> */}
-
                 <RCol>
                     <LinkedOrganizationList
                         org={orgs}

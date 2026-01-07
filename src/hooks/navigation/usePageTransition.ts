@@ -20,12 +20,19 @@ const usePageTransition = () => {
     function register() {
         navigation.navigate("register");
     }
-    function otp() {
-        navigation.replace("otp");
+
+    function otp({ email }: { email?: string } = {}) {
+        navigation.replace("otp", { email });
     }
+
     function resetPassword() {
         navigation.navigate("reset");
     }
+
+    function newPassword({ email, otp }: { email?: string, otp?: string } = {}) {
+        navigation.replace("newPassword", { email, otp });
+    }
+
     function onAuth() {
         navigation.navigate("app");
     }
@@ -59,9 +66,6 @@ const usePageTransition = () => {
         navigation.navigate("linkedOrganizationsProfile");
     }
 
-    function newPassword() {
-        navigation.replace("newPassword");
-    }
 
 
     function linkOrgDoc({ orgId }: { orgId: string, }) {

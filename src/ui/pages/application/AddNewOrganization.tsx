@@ -1,4 +1,4 @@
-import { FlatList, StyleSheet, View } from 'react-native'
+import { FlatList, StyleSheet, View, ActivityIndicator } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { RCol, REmpty, SafeArea } from '@/components/common'
 import RHeader from '@/components/common/RHeader'
@@ -6,27 +6,30 @@ import { ItemOrganization } from '@/components/modules/application'
 import { Searchbar } from 'react-native-paper'
 import colors from '@/config/colors'
 import { showToast } from '@/core'
-import Animated, { FadeInDown } from 'react-native-reanimated'
 import { OrganisationDto } from '@/core/models/organizationDto'
-import { org_data } from '@/core/types/dummy'
 import usePageTransition from '@/hooks/navigation/usePageTransition'
 import { useDispatch, useSelector } from 'react-redux'
-import { setAllOrganizations, setSearchQuery } from '@/store/slice/Organization'
+import { setSearchQuery } from '@/store/slice/Organization'
 import { AppDispatch, RootState } from '@/store/store'
-import { linkOrganizationAsync } from '@/store/slice/thunks/OrganizationThunks'
+import { linkOrganizationAsync, loadAllOrganizations } from '@/store/slice/thunks/OrganizationThunks'
 
 const AddNewOrganization = () => {
-    const { filteredOrganizations, searchQuery } = useSelector(
+    const { filteredOrganizations, searchQuery, organizations, loading } = useSelector(
         (state: RootState) => state.linkedOrganization
     );
 
     const [showSearch, setSearchVisible] = useState(false);
+    const [pageIndex, setPageIndex] = useState(0);
+    const [isLoadingMore, setIsLoadingMore] = useState(false);
 
     const { onBack } = usePageTransition();
     const dispatch = useDispatch<AppDispatch>();
 
+    const pageSize = 20;
+
+    // Initial load
     useEffect(() => {
-        dispatch(setAllOrganizations(org_data));
+        dispatch(loadAllOrganizations({ first: 0, rows: pageSize }));
     }, [dispatch]);
 
     function handleLinkOrganization(item: OrganisationDto) {
@@ -42,7 +45,6 @@ const AddNewOrganization = () => {
                 });
             })
             .catch((error: any) => {
-                console.log(error);
                 showToast({
                     message: error || 'Failed to link organization',
                     type: 'error',
@@ -56,13 +58,35 @@ const AddNewOrganization = () => {
         dispatch(setSearchQuery(query));
     };
 
+    const handleLoadMore = () => {
+        if (!isLoadingMore && !loading && filteredOrganizations.length > 0) {
+            setIsLoadingMore(true);
+            const nextPage = pageIndex + 1;
+            dispatch(loadAllOrganizations({ first: nextPage * pageSize, rows: pageSize }))
+                .then(() => {
+                    setPageIndex(nextPage);
+                    setIsLoadingMore(false);
+                })
+                .catch(() => {
+                    setIsLoadingMore(false);
+                });
+        }
+    };
+
     const renderList = ({ index, item }: { index: number, item: OrganisationDto }) => {
         return (
-            <Animated.View key={`org-${item.id}}`} entering={FadeInDown.duration(600).delay(index * 100).springify()}>
-                <ItemOrganization onPress={() => handleLinkOrganization(item)} item={item} />
-            </Animated.View>
+            <ItemOrganization key={`org-${item.id}-${index}`} onPress={() => handleLinkOrganization(item)} item={item} />
         )
     }
+
+    const renderFooter = () => {
+        if (!isLoadingMore) return null;
+        return (
+            <View style={styles.footer}>
+                <ActivityIndicator size="large" color={colors.primary[900]} />
+            </View>
+        );
+    };
 
     return (
         <SafeArea>
@@ -81,14 +105,17 @@ const AddNewOrganization = () => {
             <FlatList data={filteredOrganizations}
                 style={{ paddingHorizontal: 12, paddingVertical: 6, flex: 1, flexGrow: 1 }}
                 renderItem={renderList}
-                keyExtractor={(item, index) => `organization-${item.organisationName}-${index}`}
+                keyExtractor={(item, index) => `organization-${item.id}-${index}`}
                 showsVerticalScrollIndicator={false}
                 ItemSeparatorComponent={() => <View style={{ height: 5 }} />}
-                removeClippedSubviews={false}
-                initialNumToRender={10}
-                maxToRenderPerBatch={10}
-                windowSize={21}
-                ListEmptyComponent={<REmpty title='No Organizations' subtitle='Sorry, no organizations are available to link. Please add an organization on web platform.' icon='briefcase' />}
+                removeClippedSubviews={true}
+                initialNumToRender={15}
+                maxToRenderPerBatch={15}
+                windowSize={10}
+                onEndReached={handleLoadMore}
+                onEndReachedThreshold={0.3}
+                ListFooterComponent={renderFooter}
+                ListEmptyComponent={loading ? null : <REmpty title='No Organizations' subtitle='Sorry, no organizations are available to link. Please add an organization on web platform.' icon='briefcase' />}
             />
         </SafeArea>
     )
@@ -104,5 +131,9 @@ const styles = StyleSheet.create({
     },
     searchBar: {
         backgroundColor: colors.slate[100],
+    },
+    footer: {
+        paddingVertical: 20,
+        alignItems: 'center',
     }
 })

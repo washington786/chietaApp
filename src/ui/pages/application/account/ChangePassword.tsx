@@ -1,20 +1,116 @@
-import { StyleSheet } from 'react-native'
+import { StyleSheet, View } from 'react-native'
 import RHeader from '@/components/common/RHeader'
-import { RButton, RInput, Scroller } from '@/components/common'
+import { RButton, RInput, Scroller, RErrorMessage } from '@/components/common'
 import Animated, { FadeInDown } from 'react-native-reanimated'
 import colors from '@/config/colors'
+import { Formik } from 'formik'
+import { showToast } from '@/core'
+import UseAuth from '@/hooks/main/auth/UseAuth'
+import { useSelector } from 'react-redux'
+import { RootState } from '@/store/store'
+import { changePasswordSchema } from '@/core/validators/newPasswordValidator'
+import { useEffect, useRef } from 'react'
 
 const ChangePassword = () => {
+    const { changePassword } = UseAuth()
+    const { isLoading, error } = useSelector(
+        (state: RootState) => state.auth
+    )
+    const prevErrorRef = useRef<typeof error>(null);
+
+    const initialValues = {
+        oldPassword: '',
+        password: '',
+        confirmPassword: ''
+    }
+
+    // Handle errors via useEffect
+    useEffect(() => {
+        if (error && !prevErrorRef.current) {
+            showToast({
+                message: error.message,
+                type: "error",
+                title: "Error",
+                position: "top",
+            })
+        }
+        prevErrorRef.current = error;
+    }, [error])
+
+    const handleSubmit = async (values: any) => {
+        const result = await changePassword({
+            oldPassword: values.oldPassword,
+            password: values.password,
+            confirmPassword: values.confirmPassword
+        })
+
+        if (result.type === 'auth/changePassword/fulfilled') {
+            showToast({
+                message: "Password changed successfully",
+                type: "success",
+                title: "Success",
+                position: "top",
+            })
+        }
+    }
+
     return (
         <>
             <RHeader name='Change Password' />
             <Scroller style={styles.con}>
                 <Animated.View entering={FadeInDown.duration(600)} style={styles.anim}>
-                    <RInput placeholder='Old Password' />
-                    <RInput placeholder='New Password' />
-                    <RInput placeholder='Confirm Password' />
+                    <Formik
+                        initialValues={initialValues}
+                        onSubmit={handleSubmit}
+                        validationSchema={changePasswordSchema}
+                    >
+                        {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
+                            <View style={styles.form}>
+                                <RInput
+                                    placeholder='Old Password'
+                                    icon='lock'
+                                    secureTextEntry
+                                    onChangeText={handleChange('oldPassword')}
+                                    onBlur={handleBlur('oldPassword')}
+                                    value={values.oldPassword}
+                                />
+                                {errors.oldPassword && touched.oldPassword && (
+                                    <RErrorMessage error={errors.oldPassword} />
+                                )}
 
-                    <RButton title='Update Password' onPressButton={() => { }} styleBtn={styles.btn} />
+                                <RInput
+                                    placeholder='New Password'
+                                    icon='lock'
+                                    secureTextEntry
+                                    onChangeText={handleChange('password')}
+                                    onBlur={handleBlur('password')}
+                                    value={values.password}
+                                />
+                                {errors.password && touched.password && (
+                                    <RErrorMessage error={errors.password} />
+                                )}
+
+                                <RInput
+                                    placeholder='Confirm Password'
+                                    icon='lock'
+                                    secureTextEntry
+                                    onChangeText={handleChange('confirmPassword')}
+                                    onBlur={handleBlur('confirmPassword')}
+                                    value={values.confirmPassword}
+                                />
+                                {errors.confirmPassword && touched.confirmPassword && (
+                                    <RErrorMessage error={errors.confirmPassword} />
+                                )}
+
+                                <RButton
+                                    title='Update Password'
+                                    onPressButton={handleSubmit}
+                                    styleBtn={styles.btn}
+                                    isSubmitting={isLoading}
+                                />
+                            </View>
+                        )}
+                    </Formik>
                 </Animated.View>
             </Scroller>
         </>
@@ -39,5 +135,8 @@ const styles = StyleSheet.create({
     },
     anim: {
         gap: 8
+    },
+    form: {
+        gap: 12
     }
 })
