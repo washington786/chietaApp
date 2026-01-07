@@ -4,6 +4,7 @@ import {
     resetPassword as resetPasswordThunk,
     verifyOtp as verifyOtpThunk,
     changePassword as changePasswordThunk,
+    updateProfile as updateProfileThunk,
     logout as logoutAction,
     restoreSession,
 } from '@/store/slice/AuthSlice'
@@ -13,6 +14,7 @@ import {
     ResetPasswordRequest,
     VerifyOtpRequest,
     ChangePasswordRequest,
+    UpdateProfileRequest,
 } from '@/core/models/UserDto'
 
 import useAppDispatch from '../useAppDispatch'
@@ -61,6 +63,14 @@ const UseAuth = () => {
     }
 
     /**
+     * Update user profile information
+     * Updates firstName, lastName, username, and email
+     */
+    const updateProfile = async (payload: UpdateProfileRequest) => {
+        return dispatch(updateProfileThunk(payload))
+    }
+
+    /**
      * Logout user and clear authentication state
      * Clears user, token, and auth state
      */
@@ -82,6 +92,7 @@ const UseAuth = () => {
         resetPassword,
         verifyOtp,
         changePassword,
+        updateProfile,
         logout,
         restoreUserSession,
     }

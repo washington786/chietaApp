@@ -8,6 +8,7 @@ import {
     ResetPasswordRequest,
     VerifyOtpRequest,
     ChangePasswordRequest,
+    UpdateProfileRequest,
     RefreshTokenRequest,
     RefreshTokenResponse,
     AuthError,
@@ -307,6 +308,92 @@ const changePassword = createAsyncThunk<
 )
 
 /**
+ * Update user profile
+ */
+const updateProfile = createAsyncThunk<
+    UserDto,
+    UpdateProfileRequest,
+    { rejectValue: AuthError; state: { auth: AuthState } }
+>(
+    'auth/updateProfile',
+    async (payload, { rejectWithValue, getState }) => {
+        try {
+            const state = getState()
+            const token = state.auth.token
+            const user = state.auth.user
+
+            if (!token) {
+                return rejectWithValue({
+                    code: 'UNAUTHORIZED',
+                    message: 'User not authenticated',
+                })
+            }
+
+            if (!user) {
+                return rejectWithValue({
+                    code: 'NO_USER',
+                    message: 'No user data found',
+                })
+            }
+
+            const response = await fetch(
+                `${API_BASE_URL}/api/services/app/User/Update`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Accept: 'application/json',
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({
+                        id: user.id,
+                        userName: payload.userName,
+                        name: payload.name,
+                        surname: payload.surname,
+                        emailAddress: payload.emailAddress,
+                        isActive: user.isActive,
+                    }),
+                }
+            )
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({
+                    message: 'Profile update failed',
+                }))
+                return rejectWithValue({
+                    code: 'UPDATE_PROFILE_ERROR',
+                    message: errorData.message || `Profile update failed with status ${response.status}`,
+                    details: errorData.details,
+                })
+            }
+
+            const data = await response.json()
+            const updatedUser: UserDto = {
+                id: user.id,
+                email: payload.emailAddress,
+                firstName: payload.name,
+                lastName: payload.surname,
+                username: payload.userName,
+                isActive: user.isActive,
+                isEmailConfirmed: user.isEmailConfirmed,
+                phoneNumber: user.phoneNumber,
+                creationTime: user.creationTime,
+                lastModificationTime: new Date().toISOString(),
+                roles: user.roles,
+                permissions: user.permissions,
+            }
+
+            return updatedUser
+        } catch (error) {
+            return rejectWithValue({
+                code: 'NETWORK_ERROR',
+                message: error instanceof Error ? error.message : 'Network error occurred',
+            })
+        }
+    }
+)
+
+/**
  * Refresh access token
  */
 const refreshTokenThunk = createAsyncThunk<
@@ -554,6 +641,27 @@ const authSlice = createSlice({
                 }
             })
 
+        // Update Profile
+        builder
+            .addCase(updateProfile.pending, (state) => {
+                state.isLoading = true
+                state.error = null
+            })
+            .addCase(updateProfile.fulfilled, (state, action) => {
+                state.isLoading = false
+                state.user = action.payload
+                state.error = null
+                // Save updated user to secure storage
+                saveCredentialsToSecureStore(action.payload, state.token || '', state.refreshToken || undefined, state.expiresIn || 0)
+            })
+            .addCase(updateProfile.rejected, (state, action) => {
+                state.isLoading = false
+                state.error = action.payload || {
+                    code: 'UPDATE_PROFILE_ERROR',
+                    message: 'Profile update failed',
+                }
+            })
+
         // Restore Session
         builder
             .addCase(restoreSession.fulfilled, (state, action) => {
@@ -608,6 +716,7 @@ export {
     resetPassword,
     verifyOtp,
     changePassword,
+    updateProfile,
     refreshTokenThunk,
     restoreSession,
 }

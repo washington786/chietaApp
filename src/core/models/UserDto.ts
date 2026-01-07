@@ -80,6 +80,13 @@ export interface ChangePasswordRequest {
     confirmPassword: string;
 }
 
+export interface UpdateProfileRequest {
+    userName: string;
+    name: string;
+    surname: string;
+    emailAddress: string;
+}
+
 export interface RefreshTokenRequest {
     refreshToken: string;
 }
