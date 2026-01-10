@@ -6,45 +6,77 @@ import {
     mockGrantPayments,
     mockBankingLists,
     mockBiodataRecords,
-    mockDiscretionaryProjects,
-    mockAllDiscretionaryProjects
 } from '@/core/types/dummy';
+
+const API_BASE_URL = 'https://ims.chieta.org.za:22743';
 
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-// Async Thunk: Load all mandatory grant data
+// Async Thunk: Load all discretionary grant data
 export const fetchDiscretionaryGrantData = createAsyncThunk(
     'discretionaryGrant/fetchAll',
-    async (_, { rejectWithValue }) => {
+    async (organisationId: string | undefined, thunkAPI: any) => {
+        const { rejectWithValue, getState } = thunkAPI;
         try {
-            // Simulate network delay
-            await delay(800);
+            const state = getState();
+            const token = state.auth.token;
+            const user = state.auth.user;
 
-            // const applications = await api.getApplications();
-            // const addresses = await api.getAddresses();
+            if (!token) {
+                return rejectWithValue('User not authenticated');
+            }
 
-            const linkedProjects = mockDiscretionaryProjects.map(p => ({
-                ...p,
-                isLinked: true,
-            }));
+            // If no organisation ID provided, use placeholder
+            const orgId = organisationId || user?.organisationId || '0';
 
-            const allProjects = mockAllDiscretionaryProjects.map(p => {
-                const isLinked = linkedProjects.some(lp => lp.id === p.id);
-                return { ...p, isLinked: isLinked };
-            });
+            // Fetch active windows parameters
+            const windowsResponse = await fetch(
+                `${API_BASE_URL}/api/services/app/DiscretionaryWindow/GetActiveWindowsParams`,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
 
-            // For now: return mock data
+            const windowsData = windowsResponse.ok
+                ? await windowsResponse.json()
+                : { result: [] };
+
+            // Fetch organisation discretionary applications
+            const applicationsResponse = await fetch(
+                `${API_BASE_URL}/api/services/app/DiscretionaryGrants/GetOrgApplications?Organisationid=${orgId}`,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
+
+            const applicationsData = applicationsResponse.ok
+                ? await applicationsResponse.json()
+                : { result: [] };
+
+            // Ensure applications is always an array
+            const applications = Array.isArray(applicationsData.result) ? applicationsData.result : [];
+
+            // Return combined data
             return {
-                applications: allProjects,
+                applications,
                 physicalAddresses: mockPhysicalAddresses,
                 postalAddresses: mockPostalAddresses,
                 documents: mockDocuments,
                 payments: mockGrantPayments,
                 bankingLists: mockBankingLists,
                 biodata: mockBiodataRecords,
+                activeWindows: windowsData.result || [],
             };
         } catch (error) {
-            return rejectWithValue('Failed to load mandatory grant data');
+            return rejectWithValue(
+                error instanceof Error ? error.message : 'Failed to load discretionary grant data'
+            );
         }
     }
 );

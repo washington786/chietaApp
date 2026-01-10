@@ -5,11 +5,11 @@ import RHeader from '@/components/common/RHeader'
 import colors from '@/config/colors'
 import { Text } from 'react-native-paper'
 import Animated, { FadeInDown } from 'react-native-reanimated'
-import { useSelector, useDispatch } from 'react-redux'
-import { RootState, AppDispatch } from '@/store/store'
+import { useSelector } from 'react-redux'
+import { RootState } from '@/store/store'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { useGlobalBottomSheet } from '@/hooks/navigation/BottomSheet'
-import { Formik, Form } from 'formik'
+import { Formik } from 'formik'
 import UseAuth from '@/hooks/main/auth/UseAuth'
 import { showToast } from '@/core'
 import { UpdateProfileRequest } from '@/core/models/UserDto'
@@ -25,7 +25,10 @@ const validationSchema = Yup.object().shape({
 const AccountSettingsPage = () => {
     const { user, error, isLoading } = useSelector((state: RootState) => state.auth);
     const { open } = useGlobalBottomSheet();
-    const dispatch = useDispatch<AppDispatch>();
+
+    console.log('====================================');
+    console.log(user);
+    console.log('====================================');
 
     const { updateProfile } = UseAuth();
 
@@ -112,7 +115,7 @@ const AccountSettingsPage = () => {
                                 />
 
                                 <RInput
-                                    placeholder='Email address'
+                                    placeholder={user?.email || 'Email address'}
                                     value={values.emailAddress}
                                     onChangeText={handleChange('emailAddress')}
                                     onBlur={handleBlur('emailAddress')}
@@ -140,7 +143,7 @@ interface props {
     state: boolean;
     title: string;
 }
-function VerificationContent({ state, textState, textState2, title }: props) {
+function VerificationContent({ state, textState, textState2 }: props) {
     return (
         <RCol>
             {/* <Text variant='labelSmall'>{title}</Text> */}

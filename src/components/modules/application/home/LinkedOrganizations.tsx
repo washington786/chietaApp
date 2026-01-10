@@ -19,10 +19,6 @@ const LinkedOrganizations = () => {
     const { linkedOrganizations, organizations, loading, error } = useSelector((state: RootState) => state.linkedOrganization);
     const { user } = useSelector((state: RootState) => state.auth);
 
-    console.log('====================================');
-    console.log(linkedOrganizations);
-    console.log('====================================');
-
     const orgs = organizations.slice(0, 2);
 
     const dispatch = useDispatch<AppDispatch>();

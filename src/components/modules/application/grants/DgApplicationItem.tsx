@@ -5,33 +5,33 @@ import { Text } from 'react-native-paper'
 import colors from '@/config/colors'
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import usePageTransition from '@/hooks/navigation/usePageTransition'
-import { DiscretionaryProjectDto } from '@/core/models/DiscretionaryDto'
+import { dgProject } from '@/core/models/DiscretionaryDto'
 
 interface props {
-    item: DiscretionaryProjectDto;
+    item: dgProject;
 }
 const DgApplicationItem: FC<props> = ({ item }) => {
     const { applicationDetails } = usePageTransition();
-    const { focusArea, sdlNumber, projectStatus, endDate, projectType, fullName } = item;
+    const { focusArea, sdlNo, projectStatus, projectEndDate: endDate, projType, projectNam: title, id, organisationId } = item;
     return (
-        <TouchableOpacity onPress={() => applicationDetails({ type: "dg-app", appId: `${item.id}`, orgId: `${item.organisationId}` })}>
+        <TouchableOpacity onPress={() => applicationDetails({ type: "dg-app", appId: `${id}`, orgId: `${organisationId}` })}>
             <RCol style={styles.con}>
                 <RRow style={styles.title}>
                     <MaterialCommunityIcons name="application-outline" size={18} color="black" />
-                    <Text>{fullName}</Text>
+                    <Text>{title}</Text>
                 </RRow>
                 <RDivider />
                 <RRow style={styles.wrap}>
                     <Text variant='labelSmall' style={[styles.text]}>SDL No</Text>
-                    <Text variant='titleMedium' style={[styles.text, styles.appTitle]}>{sdlNumber}</Text>
+                    <Text variant='titleMedium' style={[styles.text, styles.appTitle]}>{sdlNo}</Text>
                 </RRow>
                 <RRow style={styles.wrap}>
                     <Text variant='labelSmall' style={[styles.text]}>Focus Area</Text>
-                    <Text variant='titleMedium' style={[styles.text, styles.appTitle]}>{focusArea}</Text>
+                    <Text variant='titleMedium' style={[styles.text, styles.appTitle]}>{focusArea && focusArea.length > 45 ? focusArea.substring(0, 45) + "..." : focusArea}</Text>
                 </RRow>
                 <RRow style={styles.wrap}>
                     <Text variant='labelSmall' style={[styles.text]}>Type</Text>
-                    <Text variant='titleMedium' style={[styles.text, styles.appTitle]}>{projectType}</Text>
+                    <Text variant='titleMedium' style={[styles.text, styles.appTitle]}>{projType}</Text>
                 </RRow>
                 <RRow style={styles.wrap}>
                     <Text variant='labelSmall' style={[styles.text]}>Status</Text>

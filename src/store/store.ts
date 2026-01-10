@@ -38,6 +38,7 @@ export const store = configureStore({
         getDefaultMiddleware({
             serializableCheck: {
                 ignoredActions: ['persist/PERSIST', 'persist/REHYDRATE'],
+                warnAfter: 128,
             },
         }).concat(api.middleware),
 })

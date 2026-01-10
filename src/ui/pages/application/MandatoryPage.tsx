@@ -1,5 +1,5 @@
 import { FlatList, StyleSheet, View } from 'react-native'
-import React, { useEffect } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import { REmpty, RListLoading, SafeArea } from '@/components/common'
 import RHeader from '@/components/common/RHeader'
 import { ApplicationItem, InformationBanner } from '@/components/modules/application'
@@ -7,28 +7,55 @@ import { FAB } from 'react-native-paper'
 import usePageTransition from '@/hooks/navigation/usePageTransition'
 import colors from '@/config/colors'
 import Animated, { FadeInDown } from 'react-native-reanimated'
-import { useDispatch, useSelector } from 'react-redux'
-import { AppDispatch, RootState } from '@/store/store'
 import { showToast } from '@/core'
-import { fetchMandatoryGrantData } from '@/store/slice/thunks/MandatoryThunks'
 import { MandatoryApplicationDto } from '@/core/models/MandatoryDto'
+import { RouteProp, useRoute } from '@react-navigation/native'
+import { navigationTypes } from '@/core/types/navigationTypes'
+import { useGetOrgApplicationsQuery } from '@/store/api/api'
 
 const MandatoryPage = () => {
     const { newApplication } = usePageTransition();
+    const [page, setPage] = useState(1);
+    const [allApplications, setAllApplications] = useState<MandatoryApplicationDto[]>([]);
+    const [loadingMore, setLoadingMore] = useState(false);
 
-    const { applications, loading, error } = useSelector((state: RootState) => state.mandatoryGrant);
+    const router = useRoute<RouteProp<navigationTypes, "mandatory">>();
 
-    const linked = applications.filter(p => p.linked === true);
+    const { orgId } = router.params;
 
-    const dispatch = useDispatch<AppDispatch>();
+    const { data, isLoading: loading, error } = useGetOrgApplicationsQuery(orgId || '', { skip: !orgId });
 
     useEffect(() => {
-        dispatch(fetchMandatoryGrantData())
-    }, [dispatch])
+        if (error && orgId) {
+            let errorMessage = 'Failed to load applications';
+            if (error && typeof error === 'object' && 'data' in error && error.data) {
+                errorMessage = JSON.stringify(error.data);
+            } else if (error && typeof error === 'object' && 'message' in error && error.message) {
+                errorMessage = error.message as string;
+            }
+            if (errorMessage && errorMessage !== 'null') {
+                showToast({ message: errorMessage, title: "Error Fetching", type: "error", position: "top" });
+            }
+        }
+    }, [error, orgId]);
 
-    if (error) {
-        showToast({ message: error, title: "Error Fetching", type: "error", position: "top" });
-    }
+    useEffect(() => {
+        if (data?.result?.items) {
+            if (page === 1) {
+                setAllApplications(data.result.items);
+            } else {
+                setAllApplications(prev => [...prev, ...data.result.items]);
+            }
+            setLoadingMore(false);
+        }
+    }, [data]);
+
+    const handleEndReached = useCallback(() => {
+        if (data?.result?.totalCount && allApplications.length < data.result.totalCount && !loadingMore) {
+            setLoadingMore(true);
+            setPage(prev => prev + 1);
+        }
+    }, [data?.result?.totalCount, allApplications.length, loadingMore]);
 
     const renderList = ({ index, item }: { index: number, item: MandatoryApplicationDto }) => {
         return (
@@ -44,7 +71,7 @@ const MandatoryPage = () => {
         return (
             <SafeArea>
                 <RHeader name='Mandatory Grant Applications' />
-                <FlatList data={linked}
+                <FlatList data={allApplications}
                     style={{ paddingHorizontal: 12, paddingVertical: 6, flex: 1, flexGrow: 1 }}
                     renderItem={renderList}
                     ListHeaderComponent={<InformationBanner title='view your applications and apply for new grants. You can only submit during open grant window.' />}
@@ -54,6 +81,9 @@ const MandatoryPage = () => {
                     initialNumToRender={10}
                     maxToRenderPerBatch={10}
                     windowSize={21}
+                    onEndReached={handleEndReached}
+                    onEndReachedThreshold={0.5}
+                    ListFooterComponent={loadingMore ? <RListLoading count={3} /> : null}
                     ListEmptyComponent={<REmpty title='No Applications Found' subtitle={`when you have applications, they'll appear here`} />}
                 />
                 <FAB
