@@ -1,15 +1,14 @@
 import { FlatList, StyleSheet } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { Expandable } from '@/components/modules/application'
 import { BarChart } from 'react-native-gifted-charts';
 import { RListLoading, RUpload } from '@/components/common';
 import { Text } from 'react-native-paper';
 import colors from '@/config/colors';
-import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '@/store/store';
 import { showToast } from '@/core';
-import { fetchMandatoryGrantData } from '@/store/slice/thunks/MandatoryThunks';
 import { MandatoryGrantBiodataDto } from '@/core/models/MandatoryDto';
+import { useRoute } from '@react-navigation/native';
+import { useGetApplicationBiosQuery } from '@/store/api/api';
 
 interface PageTypes {
     appId: string,
@@ -18,22 +17,16 @@ interface PageTypes {
 
 const ApplicationDetails = () => {
 
-    // const { appId } = useRoute().params as PageTypes;
+    const { appId } = useRoute().params as PageTypes;
 
-    const { biodata, error, loading } = useSelector((state: RootState) => state.mandatoryGrant);
+    const { data, isLoading: loading, error } = useGetApplicationBiosQuery(appId, { skip: !appId });
 
-    const dispatch = useDispatch<AppDispatch>();
-
-    useEffect(() => {
-        dispatch(fetchMandatoryGrantData());
-    }, [dispatch]);
+    const biodata = data?.items || [];
 
     const [expandBio, setBio] = useState(false);
     const [expandDocs, setDocs] = useState(false);
     const [expandRace, setRace] = useState(false);
     const [expandGender, setGender] = useState(false);
-
-    // const orgData = biodata.find((bio) => bio.applicationId === appId);
 
     const getCountByProvince = (data: MandatoryGrantBiodataDto[]) => {
         const counts: Record<string, number> = {};
@@ -46,7 +39,7 @@ const ApplicationDetails = () => {
     const getCountByGender = (data: MandatoryGrantBiodataDto[]) => {
         const counts: Record<string, number> = {};
         data.forEach(item => {
-            counts[item.gender!] = (counts[item.gender!] || 0) + 1;
+            counts[item.gender] = (counts[item.gender] || 0) + 1;
         });
 
         return Object.entries(counts).map(([label, value]) => ({ label, value }));
@@ -54,18 +47,24 @@ const ApplicationDetails = () => {
     const getCountByRace = (data: MandatoryGrantBiodataDto[]) => {
         const counts: Record<string, number> = {};
         data.forEach(item => {
-            counts[item.race!] = (counts[item.race!] || 0) + 1;
+            counts[item.race] = (counts[item.race] || 0) + 1;
         });
 
         return Object.entries(counts).map(([label, value]) => ({ label, value }));
     };
 
-    const provinceData = getCountByProvince(biodata!);
-    const genderData = getCountByGender(biodata!);
-    const raceDate = getCountByRace(biodata!);
+    const provinceData = getCountByProvince(biodata);
+    const genderData = getCountByGender(biodata);
+    const raceData = getCountByRace(biodata);
 
     if (error) {
-        showToast({ title: "Error Fetching", message: error, type: "error", position: "top" });
+        let errorMessage: string = 'Failed to load biodata';
+        if (error && typeof error === 'object' && 'data' in error && error.data) {
+            errorMessage = JSON.stringify(error.data);
+        } else if (error && typeof error === 'object' && 'message' in error && error.message) {
+            errorMessage = error.message as string;
+        }
+        showToast({ title: "Error Fetching", message: errorMessage, type: "error", position: "top" });
     }
 
     if (loading) {
@@ -83,31 +82,46 @@ const ApplicationDetails = () => {
                 return (
                     <>
                         <Expandable title='Province stats' isExpanded={expandBio} onPress={() => setBio(!expandBio)}>
-                            <BarChart data={provinceData}
-                                barWidth={20}
-                                spacing={12}
-                                yAxisThickness={0}
-                                xAxisThickness={0}
-                                initialSpacing={10}
-                                maxValue={Math.max(...provinceData.map(d => d.value)) + 1} />
+                            <BarChart
+                                data={provinceData.map(item => ({ ...item, frontColor: colors.primary[600] }))}
+                                barWidth={40}
+                                spacing={30}
+                                yAxisThickness={1}
+                                xAxisThickness={1}
+                                initialSpacing={20}
+                                maxValue={Math.max(...provinceData.map(d => d.value)) + 2}
+                                height={250}
+                                xAxisLabelTextStyle={{ fontSize: 12, color: colors.slate[700] }}
+                                yAxisTextStyle={{ fontSize: 12, color: colors.slate[700] }}
+                            />
                         </Expandable>
                         <Expandable title='Race Stats' isExpanded={expandRace} onPress={() => setRace(!expandRace)}>
-                            <BarChart data={raceDate}
-                                barWidth={20}
-                                spacing={12}
-                                yAxisThickness={0}
-                                xAxisThickness={0}
-                                initialSpacing={10}
-                                maxValue={Math.max(...genderData.map(d => d.value)) + 1} />
+                            <BarChart
+                                data={raceData.map(item => ({ ...item, frontColor: colors.secondary[600] }))}
+                                barWidth={40}
+                                spacing={30}
+                                yAxisThickness={1}
+                                xAxisThickness={1}
+                                initialSpacing={20}
+                                maxValue={Math.max(...raceData.map(d => d.value)) + 2}
+                                height={250}
+                                xAxisLabelTextStyle={{ fontSize: 12, color: colors.slate[700] }}
+                                yAxisTextStyle={{ fontSize: 12, color: colors.slate[700] }}
+                            />
                         </Expandable>
                         <Expandable title='Gender Stats' isExpanded={expandGender} onPress={() => setGender(!expandGender)}>
-                            <BarChart data={genderData}
-                                barWidth={20}
-                                spacing={12}
-                                yAxisThickness={0}
-                                xAxisThickness={0}
-                                initialSpacing={10}
-                                maxValue={Math.max(...genderData.map(d => d.value)) + 1} />
+                            <BarChart
+                                data={genderData.map(item => ({ ...item, frontColor: colors.red[600] }))}
+                                barWidth={40}
+                                spacing={30}
+                                yAxisThickness={1}
+                                xAxisThickness={1}
+                                initialSpacing={20}
+                                maxValue={Math.max(...genderData.map(d => d.value)) + 2}
+                                height={250}
+                                xAxisLabelTextStyle={{ fontSize: 12, color: colors.slate[700] }}
+                                yAxisTextStyle={{ fontSize: 12, color: colors.slate[700] }}
+                            />
                         </Expandable>
 
                         <Text variant='titleMedium' style={styles.title}>All uploaded Mandotory Files</Text>

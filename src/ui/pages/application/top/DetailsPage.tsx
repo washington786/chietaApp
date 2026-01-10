@@ -18,11 +18,6 @@ const DetailsPage = () => {
 
     const { appId, orgId, type } = route.params;
 
-    console.log('====================================');
-    console.log(appId);
-    console.log(orgId);
-    console.log('====================================');
-
     // Fetch organization bank details
     const { data: bankData, isLoading: bankLoading, error: bankError } = useGetOrgBankQuery(orgId, { skip: !orgId });
 

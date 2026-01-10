@@ -280,6 +280,19 @@ export const api = createApi({
         getApplicationBios: builder.query({
             query: (applicationId) =>
                 `/api/services/app/MandatoryGrants/GetApplicationBios_?applicationId=${applicationId}`,
+            transformResponse: (response: any) => {
+                if (response?.result?.items) {
+                    const items = response.result.items.map((item: any) => {
+                        // Extract biodata if it's wrapped
+                        return item.biodata || item;
+                    });
+                    return {
+                        ...response.result,
+                        items
+                    };
+                }
+                return response?.result || response;
+            },
             providesTags: ['Grant'],
         }),
 
