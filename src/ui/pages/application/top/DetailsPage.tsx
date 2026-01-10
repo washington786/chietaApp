@@ -5,7 +5,7 @@ import { Text } from 'react-native-paper'
 import { Expandable, TextWrap } from '@/components/modules/application';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { showToast } from '@/core';
-import { useGetOrgBankQuery, useGetOrganizationByProjectQuery, useGetPersonByIdQuery } from '@/store/api/api';
+import { useGetOrgBankQuery, useGetOrganizationByProjectQuery, useGetPersonByIdQuery, useGetOrganizationByIdQuery } from '@/store/api/api';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store/store';
 import { navigationTypes } from '@/core/types/navigationTypes';
@@ -26,11 +26,18 @@ const DetailsPage = () => {
     // Fetch organization bank details
     const { data: bankData, isLoading: bankLoading, error: bankError } = useGetOrgBankQuery(orgId, { skip: !orgId });
 
-    // Fetch organization details by project
-    const { data: orgData, isLoading: orgLoading, error: orgError } = useGetOrganizationByProjectQuery(appId, { skip: !appId });
+    // Fetch organization details (DG: by project, MG: by ID)
+    const { data: dgOrgData, isLoading: dgOrgLoading, error: dgOrgError } = useGetOrganizationByProjectQuery(appId, { skip: type !== "dg-app" || !appId });
+
+    const { data: mgOrgData, isLoading: mgOrgLoading, error: mgOrgError } = useGetOrganizationByIdQuery(orgId, { skip: type !== "mg-app" || !orgId });
 
     // Fetch SDF/Person details
     const { data: sdfData, isLoading: sdfLoading, error: sdfError } = useGetPersonByIdQuery(user?.id, { skip: !user?.id });
+
+    // Use appropriate org data based on type
+    const orgData = type === "dg-app" ? dgOrgData : mgOrgData;
+    const orgLoading = type === "dg-app" ? dgOrgLoading : mgOrgLoading;
+    const orgError = type === "dg-app" ? dgOrgError : mgOrgError;
 
     const [expandSdf, setExpandSdf] = useState(false);
     const [expandOrg, setExpandOrg] = useState(false);

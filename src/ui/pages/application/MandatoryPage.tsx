@@ -1,5 +1,5 @@
 import { FlatList, StyleSheet, View } from 'react-native'
-import React, { useEffect, useState, useCallback } from 'react'
+import React, { useEffect, useState } from 'react'
 import { REmpty, RListLoading, SafeArea } from '@/components/common'
 import RHeader from '@/components/common/RHeader'
 import { ApplicationItem, InformationBanner } from '@/components/modules/application'
