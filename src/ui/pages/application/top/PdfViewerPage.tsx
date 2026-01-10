@@ -13,20 +13,20 @@ import { Text } from "react-native-paper";
 import colors from "@/config/colors";
 
 interface Props {
-    route: { params: { payment: MandatoryGrantPaymentDto } };
-    navigation: any;
+  route: { params: { payment: MandatoryGrantPaymentDto } };
+  navigation: any;
 }
 
 const PdfViewerPage = ({ route, navigation }: Props) => {
-    const { onBack } = usePageTransition();
-    const payment = route.params.payment;
-    const year = payment.grantYear;
-    const monthName = new Date(0, payment.month - 1).toLocaleString("en-US", {
-        month: "long",
-    });
+  const { onBack } = usePageTransition();
+  const payment = route.params.payment;
+  const year = payment.grantYear;
+  const monthName = new Date(0, payment.month - 1).toLocaleString("en-US", {
+    month: "long",
+  });
 
-    // Generate simple but nice-looking HTML PDF
-    const htmlContent = `
+  // Generate simple but nice-looking HTML PDF
+  const htmlContent = `
     <!DOCTYPE html>
 <html>
   <head>
@@ -134,27 +134,31 @@ const PdfViewerPage = ({ route, navigation }: Props) => {
       <table>
         <tr>
           <th>Organisation</th>
-          <td>${payment.organisationName}</td>
+          <td>${payment.orgName_Code}</td>
         </tr>
         <tr>
           <th>SDL Number</th>
-          <td>${payment.sdlNumber}</td>
+          <td>${payment.sdL_Number}</td>
         </tr>
         <tr>
           <th>Bank Name</th>
-          <td>${payment.bankName}</td>
+          <td>${payment.banK_NAME}</td>
         </tr>
         <tr>
           <th>Bank Account Number</th>
-          <td>${payment.bankAccountNumber}</td>
+          <td>${payment.bank_Account_NUmber}</td>
         </tr>
         <tr>
-          <th>Processed Date</th>
-          <td>${new Date(payment.creationTime).toLocaleDateString("en-ZA")}</td>
+          <th>Bank Code</th>
+          <td>${payment.bank_Account_Code}</td>
         </tr>
         <tr>
-          <th>Amount Paid</th>
-          <td class="amount">R ${payment.amount.toFixed(2)}</td>
+          <th>Levy Amt</th>
+          <td>-R${payment.levyAmount.toFixed(2)}</td>
+        </tr>
+        <tr>
+          <th>Amount</th>
+          <td class="amount">-R${payment.amount.toFixed(2)}</td>
         </tr>
       </table>
 
@@ -182,101 +186,101 @@ const PdfViewerPage = ({ route, navigation }: Props) => {
 
   `;
 
-    useLayoutEffect(() => {
-        navigation.setOptions({ title: `${monthName} ${year}` });
-    }, [navigation]);
+  useLayoutEffect(() => {
+    navigation.setOptions({ title: `${monthName} ${year}` });
+  }, [navigation]);
 
-    const downloadPdf = async () => {
-        try {
-            // 1. Generate PDF from HTML
-            const { uri: tempUri } = await Print.printToFileAsync({ html: htmlContent });
+  const downloadPdf = async () => {
+    try {
+      // 1. Generate PDF from HTML
+      const { uri: tempUri } = await Print.printToFileAsync({ html: htmlContent });
 
-            // 2. Define destination using modern API
-            const filename = `${monthName}-${year}-Payment.pdf`;
-            const documentsDir = new Directory(Paths.document);
-            const destFile = new File(documentsDir, filename);
+      // 2. Define destination using modern API
+      const filename = `${monthName}-${year}-Payment.pdf`;
+      const documentsDir = new Directory(Paths.document);
+      const destFile = new File(documentsDir, filename);
 
-            // 3. Move file using modern API
-            const sourceFile = new File(tempUri);
-            await sourceFile.move(destFile);
+      // 3. Move file using modern API
+      const sourceFile = new File(tempUri);
+      await sourceFile.move(destFile);
 
-            // 4. Share the file
-            await Sharing.shareAsync(destFile.uri, {
-                UTI: '.pdf',
-                mimeType: 'application/pdf',
-            });
-        } catch (err) {
-            console.error('PDF error:', err);
-            showToast({
-                message: 'Could not generate PDF',
-                title: 'Error',
-                type: 'error',
-                position: 'top',
-            });
-        }
-    };
+      // 4. Share the file
+      await Sharing.shareAsync(destFile.uri, {
+        UTI: '.pdf',
+        mimeType: 'application/pdf',
+      });
+    } catch (err) {
+      console.error('PDF error:', err);
+      showToast({
+        message: 'Could not generate PDF',
+        title: 'Error',
+        type: 'error',
+        position: 'top',
+      });
+    }
+  };
 
-    return (
-        <SafeArea>
-            <RRow
-                style={{
-                    alignItems: "flex-end",
-                    justifyContent: "flex-end",
-                    paddingHorizontal: 12,
-                }}
-            >
-                <Ionicons name="close" size={24} color="black" onPress={onBack} />
-            </RRow>
-            <WebView
-                source={{ html: htmlContent }}
-                style={{ flex: 1 }}
-                startInLoadingState={true}
-                showsVerticalScrollIndicator={false}
-                renderLoading={() => (
-                    <View style={styles.loader}>
-                        <RLoaderAnimation />
-                        <Text variant="bodySmall" style={{ alignSelf: "center" }}>
-                            loading statement...
-                        </Text>
-                    </View>
-                )}
-            />
-            <View style={styles.buttonContainer}>
-                <TouchableOpacity onPress={downloadPdf}>
-                    <RRow
-                        style={{
-                            alignItems: "center",
-                            justifyContent: "center",
-                            backgroundColor: colors.primary[900],
-                            paddingVertical: 8,
-                            borderRadius: 10,
-                            gap: 6,
-                        }}
-                    >
-                        <Ionicons name="download" size={30} color="white" />
-                        <Text variant="titleMedium" style={{ color: "white" }}>
-                            download file
-                        </Text>
-                    </RRow>
-                </TouchableOpacity>
-            </View>
-        </SafeArea>
-    );
+  return (
+    <SafeArea>
+      <RRow
+        style={{
+          alignItems: "flex-end",
+          justifyContent: "flex-end",
+          paddingHorizontal: 12,
+        }}
+      >
+        <Ionicons name="close" size={24} color="black" onPress={onBack} />
+      </RRow>
+      <WebView
+        source={{ html: htmlContent }}
+        style={{ flex: 1 }}
+        startInLoadingState={true}
+        showsVerticalScrollIndicator={false}
+        renderLoading={() => (
+          <View style={styles.loader}>
+            <RLoaderAnimation />
+            <Text variant="bodySmall" style={{ alignSelf: "center" }}>
+              loading statement...
+            </Text>
+          </View>
+        )}
+      />
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity onPress={downloadPdf}>
+          <RRow
+            style={{
+              alignItems: "center",
+              justifyContent: "center",
+              backgroundColor: colors.primary[900],
+              paddingVertical: 8,
+              borderRadius: 10,
+              gap: 6,
+            }}
+          >
+            <Ionicons name="download" size={30} color="white" />
+            <Text variant="titleMedium" style={{ color: "white" }}>
+              download file
+            </Text>
+          </RRow>
+        </TouchableOpacity>
+      </View>
+    </SafeArea>
+  );
 };
 
 const styles = StyleSheet.create({
-    loader: {
-        ...StyleSheet.absoluteFillObject,
-        backgroundColor: "#fff",
-        justifyContent: "center",
-    },
-    buttonContainer: {
-        padding: 12,
-        backgroundColor: "#fff",
-        borderTopWidth: 1,
-        borderColor: "#eee",
-    },
-    btn: {},
+  loader: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "#fff",
+    justifyContent: "center",
+  },
+  buttonContainer: {
+    padding: 12,
+    backgroundColor: "#fff",
+    borderTopWidth: 1,
+    borderColor: "#eee",
+  },
+  btn: {},
 });
 
 export default PdfViewerPage;

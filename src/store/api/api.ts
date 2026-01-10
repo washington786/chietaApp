@@ -260,7 +260,6 @@ export const api = createApi({
             transformResponse: (response: any) => {
                 if (response?.result?.items) {
                     const items = response.result.items.map((item: any) => {
-                        // Extract mandatoryApplication if it's wrapped
                         return item.mandatoryApplication || item;
                     });
                     return {
@@ -275,6 +274,19 @@ export const api = createApi({
         getMandatoryGrantPayments: builder.query({
             query: (sdl) =>
                 `/api/services/app/MandatoryGrantPayments/GetMandatoryGrantPayments?sdl=${sdl}`,
+            transformResponse: (response: any) => {
+                if (response?.result?.items) {
+                    const items = response.result.items.map((item: any) => {
+                        // Extract payment data if it's wrapped
+                        return item.mandatoryGrantsPayments || item;
+                    });
+                    return {
+                        ...response.result,
+                        items,
+                    };
+                }
+                return response?.result || response;
+            },
             providesTags: ['Grant'],
         }),
         getApplicationBios: builder.query({

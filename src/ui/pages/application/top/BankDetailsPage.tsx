@@ -1,17 +1,15 @@
 import { FlatList, StyleSheet, View } from 'react-native'
-import React, { useEffect } from 'react'
+import React from 'react'
 import { InformationBanner } from '@/components/modules/application'
 import { FileWrapper } from '@/components/modules/application/grants/FileWrapper';
-import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '@/store/store';
 import { showToast } from '@/core';
 import { REmpty, RListLoading } from '@/components/common';
-import { fetchMandatoryGrantData } from '@/store/slice/thunks/MandatoryThunks';
 import { useRoute } from '@react-navigation/native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { MandatoryGrantPaymentDto } from '@/core/models/MandatoryDto';
 import { getMonth } from '@/core/utils/dayTime';
 import usePageTransition from '@/hooks/navigation/usePageTransition';
+import { useGetMandatoryGrantPaymentsQuery, useGetOrganizationByIdQuery } from '@/store/api/api';
 
 interface PageTypes {
     appId: string,
@@ -20,28 +18,34 @@ interface PageTypes {
 
 const BankDetailsPage = () => {
     const { pdfViewer } = usePageTransition();
-    const { appId } = useRoute().params as PageTypes;
-    const { payments, error, loading } = useSelector((state: RootState) => state.mandatoryGrant);
+    const { appId, orgId } = useRoute().params as PageTypes;
 
-    console.log(payments);
+    const { data: organizationData } = useGetOrganizationByIdQuery(orgId, { skip: !orgId });
+    const sdl = organizationData.result.organisation.sdL_No;
 
-    const dispatch = useDispatch<AppDispatch>();
+    const { data, isLoading: loading, error } = useGetMandatoryGrantPaymentsQuery(sdl, { skip: !sdl });
 
-    useEffect(() => {
-        dispatch(fetchMandatoryGrantData());
-    }, [dispatch]);
+    console.log(data);
+
+
+    const payments = data?.items || [];
 
     const renderList = ({ index, item }: { index: number, item: MandatoryGrantPaymentDto }) => {
-        const year = new Date().getFullYear();
-        const filename = `${getMonth(item.month)}-${year}`
+        const filename = `${getMonth(item.month)}-${item.grantYear}`
         return (
-            <Animated.View key={`pay-${item.id}}`} entering={FadeInDown.duration(600).delay(index * 100).springify()}>
+            <Animated.View key={`pay-${index}-${item.sdlCode}`} entering={FadeInDown.duration(600).delay(index * 100).springify()}>
                 <FileWrapper fileName={filename} onPress={() => pdfViewer({ payment: item })} />
             </Animated.View>
         )
     }
     if (error) {
-        showToast({ title: "Error Fetching", message: error, type: "error", position: "top" });
+        let errorMessage: string = 'Failed to load payments';
+        if (error && typeof error === 'object' && 'data' in error && error.data) {
+            errorMessage = JSON.stringify(error.data);
+        } else if (error && typeof error === 'object' && 'message' in error && error.message) {
+            errorMessage = error.message as string;
+        }
+        showToast({ title: "Error Fetching", message: errorMessage, type: "error", position: "top" });
     }
 
     if (loading) {
@@ -51,6 +55,7 @@ const BankDetailsPage = () => {
     return (
         <FlatList data={payments}
             style={{ paddingHorizontal: 12, paddingVertical: 6, flex: 1, flexGrow: 1 }}
+            keyExtractor={(item, index) => `${index}-${item.sdlCode}-${item.grantYear}-${item.month}`}
             renderItem={renderList}
             showsVerticalScrollIndicator={false}
             ItemSeparatorComponent={() => <View style={{ height: 5 }} />}

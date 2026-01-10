@@ -67,28 +67,22 @@ export interface DocumentDto {
 }
 
 export interface MandatoryGrantPaymentDto {
-    id: number;
-    sdlNumber: string;
-    zipfileId: number | null;
+    sdL_Number: string;
     grantYear: number;
     month: number;
-    chietaAccount: string | null;
-    chietaCode1: string | null;
-    orgNameCode: string | null;
-    bankName: string;
-    bankAccountNumber: string;
-    code: string | null;
-    bankAccountCode: string | null;
-    organisationName: string;
-    sdlCode: string | null;
+    zipfileid: number;
+    chietaAccount: string;
+    chietA_Code1: string;
+    orgName_Code: string;
+    banK_NAME: string | null;
+    bank_Account_NUmber: string;
+    code: number;
+    bank_Account_Code: string;
+    organisation_Name: string;
+    sdlCode: string;
     amount: number;
-    creatorUserId: string;
-    deleterUserId: string | null;
-    deletionTime: string | null;
-    isDeleted: boolean;
-    lastModificationTime: string | null;
-    lastModifierUserId: string | null;
-    creationTime: string;
+    levyAmount: number;
+    id: number;
 }
 
 export interface MandatoryBankingListDto {
