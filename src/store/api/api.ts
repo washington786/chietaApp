@@ -77,6 +77,16 @@ export const api = createApi({
             query: (userId: string) => `/api/services/app/Organisation/GetSdfLinked?userid=${userId}`,
             providesTags: ['Organization'],
         }),
+        getOrganizationByProject: builder.query({
+            query: (projectId) =>
+                `/api/services/app/Organisation/GetByProject?id=${projectId}`,
+            providesTags: ['Organization'],
+        }),
+        getOrganizationById: builder.query({
+            query: (organisationId) =>
+                `/api/services/app/Organisation/Get?id=${organisationId}`,
+            providesTags: ['Organization'],
+        }),
 
         /**
          * Document Endpoints
@@ -132,6 +142,204 @@ export const api = createApi({
         getEquity: builder.query({
             query: () => '/api/services/app/Lookup/GetEquity',
         }),
+
+        /**
+         * Discretionary Grants Endpoints
+         */
+        getActiveWindowsParams: builder.query({
+            query: () => '/api/services/app/DiscretionaryWindow/GetActiveWindowsParams',
+            providesTags: ['Grant'],
+        }),
+        createEditApplication: builder.mutation({
+            query: (payload) => ({
+                url: '/api/services/app/DiscretionaryProject/CreateEditApplication',
+                method: 'POST',
+                body: payload,
+            }),
+            invalidatesTags: ['Grant'],
+        }),
+        getOrgProjects: builder.query({
+            query: (organisationId) =>
+                `/api/services/app/DiscretionaryProject/GetOrgProjects?OrganisationId=${organisationId}`,
+            providesTags: ['Grant'],
+        }),
+        getWinFocusArea: builder.query({
+            query: () => '/api/services/app/DiscretionaryWindow/GetWinFocusArea',
+            providesTags: ['Grant'],
+        }),
+        getWinAdminCrit: builder.query({
+            query: () => '/api/services/app/DiscretionaryWindow/GetWinAdminCrit',
+            providesTags: ['Grant'],
+        }),
+        getEvalMeth: builder.query({
+            query: () => '/api/services/app/DiscretionaryWindow/GetEvalMeth',
+            providesTags: ['Grant'],
+        }),
+        validateProjSubmission: builder.mutation({
+            query: (payload) => ({
+                url: '/api/services/app/DiscretionaryProject/validateProjSubmission',
+                method: 'POST',
+                body: payload,
+            }),
+        }),
+        createEditApplicationDetails: builder.mutation({
+            query: (payload) => ({
+                url: '/api/services/app/DiscretionaryProject/CreateEditApplicationDetails',
+                method: 'POST',
+                body: payload,
+            }),
+            invalidatesTags: ['Grant'],
+        }),
+        getDGProjectDetById: builder.query({
+            query: (projectId) =>
+                `/api/services/app/DiscretionaryProject/GetDGProjectDetById?ProjectId=${projectId}`,
+            providesTags: ['Grant'],
+        }),
+        getProjectDetails: builder.query({
+            query: (projectId) =>
+                `/api/services/app/DiscretionaryProject/GetProjectDetails?ProjectId=${projectId}`,
+            providesTags: ['Grant'],
+        }),
+        getDGProjectDetailsApp: builder.query({
+            query: (projectId) =>
+                `/api/services/app/DiscretionaryProject/GetDGProjectDetailsApp?ProjectId=${projectId}`,
+            providesTags: ['Grant'],
+        }),
+        getDGOrgApplications: builder.query({
+            query: (organisationId) =>
+                `/api/services/app/DiscretionaryProjectApproval/GetOrgProjects?OrganisationId=${organisationId}`,
+            transformResponse: (response: any) => {
+                let items: any[] = [];
+
+                // Handle direct array response
+                if (Array.isArray(response)) {
+                    items = response;
+                }
+                // Handle response with result.items
+                else if (response?.result?.items) {
+                    items = response.result.items;
+                }
+                // Handle response where result is an array
+                else if (response?.result && Array.isArray(response.result)) {
+                    items = response.result;
+                }
+                // Handle array of items wrapped in discretionaryProject
+                else if (Array.isArray(response)) {
+                    items = response;
+                }
+
+                // Extract actual project data from discretionaryProject wrapper if needed
+                const processedItems = items.map((item: any) => {
+                    // If item has discretionaryProject property, extract it
+                    if (item?.discretionaryProject && typeof item.discretionaryProject === 'object') {
+                        return item.discretionaryProject;
+                    }
+                    // Otherwise return item as-is
+                    return item;
+                });
+
+                // Filter out items with null or empty focusArea
+                const filteredItems = processedItems.filter((item: any) =>
+                    item.focusArea !== null &&
+                    item.focusArea !== undefined &&
+                    item.focusArea !== '' &&
+                    item.focusArea.toString().trim().length > 0
+                );
+
+                return { result: { items: filteredItems, totalCount: filteredItems.length } };
+            },
+            providesTags: ['Grant'],
+        }),
+
+        /**
+         * Mandatory Grants Endpoints
+         */
+        getOrgApplications: builder.query({
+            query: (organisationId) =>
+                `/api/services/app/MandatoryGrants/GetOrgApplications?Organisationid=${organisationId}`,
+            transformResponse: (response: any) => {
+                if (response?.result?.items) {
+                    const items = response.result.items.map((item: any) => {
+                        return item.mandatoryApplication || item;
+                    });
+                    return {
+                        ...response.result,
+                        items
+                    };
+                }
+                return response?.result || response;
+            },
+            providesTags: ['Grant'],
+        }),
+        getMandatoryGrantPayments: builder.query({
+            query: (sdl) =>
+                `/api/services/app/MandatoryGrantPayments/GetMandatoryGrantPayments?sdl=${sdl}`,
+            transformResponse: (response: any) => {
+                if (response?.result?.items) {
+                    const items = response.result.items.map((item: any) => {
+                        // Extract payment data if it's wrapped
+                        return item.mandatoryGrantsPayments || item;
+                    });
+                    return {
+                        ...response.result,
+                        items,
+                    };
+                }
+                return response?.result || response;
+            },
+            providesTags: ['Grant'],
+        }),
+        getApplicationBios: builder.query({
+            query: (applicationId) =>
+                `/api/services/app/MandatoryGrants/GetApplicationBios_?applicationId=${applicationId}`,
+            transformResponse: (response: any) => {
+                if (response?.result?.items) {
+                    const items = response.result.items.map((item: any) => {
+                        // Extract biodata if it's wrapped
+                        return item.biodata || item;
+                    });
+                    return {
+                        ...response.result,
+                        items
+                    };
+                }
+                return response?.result || response;
+            },
+            providesTags: ['Grant'],
+        }),
+
+        /**
+         * Person/User Endpoints
+         */
+        getPersonByUserId: builder.query({
+            query: (userId) =>
+                `/api/services/app/Person/GetPersonByUserId?userid=${userId}`,
+            providesTags: ['User'],
+        }),
+        getPersonById: builder.query({
+            query: (id) =>
+                `/api/services/app/Person/Get?id=${id}`,
+            providesTags: ['User'],
+        }),
+
+        /**
+         * Province/District Endpoints
+         */
+        getProvinceDistricts: builder.query({
+            query: () => '/api/services/app/ProvinceDistrict/ProvinceDistricts',
+        }),
+        getProvinceMunicipalities: builder.query({
+            query: (provinceId) =>
+                `/api/services/app/ProvinceMunicipality/ProvinceMunicipalities?provinceId=${provinceId}`,
+        }),
+
+        /**
+         * Organization Bank Endpoints
+         */
+        getOrgBank: builder.query({
+            query: (id) => `/api/services/app/Organisation/GetOrgBank?Id=${id}`,
+            providesTags: ['Organization'],
+        }),
     }),
 })
 
@@ -153,4 +361,26 @@ export const {
     useGetNationalitiesQuery,
     useGetLanguagesQuery,
     useGetEquityQuery,
+    useGetActiveWindowsParamsQuery,
+    useCreateEditApplicationMutation,
+    useGetOrgProjectsQuery,
+    useGetWinFocusAreaQuery,
+    useGetWinAdminCritQuery,
+    useGetEvalMethQuery,
+    useValidateProjSubmissionMutation,
+    useCreateEditApplicationDetailsMutation,
+    useGetDGProjectDetByIdQuery,
+    useGetProjectDetailsQuery,
+    useGetDGProjectDetailsAppQuery,
+    useGetDGOrgApplicationsQuery,
+    useGetOrgApplicationsQuery,
+    useGetMandatoryGrantPaymentsQuery,
+    useGetApplicationBiosQuery,
+    useGetPersonByUserIdQuery,
+    useGetProvinceDistrictsQuery,
+    useGetProvinceMunicipalitiesQuery,
+    useGetOrgBankQuery,
+    useGetPersonByIdQuery,
+    useGetOrganizationByProjectQuery,
+    useGetOrganizationByIdQuery,
 } = api

@@ -252,3 +252,29 @@ export interface DiscretionaryProjectDto {
     isLinked?: boolean;
 
 }
+export interface dgProject {
+    applicationId: number;
+    contractEndDate: string | null;
+    contractStartDate: string | null;
+    focusArea: string;
+    id: number;
+    organisationId: number;
+    organisation_Name: string;
+    projShortNam: string;
+    projType: string;
+    projectEndDate: string;
+    projectId: number;
+    projectNam: string;
+    projectStatDte: string;
+    projectStatus: string;
+    projecttypeid: number;
+    rsaId: string | null;
+    sdfId: number;
+    sdlNo: string;
+    subCategory: string | null;
+    submissionDte: string | null;
+    title: string;
+    windowId: number;
+    winid: number;
+    isLinked?: boolean;
+}

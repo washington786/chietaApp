@@ -1,6 +1,5 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import {
-    mockMandatoryApplications,
     mockPhysicalAddresses,
     mockPostalAddresses,
     mockDocuments,
@@ -8,34 +7,47 @@ import {
     mockBankingLists,
     mockBiodataRecords,
 } from '@/core/types/dummy';
-import { RootState } from '@/store/store';
 
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+const API_BASE_URL = 'https://ims.chieta.org.za:22743';
 
 // Async Thunk: Load all mandatory grant data
 export const fetchMandatoryGrantData = createAsyncThunk(
     'mandatoryGrant/fetchAll',
-    async (_, { rejectWithValue }) => {
+    async (organisationId: string | undefined, thunkAPI: any) => {
+        const { rejectWithValue, getState } = thunkAPI;
         try {
-            // Simulate network delay
-            await delay(800);
+            const state = getState();
+            const token = state.auth.token;
+            const user = state.auth.user;
 
-            const linkedProjects = mockMandatoryApplications.map(p => ({
-                ...p,
-                isLinked: true,
-            }));
+            if (!token) {
+                return rejectWithValue('User not authenticated');
+            }
 
-            const allProjects = mockMandatoryApplications.map(p => {
-                const isLinked = linkedProjects.some(lp => lp.id === p.id);
-                return { ...p, isLinked: isLinked };
-            });
+            // If no organisation ID provided, use placeholder
+            const orgId = organisationId || user?.organisationId || '0';
 
-            // const applications = await api.getApplications();
-            // const addresses = await api.getAddresses();
+            // Fetch organisation applications
+            const applicationsResponse = await fetch(
+                `${API_BASE_URL}/api/services/app/MandatoryGrants/GetOrgApplications?Organisationid=${orgId}`,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
 
-            // For now: return mock data
+            const applicationsData = applicationsResponse.ok
+                ? await applicationsResponse.json()
+                : { result: [] };
+
+            // Ensure applications is always an array
+            const applications = Array.isArray(applicationsData.result) ? applicationsData.result : [];
+
+            // Return combined data
             return {
-                applications: allProjects,
+                applications,
                 physicalAddresses: mockPhysicalAddresses,
                 postalAddresses: mockPostalAddresses,
                 documents: mockDocuments,
@@ -44,7 +56,9 @@ export const fetchMandatoryGrantData = createAsyncThunk(
                 biodata: mockBiodataRecords,
             };
         } catch (error) {
-            return rejectWithValue('Failed to load mandatory grant data');
+            return rejectWithValue(
+                error instanceof Error ? error.message : 'Failed to load mandatory grant data'
+            );
         }
     }
 );

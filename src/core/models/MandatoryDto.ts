@@ -2,20 +2,23 @@ export interface MandatoryApplicationDto {
     id: number;
     grantWindowId: number;
     organisationId: number;
-    grantStatusId: number;
-    referenceNo: number;
+    organisationSDL: string;
+    organisation_Name: string;
+    organisation_Trading_Name: string;
+    province: string | null;
+    region: string | null;
+    grantStatus: string;
+    referenceNo: string;
     description: string;
     userId: number;
     dteCreated: string | Date;
-    captureDate: string | Date;
+    captureDte: string | Date;
     submissionDte: string | Date;
-    userSubmitted: number;
+    closingDate: string | Date;
     rsaId: number;
+    rsa: any | null;
     rmId: number;
     submittedPrevious: boolean;
-    usrIdUpd: number;
-    dteUpd: string | Date;
-    linked?: boolean
 }
 
 export interface OrganisationPhysicalAddressDto {
@@ -64,28 +67,22 @@ export interface DocumentDto {
 }
 
 export interface MandatoryGrantPaymentDto {
-    id: number;
-    sdlNumber: string;
-    zipfileId: number | null;
+    sdL_Number: string;
     grantYear: number;
     month: number;
-    chietaAccount: string | null;
-    chietaCode1: string | null;
-    orgNameCode: string | null;
-    bankName: string;
-    bankAccountNumber: string;
-    code: string | null;
-    bankAccountCode: string | null;
-    organisationName: string;
-    sdlCode: string | null;
+    zipfileid: number;
+    chietaAccount: string;
+    chietA_Code1: string;
+    orgName_Code: string;
+    banK_NAME: string | null;
+    bank_Account_NUmber: string;
+    code: number;
+    bank_Account_Code: string;
+    organisation_Name: string;
+    sdlCode: string;
     amount: number;
-    creatorUserId: string;
-    deleterUserId: string | null;
-    deletionTime: string | null;
-    isDeleted: boolean;
-    lastModificationTime: string | null;
-    lastModifierUserId: string | null;
-    creationTime: string;
+    levyAmount: number;
+    id: number;
 }
 
 export interface MandatoryBankingListDto {
@@ -107,31 +104,31 @@ export interface MandatoryBankingListDto {
 
 export interface MandatoryGrantBiodataDto {
     id: number;
-    applicationId: string;
-    saIdNumber: string | null;
-    passportNumber: string | null;
+    applicationId: number;
+    sA_Id_Number: string | null;
+    passport_Number: string | null;
     firstname: string;
     middlename: string | null;
     surname: string;
-    birthYear: number;
-    gender: 'Male' | 'Female' | 'Other' | 'Prefer not to say' | null;
-    race: 'Black' | 'White' | 'Coloured' | 'Indian' | 'Other' | null;
-    disability: 'None' | 'Yes' | null;
+    birth_Year: string;
+    gender: string;
+    race: string;
+    disability: string;
     nationality: string;
     province: string;
     municipality: string | null;
-    highestQualificationType: string | null;
-    employmentStatus: 'Employed' | 'Unemployed' | 'Self-employed' | 'Other' | null;
-    occupationLevelForEquityReporting: string | null;
-    organisationalStructureFilter: string | null;
-    postReference: string | null;
-    jobTitle: string | null;
-    ofoOccupationCode: string;
-    ofoSpecialisation: string | null;
-    ofoOccupation: string | null;
-    status: 'Active' | 'Inactive' | 'Pending' | 'Rejected' | 'Completed';
+    highest_Qualification_Type: string | null;
+    employment_Status: string;
+    occupation_Level_For_Equity_Reporting: string | null;
+    organisational_Structure_Filter: string | null;
+    post_Reference: string | null;
+    job_Title: string;
+    ofO_Occupation_Code: string;
+    ofO_Specialisation: string | null;
+    ofO_Occupation: string | null;
+    status: string;
     comment: string | null;
-    userId: string;
+    userId: number;
     dateCreated: string;
     usrUpd: string | null;
     dteUpd: string | null;

@@ -17,6 +17,8 @@ import usePageTransition from '@/hooks/navigation/usePageTransition';
 import { getTimeOfDay } from '@/core';
 import { usePeriodInfo } from '@/hooks/main/UsePeriodInfo';
 import { formatCountdown } from '@/core/utils/dayTime';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/store/store';
 
 interface StatItem {
     icon: keyof typeof Ionicons.glyphMap;
@@ -77,6 +79,20 @@ const NewHome = () => {
     const mgPeriod = usePeriodInfo(mgOpen, mgClose, { autoUpdate: true });
     const dgPeriod = usePeriodInfo(dgOpen, dgClose, { autoUpdate: true });
 
+    const { user } = useSelector((state: RootState) => state.auth);
+
+    let fullname: string = '';
+
+    if (user && user.firstName && user.lastName) {
+        fullname = `${user.firstName} ${user.lastName}`;
+    } else if (user && user.username) {
+        fullname = user.username;
+    } else {
+        const name = user?.email.split('@')[0] || '';
+
+        fullname = name.split('.').map(part => part.charAt(0).toUpperCase() + part.slice(1)).join(' ');
+    }
+
     return (
         <SafeAreaView style={styles.container}>
             <FlatList
@@ -90,7 +106,7 @@ const NewHome = () => {
                         <View style={styles.header}>
                             <View>
                                 <Text style={styles.greeting}>Good {currentDayTime},</Text>
-                                <Text style={styles.userName}>Lydia Tseke</Text>
+                                <Text style={styles.userName}>{fullname}</Text>
 
                             </View>
 

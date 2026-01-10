@@ -1,37 +1,53 @@
 import { FlatList, StyleSheet, View } from 'react-native'
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { REmpty, RListLoading, SafeArea } from '@/components/common'
 import RHeader from '@/components/common/RHeader'
 import { FAB } from 'react-native-paper'
 import usePageTransition from '@/hooks/navigation/usePageTransition'
 import { DgApplicationItem, InformationBanner } from '@/components/modules/application'
 import colors from '@/config/colors'
-import { useDispatch, useSelector } from 'react-redux'
-import { AppDispatch, RootState } from '@/store/store'
-import { fetchDiscretionaryGrantData } from '@/store/slice/thunks/DiscretionaryThunks'
 import { showToast } from '@/core'
 import Animated, { FadeInDown } from 'react-native-reanimated'
-import { DiscretionaryProjectDto } from '@/core/models/DiscretionaryDto'
+import { dgProject } from '@/core/models/DiscretionaryDto'
+import { RouteProp, useRoute } from '@react-navigation/native'
+import { navigationTypes } from '@/core/types/navigationTypes'
+import { useGetDGOrgApplicationsQuery } from '@/store/api/api'
 
 const DiscretionaryPage = () => {
     const { newDgApplication } = usePageTransition();
-    const { applications, loading, error } = useSelector((state: RootState) => state.discretionaryGrant);
+    const [allApplications, setAllApplications] = useState<{ discretionaryProject: dgProject }[]>([]);
 
-    const linked = applications.filter((p) => p.isLinked);
-    const dispatch = useDispatch<AppDispatch>();
+    const router = useRoute<RouteProp<navigationTypes, "discretionary">>();
+
+    const { orgId } = router.params;
+
+    const { data, isLoading: loading, error } = useGetDGOrgApplicationsQuery(orgId || '', { skip: !orgId });
 
     useEffect(() => {
-        dispatch(fetchDiscretionaryGrantData())
-    }, [dispatch])
+        if (error && orgId) {
+            let errorMessage = 'Failed to load applications';
+            if (error && typeof error === 'object' && 'data' in error && error.data) {
+                errorMessage = JSON.stringify(error.data);
+            } else if (error && typeof error === 'object' && 'message' in error && error.message) {
+                errorMessage = error.message as string;
+            }
+            if (errorMessage && errorMessage !== 'null') {
+                showToast({ message: errorMessage, title: "Error Fetching", type: "error", position: "top" });
+            }
+        }
+    }, [error, orgId]);
 
-    if (error) {
-        showToast({ message: error, title: "Error Fetching", type: "error", position: "top" });
-    }
+    useEffect(() => {
+        if (data?.result?.items) {
+            const wrappedItems = data.result.items.map((item: dgProject) => ({ discretionaryProject: item }));
+            setAllApplications(wrappedItems);
+        }
+    }, [data]);
 
-    const renderList = ({ index, item }: { index: number, item: DiscretionaryProjectDto }) => {
+    const renderList = ({ index, item }: { index: number, item: { discretionaryProject: dgProject } }) => {
         return (
-            <Animated.View key={`app-${item.id}}`} entering={FadeInDown.duration(600).delay(index * 100).springify()}>
-                <DgApplicationItem item={item} />
+            <Animated.View key={`app-${item.discretionaryProject.id}`} entering={FadeInDown.duration(600).delay(index * 100).springify()}>
+                <DgApplicationItem item={item.discretionaryProject} />
             </Animated.View>
         )
     }
@@ -43,7 +59,7 @@ const DiscretionaryPage = () => {
             <SafeArea>
                 <RHeader name='Discretionary Grant Applications' />
                 <FlatList
-                    data={linked}
+                    data={allApplications}
                     style={{ paddingHorizontal: 12, paddingVertical: 6, flex: 1, flexGrow: 1 }}
                     renderItem={renderList}
                     ListHeaderComponent={< InformationBanner title='list of Discretionary grants applied for.You can only submit during open grant window.' />}
