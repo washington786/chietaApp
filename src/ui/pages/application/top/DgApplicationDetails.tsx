@@ -1,5 +1,5 @@
 import { FlatList, StyleSheet } from 'react-native'
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 import colors from '@/config/colors'
 import { Text } from 'react-native-paper'
 import { Expandable, RUploadSuccess } from '@/components/modules/application'
@@ -41,6 +41,22 @@ const DgApplicationDetails = () => {
     function handleMunicipalityChange(val: string) {
         setSelectedMunipality(val);
     }
+
+    // Memoize data arrays to prevent SelectList resets on re-render
+    const provinceOptions = useMemo(
+        () => provinces.map((p) => ({ key: p, value: p })),
+        []
+    );
+
+    const districtOptions = useMemo(
+        () => district.map((d) => ({ key: d, value: d })),
+        [district]
+    );
+
+    const municipalityOptions = useMemo(
+        () => manucipality.map((m) => ({ key: m, value: m })),
+        [manucipality]
+    );
 
     // document upload
 
@@ -154,46 +170,6 @@ const DgApplicationDetails = () => {
             ListFooterComponent={() => {
                 return (
                     <>
-                        <Text variant='titleMedium' style={styles.title}>Capture Application</Text>
-                        <Expandable title='Learner Details' isExpanded={expandProv} onPress={() => setProv(!expandProv)}>
-
-                            <RInput placeholder='#Continuing' />
-                            <RInput placeholder='#New' />
-                            <RInput placeholder='#Female' />
-                            <RInput placeholder='#HDI' />
-                            <RInput placeholder='#Youth' />
-                            <RInput placeholder='#Disabled' />
-                            <RInput placeholder='#Rural' />
-
-
-                            <RCol style={styles.pickerContainer}>
-                                <Picker onValueChange={handleProvChange} selectedValue={selectedProvince}>
-                                    <Picker.Item label="Select Province" value="" />
-                                    {provinces.map((province, index) => (
-                                        <Picker.Item key={index} label={province} value={province} />
-                                    ))}
-                                </Picker>
-                            </RCol>
-
-                            <RCol style={styles.pickerContainer}>
-
-                                <Picker onValueChange={handleDistrictChange} selectedValue={selectedDistrict}>
-                                    <Picker.Item label="Select District" value="" />
-                                    {
-                                        district.map((district, index) => <Picker.Item label={district} value={district} key={`${index}-${district}`} />)
-                                    }
-                                </Picker>
-                            </RCol>
-                            <RCol style={styles.pickerContainer}>
-
-                                <Picker onValueChange={handleMunicipalityChange} selectedValue={selectedMunicipality}>
-                                    <Picker.Item label="Select Municipality" value="" />
-                                    {
-                                        manucipality.map((manucipality, index) => <Picker.Item label={manucipality} value={district} key={`${index}-${district}`} />)
-                                    }
-                                </Picker>
-                            </RCol>
-                        </Expandable>
                         <Text variant='titleMedium' style={styles.title}>Program</Text>
                         <Expandable title='Programme Details' isExpanded={expandProg} onPress={() => setProg(!expandProg)}>
                             <SelectList
@@ -221,6 +197,52 @@ const DgApplicationDetails = () => {
                                 placeholder='Intervention'
                             />
                         </Expandable>
+
+                        <Text variant='titleMedium' style={styles.title}>Capture Application</Text>
+                        <Expandable title='Learner Details' isExpanded={expandProv} onPress={() => setProv(!expandProv)}>
+
+                            <RInput placeholder='#Continuing' />
+                            <RInput placeholder='#New' />
+                            <RInput placeholder='#Female' />
+                            <RInput placeholder='#HDI' />
+                            <RInput placeholder='#Youth' />
+                            <RInput placeholder='#Disabled' />
+                            <RInput placeholder='#Rural' />
+
+                            <SelectList
+                                setSelected={(val: any) => handleProvChange(val as Province)}
+                                data={provinceOptions}
+                                save="value"
+                                placeholder='Select Province'
+                                search={true}
+                                boxStyles={{ marginBottom: 16 }}
+                                dropdownStyles={{ marginBottom: 16 }}
+                                defaultOption={selectedProvince ? { key: selectedProvince, value: selectedProvince } : undefined}
+                            />
+
+                            <SelectList
+                                setSelected={(val: any) => handleDistrictChange(val)}
+                                data={districtOptions}
+                                save="value"
+                                placeholder='Select District'
+                                search={true}
+                                boxStyles={{ marginBottom: 16 }}
+                                dropdownStyles={{ marginBottom: 16 }}
+                                defaultOption={selectedDistrict ? { key: selectedDistrict, value: selectedDistrict } : undefined}
+                            />
+
+                            <SelectList
+                                setSelected={(val: any) => handleMunicipalityChange(val)}
+                                data={municipalityOptions}
+                                save="value"
+                                placeholder='Select Municipality'
+                                search={true}
+                                boxStyles={{ marginBottom: 16 }}
+                                dropdownStyles={{ marginBottom: 16 }}
+                                defaultOption={selectedMunicipality ? { key: selectedMunicipality, value: selectedMunicipality } : undefined}
+                            />
+                        </Expandable>
+
                         <Text variant='titleMedium' style={styles.title}>All uploaded Mandotory Files</Text>
 
                         <Expandable title='Supporting documents' isExpanded={expandDocs} onPress={() => setDocs(!expandDocs)}>
