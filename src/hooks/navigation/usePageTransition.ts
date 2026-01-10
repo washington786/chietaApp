@@ -72,11 +72,12 @@ const usePageTransition = () => {
         navigation.navigate("orgDetail", { orgId: orgId });
     }
 
-    function applicationDetails({ orgId, appId, type }: { orgId: string, appId: string, type: string }) {
+    function applicationDetails({ orgId, appId, type, item }: { orgId: string, appId: string, type: string, item?: any }) {
         navigation.navigate("applicationDetails", {
             orgId: orgId,
             appId: appId,
-            type: type
+            type: type,
+            item: item
         });
     }
 

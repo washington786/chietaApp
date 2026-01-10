@@ -42,6 +42,7 @@ export type navigationTypes = {
         orgId?: string;
         appId?: string;
         type?: string;
+        item?: any;
     };
     orgDetail: {
         orgId: string;

@@ -77,6 +77,11 @@ export const api = createApi({
             query: (userId: string) => `/api/services/app/Organisation/GetSdfLinked?userid=${userId}`,
             providesTags: ['Organization'],
         }),
+        getOrganizationByProject: builder.query({
+            query: (projectId) =>
+                `/api/services/app/Organisation/GetByProject?id=${projectId}`,
+            providesTags: ['Organization'],
+        }),
 
         /**
          * Document Endpoints
@@ -268,6 +273,11 @@ export const api = createApi({
                 `/api/services/app/Person/GetPersonByUserId?userid=${userId}`,
             providesTags: ['User'],
         }),
+        getPersonById: builder.query({
+            query: (id) =>
+                `/api/services/app/Person/Get?id=${id}`,
+            providesTags: ['User'],
+        }),
 
         /**
          * Province/District Endpoints
@@ -327,4 +337,6 @@ export const {
     useGetProvinceDistrictsQuery,
     useGetProvinceMunicipalitiesQuery,
     useGetOrgBankQuery,
+    useGetPersonByIdQuery,
+    useGetOrganizationByProjectQuery,
 } = api

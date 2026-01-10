@@ -14,7 +14,7 @@ const DgApplicationItem: FC<props> = ({ item }) => {
     const { applicationDetails } = usePageTransition();
     const { focusArea, sdlNo, projectStatus, projectEndDate: endDate, projType, projectNam: title, id, organisationId } = item;
     return (
-        <TouchableOpacity onPress={() => applicationDetails({ type: "dg-app", appId: `${id}`, orgId: `${organisationId}` })}>
+        <TouchableOpacity onPress={() => applicationDetails({ type: "dg-app", appId: `${id}`, orgId: `${organisationId}`, item: item })}>
             <RCol style={styles.con}>
                 <RRow style={styles.title}>
                     <MaterialCommunityIcons name="application-outline" size={18} color="black" />

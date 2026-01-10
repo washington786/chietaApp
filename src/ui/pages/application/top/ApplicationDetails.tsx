@@ -5,13 +5,12 @@ import { BarChart } from 'react-native-gifted-charts';
 import { RListLoading, RUpload } from '@/components/common';
 import { Text } from 'react-native-paper';
 import colors from '@/config/colors';
-// import { bio, data } from '@/core/types/dt';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/store/store';
 import { showToast } from '@/core';
 import { fetchMandatoryGrantData } from '@/store/slice/thunks/MandatoryThunks';
-import { useRoute } from '@react-navigation/native';
 import { MandatoryGrantBiodataDto } from '@/core/models/MandatoryDto';
+
 interface PageTypes {
     appId: string,
     orgId: string
