@@ -3,24 +3,25 @@ import React, { useState } from 'react'
 import { RDivider, RListLoading } from '@/components/common'
 import { Text } from 'react-native-paper'
 import { Expandable, TextWrap } from '@/components/modules/application';
-import { useRoute } from '@react-navigation/native';
+import { RouteProp, useRoute } from '@react-navigation/native';
 import { showToast } from '@/core';
 import { useGetOrgBankQuery, useGetOrganizationByProjectQuery, useGetPersonByIdQuery } from '@/store/api/api';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store/store';
-
-interface PageTypes {
-    appId: string,
-    orgId: string,
-}
+import { navigationTypes } from '@/core/types/navigationTypes';
 
 const DetailsPage = () => {
 
-    const route = useRoute();
+    const route = useRoute<RouteProp<navigationTypes, "applicationDetails">>();
 
     const { user } = useSelector((state: RootState) => state.auth);
 
-    const { appId, orgId } = route.params as PageTypes;
+    const { appId, orgId, type } = route.params;
+
+    console.log('====================================');
+    console.log(appId);
+    console.log(orgId);
+    console.log('====================================');
 
     // Fetch organization bank details
     const { data: bankData, isLoading: bankLoading, error: bankError } = useGetOrgBankQuery(orgId, { skip: !orgId });

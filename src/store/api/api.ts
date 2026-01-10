@@ -82,6 +82,11 @@ export const api = createApi({
                 `/api/services/app/Organisation/GetByProject?id=${projectId}`,
             providesTags: ['Organization'],
         }),
+        getOrganizationById: builder.query({
+            query: (organisationId) =>
+                `/api/services/app/Organisation/Get?id=${organisationId}`,
+            providesTags: ['Organization'],
+        }),
 
         /**
          * Document Endpoints
@@ -252,6 +257,19 @@ export const api = createApi({
         getOrgApplications: builder.query({
             query: (organisationId) =>
                 `/api/services/app/MandatoryGrants/GetOrgApplications?Organisationid=${organisationId}`,
+            transformResponse: (response: any) => {
+                if (response?.result?.items) {
+                    const items = response.result.items.map((item: any) => {
+                        // Extract mandatoryApplication if it's wrapped
+                        return item.mandatoryApplication || item;
+                    });
+                    return {
+                        ...response.result,
+                        items
+                    };
+                }
+                return response?.result || response;
+            },
             providesTags: ['Grant'],
         }),
         getMandatoryGrantPayments: builder.query({
@@ -339,4 +357,5 @@ export const {
     useGetOrgBankQuery,
     useGetPersonByIdQuery,
     useGetOrganizationByProjectQuery,
+    useGetOrganizationByIdQuery,
 } = api

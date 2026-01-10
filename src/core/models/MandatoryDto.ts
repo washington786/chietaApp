@@ -2,20 +2,23 @@ export interface MandatoryApplicationDto {
     id: number;
     grantWindowId: number;
     organisationId: number;
-    grantStatusId: number;
-    referenceNo: number;
+    organisationSDL: string;
+    organisation_Name: string;
+    organisation_Trading_Name: string;
+    province: string | null;
+    region: string | null;
+    grantStatus: string;
+    referenceNo: string;
     description: string;
     userId: number;
     dteCreated: string | Date;
-    captureDate: string | Date;
+    captureDte: string | Date;
     submissionDte: string | Date;
-    userSubmitted: number;
+    closingDate: string | Date;
     rsaId: number;
+    rsa: any | null;
     rmId: number;
     submittedPrevious: boolean;
-    usrIdUpd: number;
-    dteUpd: string | Date;
-    linked?: boolean
 }
 
 export interface OrganisationPhysicalAddressDto {

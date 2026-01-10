@@ -17,7 +17,7 @@ interface prop {
 const TopNav: FC<prop> = ({ type, appId, orgId, item }) => {
     return (
         <Tab.Navigator>
-            <Tab.Screen name='Client Info' component={DetailsPage} initialParams={{ appId, orgId, item }} />
+            <Tab.Screen name='Client Info' component={DetailsPage} initialParams={{ appId, orgId, type }} />
             <Tab.Screen name='Application Info' component={type === 'mg-app' ? ApplicationDetails : DgApplicationDetails} initialParams={{ appId, orgId, item }} />
             <Tab.Screen name='Payments' component={BankDetailsPage} initialParams={{ appId, orgId, item }} />
         </Tab.Navigator>

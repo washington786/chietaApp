@@ -15,9 +15,7 @@ import { useGetOrgApplicationsQuery } from '@/store/api/api'
 
 const MandatoryPage = () => {
     const { newApplication } = usePageTransition();
-    const [page, setPage] = useState(1);
     const [allApplications, setAllApplications] = useState<MandatoryApplicationDto[]>([]);
-    const [loadingMore, setLoadingMore] = useState(false);
 
     const router = useRoute<RouteProp<navigationTypes, "mandatory">>();
 
@@ -40,22 +38,10 @@ const MandatoryPage = () => {
     }, [error, orgId]);
 
     useEffect(() => {
-        if (data?.result?.items) {
-            if (page === 1) {
-                setAllApplications(data.result.items);
-            } else {
-                setAllApplications(prev => [...prev, ...data.result.items]);
-            }
-            setLoadingMore(false);
+        if (data?.items) {
+            setAllApplications(data.items);
         }
     }, [data]);
-
-    const handleEndReached = useCallback(() => {
-        if (data?.result?.totalCount && allApplications.length < data.result.totalCount && !loadingMore) {
-            setLoadingMore(true);
-            setPage(prev => prev + 1);
-        }
-    }, [data?.result?.totalCount, allApplications.length, loadingMore]);
 
     const renderList = ({ index, item }: { index: number, item: MandatoryApplicationDto }) => {
         return (
@@ -78,12 +64,6 @@ const MandatoryPage = () => {
                     showsVerticalScrollIndicator={false}
                     ItemSeparatorComponent={() => <View style={{ height: 5 }} />}
                     removeClippedSubviews={false}
-                    initialNumToRender={10}
-                    maxToRenderPerBatch={10}
-                    windowSize={21}
-                    onEndReached={handleEndReached}
-                    onEndReachedThreshold={0.5}
-                    ListFooterComponent={loadingMore ? <RListLoading count={3} /> : null}
                     ListEmptyComponent={<REmpty title='No Applications Found' subtitle={`when you have applications, they'll appear here`} />}
                 />
                 <FAB

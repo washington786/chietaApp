@@ -6,23 +6,21 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import colors from '@/config/colors';
 import usePageTransition from '@/hooks/navigation/usePageTransition';
 import { MandatoryApplicationDto } from '@/core/models/MandatoryDto';
-import { getMandatoryStatus } from '@/core/utils/mandatoryStatus';
 
 interface props {
     item?: MandatoryApplicationDto;
 }
+
 const ApplicationItem: FC<props> = ({ item }) => {
     const { applicationDetails } = usePageTransition();
-    const { description, referenceNo, submissionDte, grantStatusId } = item as MandatoryApplicationDto;
+    const { description, referenceNo, submissionDte, grantStatus, organisationId } = item as MandatoryApplicationDto;
 
     const fmDate = new Date(submissionDte).toLocaleDateString('en-za', { year: "numeric", month: "numeric", day: "numeric", minute: "numeric", hour: "numeric" });
 
     const title = description.split('-')[0];
 
-    let status = getMandatoryStatus(grantStatusId);
-
     return (
-        <TouchableOpacity onPress={() => applicationDetails({ appId: String(item?.userId), orgId: String(item?.organisationId), type: "mg-app" })}>
+        <TouchableOpacity onPress={() => applicationDetails({ appId: String(item?.userId), orgId: String(organisationId), type: "mg-app" })}>
             <RCol style={styles.con}>
                 <RRow style={styles.title}>
                     <MaterialCommunityIcons name="application-outline" size={18} color="black" />
@@ -39,7 +37,7 @@ const ApplicationItem: FC<props> = ({ item }) => {
                 </RRow>
                 <RRow style={styles.wrap}>
                     <Text variant='labelSmall' style={[styles.text]}> status</Text>
-                    <Text variant='titleMedium' style={[styles.text, styles.appTitle, styles.statusTxt]}>{status}</Text>
+                    <Text variant='titleMedium' style={[styles.text, styles.appTitle, styles.statusTxt]}>{grantStatus}</Text>
                 </RRow>
                 <RRow style={styles.wrap}>
                     <Text variant='labelSmall' style={[styles.text]}>Date submitted</Text>
