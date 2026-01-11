@@ -16,6 +16,9 @@ import usePageTransition from '@/hooks/navigation/usePageTransition';
 
 const AddNewDgApplicationPage = () => {
     const [searchQuery, setSearchQuery] = useState('');
+
+    const [showSearch, setShowSearch] = useState(false);
+
     const [snackbar, setSnackbar] = useState<{ visible: boolean; lastLinkedId: number | null }>({
         visible: false,
         lastLinkedId: null,
@@ -72,15 +75,20 @@ const AddNewDgApplicationPage = () => {
     } else {
         return (
             <SafeArea>
-                <RHeader name='Add Dg Application' />
-                <RCol style={styles.col}>
-                    <Searchbar
-                        placeholder="Search application"
-                        onChangeText={setSearchQuery}
-                        value={searchQuery}
-                        style={styles.searchBar}
-                    />
-                </RCol>
+                <RHeader name='Add Dg Application' hasRightIcon onPressRight={() => setShowSearch(!showSearch)} iconRight='search' />
+                {
+                    showSearch && (
+
+                        <RCol style={styles.col}>
+                            <Searchbar
+                                placeholder="Search application"
+                                onChangeText={setSearchQuery}
+                                value={searchQuery}
+                                style={styles.searchBar}
+                            />
+                        </RCol>
+                    )
+                }
                 <FlatList data={filteredApplications}
                     style={{ paddingHorizontal: 12, paddingVertical: 6, flexGrow: 1, flex: 1 }}
                     renderItem={renderList}
