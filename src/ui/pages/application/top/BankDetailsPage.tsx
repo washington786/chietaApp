@@ -9,23 +9,27 @@ import Animated, { FadeInDown } from 'react-native-reanimated';
 import { MandatoryGrantPaymentDto } from '@/core/models/MandatoryDto';
 import { getMonth } from '@/core/utils/dayTime';
 import usePageTransition from '@/hooks/navigation/usePageTransition';
-import { useGetMandatoryGrantPaymentsQuery, useGetOrganizationByIdQuery } from '@/store/api/api';
+import { useGetMandatoryGrantPaymentsQuery, useGetOrgApplicationsQuery } from '@/store/api/api';
 
 interface PageTypes {
     appId: string,
-    orgId: string
+    orgId: string,
+    type: string
 }
 
 const BankDetailsPage = () => {
     const { pdfViewer } = usePageTransition();
-    const { appId, orgId } = useRoute().params as PageTypes;
+    const { appId, orgId, type } = useRoute().params as PageTypes;
 
-    const { data: organizationData } = useGetOrganizationByIdQuery(orgId, { skip: !orgId });
-    const sdl = organizationData.result.organisation.sdL_No;
+    // Fetch applications to get the one with matching appId to extract SDL
+    const { data: applicationsData } = useGetOrgApplicationsQuery(orgId, { skip: !orgId });
+    const application = applicationsData?.items?.find((app: any) => app.id == appId);
+    const sdl = application?.organisationSDL || '';
 
     const { data, isLoading: loading, error } = useGetMandatoryGrantPaymentsQuery(sdl, { skip: !sdl });
 
-    console.log(data);
+    console.log("sdl: ", sdl);
+    console.log("payments: ", data?.items);
 
 
     const payments = data?.items || [];
@@ -50,6 +54,12 @@ const BankDetailsPage = () => {
 
     if (loading) {
         return <RListLoading count={7} />
+    }
+
+    if (type === "dg-app") {
+        return (
+            <REmpty title='No Payments Found' subtitle={`Discretionary Grant Applications do not have payment statements`} icon='credit-card' />
+        )
     }
 
     return (

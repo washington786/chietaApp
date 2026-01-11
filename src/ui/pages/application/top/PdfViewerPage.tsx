@@ -19,7 +19,18 @@ interface Props {
 
 const PdfViewerPage = ({ route, navigation }: Props) => {
   const { onBack } = usePageTransition();
-  const payment = route.params.payment;
+  const payment = route?.params?.payment;
+
+  if (!payment) {
+    return (
+      <SafeArea>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <Text variant="titleMedium">No payment data available</Text>
+        </View>
+      </SafeArea>
+    );
+  }
+
   const year = payment.grantYear;
   const monthName = new Date(0, payment.month - 1).toLocaleString("en-US", {
     month: "long",
