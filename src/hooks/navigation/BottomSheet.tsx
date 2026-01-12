@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useRef, useState, useEffect, useCallback } from 'react';
-import { BottomSheetModal, BottomSheetView } from '@gorhom/bottom-sheet';
-import { Dimensions, Pressable } from 'react-native';
+import { BottomSheetModal, BottomSheetView, useBottomSheetInternal } from '@gorhom/bottom-sheet';
+import { Dimensions } from 'react-native';
+import Animated, { useAnimatedStyle, interpolate, Extrapolate } from 'react-native-reanimated';
 
 type OpenOptions = {
     snapPoints?: (string | number)[];
@@ -17,6 +18,40 @@ const GlobalBottomSheetContext = createContext<GlobalBottomSheetContextType>({
 });
 
 export const useGlobalBottomSheet = () => useContext(GlobalBottomSheetContext);
+
+const CustomBackdrop = ({ onPress }: { onPress: () => void }) => {
+    const { animatedIndex, animatedPosition } = useBottomSheetInternal();
+
+    const animatedStyle = useAnimatedStyle(() => {
+        const opacity = interpolate(
+            animatedIndex.value,
+            [-1, 0],
+            [0, 0.6],
+            Extrapolate.CLAMP
+        );
+
+        return {
+            opacity,
+        };
+    });
+
+    return (
+        <Animated.View
+            style={[
+                {
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    backgroundColor: '#000',
+                },
+                animatedStyle,
+            ]}
+            onTouchEnd={onPress}
+        />
+    );
+};
 
 export const GlobalBottomSheet = ({ children }: { children: React.ReactNode }) => {
 
@@ -70,13 +105,8 @@ export const GlobalBottomSheet = ({ children }: { children: React.ReactNode }) =
                 index={0}
                 enablePanDownToClose={true}
                 onDismiss={() => setContent(null)}
-                backdropComponent={(props) => (
-                    <Pressable
-                        onPress={close}
-                        style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.3)' }}
-                        {...props}
-                    />
-                )}
+                backgroundStyle={{ backgroundColor: '#fff' }}
+                backdropComponent={() => <CustomBackdrop onPress={close} />}
             >
                 <BottomSheetView style={{ flex: 1, padding: 16, minHeight: 300 }}>
                     {content}

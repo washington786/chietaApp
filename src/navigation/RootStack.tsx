@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { useNavigation, NavigationProp } from '@react-navigation/native'
-import { ForgotPasswordScreen, LoginScreen, NewPasswordScreen, NotificationsPage, OtpScreen, RegisterScreen } from '@/ui/screens'
+import { ForgotPasswordScreen, LandingScreen, LoginScreen, NewPasswordScreen, NotificationsPage, OtpScreen, RegisterScreen } from '@/ui/screens'
 import { navigationTypes } from '@/core/types/navigationTypes'
 import BottomTabNavigation from './BottomNavigation'
 import {
@@ -23,7 +23,6 @@ import AddNewDgApplicationPage from '@/ui/pages/application/AddNewDgApplicationP
 import { useSelector } from 'react-redux'
 import { RootState } from '@/store/store'
 import useInitializeSession from '@/hooks/main/auth/useInitializeSession'
-import LandingScreen from '../ui/screens/landing-page/LandingPage'
 
 
 const Stack = createNativeStackNavigator<navigationTypes>()
@@ -54,26 +53,26 @@ const RootStackNavigator = () => {
     const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated)
 
     // Navigate to login when user logs out
-   /* useEffect(() => {
-        if (!isAuthenticated) {
+    /* useEffect(() => {
+         if (!isAuthenticated) {
+             navigation.reset({
+                 index: 0,
+                 routes: [{ name: 'login' }]
+             })
+         }
+     }, [isAuthenticated, navigation])
+ */
+
+    useEffect(() => {
+        const currentRoute = navigation.getState()?.routes?.[0]?.name;
+
+        if (!isAuthenticated && currentRoute !== 'landing') {
             navigation.reset({
                 index: 0,
-                routes: [{ name: 'login' }]
-            })
+                routes: [{ name: 'landing' }]
+            });
         }
-    }, [isAuthenticated, navigation])
-*/
-
-useEffect(() => {
-    const currentRoute = navigation.getState()?.routes?.[0]?.name;
-
-    if (!isAuthenticated && currentRoute !== 'landing') {
-        navigation.reset({
-            index: 0,
-            routes: [{ name: 'landing' }]
-        });
-    }
-}, [isAuthenticated, navigation]);
+    }, [isAuthenticated, navigation]);
 
     // Set up navigation listener to enforce authentication on protected routes
     useEffect(() => {
@@ -97,8 +96,6 @@ useEffect(() => {
     return (
         <Stack.Navigator
             screenOptions={{ headerShown: false }}
-
-            // 👇 Landing page first when app opens
             initialRouteName="landing"
         >
             {/* Landing Screen */}
