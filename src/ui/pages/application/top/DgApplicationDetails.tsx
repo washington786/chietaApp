@@ -183,10 +183,13 @@ const DgApplicationDetails = () => {
     const [declarationInterest, setDeclarationInterest] = useState<DocumentPickerResult>();
     const [bankingDetailsProof, setBankDetails] = useState<DocumentPickerResult>();
 
-    if (error) {
-        console.log(error);
-        showToast({ message: error, title: "Upload", type: "error", position: "top" })
-    }
+    // Handle document picker errors
+    React.useEffect(() => {
+        if (error) {
+            console.log(error);
+            showToast({ message: error, title: "Upload", type: "error", position: "top" })
+        }
+    }, [error]);
 
     async function handleTaxUpload() {
         try {

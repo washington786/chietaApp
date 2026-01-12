@@ -22,7 +22,8 @@ const useDocumentPicker = (): UseDocumentPickerResult => {
             if (!result.canceled) {
                 return result;
             } else {
-                setError('User cancelled or no file selected');
+                // User cancelled - this is normal, don't set error
+                console.log('User cancelled or no file selected');
                 return null;
             }
         } catch (err: any) {
