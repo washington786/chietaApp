@@ -23,7 +23,7 @@ export const dg_styles = StyleSheet.create({
         marginHorizontal: 6
     },
     btnSecondary: {
-        backgroundColor: colors.slate[200],
+        backgroundColor: colors.primary[500],
         marginTop: 10,
         marginBottom: 12
     },
