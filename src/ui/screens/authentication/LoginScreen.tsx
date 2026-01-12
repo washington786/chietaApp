@@ -13,6 +13,7 @@ import UseAuth from '@/hooks/main/auth/UseAuth'
 import { useSelector, useDispatch } from 'react-redux'
 import { RootState } from '@/store/store'
 import { clearError } from '@/store/slice/AuthSlice'
+import RHeader from '@/components/common/RHeader'
 
 const formValues = {
     email: '',
@@ -46,58 +47,61 @@ const LoginScreen = () => {
     }, [error, dispatch])
 
     return (
-        <Scroller>
-            <AuthWrapper>
-                <SafeArea>
-                    <RLogo stylesLogo={{ alignContent: "center", marginTop: 90, marginBottom: 20, width: "auto" }} />
-                    <View style={styles.content}>
-                        <Text style={[styles.title, { fontFamily: `${appFonts.bold}`, fontWeight: "500" }]}>
-                            Welcome Back
-                        </Text>
-                        <Text style={[styles.description]}>
-                            Sign in to continue to your account
-                        </Text>
-
-                        <Formik initialValues={formValues} onSubmit={(values) => handleSubmit(values.email, values.password)} validationSchema={loginSchema}>
-                            {({ handleSubmit, handleBlur, handleChange, touched, errors, values }) => (
-                                <RKeyboardView style={{ gap: 12 }}>
-
-                                    <RInput placeholder='Email' icon={'mail'} onChangeText={handleChange('email')} onBlur={handleBlur('email')} value={values.email} />
-                                    {touched.email && errors.email && (<RErrorMessage error={errors.email} />)}
-
-                                    <RInput placeholder='Password' icon={'lock'} secureTextEntry onChangeText={handleChange("password")} onBlur={handleBlur("password")} value={values.password} />
-                                    {touched.password && errors.password && (<RErrorMessage error={errors.password} />)}
-
-                                    <RButton title='Sign In' onPressButton={handleSubmit} styleBtn={styles.button} isSubmitting={isLoading} />
-                                </RKeyboardView>
-                            )}
-                        </Formik>
-
-
-                        <Button
-                            textColor={colors.slate['600']}
-                            labelStyle={{ fontFamily: `${appFonts.medium}` }}
-                            style={styles.textButton}
-                            onPress={resetPassword}
-                        >
-                            Forgot Password?
-                        </Button>
-
-                        <Button
-                            textColor={colors.slate['700']}
-                            labelStyle={{ fontFamily: `${appFonts.medium}` }}
-                            style={styles.textButton}
-                            onPress={register}
-                        >
-                            Don’t have an account?{' '}
-                            <Text style={{ color: colors.primary['900'], fontFamily: `${appFonts.semiBold}` }}>
-                                Sign Up
+        <>
+            <Scroller>
+                <AuthWrapper>
+                    <SafeArea>
+                        <RHeader name='Go-back' />
+                        <RLogo stylesLogo={{ alignContent: "center", marginTop: 90, marginBottom: 20, width: "auto" }} />
+                        <View style={styles.content}>
+                            <Text style={[styles.title, { fontFamily: `${appFonts.bold}`, fontWeight: "500" }]}>
+                                Welcome Back
                             </Text>
-                        </Button>
-                    </View>
-                </SafeArea>
-            </AuthWrapper>
-        </Scroller>
+                            <Text style={[styles.description]}>
+                                Sign in to continue to your account
+                            </Text>
+
+                            <Formik initialValues={formValues} onSubmit={(values) => handleSubmit(values.email, values.password)} validationSchema={loginSchema}>
+                                {({ handleSubmit, handleBlur, handleChange, touched, errors, values }) => (
+                                    <RKeyboardView style={{ gap: 12 }}>
+
+                                        <RInput placeholder='Email' icon={'mail'} onChangeText={handleChange('email')} onBlur={handleBlur('email')} value={values.email} />
+                                        {touched.email && errors.email && (<RErrorMessage error={errors.email} />)}
+
+                                        <RInput placeholder='Password' icon={'lock'} secureTextEntry onChangeText={handleChange("password")} onBlur={handleBlur("password")} value={values.password} />
+                                        {touched.password && errors.password && (<RErrorMessage error={errors.password} />)}
+
+                                        <RButton title='Sign In' onPressButton={handleSubmit} styleBtn={styles.button} isSubmitting={isLoading} />
+                                    </RKeyboardView>
+                                )}
+                            </Formik>
+
+
+                            <Button
+                                textColor={colors.slate['600']}
+                                labelStyle={{ fontFamily: `${appFonts.medium}` }}
+                                style={styles.textButton}
+                                onPress={resetPassword}
+                            >
+                                Forgot Password?
+                            </Button>
+
+                            <Button
+                                textColor={colors.slate['700']}
+                                labelStyle={{ fontFamily: `${appFonts.medium}` }}
+                                style={styles.textButton}
+                                onPress={register}
+                            >
+                                Don’t have an account?{' '}
+                                <Text style={{ color: colors.primary['900'], fontFamily: `${appFonts.semiBold}` }}>
+                                    Sign Up
+                                </Text>
+                            </Button>
+                        </View>
+                    </SafeArea>
+                </AuthWrapper>
+            </Scroller>
+        </>
     )
 }
 
