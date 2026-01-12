@@ -21,6 +21,9 @@ import Stats from "./home/Stats";
 import NewTimelines from "./home/NewTimelines";
 import NewHome from "./home/newHome";
 import AddMgApplicationItem from "./grants/MandatoryGrantAddingItem";
+import DgTable from "./grants/DgTable";
+import DgEntryList from "./grants/DgEntryList";
+import DgApplicationEntryItem from "./grants/DgApplicationEntryItem";
 
 
-export { RTabBarIcon, RCustomTabBarButton, MessageWrapper, LinkedOrganizations, ItemNotification, ItemOrganization, BottomSheetWrapper, InformationBanner, ApplicationItem, DgApplicationItem, AddDgApplicationItem, Expandable, TextWrap, AccWrapper, DeactivateAccount, AppTrackingItem, ProgressTracker, RUploadSuccess, LinkedOrganizationList, Stats, NewTimelines, NewHome, AddMgApplicationItem }
+export { RTabBarIcon, RCustomTabBarButton, MessageWrapper, LinkedOrganizations, ItemNotification, ItemOrganization, BottomSheetWrapper, InformationBanner, ApplicationItem, DgApplicationItem, AddDgApplicationItem, Expandable, TextWrap, AccWrapper, DeactivateAccount, AppTrackingItem, ProgressTracker, RUploadSuccess, LinkedOrganizationList, Stats, NewTimelines, NewHome, AddMgApplicationItem, DgTable, DgEntryList, DgApplicationEntryItem }

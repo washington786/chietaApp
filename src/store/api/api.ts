@@ -12,7 +12,6 @@ const baseQuery = fetchBaseQuery({
         }
 
         headers.set('Accept', 'application/json')
-        headers.set('Content-Type', 'application/json')
 
         return headers
     },
@@ -99,6 +98,30 @@ export const api = createApi({
             }),
             invalidatesTags: ['Document'],
         }),
+        uploadProjectDocument: builder.mutation({
+            query: ({ file, docType, userId, appId }) => {
+                const formData = new FormData();
+
+                // Handle React Native file object from expo-document-picker
+                formData.append('file', {
+                    uri: file.uri,
+                    name: file.name,
+                    type: file.mimeType || 'application/octet-stream'
+                } as any);
+
+                const url = `/api/upload?DocType=${encodeURIComponent(docType)}&UserID=${userId}&module=Projects&appid=${appId}`;
+
+                console.log('Upload URL:', url);
+                console.log('Upload file:', { name: file.name, mimeType: file.mimeType, uri: file.uri });
+
+                return {
+                    url,
+                    method: 'POST',
+                    body: formData,
+                };
+            },
+            invalidatesTags: ['Document'],
+        }),
         downloadDocument: builder.mutation({
             query: (documentId) => ({
                 url: `/api/services/app/Account/DownloadFile?id=${documentId}`,
@@ -155,12 +178,45 @@ export const api = createApi({
                 url: '/api/services/app/DiscretionaryProject/CreateEditApplication',
                 method: 'POST',
                 body: payload,
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            }),
+            invalidatesTags: ['Grant'],
+        }),
+        deleteApplication: builder.mutation({
+            query: ({ id, userId }) => ({
+                url: `/api/services/app/DiscretionaryProject/DeleteApplication?id=${id}&userid=${userId}`,
+                method: 'DELETE',
+            }),
+            invalidatesTags: ['Grant'],
+        }),
+        createEditApplicationDetails: builder.mutation({
+            query: (payload) => ({
+                url: '/api/services/app/DiscretionaryProject/CreateEditApplicationDetails',
+                method: 'POST',
+                body: payload,
+                headers: {
+                    'Content-Type': 'application/json',
+                },
             }),
             invalidatesTags: ['Grant'],
         }),
         getOrgProjects: builder.query({
             query: (organisationId) =>
                 `/api/services/app/DiscretionaryProject/GetOrgProjects?OrganisationId=${organisationId}`,
+            transformResponse: (response: any) => {
+                if (response?.result?.items) {
+                    const items = response.result.items.map((item: any) => {
+                        return item.discretionaryProject || item;
+                    });
+                    return {
+                        ...response.result,
+                        items
+                    };
+                }
+                return response?.result || response;
+            },
             providesTags: ['Grant'],
         }),
         getWinFocusArea: builder.query({
@@ -175,20 +231,38 @@ export const api = createApi({
             query: () => '/api/services/app/DiscretionaryWindow/GetEvalMeth',
             providesTags: ['Grant'],
         }),
+        getProjectType: builder.query({
+            query: () => '/api/services/app/DiscretionaryWindow/GetProjectType',
+            transformResponse: (response: any) => response?.result?.items || response?.result || response,
+            providesTags: ['Grant'],
+        }),
+        getFocusArea: builder.query({
+            query: (projType) =>
+                `/api/services/app/DiscretionaryWindow/GetFocusArea?projType=${projType}`,
+            transformResponse: (response: any) => response?.result?.items || response?.result || response,
+            providesTags: ['Grant'],
+        }),
+        getAdminCrit: builder.query({
+            query: ({ projType, focusId }) =>
+                `/api/services/app/DiscretionaryWindow/GetAdminCrit?projType=${projType}&focusId=${focusId}`,
+            transformResponse: (response: any) => response?.result?.items || response?.result || response,
+            providesTags: ['Grant'],
+        }),
+        getEvalMethods: builder.query({
+            query: ({ projType, focusId, critId }) =>
+                `/api/services/app/DiscretionaryWindow/GetEvalMeth?projType=${projType}&focusId=${focusId}&critId=${critId}`,
+            transformResponse: (response: any) => response?.result?.items || response?.result || response,
+            providesTags: ['Grant'],
+        }),
         validateProjSubmission: builder.mutation({
             query: (payload) => ({
                 url: '/api/services/app/DiscretionaryProject/validateProjSubmission',
                 method: 'POST',
                 body: payload,
+                headers: {
+                    'Content-Type': 'application/json',
+                },
             }),
-        }),
-        createEditApplicationDetails: builder.mutation({
-            query: (payload) => ({
-                url: '/api/services/app/DiscretionaryProject/CreateEditApplicationDetails',
-                method: 'POST',
-                body: payload,
-            }),
-            invalidatesTags: ['Grant'],
         }),
         getDGProjectDetById: builder.query({
             query: (projectId) =>
@@ -350,6 +424,7 @@ export const {
     useGetOrganizationByTenantQuery,
     useGetUserOrganizationsQuery,
     useUploadDocumentMutation,
+    useUploadProjectDocumentMutation,
     useDownloadDocumentMutation,
     useGetBanksQuery,
     useGetProvincesQuery,
@@ -363,12 +438,17 @@ export const {
     useGetEquityQuery,
     useGetActiveWindowsParamsQuery,
     useCreateEditApplicationMutation,
+    useDeleteApplicationMutation,
+    useCreateEditApplicationDetailsMutation,
     useGetOrgProjectsQuery,
     useGetWinFocusAreaQuery,
     useGetWinAdminCritQuery,
     useGetEvalMethQuery,
+    useGetProjectTypeQuery,
+    useGetFocusAreaQuery,
+    useGetAdminCritQuery,
+    useGetEvalMethodsQuery,
     useValidateProjSubmissionMutation,
-    useCreateEditApplicationDetailsMutation,
     useGetDGProjectDetByIdQuery,
     useGetProjectDetailsQuery,
     useGetDGProjectDetailsAppQuery,

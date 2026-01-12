@@ -4,6 +4,7 @@ import DetailsPage from '@/ui/pages/application/top/DetailsPage';
 import ApplicationDetails from '@/ui/pages/application/top/ApplicationDetails';
 import BankDetailsPage from '@/ui/pages/application/top/BankDetailsPage';
 import DgApplicationDetails from '@/ui/pages/application/top/DgApplicationDetails';
+import FileManagementPage from '@/ui/pages/application/top/FileManagementPage';
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -19,7 +20,7 @@ const TopNav: FC<prop> = ({ type, appId, orgId, item }) => {
         <Tab.Navigator>
             <Tab.Screen name='Client Info' component={DetailsPage} initialParams={{ appId, orgId, type }} />
             <Tab.Screen name='Application Info' component={type === 'mg-app' ? ApplicationDetails : DgApplicationDetails} initialParams={{ appId, orgId, item }} />
-            <Tab.Screen name='Payments' component={BankDetailsPage} initialParams={{ appId, orgId, item }} />
+            <Tab.Screen name={type === "mg-app" ? "Payments" : "File Management"} component={type === "mg-app" ? BankDetailsPage : FileManagementPage} initialParams={{ appId, orgId, item }} />
         </Tab.Navigator>
     )
 }

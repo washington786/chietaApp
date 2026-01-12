@@ -44,9 +44,9 @@ export const fetchDiscretionaryGrantData = createAsyncThunk(
                 ? await windowsResponse.json()
                 : { result: [] };
 
-            // Fetch organisation discretionary applications
+            // Fetch organisation discretionary projects
             const applicationsResponse = await fetch(
-                `${API_BASE_URL}/api/services/app/DiscretionaryGrants/GetOrgApplications?Organisationid=${orgId}`,
+                `${API_BASE_URL}/api/services/app/DiscretionaryProject/GetOrgProjects?OrganisationId=${orgId}`,
                 {
                     headers: {
                         'Authorization': `Bearer ${token}`,

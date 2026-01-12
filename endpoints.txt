@@ -1,0 +1,17 @@
+interventions:
+https://ims.chieta.org.za:22743/api/services/app/DiscretionaryWindow/GetEvalMeth?projType=2&focusId=1179&critId=368
+
+focus area(Learning Programme):
+https://ims.chieta.org.za:22743/api/services/app/DiscretionaryWindow/GetFocusArea?projType=2
+
+sub category:
+https://ims.chieta.org.za:22743/api/services/app/DiscretionaryWindow/GetAdminCrit?projType=2&focusId=1179
+
+project type:
+https://ims.chieta.org.za:22743/api/services/app/DiscretionaryWindow/GetProjectType
+
+
+
+---------
+organization applications dg grants:
+https://ims.chieta.org.za:22743/api/services/app/DiscretionaryProject/GetOrgProjects?OrganisationId=673436
