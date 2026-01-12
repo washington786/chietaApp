@@ -10,7 +10,7 @@ import { SelectList } from 'react-native-dropdown-select-list'
 import { DocumentPickerResult } from 'expo-document-picker'
 import useDocumentPicker from '@/hooks/main/UseDocumentPicker'
 import { showToast } from '@/core'
-import { useGetProjectTypeQuery, useGetFocusAreaQuery, useGetAdminCritQuery, useGetEvalMethodsQuery, useCreateEditApplicationMutation, useDeleteApplicationMutation, useCreateEditApplicationDetailsMutation, useGetProjectDetailsQuery, useUploadProjectDocumentMutation, useGetDGProjectDetailsAppQuery } from '@/store/api/api';
+import { useGetProjectTypeQuery, useGetFocusAreaQuery, useGetAdminCritQuery, useGetEvalMethodsQuery, useDeleteApplicationMutation, useCreateEditApplicationDetailsMutation, useUploadProjectDocumentMutation, useGetDGProjectDetailsAppQuery } from '@/store/api/api';
 import { dg_styles as styles } from '@/styles/DgStyles';
 import { RouteProp, useRoute } from '@react-navigation/native'
 import { navigationTypes } from '@/core/types/navigationTypes'

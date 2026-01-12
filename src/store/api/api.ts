@@ -414,6 +414,15 @@ export const api = createApi({
             query: (id) => `/api/services/app/Organisation/GetOrgBank?Id=${id}`,
             providesTags: ['Organization'],
         }),
+
+        /**
+         * Documents Endpoints
+         */
+        getDocumentsByEntity: builder.query({
+            query: ({ entityId, module, documentType }) =>
+                `/api/services/app/Documents/GetDocumentsByEntity?entityid=${entityId}&module=${module}&documenttype=${encodeURIComponent(documentType)}`,
+            providesTags: ['Document'],
+        }),
     }),
 })
 
@@ -463,4 +472,5 @@ export const {
     useGetPersonByIdQuery,
     useGetOrganizationByProjectQuery,
     useGetOrganizationByIdQuery,
+    useGetDocumentsByEntityQuery,
 } = api
