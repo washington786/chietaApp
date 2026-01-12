@@ -4,6 +4,8 @@ import { Button, IconButton } from 'react-native-paper'
 import { useGlobalBottomSheet } from '@/hooks/navigation/BottomSheet'
 import colors from '@/config/colors'
 import { RCol, RRow, SafeArea } from '@/components/common'
+import DocumentsList from './DocumentsList'
+import { useGetDocumentsByEntityQuery } from '@/store/api/api'
 
 export interface ApplicationEntry {
     id: string;
@@ -37,11 +39,41 @@ const DgApplicationEntryItem: React.FC<DgApplicationEntryItemProps> = ({
 }) => {
     const { open: openBottomSheet, close: closeBottomSheet } = useGlobalBottomSheet();
 
+    // Document types to fetch
+    const documentTypes = [
+        'Tax Compliance',
+        'Company Registration',
+        'BEE Certificate',
+        'Accreditation',
+        'Commitment Letter',
+        'Learner Schedule',
+        'Organisation Interest',
+        'Bank Details',
+        'Application Form'
+    ];
+
+    // Fetch all documents for this entry
+    const documentQueries = documentTypes.map(docType =>
+        useGetDocumentsByEntityQuery(
+            {
+                entityId: parseInt(data.id),
+                module: 'Projects',
+                documentType: docType
+            },
+            { skip: !data.id }
+        )
+    );
+
     const handleView = useCallback(() => {
         const totalContinuing = data.noContinuing;
         const totalNew = data.noNew;
         const totalLearners = totalContinuing + totalNew;
         const totalCost = totalLearners * data.costPerLearner;
+
+        // Collect all documents from all queries
+        const allDocuments = documentQueries
+            .flatMap(query => query.data?.result?.items || [])
+            .flatMap(item => item.documents || []);
 
         openBottomSheet(
             <SafeArea>
@@ -82,16 +114,24 @@ const DgApplicationEntryItem: React.FC<DgApplicationEntryItemProps> = ({
                         <DetailRow label="District" value={data.district} />
                         <DetailRow label="Municipality" value={data.municipality} />
                     </View>
+
+                    {allDocuments.length > 0 && (
+                        <View style={styles.detailSection}>
+                            <Text style={styles.sectionTitle}>Uploaded Documents ({allDocuments.length})</Text>
+                            <DocumentsList documents={allDocuments} />
+                        </View>
+                    )}
+
                     <Button mode='text' onPress={closeBottomSheet}>close</Button>
                     <View style={{ height: 120 }} />
                 </ScrollView>
             </SafeArea>,
-            { snapPoints: ['50%', '75%', '90%'] }
+            { snapPoints: ['80%'] }
         );
-    }, [data, onEdit, onDelete, openBottomSheet]);
+    }, [data, onEdit, onDelete, openBottomSheet, documentQueries]);
 
     return (
-        <RCol style={{ gap: 2, backgroundColor: colors.zinc[100], paddingVertical: 8, paddingHorizontal: 4 }}>
+        <RCol style={{ gap: 2, backgroundColor: colors.zinc[100], paddingVertical: 8, paddingHorizontal: 4, width: 250, borderRadius: 8, marginHorizontal: 8 }}>
             <RCol>
                 <Text style={styles.programType} numberOfLines={1}>{data.programType}</Text>
                 <Text style={styles.learningProgramme} numberOfLines={1}>{data.learningProgramme}</Text>

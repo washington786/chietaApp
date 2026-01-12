@@ -24,6 +24,7 @@ import AddMgApplicationItem from "./grants/MandatoryGrantAddingItem";
 import DgTable from "./grants/DgTable";
 import DgEntryList from "./grants/DgEntryList";
 import DgApplicationEntryItem from "./grants/DgApplicationEntryItem";
+import DocumentsList from "./grants/DocumentsList";
 
 
-export { RTabBarIcon, RCustomTabBarButton, MessageWrapper, LinkedOrganizations, ItemNotification, ItemOrganization, BottomSheetWrapper, InformationBanner, ApplicationItem, DgApplicationItem, AddDgApplicationItem, Expandable, TextWrap, AccWrapper, DeactivateAccount, AppTrackingItem, ProgressTracker, RUploadSuccess, LinkedOrganizationList, Stats, NewTimelines, NewHome, AddMgApplicationItem, DgTable, DgEntryList, DgApplicationEntryItem }
+export { RTabBarIcon, RCustomTabBarButton, MessageWrapper, LinkedOrganizations, ItemNotification, ItemOrganization, BottomSheetWrapper, InformationBanner, ApplicationItem, DgApplicationItem, AddDgApplicationItem, Expandable, TextWrap, AccWrapper, DeactivateAccount, AppTrackingItem, ProgressTracker, RUploadSuccess, LinkedOrganizationList, Stats, NewTimelines, NewHome, AddMgApplicationItem, DgTable, DgEntryList, DgApplicationEntryItem, DocumentsList }

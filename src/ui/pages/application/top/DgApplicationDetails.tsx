@@ -1,5 +1,5 @@
 import { FlatList, View } from 'react-native'
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import colors from '@/config/colors'
 import { Text, IconButton } from 'react-native-paper'
 import { Expandable, RUploadSuccess, DgEntryList } from '@/components/modules/application'
@@ -10,7 +10,7 @@ import { SelectList } from 'react-native-dropdown-select-list'
 import { DocumentPickerResult } from 'expo-document-picker'
 import useDocumentPicker from '@/hooks/main/UseDocumentPicker'
 import { showToast } from '@/core'
-import { useGetProjectTypeQuery, useGetFocusAreaQuery, useGetAdminCritQuery, useGetEvalMethodsQuery, useCreateEditApplicationMutation, useDeleteApplicationMutation, useCreateEditApplicationDetailsMutation, useGetProjectDetailsQuery, useUploadProjectDocumentMutation } from '@/store/api/api';
+import { useGetProjectTypeQuery, useGetFocusAreaQuery, useGetAdminCritQuery, useGetEvalMethodsQuery, useDeleteApplicationMutation, useCreateEditApplicationDetailsMutation, useUploadProjectDocumentMutation, useGetDGProjectDetailsAppQuery } from '@/store/api/api';
 import { dg_styles as styles } from '@/styles/DgStyles';
 import { RouteProp, useRoute } from '@react-navigation/native'
 import { navigationTypes } from '@/core/types/navigationTypes'
@@ -24,12 +24,13 @@ const DgApplicationDetails = () => {
     const user = useSelector((state: RootState) => state.auth.user);
     const userId = user?.id || 0;
 
-    // Fetch existing project details
-    const { data: projectDetails } = useGetProjectDetailsQuery(projectId, { skip: !projectId });
+    // Fetch existing application entries
+    const { data: dgProjectDetailsApp } = useGetDGProjectDetailsAppQuery(projectId, { skip: !projectId });
 
     const [deleteApplication] = useDeleteApplicationMutation();
 
     const [createEditApplicationDetails, { isLoading: isSavingApplication }] = useCreateEditApplicationDetailsMutation();
+
 
     const [uploadProjectDocument] = useUploadProjectDocumentMutation();
 
@@ -141,6 +142,39 @@ const DgApplicationDetails = () => {
         }
     }, [evalMethods, editingEntryId, entries]);
 
+    // Populate entries from API response
+    useEffect(() => {
+        if (dgProjectDetailsApp?.result?.items && dgProjectDetailsApp.result.items.length > 0) {
+            const mappedEntries = dgProjectDetailsApp.result.items.map((item: any) => {
+                const details = item.projectDetails;
+                return {
+                    id: details.id,
+                    programmeTypeId: details.projectType,
+                    learningProgrammeId: details.focusArea,
+                    subCategoryId: details.subCategory,
+                    interventionId: details.intervention,
+                    focusCritEvalId: details.subCategory,
+                    programType: details.projectType,
+                    learningProgramme: details.focusArea,
+                    subCategory: details.subCategory,
+                    intervention: details.intervention,
+                    noContinuing: details.number_Continuing,
+                    noNew: details.number_New,
+                    noFemale: details.female,
+                    noHistoricallyDisadvantaged: details.hdi,
+                    noYouth: details.youth,
+                    noDisabled: details.number_Disabled,
+                    noRural: details.rural,
+                    costPerLearner: details.costPerLearner,
+                    province: details.province,
+                    district: "",
+                    municipality: details.municipality,
+                };
+            });
+            setEntries(mappedEntries);
+        }
+    }, [dgProjectDetailsApp]);
+
     function handleProvChange(val: Province) {
         setProvince(val)
         setDistrict(mainDistricts[val] || [])
@@ -171,7 +205,6 @@ const DgApplicationDetails = () => {
     );
 
     // document upload
-
     const { pickDocument, error, isLoading } = useDocumentPicker();
 
     const [taxComplience, setTaxComplience] = useState<DocumentPickerResult>();
@@ -184,7 +217,7 @@ const DgApplicationDetails = () => {
     const [bankingDetailsProof, setBankDetails] = useState<DocumentPickerResult>();
 
     // Handle document picker errors
-    React.useEffect(() => {
+    useEffect(() => {
         if (error) {
             console.log(error);
             showToast({ message: error, title: "Upload", type: "error", position: "top" })
