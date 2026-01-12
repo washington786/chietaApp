@@ -96,7 +96,7 @@ const RootStackNavigator = () => {
     return (
         <Stack.Navigator
             screenOptions={{ headerShown: false }}
-            initialRouteName="landing"
+            initialRouteName={isAuthenticated ? "app" : "landing"}
         >
             {/* Landing Screen */}
             <Stack.Screen name="landing" component={LandingScreen} />

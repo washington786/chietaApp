@@ -2,7 +2,7 @@ import { FlatList, View } from 'react-native'
 import React, { useState, useMemo, useEffect } from 'react'
 import colors from '@/config/colors'
 import { Text, IconButton } from 'react-native-paper'
-import { Expandable, RUploadSuccess, DgEntryList } from '@/components/modules/application'
+import { Expandable, RUploadSuccess, DgEntryList, RUploadSuccessFile } from '@/components/modules/application'
 import { RButton, RInput, RUpload } from '@/components/common'
 import { main_manicipalities, mainDistricts, provinces } from '@/core/helpers/data'
 import { Province } from '@/core/types/provTypes'
@@ -10,7 +10,7 @@ import { SelectList } from 'react-native-dropdown-select-list'
 import { DocumentPickerResult } from 'expo-document-picker'
 import useDocumentPicker from '@/hooks/main/UseDocumentPicker'
 import { showToast } from '@/core'
-import { useGetProjectTypeQuery, useGetFocusAreaQuery, useGetAdminCritQuery, useGetEvalMethodsQuery, useDeleteApplicationMutation, useCreateEditApplicationDetailsMutation, useUploadProjectDocumentMutation, useGetDGProjectDetailsAppQuery } from '@/store/api/api';
+import { useGetProjectTypeQuery, useGetFocusAreaQuery, useGetAdminCritQuery, useGetEvalMethodsQuery, useDeleteApplicationMutation, useCreateEditApplicationDetailsMutation, useUploadProjectDocumentMutation, useGetDGProjectDetailsAppQuery, useGetDocumentsByEntityQuery } from '@/store/api/api';
 import { dg_styles as styles } from '@/styles/DgStyles';
 import { RouteProp, useRoute } from '@react-navigation/native'
 import { navigationTypes } from '@/core/types/navigationTypes'
@@ -116,14 +116,14 @@ const DgApplicationDetails = () => {
     );
 
     // Handle edit mode flow - set programme details in correct order
-    React.useEffect(() => {
+    useEffect(() => {
         if (editingEntryId && focusAreas.length > 0 && !subCategory) {
             // Once focusAreas have loaded, set learning programme
             setLearningProgramme(entries.find(e => e.id === editingEntryId)?.learningProgrammeId || "");
         }
     }, [focusAreas, editingEntryId, entries]);
 
-    React.useEffect(() => {
+    useEffect(() => {
         if (editingEntryId && adminCriteria.length > 0 && !intervention) {
             // Once adminCriteria have loaded, set subCategory and let it load evalMethods
             const entry = entries.find(e => e.id === editingEntryId);
@@ -134,7 +134,7 @@ const DgApplicationDetails = () => {
         }
     }, [adminCriteria, editingEntryId, entries]);
 
-    React.useEffect(() => {
+    useEffect(() => {
         if (editingEntryId && evalMethods.length > 0 && !intervention) {
             // Once evalMethods have loaded, set intervention
             const entry = entries.find(e => e.id === editingEntryId);
@@ -174,6 +174,47 @@ const DgApplicationDetails = () => {
             setEntries(mappedEntries);
         }
     }, [dgProjectDetailsApp]);
+
+    // Fetch documents using RTK Query
+    const taxQuery = useGetDocumentsByEntityQuery(
+        { entityId: appId, module: 'Projects', documentType: 'Tax Compliance' },
+        { skip: !appId }
+    );
+    const companyQuery = useGetDocumentsByEntityQuery(
+        { entityId: appId, module: 'Projects', documentType: 'Company Registration' },
+        { skip: !appId }
+    );
+    const beeQuery = useGetDocumentsByEntityQuery(
+        { entityId: appId, module: 'Projects', documentType: 'BBBEE Certificate' },
+        { skip: !appId }
+    );
+    const accredQuery = useGetDocumentsByEntityQuery(
+        { entityId: appId, module: 'Projects', documentType: 'Proof of Accreditation' },
+        { skip: !appId }
+    );
+    const commitQuery = useGetDocumentsByEntityQuery(
+        { entityId: appId, module: 'Projects', documentType: 'Letter of Commitment' },
+        { skip: !appId }
+    );
+    const learnerQuery = useGetDocumentsByEntityQuery(
+        { entityId: appId, module: 'Projects', documentType: 'Learner Schedule' },
+        { skip: !appId }
+    );
+    const orgQuery = useGetDocumentsByEntityQuery(
+        { entityId: appId, module: 'Projects', documentType: 'Organization Declaration of Interest' },
+        { skip: !appId }
+    );
+    const bankQuery = useGetDocumentsByEntityQuery(
+        { entityId: appId, module: 'Projects', documentType: 'Proof of Banking Details' },
+        { skip: !appId }
+    );
+    const appFormQuery = useGetDocumentsByEntityQuery(
+        { entityId: appId, module: 'Projects', documentType: 'Application Form' },
+        { skip: !appId }
+    );
+
+    // Helper function to get document from RTK Query data
+    const getDocument = (query: any) => query.data?.result?.items?.[0]?.documents;
 
     function handleProvChange(val: Province) {
         setProvince(val)
@@ -398,14 +439,20 @@ const DgApplicationDetails = () => {
     }
 
     const requiredDocuments = [
-        { name: 'Tax Compliance', file: taxComplience },
-        { name: 'Company Registration', file: companyReg },
-        { name: 'BBBEE Certificate/Affidavit', file: beeCert },
-        { name: 'Organization Declaration of Interest', file: declarationInterest },
-        { name: 'Proof of Banking Details', file: bankingDetailsProof }
+        { name: 'Tax Compliance', file: taxComplience, query: taxQuery },
+        { name: 'Company Registration', file: companyReg, query: companyQuery },
+        { name: 'BBBEE Certificate/Affidavit', file: beeCert, query: beeQuery },
+        { name: 'Organization Declaration of Interest', file: declarationInterest, query: orgQuery },
+        { name: 'Proof of Banking Details', file: bankingDetailsProof, query: bankQuery }
     ];
 
-    const missingDocuments = requiredDocuments.filter(doc => !doc.file?.assets);
+    // Check if document is uploaded (either newly or previously)
+    const isDocumentUploaded = (doc: any) => {
+        return doc.file?.assets || getDocument(doc.query);
+    };
+
+    const missingDocuments = requiredDocuments.filter(doc => !isDocumentUploaded(doc));
+    const allDocumentsUploaded = missingDocuments.length === 0;
 
     const canProceedFromStep1 = () => {
         return entries.length > 0;
@@ -887,7 +934,13 @@ const DgApplicationDetails = () => {
                             {currentStep === 2 && (
                                 <>
                                     <Text variant='titleMedium' style={styles.title}>Upload Required Files</Text>
-                                    {missingDocuments.length > 0 && (
+                                    {allDocumentsUploaded ? (
+                                        <View style={{ ...styles.warningBox, backgroundColor: colors.emerald[50], borderColor: colors.emerald[200] }}>
+                                            <Text style={{ ...styles.warningText, color: colors.emerald[700] }}>
+                                                ✓ All required documents uploaded
+                                            </Text>
+                                        </View>
+                                    ) : (
                                         <View style={styles.warningBox}>
                                             <Text style={styles.warningText}>
                                                 Required: {missingDocuments.map(d => d.name).join(', ')}
@@ -896,22 +949,55 @@ const DgApplicationDetails = () => {
                                     )}
 
                                     <Expandable title='Supporting documents' isExpanded={expandDocs} onPress={() => setDocs(!expandDocs)}>
-                                        <RUpload title='Tax Compliance' onPress={handleTaxUpload} />
-                                        {taxComplience && taxComplience.assets && <RUploadSuccess file={taxComplience} />}
-                                        <RUpload title='Company Registration' onPress={handleCompanyReg} />
-                                        {companyReg && companyReg.assets && <RUploadSuccess file={companyReg} />}
-                                        <RUpload title='BBBEE Certificate/Affidavit' onPress={handleBeeCert} />
-                                        {beeCert && beeCert.assets && <RUploadSuccess file={beeCert} />}
-                                        <RUpload title='proof of accredetation' onPress={handleProofAccredetation} />
-                                        {accredetation && accredetation.assets && <RUploadSuccess file={accredetation} />}
-                                        <RUpload title='Letter of commitment' onPress={handleLetterCommitment} />
-                                        {commitmentLetter && commitmentLetter.assets && <RUploadSuccess file={commitmentLetter} />}
-                                        <RUpload title='learner schedule' onPress={handleLearnerSchedule} />
-                                        {learnerSchedule && learnerSchedule.assets && <RUploadSuccess file={learnerSchedule} />}
-                                        <RUpload title='organization declaration of interest' onPress={handleOrgInterest} />
-                                        {declarationInterest && declarationInterest.assets && <RUploadSuccess file={declarationInterest} />}
-                                        <RUpload title='Proof of banking details' onPress={handleBankDetails} />
-                                        {bankingDetailsProof && bankingDetailsProof.assets && <RUploadSuccess file={bankingDetailsProof} />}
+                                        <View style={{ gap: 12 }}>
+                                            <View>
+                                                <RUpload title='Tax Compliance' onPress={handleTaxUpload} />
+                                                {taxComplience && taxComplience.assets && <RUploadSuccess file={taxComplience} />}
+                                                {!taxComplience && getDocument(taxQuery) && <RUploadSuccessFile file={getDocument(taxQuery).filename} />}
+                                            </View>
+
+                                            <View>
+                                                <RUpload title='Company Registration' onPress={handleCompanyReg} />
+                                                {companyReg && companyReg.assets && <RUploadSuccess file={companyReg} />}
+                                                {!companyReg && getDocument(companyQuery) && <RUploadSuccessFile file={getDocument(companyQuery).filename} />}
+                                            </View>
+
+                                            <View>
+                                                <RUpload title='BBBEE Certificate/Affidavit' onPress={handleBeeCert} />
+                                                {beeCert && beeCert.assets && <RUploadSuccess file={beeCert} />}
+                                                {!beeCert && getDocument(beeQuery) && <RUploadSuccessFile file={getDocument(beeQuery).filename} />}
+                                            </View>
+
+                                            <View>
+                                                <RUpload title='proof of accredetation' onPress={handleProofAccredetation} />
+                                                {accredetation && accredetation.assets && <RUploadSuccess file={accredetation} />}
+                                                {!accredetation && getDocument(accredQuery) && <RUploadSuccessFile file={getDocument(accredQuery).filename} />}
+                                            </View>
+
+                                            <View>
+                                                <RUpload title='Letter of commitment' onPress={handleLetterCommitment} />
+                                                {commitmentLetter && commitmentLetter.assets && <RUploadSuccess file={commitmentLetter} />}
+                                                {!commitmentLetter && getDocument(commitQuery) && <RUploadSuccessFile file={getDocument(commitQuery).filename} />}
+                                            </View>
+
+                                            <View>
+                                                <RUpload title='learner schedule' onPress={handleLearnerSchedule} />
+                                                {learnerSchedule && learnerSchedule.assets && <RUploadSuccess file={learnerSchedule} />}
+                                                {!learnerSchedule && getDocument(learnerQuery) && <RUploadSuccessFile file={getDocument(learnerQuery).filename} />}
+                                            </View>
+
+                                            <View>
+                                                <RUpload title='organization declaration of interest' onPress={handleOrgInterest} />
+                                                {declarationInterest && declarationInterest.assets && <RUploadSuccess file={declarationInterest} />}
+                                                {!declarationInterest && getDocument(orgQuery) && <RUploadSuccessFile file={getDocument(orgQuery).filename} />}
+                                            </View>
+
+                                            <View>
+                                                <RUpload title='Proof of banking details' onPress={handleBankDetails} />
+                                                {bankingDetailsProof && bankingDetailsProof.assets && <RUploadSuccess file={bankingDetailsProof} />}
+                                                {!bankingDetailsProof && getDocument(bankQuery) && <RUploadSuccessFile file={getDocument(bankQuery).filename} />}
+                                            </View>
+                                        </View>
                                     </Expandable>
                                 </>
                             )}
@@ -931,6 +1017,12 @@ const DgApplicationDetails = () => {
                                         />
                                         <RUpload title='Upload Signed Application Form' onPress={handleApplicationFormUpload} />
                                         {applicationForm && applicationForm.assets && <RUploadSuccess file={applicationForm} />}
+                                        {!applicationForm && getDocument(appFormQuery) && (
+                                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 8, paddingHorizontal: 16 }}>
+                                                <Text style={{ color: colors.emerald[600], fontSize: 12, fontWeight: '500' }}>✓ Previously uploaded</Text>
+                                                <Text style={{ color: colors.slate[500], fontSize: 11 }}>{getDocument(appFormQuery).filename}</Text>
+                                            </View>
+                                        )}
                                     </View>
                                 </>
                             )}
