@@ -2,7 +2,7 @@ import { FlatList, View } from 'react-native'
 import React, { useState, useMemo, useEffect } from 'react'
 import colors from '@/config/colors'
 import { Text, IconButton } from 'react-native-paper'
-import { Expandable, RUploadSuccess, DgEntryList, RUploadSuccessFile } from '@/components/modules/application'
+import { Expandable, RUploadSuccess, DgEntryList, RUploadSuccessFile, MessageWrapper } from '@/components/modules/application'
 import { RButton, RInput, RUpload } from '@/components/common'
 import { main_manicipalities, mainDistricts, provinces } from '@/core/helpers/data'
 import { Province } from '@/core/types/provTypes'
@@ -1005,7 +1005,8 @@ const DgApplicationDetails = () => {
                             {/* Step 3: Application Form */}
                             {currentStep === 3 && (
                                 <>
-                                    <Text variant='titleMedium' style={styles.title}>Application Form</Text>
+                                    <MessageWrapper text="Ensure all uploaded documents are accurate and complete before submission." />
+
                                     <View style={styles.formSection}>
                                         <RButton
                                             onPressButton={() => {

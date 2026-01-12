@@ -1,14 +1,17 @@
 import { StyleSheet, View } from 'react-native'
-import React from 'react'
+import React, { FC } from 'react'
 import colors from '@/config/colors'
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Text } from 'react-native-paper';
 
-const MessageWrapper = () => {
+interface props {
+    text: string;
+}
+const MessageWrapper: FC<props> = ({ text }) => {
     return (
         <View style={styles.con}>
             <Ionicons name="information-circle-outline" size={24} color="black" />
-            <Text variant='bodySmall' style={styles.txt}>please ensure you are linked to an organization to begin grant application</Text>
+            <Text variant='bodySmall' style={styles.txt} numberOfLines={2}>{text}</Text>
         </View>
     )
 }
@@ -26,10 +29,13 @@ const styles = StyleSheet.create({
         borderRadius: 6,
         overflow: 'hidden',
         borderColor: colors.yellow[700],
-        borderWidth: 0.3
+        borderWidth: 0.3,
+        flex: 1
+        // width: '100%',
+        // marginHorizontal: 8
     },
     txt: {
-        width: "95%",
+        width: '100%',
         paddingHorizontal: 2
     }
 })
