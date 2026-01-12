@@ -1,5 +1,5 @@
 import { StyleSheet, View, FlatList, Text, ListRenderItem } from 'react-native'
-import React, { useCallback, useMemo } from 'react'
+import React, { useCallback } from 'react'
 import DgApplicationEntryItem, { ApplicationEntry } from './DgApplicationEntryItem'
 import colors from '@/config/colors'
 
@@ -40,7 +40,6 @@ const DgEntryList: React.FC<DgEntryListProps> = ({
     );
 
     const emptyComponent = ListEmptyComponent || <DefaultEmptyComponent />;
-
     return (
         <View style={styles.container}>
             <FlatList
@@ -50,7 +49,10 @@ const DgEntryList: React.FC<DgEntryListProps> = ({
                 horizontal
                 scrollEnabled={data.length > 0}
                 showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.listContent}
+                contentContainerStyle={{
+                    flexGrow: 1
+                }}
+                style={{ flexGrow: 1 }}
                 ListEmptyComponent={emptyComponent}
                 nestedScrollEnabled
             />
@@ -62,8 +64,7 @@ export default DgEntryList;
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
-        backgroundColor: colors.slate[50],
+        backgroundColor: colors.zinc[50],
     },
     listContent: {
         paddingHorizontal: 12,

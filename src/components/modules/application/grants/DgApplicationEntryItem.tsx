@@ -86,12 +86,12 @@ const DgApplicationEntryItem: React.FC<DgApplicationEntryItemProps> = ({
                     <View style={{ height: 120 }} />
                 </ScrollView>
             </SafeArea>,
-            { snapPoints: ['50%', '75%', '90%'] }
+            { snapPoints: ['80%'] }
         );
     }, [data, onEdit, onDelete, openBottomSheet]);
 
     return (
-        <RCol style={{ gap: 2, backgroundColor: colors.zinc[100], paddingVertical: 8, paddingHorizontal: 4 }}>
+        <RCol style={{ gap: 2, backgroundColor: colors.zinc[100], paddingVertical: 8, paddingHorizontal: 4, width: 250, borderRadius: 8, marginHorizontal: 8 }}>
             <RCol>
                 <Text style={styles.programType} numberOfLines={1}>{data.programType}</Text>
                 <Text style={styles.learningProgramme} numberOfLines={1}>{data.learningProgramme}</Text>
