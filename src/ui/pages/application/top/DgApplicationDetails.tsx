@@ -46,6 +46,7 @@ const DgApplicationDetails = () => {
     const [programmeType, setProgrammeType] = useState<string>("");
     const [learningProgramme, setLearningProgramme] = useState<string>("");
     const [subCategory, setSubCategory] = useState<string>("");
+    const [focusCritEvalId, setFocusCritEvalId] = useState<string>("");
     const [intervention, setIntervention] = useState<string>("");
 
     // Form inputs for learner details
@@ -60,6 +61,7 @@ const DgApplicationDetails = () => {
 
     // Store entries
     const [entries, setEntries] = useState<any[]>([]);
+    const [editingEntryId, setEditingEntryId] = useState<string | null>(null);
 
     const [applicationForm, setApplicationForm] = useState<DocumentPickerResult>();
 
@@ -88,7 +90,11 @@ const DgApplicationDetails = () => {
     );
     const adminCriteria = useMemo(() =>
         Array.isArray(adminCritData)
-            ? adminCritData.map((ac: any) => ({ key: ac.id, value: ac.adminDesc || ac.name }))
+            ? adminCritData.map((ac: any) => ({
+                key: ac.id,
+                value: ac.adminDesc || ac.name,
+                focusCritEvalId: ac.focusCritEvalId || ac.id // Store the focusCritEvalId from response
+            }))
             : [],
         [adminCritData]
     );
@@ -104,6 +110,33 @@ const DgApplicationDetails = () => {
             : [],
         [evalMethodsData]
     );
+
+    // Handle edit mode flow - set programme details in correct order
+    React.useEffect(() => {
+        if (editingEntryId && focusAreas.length > 0 && !subCategory) {
+            // Once focusAreas have loaded, set learning programme
+            setLearningProgramme(entries.find(e => e.id === editingEntryId)?.learningProgrammeId || "");
+        }
+    }, [focusAreas, editingEntryId, entries]);
+
+    React.useEffect(() => {
+        if (editingEntryId && adminCriteria.length > 0 && !intervention) {
+            // Once adminCriteria have loaded, set subCategory and let it load evalMethods
+            const entry = entries.find(e => e.id === editingEntryId);
+            if (entry) {
+                setSubCategory(entry.subCategoryId || "");
+                setFocusCritEvalId(entry.focusCritEvalId?.toString() || "");
+            }
+        }
+    }, [adminCriteria, editingEntryId, entries]);
+
+    React.useEffect(() => {
+        if (editingEntryId && evalMethods.length > 0 && !intervention) {
+            // Once evalMethods have loaded, set intervention
+            const entry = entries.find(e => e.id === editingEntryId);
+            setIntervention(entry?.interventionId || "");
+        }
+    }, [evalMethods, editingEntryId, entries]);
 
     function handleProvChange(val: Province) {
         setProvince(val)
@@ -257,6 +290,9 @@ const DgApplicationDetails = () => {
     };
 
     const handleSaveApplication = async () => {
+        setProg(!expandProg); // Collapse programme section
+        setLoc(!expandLoc); // Collapse location section
+        setProv(!expandProv); // Collapse province section
         if (!programmeType || !learningProgramme || !intervention) {
             showToast({ message: "Please select Programme Type, Learning Programme, and Intervention", title: "Incomplete", type: "error", position: "top" });
             return;
@@ -283,14 +319,13 @@ const DgApplicationDetails = () => {
 
             // Create the application details/entry for the existing project
             const detailsPayload = {
-                id: 0,
                 projectId: parseInt(projectId),
                 projectTypeId: parseInt(programmeType),
                 focusAreaId: parseInt(learningProgramme),
                 subCategoryId: parseInt(subCategory),
                 interventionId: parseInt(intervention),
+                focusCritEvalId: parseInt(focusCritEvalId),
                 otherIntervention: "",
-                focusCritEvalId: parseInt(subCategory),
                 number_Continuing: parseInt(noContinuing),
                 number_New: parseInt(noNew),
                 costPerLearner: parseFloat(costPerLearner),
@@ -311,16 +346,38 @@ const DgApplicationDetails = () => {
             console.log("Creating application details with payload:", detailsPayload);
             const detailsResult = await createEditApplicationDetails(detailsPayload).unwrap();
 
-            console.log("Application details response:", detailsResult);
+            console.log("Application details response:", JSON.stringify(detailsResult, null, 2));
 
-            const detailsId = detailsResult?.result?.id || detailsResult?.id;
+            // If success is true, the record was created successfully
+            // Extract ID from result or generate one based on response
+            let detailsId = detailsResult?.result?.id ||
+                detailsResult?.id ||
+                detailsResult?.data?.id ||
+                detailsResult?.payload?.id;
+
+            // If no ID but success is true, generate a temporary unique ID
+            if (!detailsId && detailsResult?.success === true) {
+                detailsId = `${projectId}-${Date.now()}`;
+                console.log("Generated temporary ID:", detailsId);
+            }
 
             if (!detailsId) {
-                throw new Error("Failed to create application entry: No ID returned from server");
+                console.error("Full response structure:", detailsResult);
+                console.error("Response keys:", Object.keys(detailsResult));
+                throw new Error(
+                    `Failed to create application entry: No ID returned from server. ` +
+                    `Server response: ${JSON.stringify(detailsResult)}`
+                );
             }
 
             const newEntry = {
                 id: detailsId.toString(),
+                // Store IDs for form repopulation
+                programmeTypeId: parseInt(programmeType),
+                learningProgrammeId: parseInt(learningProgramme),
+                subCategoryId: parseInt(subCategory),
+                interventionId: parseInt(intervention),
+                // Store labels for display
                 programType: programTypeLabel,
                 learningProgramme: learningProgrammeLabel,
                 subCategory: subCategoryLabel,
@@ -336,14 +393,24 @@ const DgApplicationDetails = () => {
                 province: selectedProvince,
                 district: selectedDistrict,
                 municipality: selectedMunicipality,
+                focusCritEvalId: parseInt(focusCritEvalId),
             };
 
-            setEntries([...entries, newEntry]);
+            // Handle update or create
+            if (editingEntryId) {
+                // Update existing entry
+                setEntries(entries.map(e => e.id === editingEntryId ? newEntry : e));
+                setEditingEntryId(null);
+            } else {
+                // Create new entry
+                setEntries([...entries, newEntry]);
+            }
 
             // Reset form
             setProgrammeType("");
             setLearningProgramme("");
             setSubCategory("");
+            setFocusCritEvalId("");
             setIntervention("");
             setProvince("");
             setSelectedDistrict("");
@@ -363,12 +430,20 @@ const DgApplicationDetails = () => {
             setLoc(true); // Collapse location section
             setProv(true); // Collapse province section
 
-            showToast({ message: "Application entry saved successfully", title: "Success", type: "success", position: "top" });
+            showToast({ message: editingEntryId ? "Application entry updated successfully" : "Application entry saved successfully", title: "Success", type: "success", position: "top" });
         } catch (error: any) {
-            console.log(error);
+            console.error("Full error object:", error);
+            console.error("Error data:", error?.data);
+
+            // Extract the most relevant error message
+            const errorMessage =
+                error?.data?.error?.message ||
+                error?.data?.message ||
+                error?.message ||
+                "Failed to save application entry";
 
             showToast({
-                message: error?.data?.error?.message || error?.message || "Failed to save application entry",
+                message: errorMessage,
                 title: "Error",
                 type: "error",
                 position: "top"
@@ -377,8 +452,32 @@ const DgApplicationDetails = () => {
     };
 
     const handleEditEntry = (entry: any) => {
-        // TODO: Implement edit functionality
-        showToast({ message: "Edit functionality coming soon", title: "Info", type: "success", position: "top" });
+        // Set programme type first - this will trigger focusAreas query
+        setProgrammeType(entry.programmeTypeId || "");
+
+        // Set all other form fields
+        setNoContinuing(entry.noContinuing?.toString() || "");
+        setNoNew(entry.noNew?.toString() || "");
+        setNoFemale(entry.noFemale?.toString() || "");
+        setNoHDI(entry.noHistoricallyDisadvantaged?.toString() || "");
+        setNoYouth(entry.noYouth?.toString() || "");
+        setNoDisabled(entry.noDisabled?.toString() || "");
+        setNoRural(entry.noRural?.toString() || "");
+        setCostPerLearner(entry.costPerLearner?.toString() || "");
+
+        setProvince(entry.province as Province || "");
+        setSelectedDistrict(entry.district || "");
+        setSelectedMunipality(entry.municipality || "");
+
+        // Set editing state - useEffect will handle the cascade
+        setEditingEntryId(entry.id);
+
+        // Expand all sections
+        setProg(false);
+        setLoc(false);
+        setProv(false);
+
+        showToast({ message: "Loading entry data...", title: "Edit Mode", type: "success", position: "top" });
     };
 
     const handleDeleteEntry = async (id: string) => {
@@ -514,6 +613,11 @@ const DgApplicationDetails = () => {
                                         <SelectList
                                             setSelected={(val: any) => {
                                                 setSubCategory(val);
+                                                // Find and set focusCritEvalId from the selected admin criteria
+                                                const selectedCrit = adminCriteria.find(ac => ac.key === val);
+                                                if (selectedCrit?.focusCritEvalId) {
+                                                    setFocusCritEvalId(selectedCrit.focusCritEvalId.toString());
+                                                }
                                                 setIntervention("");
                                             }}
                                             data={adminCriteria}
@@ -626,7 +730,7 @@ const DgApplicationDetails = () => {
                                     {/* Save Button */}
                                     <RButton
                                         onPressButton={handleSaveApplication}
-                                        title={isSavingApplication ? 'Saving...' : 'Save Application Entry'}
+                                        title={isSavingApplication ? 'Saving...' : editingEntryId ? 'Update Entry' : 'Save Application Entry'}
                                         styleBtn={styles.saveBtn}
                                         disabled={isSavingApplication}
                                     />

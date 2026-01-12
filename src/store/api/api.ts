@@ -99,6 +99,22 @@ export const api = createApi({
             }),
             invalidatesTags: ['Document'],
         }),
+        uploadProjectDocument: builder.mutation({
+            query: ({ file, docType, userId, appId }) => {
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('DocType', docType);
+                formData.append('UserID', userId);
+                formData.append('module', 'Projects');
+                formData.append('appid', appId);
+                return {
+                    url: '/api/upload',
+                    method: 'POST',
+                    body: formData,
+                };
+            },
+            invalidatesTags: ['Document'],
+        }),
         downloadDocument: builder.mutation({
             query: (documentId) => ({
                 url: `/api/services/app/Account/DownloadFile?id=${documentId}`,
@@ -392,6 +408,7 @@ export const {
     useGetOrganizationByTenantQuery,
     useGetUserOrganizationsQuery,
     useUploadDocumentMutation,
+    useUploadProjectDocumentMutation,
     useDownloadDocumentMutation,
     useGetBanksQuery,
     useGetProvincesQuery,
