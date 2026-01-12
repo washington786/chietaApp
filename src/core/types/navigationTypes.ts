@@ -1,4 +1,6 @@
 export type navigationTypes = {
+    landing: undefined;
+
     login: undefined;
     register: undefined;
     reset: undefined;
@@ -29,7 +31,7 @@ export type navigationTypes = {
 
     pdfViewer: {
         payment: any;
-    },
+    };
 
     orgLinking: {
         orgId: string;
