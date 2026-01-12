@@ -12,7 +12,6 @@ const baseQuery = fetchBaseQuery({
         }
 
         headers.set('Accept', 'application/json')
-        headers.set('Content-Type', 'application/json')
 
         return headers
     },
@@ -102,13 +101,21 @@ export const api = createApi({
         uploadProjectDocument: builder.mutation({
             query: ({ file, docType, userId, appId }) => {
                 const formData = new FormData();
-                formData.append('file', file);
-                formData.append('DocType', docType);
-                formData.append('UserID', userId);
-                formData.append('module', 'Projects');
-                formData.append('appid', appId);
+
+                // Handle React Native file object from expo-document-picker
+                formData.append('file', {
+                    uri: file.uri,
+                    name: file.name,
+                    type: file.mimeType || 'application/octet-stream'
+                } as any);
+
+                const url = `/api/upload?DocType=${encodeURIComponent(docType)}&UserID=${userId}&module=Projects&appid=${appId}`;
+
+                console.log('Upload URL:', url);
+                console.log('Upload file:', { name: file.name, mimeType: file.mimeType, uri: file.uri });
+
                 return {
-                    url: '/api/upload',
+                    url,
                     method: 'POST',
                     body: formData,
                 };
@@ -171,6 +178,9 @@ export const api = createApi({
                 url: '/api/services/app/DiscretionaryProject/CreateEditApplication',
                 method: 'POST',
                 body: payload,
+                headers: {
+                    'Content-Type': 'application/json',
+                },
             }),
             invalidatesTags: ['Grant'],
         }),
@@ -186,6 +196,9 @@ export const api = createApi({
                 url: '/api/services/app/DiscretionaryProject/CreateEditApplicationDetails',
                 method: 'POST',
                 body: payload,
+                headers: {
+                    'Content-Type': 'application/json',
+                },
             }),
             invalidatesTags: ['Grant'],
         }),
@@ -246,6 +259,9 @@ export const api = createApi({
                 url: '/api/services/app/DiscretionaryProject/validateProjSubmission',
                 method: 'POST',
                 body: payload,
+                headers: {
+                    'Content-Type': 'application/json',
+                },
             }),
         }),
         getDGProjectDetById: builder.query({

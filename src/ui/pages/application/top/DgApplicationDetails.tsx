@@ -10,7 +10,7 @@ import { SelectList } from 'react-native-dropdown-select-list'
 import { DocumentPickerResult } from 'expo-document-picker'
 import useDocumentPicker from '@/hooks/main/UseDocumentPicker'
 import { showToast } from '@/core'
-import { useGetProjectTypeQuery, useGetFocusAreaQuery, useGetAdminCritQuery, useGetEvalMethodsQuery, useCreateEditApplicationMutation, useDeleteApplicationMutation, useCreateEditApplicationDetailsMutation, useGetProjectDetailsQuery } from '@/store/api/api';
+import { useGetProjectTypeQuery, useGetFocusAreaQuery, useGetAdminCritQuery, useGetEvalMethodsQuery, useCreateEditApplicationMutation, useDeleteApplicationMutation, useCreateEditApplicationDetailsMutation, useGetProjectDetailsQuery, useUploadProjectDocumentMutation } from '@/store/api/api';
 import { dg_styles as styles } from '@/styles/DgStyles';
 import { RouteProp, useRoute } from '@react-navigation/native'
 import { navigationTypes } from '@/core/types/navigationTypes'
@@ -19,6 +19,7 @@ import { RootState } from '@/store/store'
 
 const DgApplicationDetails = () => {
     const { appId: projectId } = useRoute<RouteProp<navigationTypes, "applicationDetails">>().params;
+    const appId = parseInt(projectId as string || '0');
 
     const user = useSelector((state: RootState) => state.auth.user);
     const userId = user?.id || 0;
@@ -29,6 +30,8 @@ const DgApplicationDetails = () => {
     const [deleteApplication] = useDeleteApplicationMutation();
 
     const [createEditApplicationDetails, { isLoading: isSavingApplication }] = useCreateEditApplicationDetailsMutation();
+
+    const [uploadProjectDocument] = useUploadProjectDocumentMutation();
 
     const [currentStep, setCurrentStep] = useState(1);
     const [expandDocs, setDocs] = useState(false);
@@ -188,50 +191,103 @@ const DgApplicationDetails = () => {
     async function handleTaxUpload() {
         try {
             const result = await pickDocument();
-            if (result) {
+            if (result && result.assets && result.assets[0]) {
+                console.log("Picked file:", result.assets[0]);
+                // Upload to server
+                const uploadResult = await uploadProjectDocument({
+                    file: result.assets[0],
+                    docType: 'Tax Compliance',
+                    userId,
+                    appId
+                }).unwrap();
+
+                console.log("Tax upload response:", uploadResult);
                 setTaxComplience(result);
+                showToast({ message: "Tax Compliance uploaded successfully", title: "Success", type: "success", position: "top" });
             }
-        } catch (error) {
+        } catch (error: any) {
+            console.error("Tax upload error details:", JSON.stringify(error, null, 2));
+            console.error("Tax upload error:", error);
             showToast({ message: "failed to upload document", title: "Upload", type: "error", position: "top" })
         }
     }
     async function handleCompanyReg() {
         try {
             const result = await pickDocument();
-            if (result) {
+            if (result && result.assets && result.assets[0]) {
+                const uploadResult = await uploadProjectDocument({
+                    file: result.assets[0],
+                    docType: 'Company Registration',
+                    userId,
+                    appId
+                }).unwrap();
+
+                console.log("Company Reg upload response:", uploadResult);
                 setCompanyReg(result);
+                showToast({ message: "Company Registration uploaded successfully", title: "Success", type: "success", position: "top" });
             }
         } catch (error) {
+            console.error("Company Reg upload error:", error);
             showToast({ message: "failed to upload document", title: "Upload", type: "error", position: "top" })
         }
     }
     async function handleBeeCert() {
         try {
             const result = await pickDocument();
-            if (result) {
+            if (result && result.assets && result.assets[0]) {
+                const uploadResult = await uploadProjectDocument({
+                    file: result.assets[0],
+                    docType: 'BBBEE Certificate',
+                    userId,
+                    appId
+                }).unwrap();
+
+                console.log("BEE Cert upload response:", uploadResult);
                 setBeeCert(result);
+                showToast({ message: "BBBEE Certificate uploaded successfully", title: "Success", type: "success", position: "top" });
             }
         } catch (error) {
+            console.error("BEE Cert upload error:", error);
             showToast({ message: "failed to upload document", title: "Upload", type: "error", position: "top" })
         }
     }
     async function handleProofAccredetation() {
         try {
             const result = await pickDocument();
-            if (result) {
+            if (result && result.assets && result.assets[0]) {
+                const uploadResult = await uploadProjectDocument({
+                    file: result.assets[0],
+                    docType: 'Proof of Accreditation',
+                    userId,
+                    appId
+                }).unwrap();
+
+                console.log("Accreditation upload response:", uploadResult);
                 setAccredetation(result);
+                showToast({ message: "Proof of Accreditation uploaded successfully", title: "Success", type: "success", position: "top" });
             }
         } catch (error) {
+            console.error("Accreditation upload error:", error);
             showToast({ message: "failed to upload document", title: "Upload", type: "error", position: "top" })
         }
     }
     async function handleLetterCommitment() {
         try {
             const result = await pickDocument();
-            if (result) {
+            if (result && result.assets && result.assets[0]) {
+                const uploadResult = await uploadProjectDocument({
+                    file: result.assets[0],
+                    docType: 'Letter of Commitment',
+                    userId,
+                    appId
+                }).unwrap();
+
+                console.log("Letter of Commitment upload response:", uploadResult);
                 setCommitmentLetter(result);
+                showToast({ message: "Letter of Commitment uploaded successfully", title: "Success", type: "success", position: "top" });
             }
         } catch (error) {
+            console.error("Letter of Commitment upload error:", error);
             showToast({ message: "failed to upload document", title: "Upload", type: "error", position: "top" })
         }
     }
@@ -239,10 +295,20 @@ const DgApplicationDetails = () => {
     async function handleLearnerSchedule() {
         try {
             const result = await pickDocument();
-            if (result) {
+            if (result && result.assets && result.assets[0]) {
+                const uploadResult = await uploadProjectDocument({
+                    file: result.assets[0],
+                    docType: 'Learner Schedule',
+                    userId,
+                    appId
+                }).unwrap();
+
+                console.log("Learner Schedule upload response:", uploadResult);
                 setLearnerSchedule(result);
+                showToast({ message: "Learner Schedule uploaded successfully", title: "Success", type: "success", position: "top" });
             }
         } catch (error) {
+            console.error("Learner Schedule upload error:", error);
             showToast({ message: "failed to upload document", title: "Upload", type: "error", position: "top" })
         }
     }
@@ -250,10 +316,20 @@ const DgApplicationDetails = () => {
     async function handleOrgInterest() {
         try {
             const result = await pickDocument();
-            if (result) {
+            if (result && result.assets && result.assets[0]) {
+                const uploadResult = await uploadProjectDocument({
+                    file: result.assets[0],
+                    docType: 'Organization Declaration of Interest',
+                    userId,
+                    appId
+                }).unwrap();
+
+                console.log("Organization Interest upload response:", uploadResult);
                 setDeclarationInterest(result);
+                showToast({ message: "Organization Declaration of Interest uploaded successfully", title: "Success", type: "success", position: "top" });
             }
         } catch (error) {
+            console.error("Organization Interest upload error:", error);
             showToast({ message: "failed to upload document", title: "Upload", type: "error", position: "top" })
         }
     }
@@ -261,10 +337,20 @@ const DgApplicationDetails = () => {
     async function handleBankDetails() {
         try {
             const result = await pickDocument();
-            if (result) {
+            if (result && result.assets && result.assets[0]) {
+                const uploadResult = await uploadProjectDocument({
+                    file: result.assets[0],
+                    docType: 'Proof of Banking Details',
+                    userId,
+                    appId
+                }).unwrap();
+
+                console.log("Bank Details upload response:", uploadResult);
                 setBankDetails(result);
+                showToast({ message: "Proof of Banking Details uploaded successfully", title: "Success", type: "success", position: "top" });
             }
         } catch (error) {
+            console.error("Bank Details upload error:", error);
             showToast({ message: "failed to upload document", title: "Upload", type: "error", position: "top" })
         }
     }
@@ -528,10 +614,20 @@ const DgApplicationDetails = () => {
     async function handleApplicationFormUpload() {
         try {
             const result = await pickDocument();
-            if (result) {
+            if (result && result.assets && result.assets[0]) {
+                const uploadResult = await uploadProjectDocument({
+                    file: result.assets[0],
+                    docType: 'Application Form',
+                    userId,
+                    appId
+                }).unwrap();
+
+                console.log("Application Form upload response:", uploadResult);
                 setApplicationForm(result);
+                showToast({ message: "Application Form uploaded successfully", title: "Success", type: "success", position: "top" });
             }
         } catch (error) {
+            console.error("Application Form upload error:", error);
             showToast({ message: "failed to upload document", title: "Upload", type: "error", position: "top" })
         }
     }
