@@ -16,6 +16,7 @@ import { RouteProp, useRoute } from '@react-navigation/native'
 import { navigationTypes } from '@/core/types/navigationTypes'
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store/store'
+import { generateApplicationPdf } from '@/core/helpers/pdfGenerator';
 
 const DgApplicationDetails = () => {
     const { appId: projectId } = useRoute<RouteProp<navigationTypes, "applicationDetails">>().params;
@@ -1009,21 +1010,87 @@ const DgApplicationDetails = () => {
 
                                     <View style={styles.formSection}>
                                         <RButton
-                                            onPressButton={() => {
-                                                // TODO: Implement template download
-                                                showToast({ message: "Downloading template...", title: "Download", type: "success", position: "top" });
+                                            onPressButton={async () => {
+                                                try {
+
+                                                    // Generate PDF with template data
+                                                    const templateData = {
+                                                        reference: '[Reference Number]',
+                                                        projectType: '[Programme Type]',
+                                                        organisation: {
+                                                            organisationName: '[Your Organization Name]',
+                                                            tradingName: '[Trading Name]',
+                                                            coreBusiness: '[Core Business]',
+                                                            province: '[Province]',
+                                                            municipality: '[Municipality]',
+                                                            beeStatus: '[BEE Status]',
+                                                            phoneNumber: '[Phone Number]',
+                                                            faxNumber: '[Fax Number]',
+                                                            email: '[Email]',
+                                                        },
+                                                        ceo: {
+                                                            firstName: '[CEO First Name]',
+                                                            surname: '[CEO Surname]',
+                                                            email: '[CEO Email]',
+                                                            race: '[Race]',
+                                                            gender: '[Gender]',
+                                                        },
+                                                        cfo: {
+                                                            firstName: '[CFO First Name]',
+                                                            surname: '[CFO Surname]',
+                                                            email: '[CFO Email]',
+                                                            race: '[Race]',
+                                                            gender: '[Gender]',
+                                                        },
+                                                        sdf: {
+                                                            firstName: '[SDF First Name]',
+                                                            surname: '[SDF Surname]',
+                                                            role: '[Role]',
+                                                            race: '[Race]',
+                                                            gender: '[Gender]',
+                                                            phone: '[Phone]',
+                                                            mobile: '[Mobile]',
+                                                            email: '[Email]',
+                                                        },
+                                                        gms: {
+                                                            learningProgramme: '[Learning Programme]',
+                                                            subCategory: '[Sub Category]',
+                                                            intervention: '[Intervention]',
+                                                            cost: '[Cost]',
+                                                        },
+                                                        checklist: {
+                                                            csdOrSarsPin: '[ ]',
+                                                            companyRegistration: '[ ]',
+                                                            beeCertificate: '[ ]',
+                                                            letterOfCommitment: '[ ]',
+                                                            proofOfAccreditation: '[ ]',
+                                                            declarationOfInterest: '[ ]',
+                                                            proofOfBanking: '[ ]',
+                                                            workplaceApproval: '[ ]',
+                                                            researchExportsQuestionnaire: '[ ]',
+                                                        },
+                                                        signOff: {
+                                                            ceoName: '[CEO Name]',
+                                                            ceoDate: '[Date]',
+                                                            cfoName: '[CFO Name]',
+                                                            cfoDate: '[Date]',
+                                                        },
+                                                        generatedDate: new Date().toISOString(),
+                                                    };
+
+                                                    await generateApplicationPdf(templateData);
+                                                    showToast({ message: "Template downloaded successfully", title: "Success", type: "success", position: "top" });
+                                                } catch (error) {
+                                                    console.error("Download error:", error);
+                                                    showToast({ message: "Failed to download template", title: "Error", type: "error", position: "top" });
+                                                }
                                             }}
-                                            title='Download Template'
+                                            title='Download Application Form'
                                             styleBtn={styles.btnSecondary}
                                         />
                                         <RUpload title='Upload Signed Application Form' onPress={handleApplicationFormUpload} />
                                         {applicationForm && applicationForm.assets && <RUploadSuccess file={applicationForm} />}
-                                        {!applicationForm && getDocument(appFormQuery) && (
-                                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 8, paddingHorizontal: 16 }}>
-                                                <Text style={{ color: colors.emerald[600], fontSize: 12, fontWeight: '500' }}>✓ Previously uploaded</Text>
-                                                <Text style={{ color: colors.slate[500], fontSize: 11 }}>{getDocument(appFormQuery).filename}</Text>
-                                            </View>
-                                        )}
+                                        {!applicationForm && getDocument(appFormQuery) && <RUploadSuccessFile file={getDocument(appFormQuery).filename} />}
                                     </View>
                                 </>
                             )}

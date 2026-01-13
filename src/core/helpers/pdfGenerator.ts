@@ -1,7 +1,7 @@
 import * as Print from "expo-print";
 import * as Sharing from "expo-sharing";
 import { renderApplicationHtml } from "./formTemplate";
-import { ApplicationForm } from "./types";
+import { ApplicationForm } from "../types/types";
 
 export const generateApplicationPdf = async (data: ApplicationForm) => {
   const html = renderApplicationHtml(data);

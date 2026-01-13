@@ -4,11 +4,11 @@ import { RCol, RDivider, RRow } from '@/components/common'
 import { Text } from 'react-native-paper'
 import colors from '@/config/colors'
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import usePageTransition from '@/hooks/navigation/usePageTransition'
 import { dgProject } from '@/core/models/DiscretionaryDto'
 
-import { mapDgProjectToApplicationForm } from './mappers'
-import { generateApplicationPdf } from './pdfGenerator'
+import { mapDgProjectToApplicationForm } from '../../../../core/helpers/mappers'
+import { generateApplicationPdf } from '../../../../core/helpers/pdfGenerator'
+import usePageTransition from '@/hooks/navigation/usePageTransition'
 
 interface props {
   item: dgProject;
@@ -16,13 +16,10 @@ interface props {
 
 const DgApplicationItem: FC<props> = ({ item }) => {
   const { focusArea, sdlNo, projectStatus, projectEndDate: endDate, projType, projectNam: title } = item;
-
+  const { applicationDetails } = usePageTransition();
   return (
     <TouchableOpacity
-      onPress={async () => {
-        const form = mapDgProjectToApplicationForm(item);
-        await generateApplicationPdf(form);
-      }}
+      onPress={() => applicationDetails({ type: "dg-app", appId: `${item.id}`, orgId: `${item.organisationId}` })}
     >
       <RCol style={styles.con}>
         <RRow style={styles.title}>

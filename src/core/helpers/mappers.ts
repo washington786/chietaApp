@@ -1,5 +1,5 @@
 import type { dgProject } from "@/core/models/DiscretionaryDto";
-import { ApplicationForm } from "./types";
+import { ApplicationForm } from "../types/types";
 
 export const mapDgProjectToApplicationForm = (
   p: dgProject

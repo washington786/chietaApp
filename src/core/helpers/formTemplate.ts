@@ -1,8 +1,5 @@
-import { ApplicationForm } from "./types";
+import { ApplicationForm } from "../types/types";
 
-// IMPORTANT: load logo from assets folder
-// adjust relative path if needed based on where this file sits
-const logo = require("../../../../assets/chieta-logo.jpg");
 
 export const renderApplicationHtml = (data: ApplicationForm) => `
 <html>
@@ -17,7 +14,7 @@ export const renderApplicationHtml = (data: ApplicationForm) => `
   body { font-family: Helvetica, Arial, sans-serif; padding: 28px; }
 
   .form-wrapper {
-    max-width: 800px; 
+    max-width: 800px;
     margin: 0 auto;
   }
 
@@ -61,7 +58,7 @@ export const renderApplicationHtml = (data: ApplicationForm) => `
 
 <!-- LOGO -->
 <div style="text-align:center; margin-bottom:8px;">
-  <img src="${logo}" style="width:180px;" />
+  <img src="https://chieta.org.za/wp-content/uploads/2024/11/logo_simple.png" style="width:180px;" />
 </div>
 
 <p class="title">IMS APPLICATION FORM</p>
