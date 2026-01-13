@@ -153,7 +153,7 @@ const PdfViewerPage = ({ route, navigation }: Props) => {
         </tr>
         <tr>
           <th>Bank Name</th>
-          <td>${payment.banK_NAME}</td>
+          <td>${payment.banK_NAME ? payment.banK_NAME : 'unknown'}</td>
         </tr>
         <tr>
           <th>Bank Account Number</th>
