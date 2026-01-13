@@ -1,15 +1,16 @@
 import { FlatList, StyleSheet } from 'react-native'
 import React, { useState } from 'react'
-import { Expandable } from '@/components/modules/application'
+import { Expandable, RUploadSuccessFile } from '@/components/modules/application'
 import { BarChart } from 'react-native-gifted-charts';
-import { RListLoading, RUpload } from '@/components/common';
+import { REmpty, RListLoading, RUpload } from '@/components/common';
 import { Text } from 'react-native-paper';
 import colors from '@/config/colors';
 import { showToast } from '@/core';
 import { MandatoryGrantBiodataDto } from '@/core/models/MandatoryDto';
 import { RouteProp, useRoute } from '@react-navigation/native';
-import { useGetApplicationBiosQuery } from '@/store/api/api';
+import { useGetApplicationBiosQuery, useGetDocumentsByEntityQuery, useDownloadDocumentMutation } from '@/store/api/api';
 import { navigationTypes } from '@/core/types/navigationTypes';
+import RDownload from '@/components/common/RDownload';
 
 const ApplicationDetails = () => {
 
@@ -23,6 +24,8 @@ const ApplicationDetails = () => {
     const [expandDocs, setDocs] = useState(false);
     const [expandRace, setRace] = useState(false);
     const [expandGender, setGender] = useState(false);
+
+    const [downloadDocument, { isLoading: isDownloading }] = useDownloadDocumentMutation();
 
     const getCountByProvince = (data: MandatoryGrantBiodataDto[]) => {
         const counts: Record<string, number> = {};
@@ -49,19 +52,54 @@ const ApplicationDetails = () => {
         return Object.entries(counts).map(([label, value]) => ({ label, value }));
     };
 
+    //documents handling:
+    const bank = useGetDocumentsByEntityQuery(
+        { entityId: appId, module: 'Mandatory', documentType: 'bank confirmation' },
+        { skip: !appId }
+    );
+    const verification = useGetDocumentsByEntityQuery(
+        { entityId: appId, module: 'Mandatory', documentType: 'verification' },
+        { skip: !appId }
+    );
+    const pivot = useGetDocumentsByEntityQuery(
+        { entityId: appId, module: 'Mandatory', documentType: 'wsp atr pivot' },
+        { skip: !appId }
+    );
+
+    const getDocument = (query: any) => query.data?.result?.items?.[0]?.documents;
+
     const provinceData = getCountByProvince(biodata);
     const genderData = getCountByGender(biodata);
     const raceData = getCountByRace(biodata);
 
-    if (error) {
-        let errorMessage: string = 'Failed to load biodata';
-        if (error && typeof error === 'object' && 'data' in error && error.data) {
-            errorMessage = JSON.stringify(error.data);
-        } else if (error && typeof error === 'object' && 'message' in error && error.message) {
-            errorMessage = error.message as string;
+    // Document download handlers
+    const handleDownload = async (doc: any, docTitle: string) => {
+        if (!doc) {
+            showToast({ message: `${docTitle} not found`, title: "Error", type: "error", position: "top" });
+            return;
         }
-        showToast({ title: "Error Fetching", message: errorMessage, type: "error", position: "top" });
-    }
+
+        try {
+            console.log("[Download] Full document object:", JSON.stringify(doc, null, 2));
+            const filename = doc.newfilename || doc.filename;
+            console.log("[Download] Starting download for:", filename);
+            showToast({ message: `Downloading ${docTitle}...`, title: "Loading", type: "info", position: "top" });
+            const result = await downloadDocument(filename).unwrap();
+
+            console.log("[Download] Response received:", JSON.stringify(result, null, 2));
+
+            if (result?.result?.isSuccess) {
+                showToast({ message: `${docTitle} downloaded successfully`, title: "Success", type: "success", position: "top" });
+            } else {
+                console.log("[Download] isSuccess is false, result:", result?.result);
+                showToast({ message: `Failed to download ${docTitle}: ${result?.error || 'Unknown error'}`, title: "Error", type: "error", position: "top" });
+            }
+        } catch (err: any) {
+            console.error("[Download] Error caught:", err);
+            console.log("[Download] Error details:", JSON.stringify(err, null, 2));
+            showToast({ message: `Failed to download ${docTitle}: ${err?.message || 'Unknown error'}`, title: "Error", type: "error", position: "top" });
+        }
+    };
 
     if (loading) {
         return <RListLoading count={4} />
@@ -123,9 +161,22 @@ const ApplicationDetails = () => {
                         <Text variant='titleMedium' style={styles.title}>All uploaded Mandotory Files</Text>
 
                         <Expandable title='Banking, training report, & verification' isExpanded={expandDocs} onPress={() => setDocs(!expandDocs)}>
-                            <RUpload title='Proof of Banking details' onPress={() => { }} />
-                            <RUpload title='Annual training report' onPress={() => { }} />
-                            <RUpload title='verification document' onPress={() => { }} />
+                            {bank && (
+                                <RDownload title='Proof of Banking details' onPress={() => handleDownload(getDocument(bank), 'Banking Details')} fileName={getDocument(bank)?.filename} />
+                            )}
+
+                            {pivot && (
+                                <RDownload title='Annual training report' onPress={() => handleDownload(getDocument(pivot), 'Annual Training Report')} fileName={getDocument(pivot)?.filename} />
+                            )}
+
+                            {verification && (
+                                <RDownload title='verification document' onPress={() => handleDownload(getDocument(verification), 'Verification Document')} fileName={getDocument(verification)?.filename} />
+                            )}
+
+                            {!bank && !pivot && !verification && (
+                                <REmpty title='No Documents Found' subtitle='No mandatory documents have been uploaded for this application' icon='file' />
+                            )}
+
                         </Expandable>
                     </>
                 )
