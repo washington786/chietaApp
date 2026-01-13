@@ -2,6 +2,7 @@ import { StyleSheet, Text, TouchableOpacity } from "react-native";
 import React, { FC } from "react";
 import Ionicons from '@expo/vector-icons/Ionicons';
 import colors from "../../config/colors";
+import RRow from "./RRow";
 
 interface Props {
     onPress(): void;
@@ -14,7 +15,13 @@ const RDownload: FC<Props> = ({ onPress, title, fileName }) => {
         <TouchableOpacity style={styles.con} onPress={onPress}>
             <Ionicons name="cloud-download-outline" size={35} color={colors.blue[600]} />
             <Text style={styles.title}>{title}</Text>
-            {fileName && <Text style={styles.fileName}>{fileName}</Text>}
+            {
+                fileName &&
+                <RRow style={{ gap: 1, alignItems: "center", paddingLeft: 10 }}>
+                    <Ionicons name="checkmark-done-sharp" size={12} color={colors.green[600]} />
+                    <Text style={styles.fileName} numberOfLines={1}>{fileName?.substring(0, 55)}{fileName && fileName.length > 55 ? "..." : ""}</Text>
+                </RRow>
+            }
         </TouchableOpacity>
     );
 };
@@ -32,6 +39,7 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         gap: 4,
         backgroundColor: colors.blue[50],
+        overflow: "hidden",
     },
     title: {
         color: colors.slate[700],
@@ -40,7 +48,7 @@ const styles = StyleSheet.create({
     },
     fileName: {
         color: colors.slate[500],
-        fontSize: 13,
+        fontSize: 10,
         marginTop: 2,
     },
 });
