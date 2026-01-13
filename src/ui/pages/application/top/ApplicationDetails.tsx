@@ -7,17 +7,15 @@ import { Text } from 'react-native-paper';
 import colors from '@/config/colors';
 import { showToast } from '@/core';
 import { MandatoryGrantBiodataDto } from '@/core/models/MandatoryDto';
-import { useRoute } from '@react-navigation/native';
+import { RouteProp, useRoute } from '@react-navigation/native';
 import { useGetApplicationBiosQuery } from '@/store/api/api';
-
-interface PageTypes {
-    appId: string,
-    orgId: string
-}
+import { navigationTypes } from '@/core/types/navigationTypes';
 
 const ApplicationDetails = () => {
 
-    const { appId } = useRoute().params as PageTypes;
+    const { appId } = useRoute<RouteProp<navigationTypes, "applicationDetails">>().params;
+
+    console.log(appId);
 
     const { data, isLoading: loading, error } = useGetApplicationBiosQuery(appId, { skip: !appId });
 

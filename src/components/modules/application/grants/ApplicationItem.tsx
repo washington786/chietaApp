@@ -20,7 +20,7 @@ const ApplicationItem: FC<props> = ({ item }) => {
     const title = description.split('-')[0];
 
     return (
-        <TouchableOpacity onPress={() => applicationDetails({ appId: String(item?.userId), orgId: String(organisationId), type: "mg-app" })}>
+        <TouchableOpacity onPress={() => applicationDetails({ appId: String(item?.id), orgId: String(organisationId), type: "mg-app" })}>
             <RCol style={styles.con}>
                 <RRow style={styles.title}>
                     <MaterialCommunityIcons name="application-outline" size={18} color="black" />
