@@ -1,7 +1,7 @@
 import Toast from "react-native-toast-message";
 
 interface type {
-    type: "success" | "error";
+    type: "success" | "error" | "info";
     message: string;
     title: string;
     position?: "bottom" | "top";
