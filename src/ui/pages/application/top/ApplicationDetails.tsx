@@ -15,8 +15,6 @@ const ApplicationDetails = () => {
 
     const { appId } = useRoute<RouteProp<navigationTypes, "applicationDetails">>().params;
 
-    console.log(appId);
-
     const { data, isLoading: loading, error } = useGetApplicationBiosQuery(appId, { skip: !appId });
 
     const biodata = data?.items || [];

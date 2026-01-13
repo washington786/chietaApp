@@ -1,5 +1,5 @@
 import { FlatList, StyleSheet, View } from 'react-native'
-import React from 'react'
+import React, { useState } from 'react'
 import { InformationBanner } from '@/components/modules/application'
 import { FileWrapper } from '@/components/modules/application/grants/FileWrapper';
 import { showToast } from '@/core';
@@ -10,6 +10,8 @@ import { MandatoryGrantPaymentDto } from '@/core/models/MandatoryDto';
 import { getMonth } from '@/core/utils/dayTime';
 import usePageTransition from '@/hooks/navigation/usePageTransition';
 import { useGetMandatoryGrantPaymentsQuery, useGetOrgApplicationsQuery } from '@/store/api/api';
+import colors from '@/config/colors';
+import { Searchbar } from 'react-native-paper';
 
 interface PageTypes {
     appId: string,
@@ -21,6 +23,8 @@ const BankDetailsPage = () => {
     const { pdfViewer } = usePageTransition();
     const { appId, orgId, type } = useRoute().params as PageTypes;
 
+    const [searchQuery, setSearchQuery] = useState('');
+
     // Fetch applications to get the one with matching appId to extract SDL
     const { data: applicationsData } = useGetOrgApplicationsQuery(orgId, { skip: !orgId });
     const application = applicationsData?.items?.find((app: any) => app.id == appId);
@@ -28,11 +32,20 @@ const BankDetailsPage = () => {
 
     const { data, isLoading: loading, error } = useGetMandatoryGrantPaymentsQuery(sdl, { skip: !sdl });
 
-    console.log("sdl: ", sdl);
-    console.log("payments: ", data?.items);
-
-
     const payments = data?.items || [];
+
+    const onChangeSearch = (query: string) => setSearchQuery(query);
+
+    // Filter payments by month or year
+    const filteredPayments = payments.filter((item: MandatoryGrantPaymentDto) => {
+        if (!searchQuery.trim()) return true;
+
+        const monthName = getMonth(item.month).toLowerCase();
+        const year = item.grantYear.toString();
+        const query = searchQuery.toLowerCase().trim();
+
+        return monthName.includes(query) || year.includes(query);
+    });
 
     const renderList = ({ index, item }: { index: number, item: MandatoryGrantPaymentDto }) => {
         const filename = `${getMonth(item.month)}-${item.grantYear}`
@@ -63,7 +76,7 @@ const BankDetailsPage = () => {
     }
 
     return (
-        <FlatList data={payments}
+        <FlatList data={filteredPayments}
             style={{ paddingHorizontal: 12, paddingVertical: 6, flex: 1, flexGrow: 1 }}
             keyExtractor={(item, index) => `${index}-${item.sdlCode}-${item.grantYear}-${item.month}`}
             renderItem={renderList}
@@ -74,11 +87,22 @@ const BankDetailsPage = () => {
             maxToRenderPerBatch={10}
             windowSize={21}
             ListEmptyComponent={<REmpty title='No Payments Found' subtitle={`when you have payments, they'll appear here`} icon='credit-card' />}
-            ListHeaderComponent={<InformationBanner title='Please select pdf statements you want to download.' />}
+            ListHeaderComponent={
+                <>
+                    <InformationBanner title='Please select pdf statements you want to download.' />
+                    <Searchbar value={searchQuery} onChangeText={onChangeSearch} style={styles.search} placeholder='Search Statement' />
+                </>
+            }
         />
     )
 }
 
 export default BankDetailsPage
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({
+    search: {
+        backgroundColor: colors.slate[50],
+        borderWidth: 1,
+        borderColor: colors.zinc[200],
+    }
+})
