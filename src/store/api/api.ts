@@ -128,6 +128,13 @@ export const api = createApi({
                 method: 'GET',
             }),
         }),
+        delinkOrganization: builder.mutation({
+            query: (params: { id: number; userid: number }) => ({
+                url: `/api/services/app/Organisation/DeLinkSDF?id=${params.id}&userid=${params.userid}`,
+                method: 'GET',
+            }),
+            invalidatesTags: ['Organization'],
+        }),
 
         /**
          * Lookup Data Endpoints
@@ -449,6 +456,7 @@ export const {
     useCreateEditApplicationMutation,
     useDeleteApplicationMutation,
     useCreateEditApplicationDetailsMutation,
+    useDelinkOrganizationMutation,
     useGetOrgProjectsQuery,
     useGetWinFocusAreaQuery,
     useGetWinAdminCritQuery,
