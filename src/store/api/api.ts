@@ -123,8 +123,8 @@ export const api = createApi({
             invalidatesTags: ['Document'],
         }),
         downloadDocument: builder.mutation({
-            query: (filename) => ({
-                url: `/api/download?filename=${encodeURIComponent(filename)}`,
+            query: (params: { docType: string; userID: number; module: string; appid: number }) => ({
+                url: `/api/download?DocType=${encodeURIComponent(params.docType)}&UserID=${params.userID}&module=${params.module}&appid=${params.appid}`,
                 method: 'GET',
             }),
         }),

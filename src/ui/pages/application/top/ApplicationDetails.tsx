@@ -1,5 +1,6 @@
 import { FlatList, StyleSheet } from 'react-native'
 import React, { useState } from 'react'
+import { useSelector } from 'react-redux';
 import { Expandable, RUploadSuccessFile } from '@/components/modules/application'
 import { BarChart } from 'react-native-gifted-charts';
 import { REmpty, RListLoading, RUpload } from '@/components/common';
@@ -11,10 +12,12 @@ import { RouteProp, useRoute } from '@react-navigation/native';
 import { useGetApplicationBiosQuery, useGetDocumentsByEntityQuery, useDownloadDocumentMutation } from '@/store/api/api';
 import { navigationTypes } from '@/core/types/navigationTypes';
 import RDownload from '@/components/common/RDownload';
+import { RootState } from '@/store/store';
 
 const ApplicationDetails = () => {
 
     const { appId } = useRoute<RouteProp<navigationTypes, "applicationDetails">>().params;
+    const user = useSelector((state: RootState) => state.auth.user);
 
     const { data, isLoading: loading, error } = useGetApplicationBiosQuery(appId, { skip: !appId });
 
@@ -73,18 +76,45 @@ const ApplicationDetails = () => {
     const raceData = getCountByRace(biodata);
 
     // Document download handlers
-    const handleDownload = async (doc: any, docTitle: string) => {
+    const getDocumentTypeForDownload = (documentType: string): string => {
+        // Map document types to the API's expected format
+        const typeMap: Record<string, string> = {
+            'bank confirmation': 'Bank confirmation',
+            'verification': 'Verification',
+            'wsp atr pivot': 'WSP ATR Pivot',
+        };
+        return typeMap[documentType.toLowerCase()] || documentType;
+    };
+
+    const handleDownload = async (doc: any, docTitle: string, documentType: string) => {
         if (!doc) {
             showToast({ message: `${docTitle} not found`, title: "Error", type: "error", position: "top" });
             return;
         }
 
+        if (!user?.id) {
+            showToast({ message: "User information not available", title: "Error", type: "error", position: "top" });
+            return;
+        }
+
+        if (!appId) {
+            showToast({ message: "Application ID not available", title: "Error", type: "error", position: "top" });
+            return;
+        }
+
         try {
-            console.log("[Download] Full document object:", JSON.stringify(doc, null, 2));
-            const filename = doc.newfilename || doc.filename;
-            console.log("[Download] Starting download for:", filename);
+            console.log("[Download] Starting download for:", docTitle);
             showToast({ message: `Downloading ${docTitle}...`, title: "Loading", type: "info", position: "top" });
-            const result = await downloadDocument(filename).unwrap();
+
+            const downloadParams = {
+                docType: getDocumentTypeForDownload(documentType),
+                userID: parseInt(user.id.toString(), 10),
+                module: 'Mandatory',
+                appid: typeof appId === 'string' ? parseInt(appId, 10) : appId,
+            };
+
+            console.log("[Download] Download params:", JSON.stringify(downloadParams, null, 2));
+            const result = await downloadDocument(downloadParams).unwrap();
 
             console.log("[Download] Response received:", JSON.stringify(result, null, 2));
 
@@ -92,12 +122,11 @@ const ApplicationDetails = () => {
                 showToast({ message: `${docTitle} downloaded successfully`, title: "Success", type: "success", position: "top" });
             } else {
                 console.log("[Download] isSuccess is false, result:", result?.result);
-                showToast({ message: `Failed to download ${docTitle}: ${result?.error || 'Unknown error'}`, title: "Error", type: "error", position: "top" });
+                showToast({ message: `Failed to download ${docTitle}`, title: "Error", type: "error", position: "top" });
             }
         } catch (err: any) {
             console.error("[Download] Error caught:", err);
-            console.log("[Download] Error details:", JSON.stringify(err, null, 2));
-            showToast({ message: `Failed to download ${docTitle}: ${err?.message || 'Unknown error'}`, title: "Error", type: "error", position: "top" });
+            showToast({ message: `Failed to download ${docTitle}`, title: "Error", type: "error", position: "top" });
         }
     };
 
@@ -162,15 +191,15 @@ const ApplicationDetails = () => {
 
                         <Expandable title='Banking, training report, & verification' isExpanded={expandDocs} onPress={() => setDocs(!expandDocs)}>
                             {bank && (
-                                <RDownload title='Proof of Banking details' onPress={() => handleDownload(getDocument(bank), 'Banking Details')} fileName={getDocument(bank)?.filename} />
+                                <RDownload title='Proof of Banking details' onPress={() => handleDownload(getDocument(bank), 'Banking Details', 'bank confirmation')} fileName={getDocument(bank)?.filename} />
                             )}
 
                             {pivot && (
-                                <RDownload title='Annual training report' onPress={() => handleDownload(getDocument(pivot), 'Annual Training Report')} fileName={getDocument(pivot)?.filename} />
+                                <RDownload title='Annual training report' onPress={() => handleDownload(getDocument(pivot), 'Annual Training Report', 'wsp atr pivot')} fileName={getDocument(pivot)?.filename} />
                             )}
 
                             {verification && (
-                                <RDownload title='verification document' onPress={() => handleDownload(getDocument(verification), 'Verification Document')} fileName={getDocument(verification)?.filename} />
+                                <RDownload title='verification document' onPress={() => handleDownload(getDocument(verification), 'Verification Document', 'verification')} fileName={getDocument(verification)?.filename} />
                             )}
 
                             {!bank && !pivot && !verification && (

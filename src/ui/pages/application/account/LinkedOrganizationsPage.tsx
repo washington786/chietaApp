@@ -122,9 +122,11 @@ const LinkedOrganizationsPage = () => {
         return (
             <>
                 <RHeader name='My Organizations' hasRightIcon onPressRight={() => setShowSearch(!showSearch)} iconRight='search' />
-                <RCol style={styles.con}>
-                    {showSearch && <Searchbar value={searchQuery} onChangeText={onChangeSearch} style={styles.search} placeholder='Search Organization' />}
-                </RCol>
+                {showSearch &&
+                    <RCol style={styles.con}>
+                        <Searchbar value={searchQuery} onChangeText={onChangeSearch} style={styles.search} placeholder='Search Organization' />
+                    </RCol>
+                }
                 <FlatList
                     data={unifiedList}
                     keyExtractor={(item) => `${item.type}-${item.data.id}`}
