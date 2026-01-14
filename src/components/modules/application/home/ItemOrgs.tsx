@@ -1,4 +1,4 @@
-import { StyleSheet, TouchableOpacity } from 'react-native'
+import { Dimensions, StyleSheet, TouchableOpacity } from 'react-native'
 import React, { FC } from 'react'
 import { RCol, RRow } from '@/components/common'
 import { Text } from 'react-native-paper'
@@ -12,6 +12,8 @@ interface props {
     onNewLinking?: () => void;
     org?: OrganisationDto
 }
+
+const { width } = Dimensions.get('window');
 
 const ItemOrgs: FC<props> = ({ onPress, isLinkingRequired = false, onNewLinking, org }) => {
 
@@ -73,7 +75,8 @@ export default ItemOrgs
 const styles = StyleSheet.create({
     touch: {
         marginBottom: 10,
-        // width: 400
+        width: (width) * 0.95,
+        height: 160,
     },
     con: {
         backgroundColor: colors.zinc[50],
@@ -85,6 +88,8 @@ const styles = StyleSheet.create({
         elevation: 2,
         borderWidth: 1,
         borderColor: colors.slate[200],
+        height: 160,
+        width: "100%",
     },
     itemText: {
         color: colors.slate[800],
