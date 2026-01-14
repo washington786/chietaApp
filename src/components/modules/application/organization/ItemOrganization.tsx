@@ -34,7 +34,9 @@ export default ItemOrganization
 
 const styles = StyleSheet.create({
     con: {
-        backgroundColor: colors.slate[100], flex: 1, borderRadius: 10,
+        backgroundColor: colors.slate[100],
+        flex: 1,
+        borderRadius: 10,
         paddingVertical: 6,
         paddingHorizontal: 4,
         marginBottom: 6,

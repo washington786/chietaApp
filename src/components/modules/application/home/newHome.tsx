@@ -11,7 +11,7 @@ import { Ionicons, Feather } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import colors from '@/config/colors';
-import { RCol, RRow } from '@/components/common';
+import { RCol, RDivider, RRow } from '@/components/common';
 import LinkedOrganizations from './LinkedOrganizations';
 import usePageTransition from '@/hooks/navigation/usePageTransition';
 import { getTimeOfDay } from '@/core';
@@ -146,9 +146,9 @@ const NewHome = () => {
                         </View>
 
                         {/* Stats */}
-                        <RCol>
+                        <RCol style={{ backgroundColor: colors.primary[950], marginBottom: 8 }}>
                             <Text style={styles.subtitle}>
-                                Welcome back. Here’s your overview.
+                                Good to see you again! Here’s what’s happening today.
                             </Text>
                             <View style={styles.statsGrid}>
                                 {STATS.map((item, index) => (
@@ -195,10 +195,11 @@ const NewHome = () => {
                                 <Text style={styles.viewAllText}>View all</Text>
                             </TouchableOpacity>
                         </RRow>
+                        <RDivider />
                     </>
                 }
                 ListFooterComponent={LinkedOrganizations}
-                ListFooterComponentStyle={{ paddingHorizontal: 16 }}
+                ListFooterComponentStyle={{ paddingHorizontal: 8 }}
             />
         </SafeAreaView>
     );
@@ -237,9 +238,9 @@ const styles = StyleSheet.create({
     },
     subtitle: {
         fontSize: 15,
-        color: colors.slate[500],
+        color: colors.slate[50],
         paddingLeft: 16,
-        paddingVertical: 5
+        paddingVertical: 10
     },
     headerActions: {
         flexDirection: 'row',
@@ -276,7 +277,7 @@ const styles = StyleSheet.create({
     },
 
     statCard: {
-        borderRadius: 20,
+        borderRadius: 10,
         elevation: 6,
     },
 
@@ -306,12 +307,15 @@ const styles = StyleSheet.create({
 
     /* Sections */
     section: {
-        paddingHorizontal: 20,
+        paddingHorizontal: 15,
         marginBottom: 32,
+        paddingVertical: 10,
+        backgroundColor: colors.slate[100],
+        elevation: 8,
     },
     sectionTitle: {
         fontSize: 20,
-        fontWeight: 'medium',
+        fontWeight: 'bold',
         color: '#111827',
         marginBottom: 10,
     },
@@ -368,12 +372,12 @@ const styles = StyleSheet.create({
 
     /* Orgs */
     sectionHeader: {
-        paddingHorizontal: 20,
+        paddingHorizontal: 15,
         flexDirection: 'row',
         justifyContent: 'space-between',
     },
     viewAllText: {
-        color: colors.primary[900],
+        color: colors.blue[300],
         fontWeight: '600',
     }
 });

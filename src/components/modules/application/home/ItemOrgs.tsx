@@ -32,9 +32,9 @@ const ItemOrgs: FC<props> = ({ onPress, isLinkingRequired = false, onNewLinking,
                 {isLinkingRequired && (
                     <Text style={styles.newBadgeAbs}>new</Text>
                 )}
-                <Text variant='titleLarge' style={styles.itemText}>{org?.organisationName}</Text>
+                <Text variant='titleLarge' style={styles.itemText} numberOfLines={2}>{org?.organisationName}</Text>
                 {org?.organisationTradingName ? (
-                    <Text style={styles.tradingName}>{org.organisationTradingName}</Text>
+                    <Text style={styles.tradingName} numberOfLines={1}>{org.organisationTradingName}</Text>
                 ) : null}
                 <Text variant='labelLarge' style={styles.regTxt}>#{org?.organisationRegistrationNumber}</Text>
                 <RRow style={{ gap: 8, marginTop: 4, flexWrap: 'wrap' }}>
@@ -73,13 +73,14 @@ export default ItemOrgs
 const styles = StyleSheet.create({
     touch: {
         marginBottom: 10,
+        // width: 400
     },
     con: {
         backgroundColor: colors.zinc[50],
         borderRadius: 4,
         padding: 16,
-        shadowColor: '#000',
-        shadowOpacity: 0.06,
+        shadowColor: colors.secondary[200],
+        shadowOpacity: 0.01,
         shadowRadius: 8,
         elevation: 2,
         borderWidth: 1,

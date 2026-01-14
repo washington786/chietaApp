@@ -12,6 +12,7 @@ import { RootState, AppDispatch } from '@/store/store';
 import { LinkedOrganizationList } from './LinkedOrganizationList';
 import { loadLinkedOrganizationsAsync, loadOrganizations } from '@/store/slice/thunks/OrganizationThunks';
 import { OrganisationDto } from '@/core/models/organizationDto';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 
 const LinkedOrganizations = () => {
     const { newOrg, discretionaryGrants, mandatoryGrants, linkOrgDoc } = usePageTransition();
@@ -96,8 +97,11 @@ interface OrgDetailsProps {
 
 export function OrgDetails({ onDelink, onMandatoryGrants, onDiscretionaryGrants, orgName }: OrgDetailsProps) {
     return <RCol style={{ position: 'relative' }}>
-        <Text variant='titleLarge'>{orgName}</Text>
-        <Text variant='titleLarge' style={{ fontSize: 11 }}>view applications in categories</Text>
+        <RRow style={{ alignItems: 'center', gap: 8 }}>
+            <MaterialCommunityIcons name="office-building" size={24} color="gray" />
+            <Text variant='headlineLarge'>{orgName}</Text>
+        </RRow>
+        <Text variant='titleLarge' style={{ fontSize: 11 }}>Select a grant type to view your applications</Text>
         <TypeDetails title='Mandator grants' onpress={onMandatoryGrants} />
         <TypeDetails title='Discretionary grants' onpress={onDiscretionaryGrants} />
 
@@ -138,7 +142,7 @@ const styles = StyleSheet.create({
         textTransform: 'capitalize'
     },
     detbtn: {
-        backgroundColor: colors.zinc[100],
+        backgroundColor: colors.primary[200],
         paddingHorizontal: 16,
         paddingVertical: 14,
         borderRadius: 10,
@@ -147,7 +151,7 @@ const styles = StyleSheet.create({
         marginVertical: 3
     },
     delink: {
-        justifyContent: 'center', marginTop: 12, position: 'absolute', bottom: -70, right: 0, padding: 10, borderRadius: 100, backgroundColor: colors.red[500], alignItems: 'center'
+        justifyContent: 'center', marginTop: 12, position: 'absolute', bottom: -70, right: 0, padding: 10, borderRadius: 100, backgroundColor: colors.red[600], alignItems: 'center'
     },
     linkedOrgsHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
     linkedOrgsTitle: { fontSize: 15, fontWeight: '600', color: '#222' },
