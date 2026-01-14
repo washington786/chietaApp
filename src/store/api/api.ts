@@ -135,6 +135,22 @@ export const api = createApi({
             }),
             invalidatesTags: ['Organization'],
         }),
+        linkOrganization: builder.mutation({
+            query: (payload: {
+                organisationId: number;
+                sdfId: number;
+                userId: number;
+                personId: number;
+                statusId: number;
+                statusDate: string;
+                dateCreated: string;
+            }) => ({
+                url: '/api/services/app/Sdf/LinkOrganisation',
+                method: 'POST',
+                body: payload,
+            }),
+            invalidatesTags: ['Organization'],
+        }),
 
         /**
          * Lookup Data Endpoints
@@ -463,6 +479,7 @@ export const {
     useDeleteApplicationMutation,
     useCreateEditApplicationDetailsMutation,
     useDelinkOrganizationMutation,
+    useLinkOrganizationMutation,
     useGetOrgProjectsQuery,
     useGetWinFocusAreaQuery,
     useGetWinAdminCritQuery,
