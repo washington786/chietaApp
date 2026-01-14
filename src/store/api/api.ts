@@ -402,6 +402,12 @@ export const api = createApi({
                 `/api/services/app/Person/Get?id=${id}`,
             providesTags: ['User'],
         }),
+        getSDFByUser: builder.query({
+            query: (userId) =>
+                `/api/services/app/Sdf/GetSDFByUser?userId=${userId}`,
+            transformResponse: (response: any) => response?.result?.sdfDetails || response?.result || response,
+            providesTags: ['User'],
+        }),
 
         /**
          * Province/District Endpoints
@@ -474,6 +480,7 @@ export const {
     useGetMandatoryGrantPaymentsQuery,
     useGetApplicationBiosQuery,
     useGetPersonByUserIdQuery,
+    useGetSDFByUserQuery,
     useGetProvinceDistrictsQuery,
     useGetProvinceMunicipalitiesQuery,
     useGetOrgBankQuery,

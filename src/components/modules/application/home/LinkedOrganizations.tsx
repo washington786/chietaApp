@@ -13,6 +13,7 @@ import { LinkedOrganizationList } from './LinkedOrganizationList';
 import { loadLinkedOrganizationsAsync, loadOrganizations } from '@/store/slice/thunks/OrganizationThunks';
 import { OrganisationDto } from '@/core/models/organizationDto';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { useDelinkOrganizationMutation, useGetSDFByUserQuery } from '@/store/api/api';
 
 const LinkedOrganizations = () => {
     const { newOrg, discretionaryGrants, mandatoryGrants, linkOrgDoc } = usePageTransition();
@@ -20,7 +21,11 @@ const LinkedOrganizations = () => {
     const { linkedOrganizations, organizations, loading, error } = useSelector((state: RootState) => state.linkedOrganization);
     const { user } = useSelector((state: RootState) => state.auth);
 
-    const orgs = organizations.slice(0, 2);
+    const { data: sdfData } = useGetSDFByUserQuery(user ? user.id : 0, { skip: !user || !user.id });
+
+    const userId = user && user.id || 0;
+
+    const [delinkOrganization] = useDelinkOrganizationMutation();
 
     const dispatch = useDispatch<AppDispatch>();
 
@@ -46,9 +51,21 @@ const LinkedOrganizations = () => {
         setVisible(!visible);
     };
 
-    function handleContinue() {
+    async function handleContinue() {
+
+        if (!sdfData || !sdfData.id) {
+            showToast({ message: "SDF ID not found", type: "error", title: "Error", position: "top" });
+            return;
+        }
+
         setVisible(false);
-        showToast({ message: "successfully delinked organization from your list.", type: "success", title: "De-linking", position: "top" })
+        try {
+            await delinkOrganization({ id: sdfData.id, userid: Number(userId) }).unwrap();
+            showToast({ message: "successfully delinked organization from your list.", type: "success", title: "De-linking", position: "top" });
+            dispatch(loadLinkedOrganizationsAsync());
+        } catch (err) {
+            showToast({ message: "Failed to delink organization from your list.", type: "error", title: "De-linking", position: "top" });
+        }
     }
 
     function handleMandatoryGrants(org: OrganisationDto) {
@@ -72,7 +89,7 @@ const LinkedOrganizations = () => {
             <RCol style={{ marginTop: 12 }}>
                 <RCol>
                     <LinkedOrganizationList
-                        org={orgs}
+                        org={organizations}
                         onNewLinking={(selected) => handleOrgLinking(selected)}
                         onPress={(selectedOrg: OrganisationDto) => open(
                             <OrgDetails
@@ -81,7 +98,7 @@ const LinkedOrganizations = () => {
                         isLinkingRequiredNew={true} />
                 </RCol>
 
-                <RDialog hideDialog={handleDialog} visible={visible} message='are you sure you want to de-link this organization?' title='Delink Org' onContinue={handleContinue} />
+                <RDialog hideDialog={handleDialog} visible={visible} message={`are you sure you want to de-link this organization with SDFID-${sdfData?.id}?`} title='Delink Org' onContinue={handleContinue} />
             </RCol>
         )
     }
