@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native'
 import React, { useState, useEffect, useRef } from 'react'
-import { RCol, RDialog, RDivider, RLoaderAnimation, SafeArea, Scroller } from '@/components/common'
+import { RCol, RDialog, RDivider, RLoaderAnimation, RVersion, SafeArea, Scroller } from '@/components/common'
 import { Text } from 'react-native-paper'
 import colors from '@/config/colors'
 import usePageTransition from '@/hooks/navigation/usePageTransition'
@@ -89,6 +89,8 @@ const AccountScreen = () => {
                         <AccWrapper icon='remove-circle-sharp' title='deactivate account' onPress={handleBsheet} />
 
                         {isLoading && <RLoaderAnimation />}
+
+                        <RVersion />
                     </RCol>
                 </Animated.View>
             </Scroller>

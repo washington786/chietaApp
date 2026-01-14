@@ -22,6 +22,7 @@ import RSplash from "./RSplash";
 import RSwitch from "./RSwitch";
 import RText from "./RText";
 import RUpload from "./RUpload";
+import RVersion from "./RVersion";
 import RWrapper from "./RWrapper";
 import RWrapperInput from "./RWrapperInput";
 import SafeArea from "./SafeArea";
@@ -31,6 +32,7 @@ import SkeletonLoader from "./SkeletonLoader";
 
 export {
   SafeArea,
+  RVersion,
   RButton,
   RDivider,
   RWrapper,
