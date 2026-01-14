@@ -311,7 +311,7 @@ const styles = StyleSheet.create({
         marginBottom: 32,
         paddingVertical: 10,
         backgroundColor: colors.slate[100],
-        elevation: 8,
+        elevation: 1,
     },
     sectionTitle: {
         fontSize: 20,
