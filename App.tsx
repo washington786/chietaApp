@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { StatusBar, View } from 'react-native'
 import * as SplashScreen from 'expo-splash-screen'
 
-import { RNetworkAlert, RSplash } from '@/components/common'
+import { RMainAlerts, RNetworkAlert, RSplash } from '@/components/common'
 import ProviderWraper from '@/components/common/ProviderWraper'
 import { BottomSheetWrapper } from '@/components/modules/application'
 import useLoadAppFonts from '@/hooks/loadfonts/useLoadFonts'
@@ -20,6 +20,7 @@ SplashScreen.preventAutoHideAsync().catch(() => {
 
 export default function App() {
   const [appIsReady, setAppIsReady] = useState(false);
+  const [showAlert, setShowAlert] = useState(false);
   const { loadedApplicationFonts } = useLoadAppFonts();
 
   useEffect(() => {
@@ -44,6 +45,15 @@ export default function App() {
 
   return (
     <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
+      <RMainAlerts
+        visible={showAlert}
+        title='Discretionary Grants Open'
+        description='Discretionary grants cycle 3 window is not open, please make sure to apply on time.'
+        actionText='Apply Now'
+        bgColor={colors.primary[950]}
+        onAction={() => { }}
+        onDismiss={() => setShowAlert(false)}
+      />
       <RNetworkAlert />
       <Provider store={store}>
         <PersistGate loading={null} persistor={persistor}>
