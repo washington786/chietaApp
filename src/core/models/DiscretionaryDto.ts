@@ -185,6 +185,9 @@ export interface DiscretionaryGrantApplication {
     gcStatus: ApprovalStatus;
     comment: string;
     dateCreated: string;
+    numberNew: number;
+    numberContinuing: number;
+    totalCost: number;
 }
 
 export interface ApprovalStatus {
@@ -214,6 +217,10 @@ export interface DiscretionaryProjectDto {
     subCategory: string;
 
     projectId: number;
+    numberNew: number;
+    numberContinuing: number;
+    costPerLearner: number;
+    totalCost: number;
 
     applicationId: number;
 
@@ -277,4 +284,10 @@ export interface dgProject {
     windowId: number;
     winid: number;
     isLinked?: boolean;
+    numberNew: number;
+    numberContinuing: number;
+    costPerLearner: number;
+    totalCost: number;
+
+  
 }

@@ -16,17 +16,20 @@ import { RouteProp, useRoute } from '@react-navigation/native'
 import { navigationTypes } from '@/core/types/navigationTypes'
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store/store'
-import { generateApplicationPdf } from '@/core/helpers/pdfGenerator';
+//import { generateApplicationPdf } from '@/core/helpers/pdfGenerator';
 import { useGlobalBottomSheet } from '@/hooks/navigation/BottomSheet'
+import useGenerate from '@/hooks/main/useGenerate';
+
 
 const DgApplicationDetails = () => {
-    const { appId: projectId } = useRoute<RouteProp<navigationTypes, "applicationDetails">>().params;
+    const { appId: projectId ,orgId:organisationId} = useRoute<RouteProp<navigationTypes, "applicationDetails">>().params;
     const appId = parseInt(projectId as string || '0');
 
     const user = useSelector((state: RootState) => state.auth.user);
     const userId = user?.id || 0;
 
     const { open, close } = useGlobalBottomSheet();
+
 
     // Fetch existing application entries
     const { data: dgProjectDetailsApp } = useGetDGProjectDetailsAppQuery(projectId, { skip: !projectId });
@@ -747,6 +750,19 @@ const DgApplicationDetails = () => {
         }
     };
 
+       const { generate } = useGenerate({
+    appId: appId,
+    orgId: Number(organisationId) || 0,
+    beeCertificate: isDocumentUploaded(beeCert),
+    taxCompliance: isDocumentUploaded(taxComplience),
+    companyRegistration: isDocumentUploaded(companyReg),
+    proofOfAccreditation: isDocumentUploaded(accredetation),
+    letterOfCommitment: isDocumentUploaded(commitmentLetter),
+    declarationOfInterest: isDocumentUploaded(declarationInterest),
+    proofOfBanking: isDocumentUploaded(bankingDetailsProof),
+
+   });
+
     return (
         <View style={{ flex: 1 }}>
             <FlatList data={[]}
@@ -1025,97 +1041,56 @@ const DgApplicationDetails = () => {
                                 </>
                             )}
 
-                            {/* Step 3: Application Form */}
-                            {currentStep === 3 && (
-                                <>
-                                    <MessageWrapper text="Ensure all uploaded documents are accurate and complete before submission." />
+                        {/* Step 3: Application Form */}
+                                {currentStep === 3 && (
+                                    <>
+                                        <MessageWrapper text="Ensure all uploaded documents are accurate and complete before submission." />
 
-                                    <View style={styles.formSection}>
-                                        <RButton
-                                            onPressButton={async () => {
-                                                try {
+                                        <View style={styles.formSection}>
+                                            <RButton
+                                                onPressButton={async () => {
+                                                    try {
+                                                        // 🔹 PDF generation is fully handled by useGenerate
+                                                        await generate();
 
-                                                    // Generate PDF with template data
-                                                    const templateData = {
-                                                        reference: '[Reference Number]',
-                                                        projectType: '[Programme Type]',
-                                                        organisation: {
-                                                            organisationName: '[Your Organization Name]',
-                                                            tradingName: '[Trading Name]',
-                                                            coreBusiness: '[Core Business]',
-                                                            province: '[Province]',
-                                                            municipality: '[Municipality]',
-                                                            beeStatus: '[BEE Status]',
-                                                            phoneNumber: '[Phone Number]',
-                                                            faxNumber: '[Fax Number]',
-                                                            email: '[Email]',
-                                                        },
-                                                        ceo: {
-                                                            firstName: '[CEO First Name]',
-                                                            surname: '[CEO Surname]',
-                                                            email: '[CEO Email]',
-                                                            race: '[Race]',
-                                                            gender: '[Gender]',
-                                                        },
-                                                        cfo: {
-                                                            firstName: '[CFO First Name]',
-                                                            surname: '[CFO Surname]',
-                                                            email: '[CFO Email]',
-                                                            race: '[Race]',
-                                                            gender: '[Gender]',
-                                                        },
-                                                        sdf: {
-                                                            firstName: '[SDF First Name]',
-                                                            surname: '[SDF Surname]',
-                                                            role: '[Role]',
-                                                            race: '[Race]',
-                                                            gender: '[Gender]',
-                                                            phone: '[Phone]',
-                                                            mobile: '[Mobile]',
-                                                            email: '[Email]',
-                                                        },
-                                                        gms: {
-                                                            learningProgramme: '[Learning Programme]',
-                                                            subCategory: '[Sub Category]',
-                                                            intervention: '[Intervention]',
-                                                            cost: '[Cost]',
-                                                        },
-                                                        checklist: {
-                                                            csdOrSarsPin: '[ ]',
-                                                            companyRegistration: '[ ]',
-                                                            beeCertificate: '[ ]',
-                                                            letterOfCommitment: '[ ]',
-                                                            proofOfAccreditation: '[ ]',
-                                                            declarationOfInterest: '[ ]',
-                                                            proofOfBanking: '[ ]',
-                                                            workplaceApproval: '[ ]',
-                                                            researchExportsQuestionnaire: '[ ]',
-                                                        },
-                                                        signOff: {
-                                                            ceoName: '[CEO Name]',
-                                                            ceoDate: '[Date]',
-                                                            cfoName: '[CFO Name]',
-                                                            cfoDate: '[Date]',
-                                                        },
-                                                        generatedDate: new Date().toISOString(),
-                                                    };
+                                                        showToast({
+                                                            message: "Template downloaded successfully",
+                                                            title: "Success",
+                                                            type: "success",
+                                                            position: "top",
+                                                        });
+                                                    } catch (error) {
+                                                        console.error("Download error:", error);
+                                                        showToast({
+                                                            message: "Failed to download template",
+                                                            title: "Error",
+                                                            type: "error",
+                                                            position: "top",
+                                                        });
+                                                    }
+                                                }}
+                                                title="Download Application Form"
+                                                styleBtn={styles.btnSecondary}
+                                            />
 
-                                                    await generateApplicationPdf(templateData);
-                                                    showToast({ message: "Template downloaded successfully", title: "Success", type: "success", position: "top" });
-                                                } catch (error) {
-                                                    console.error("Download error:", error);
-                                                    showToast({ message: "Failed to download template", title: "Error", type: "error", position: "top" });
-                                                }
-                                            }}
-                                            title='Download Application Form'
-                                            styleBtn={styles.btnSecondary}
-                                        />
-                                        <RUpload title='Upload Signed Application Form' onPress={handleApplicationFormUpload} />
-                                        {applicationForm && applicationForm.assets && <RUploadSuccess file={applicationForm} />}
-                                        {!applicationForm && getDocument(appFormQuery) && <RUploadSuccessFile file={getDocument(appFormQuery).filename} />}
-                                    </View>
-                                </>
-                            )}
+                                            <RUpload
+                                                title="Upload Signed Application Form"
+                                                onPress={handleApplicationFormUpload}
+                                            />
+
+                                            {applicationForm && applicationForm.assets && (
+                                                <RUploadSuccess file={applicationForm} />
+                                            )}
+
+                                            {!applicationForm && getDocument(appFormQuery) && (
+                                                <RUploadSuccessFile
+                                                    file={getDocument(appFormQuery).filename}
+                                                />
+                                            )}
+                                        </View>
+                                    </>
+                                )}
+
 
                             {/* Spacer for fixed buttons */}
                             <View style={{ height: 80 }} />

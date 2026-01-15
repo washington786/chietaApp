@@ -8,6 +8,7 @@ interface UseGenerateProps {
     orgId: number;
     appId: number;
     programmeType?: string;
+    projectReference?: string;
     learningProgramme?: string;
     subCategory?: string;
     intervention?: string;
@@ -21,6 +22,39 @@ interface UseGenerateProps {
     noDisabled?: number;
     noRural?: number;
     costPerLearner?: number;
+    totalCost?: number;
+    phoneNumber?: string;
+    tradingName?: string;
+    coreBusiness?: string;
+    beeStatus?: string;
+    organisationName?: string;
+    faxNumber?: string;
+    email?: string;
+
+    ceoFirstName?: string;
+    ceoSurname?: string;
+    ceoEmail?: string;
+    ceoRace?: string;
+    ceoGender?: string;
+
+    cfoFirstName?: string;
+    cfoSurname?: string;
+    cfoEmail?: string;
+    cfoRace?: string;
+    cfoGender?: string;
+
+    sdfFirstName?: string;
+    sdfSurname?: string;
+    sdfEmail?: string;
+    sdfRace?: string;
+    sdfGender?: string;
+    sdfrole?: string;
+    sdfphone?: string;
+    sdfmobile?: string;
+    
+    
+
+
     // Document upload status
     taxCompliance?: boolean;
     companyRegistration?: boolean;
@@ -43,50 +77,59 @@ const useGenerate = ({ orgId, appId, programmeType, learningProgramme, subCatego
     const generate = async () => {
         try {
             // Generate PDF with actual data and fallback to placeholders
-            const templateData = {
-                reference: '[Reference Number]',
+           const templateData = {
+                reference: dgOrgData?.result?.projectReference || '[Reference Number]',
                 projectType: programmeType || '[Programme Type]',
+
                 organisation: {
-                    organisationName: dgOrgData?.result?.organisationName || '[Your Organization Name]',
-                    tradingName: dgOrgData?.result?.tradingName || '[Trading Name]',
-                    coreBusiness: dgOrgData?.result?.coreBusiness || '[Core Business]',
-                    province: province || dgOrgData?.result?.province || '[Province]',
-                    municipality: municipality || dgOrgData?.result?.municipality || '[Municipality]',
-                    beeStatus: dgOrgData?.result?.beeStatus || '[BEE Status]',
-                    phoneNumber: dgOrgData?.result?.phoneNumber || '[Phone Number]',
-                    faxNumber: dgOrgData?.result?.faxNumber || '[Fax Number]',
-                    email: dgOrgData?.result?.email || '[Email]',
+                    organisationName: dgOrgData?.result?.organisationName || '',
+                    tradingName: dgOrgData?.result?.tradingName || '',
+                    coreBusiness: dgOrgData?.result?.coreBusiness || '',
+                    province: province || dgOrgData?.result?.province || '',
+                    municipality: municipality || dgOrgData?.result?.municipality || '',
+                    beeStatus: dgOrgData?.result?.beeStatus || '',
+                    phoneNumber: dgOrgData?.result?.phoneNumber || '',
+                    faxNumber: dgOrgData?.result?.faxNumber || '',
+                    email: dgOrgData?.result?.email || '',
                 },
+
                 ceo: {
-                    firstName: dgOrgData?.result?.ceo?.firstName || '[CEO First Name]',
-                    surname: dgOrgData?.result?.ceo?.surname || '[CEO Surname]',
-                    email: dgOrgData?.result?.ceo?.email || '[CEO Email]',
-                    race: dgOrgData?.result?.ceo?.race || '[Race]',
-                    gender: dgOrgData?.result?.ceo?.gender || '[Gender]',
+                    firstName: dgOrgData?.result?.ceo?.firstName || '',
+                    surname: dgOrgData?.result?.ceo?.surname || '',
+                    email: dgOrgData?.result?.ceo?.email || '',
+                    race: dgOrgData?.result?.ceo?.race || '',
+                    gender: dgOrgData?.result?.ceo?.gender || '',
                 },
+
                 cfo: {
-                    firstName: dgOrgData?.result?.senior?.firstName || '[CFO First Name]',
-                    surname: dgOrgData?.result?.senior?.surname || '[CFO Surname]',
-                    email: dgOrgData?.result?.senior?.email || '[CFO Email]',
-                    race: dgOrgData?.result?.senior?.race || '[Race]',
-                    gender: dgOrgData?.result?.senior?.gender || '[Gender]',
+                    firstName: dgOrgData?.result?.senior?.firstName || '',
+                    surname: dgOrgData?.result?.senior?.surname || '',
+                    email: dgOrgData?.result?.senior?.email || '',
+                    race: dgOrgData?.result?.senior?.race || '',
+                    gender: dgOrgData?.result?.senior?.gender || '',
                 },
+
                 sdf: {
-                    firstName: sdfData?.result?.firstName || '[SDF First Name]',
-                    surname: sdfData?.result?.surname || '[SDF Surname]',
-                    role: sdfData?.result?.role || '[Role]',
-                    race: sdfData?.result?.race || '[Race]',
-                    gender: sdfData?.result?.gender || '[Gender]',
-                    phone: sdfData?.result?.phone || '[Phone]',
-                    mobile: sdfData?.result?.mobile || '[Mobile]',
-                    email: sdfData?.result?.email || '[Email]',
+                    firstName: sdfData?.result?.firstName || '',
+                    surname: sdfData?.result?.surname || '',
+                    role: sdfData?.result?.role || '',
+                    race: sdfData?.result?.race || '',
+                    gender: sdfData?.result?.gender || '',
+                    phone: sdfData?.result?.phone || '',
+                    mobile: sdfData?.result?.mobile || '',
+                    email: sdfData?.result?.email || '',
                 },
+
                 gms: {
-                    learningProgramme: learningProgramme || '[Learning Programme]',
-                    subCategory: subCategory || '[Sub Category]',
-                    intervention: intervention || '[Intervention]',
-                    cost: costPerLearner?.toString() || '[Cost]',
+                    learningProgramme: learningProgramme || '',
+                    subCategory: subCategory || '',
+                    intervention: intervention || '',
+                    numberNew: noNew ?? 0,
+                    numberContinuing: noContinuing ?? 0,
+                    costPerLearner: costPerLearner ?? 0,
+                    totalCost: (costPerLearner ?? 0) * ((noNew ?? 0) + (noContinuing ?? 0)),
                 },
+
                 checklist: {
                     csdOrSarsPin: taxCompliance ? 'Yes' : 'No',
                     companyRegistration: companyRegistration ? 'Yes' : 'No',
@@ -98,14 +141,16 @@ const useGenerate = ({ orgId, appId, programmeType, learningProgramme, subCatego
                     workplaceApproval: workplaceApproval ? 'Yes' : 'No',
                     researchExportsQuestionnaire: researchExportsQuestionnaire ? 'Yes' : 'No',
                 },
+
                 signOff: {
-                    ceoName: '[CEO Name]',
-                    ceoDate: '[Date]',
-                    cfoName: '[CFO Name]',
-                    cfoDate: '[Date]',
+                    ceoName: `${dgOrgData?.result?.ceo?.firstName || ''} ${dgOrgData?.result?.ceo?.surname || ''}`.trim(),
+                    ceoDate: new Date().toISOString().split('T')[0],
+                    cfoName: `${dgOrgData?.result?.senior?.firstName || ''} ${dgOrgData?.result?.senior?.surname || ''}`.trim(),
+                    cfoDate: new Date().toISOString().split('T')[0],
                 },
+
                 generatedDate: new Date().toISOString(),
-            };
+                };
 
             await generateApplicationPdf(templateData);
             showToast({ message: "Template downloaded successfully", title: "Success", type: "success", position: "top" });

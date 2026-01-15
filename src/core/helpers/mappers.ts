@@ -1,5 +1,6 @@
 import type { dgProject } from "@/core/models/DiscretionaryDto";
 import { ApplicationForm } from "../types/types";
+import { number } from "yup";
 
 export const mapDgProjectToApplicationForm = (
   p: dgProject
@@ -51,7 +52,10 @@ export const mapDgProjectToApplicationForm = (
       learningProgramme: String(p.projType ?? ""),
       subCategory: String(p.subCategory ?? ""),
       intervention: String(p.focusArea ?? ""),
-      cost: "",
+      numberNew: number(p.numberNew ?? ""),
+      numberContinuing: number(p.numberContinuing ?? ""),
+      costPerLearner: number(p.costPerLearner ?? ""),
+      totalCost: number(p.totalCost ?? ""),
     },
 
     checklist: {

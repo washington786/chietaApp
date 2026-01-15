@@ -46,7 +46,11 @@ export interface ApplicationForm {
     learningProgramme: string;
     subCategory: string;
     intervention: string;
-    cost: string;
+    numberNew: number;
+    numberContinuing: number;
+    costPerLearner: number;
+    totalCost: number;
+   
   };
 
   checklist: {

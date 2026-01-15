@@ -125,12 +125,35 @@ export const renderApplicationHtml = (data: ApplicationForm) => `
 
 <!-- GMS Application -->
 <p class="section-header">GMS Application</p>
+
+
+<p class="section-header">Application Entries</p>
+
 <table class="data-table">
-  <tr><th>Learning Programme</th><td>${data.gms.learningProgramme}</td></tr>
-  <tr><th>Sub-Category</th><td>${data.gms.subCategory}</td></tr>
-  <tr><th>Intervention</th><td>${data.gms.intervention}</td></tr>
-  <tr><th>Cost (New/Cont/RPL)</th><td>${data.gms.cost}</td></tr>
+  <thead>
+    <tr>
+      <th>Learning Programme</th>
+      <th>Sub Category</th>
+      <th>Intervention</th>
+      <th>New</th>
+      <th>Continuing</th>
+      <th>Cost/Learner</th>
+      <th>Total Cost</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>${data.gms.learningProgramme}</td>
+      <td>${data.gms.subCategory}</td>
+      <td>${data.gms.intervention}</td>
+      <td>${data.gms.numberNew}</td>
+      <td>${data.gms.numberContinuing}</td>
+      <td>${data.gms.costPerLearner}</td>
+      <td>${data.gms.totalCost}</td>
+    </tr>
+  </tbody>
 </table>
+
 
 <!-- File Upload Checklist -->
 <p class="section-header">File Upload Checklist</p>
