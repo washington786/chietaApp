@@ -4,49 +4,30 @@ import {
   Text,
   Pressable,
   Linking,
-  Image
+  Image,
+  TouchableOpacity
 } from "react-native";
 import { Ionicons as Icon } from "@expo/vector-icons";
 import { useGlobalBottomSheet } from "@/hooks/navigation/BottomSheet";
 import usePageTransition from "@/hooks/navigation/usePageTransition";
 import { landing_styles as styles } from "@/styles/LandingStyles";
 import colors from "@/config/colors";
+import EvilIcons from '@expo/vector-icons/EvilIcons';
+
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import AntDesign from '@expo/vector-icons/AntDesign';
 
 import { Text as RnText } from 'react-native-paper'
+import { RCol, RRow } from "@/components/common";
 
 export default function LandingScreen() {
   const { login } = usePageTransition();
 
-  const { open } = useGlobalBottomSheet();
+  const { open, close } = useGlobalBottomSheet();
 
   function openInfoSheet() {
     open(
-      <View style={styles.chatContainer}>
-        <View style={styles.chatContent}>
-          {/* Header */}
-          <View style={styles.chatHeader}>
-            <View style={styles.headerTitleWrap}>
-              <Icon name="chatbubble-ellipses" size={24} color={colors.slate[50]} />
-              <RnText variant="titleLarge" style={styles.headerTitle}>CHIETA Chatbot</RnText>
-            </View>
-          </View>
-
-          {/* Body */}
-          <View style={styles.chatBodyContent}>
-            {/* Icon */}
-            <View style={styles.comingSoonIcon}>
-              <Icon name="hourglass" size={48} color={colors.secondary[400]} />
-            </View>
-
-            {/* Message */}
-            <RnText variant="titleSmall" style={styles.comingSoonTitle}>Coming Soon</RnText>
-
-            <RnText style={styles.comingSoonText} variant="bodySmall">
-              Our chatbot feature is not available yet. We're working hard to bring you an intelligent assistant to help with your queries.
-            </RnText>
-          </View>
-        </View>
-      </View>,
+      <ChatBot close={close} />,
       { snapPoints: ['50%'] }
     );
   }
@@ -131,4 +112,23 @@ export default function LandingScreen() {
       </Pressable>
     </View>
   );
+}
+
+interface props {
+  close: () => void;
+}
+function ChatBot({ close }: props) {
+  return <View>
+    <RRow style={{ padding: 8, alignItems: 'center', justifyContent: 'space-between' }}>
+      <RnText variant='bodyMedium'>Chieta Chatbot</RnText>
+      <TouchableOpacity onPress={close}>
+        <EvilIcons name="close" size={24} color="black" />
+      </TouchableOpacity>
+    </RRow>
+    <RCol style={{ padding: 12, alignItems: 'center', justifyContent: 'center', gap: 12 }}>
+      <AntDesign name="robot" size={54} color={colors.primary[900]} />
+      <RnText variant='titleLarge' style={{ textAlign: 'center', color: colors.primary[900], fontWeight: "bold" }}>Coming Soon</RnText>
+      <RnText variant='bodySmall' style={{ textAlign: 'center', color: colors.gray[400], fontWeight: "ultralight", width: "80%" }}>Our chatbot feature is not available yet. We're working hard to bring you an intelligent assistant to help with your queries.</RnText>
+    </RCol>
+  </View>
 }

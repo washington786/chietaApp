@@ -45,7 +45,7 @@ const RHeader: FC<prop> = ({ name, hasRightIcon = false, onPressRight, iconRight
                 </Text>
             </View>
             {
-                hasRightIcon && <TouchableOpacity style={{ alignSelf: "flex-end", alignItems: "flex-end", justifyContent: "flex-end", paddingRight: 12, flex: 1 }} onPress={onPressRight}>
+                hasRightIcon && <TouchableOpacity style={{ alignSelf: "flex-end", alignItems: "flex-end", justifyContent: "flex-end", paddingRight: 12 }} onPress={onPressRight}>
                     <Ionicons name={iconRight} size={28} color={colors.gray[600]} />
                 </TouchableOpacity>
             }
@@ -69,6 +69,7 @@ const styles = StyleSheet.create({
     },
     android: {
         textAlign: "left",
+        flex: 1
     },
     gap: {
         gap: 10,

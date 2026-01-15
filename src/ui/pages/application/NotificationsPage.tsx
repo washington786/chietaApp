@@ -32,7 +32,7 @@ const NotificationsPage = () => {
                 initialNumToRender={10}
                 maxToRenderPerBatch={10}
                 windowSize={21}
-                ListEmptyComponent={REmpty}
+                ListEmptyComponent={<REmpty title='Notifications Not Found' icon='bell-off' subtitle='You do not have any notifications available for your profile.' />}
             />
         </SafeArea>
     )

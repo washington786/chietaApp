@@ -1,9 +1,9 @@
-import { FlatList, StyleSheet, View, ActivityIndicator } from 'react-native'
+import { FlatList, StyleSheet, View, ActivityIndicator, TouchableOpacity } from 'react-native'
 import React, { useEffect, useState } from 'react'
-import { RCol, REmpty, SafeArea } from '@/components/common'
+import { RCol, REmpty, RRow, SafeArea } from '@/components/common'
 import RHeader from '@/components/common/RHeader'
 import { ItemOrganization } from '@/components/modules/application'
-import { Searchbar } from 'react-native-paper'
+import { Searchbar, Text } from 'react-native-paper'
 import colors from '@/config/colors'
 import { showToast } from '@/core'
 import { OrganisationDto } from '@/core/models/organizationDto'
@@ -12,11 +12,16 @@ import { useDispatch, useSelector } from 'react-redux'
 import { setSearchQuery } from '@/store/slice/Organization'
 import { AppDispatch, RootState } from '@/store/store'
 import { linkOrganizationAsync, loadAllOrganizations } from '@/store/slice/thunks/OrganizationThunks'
-
+import { useGlobalBottomSheet } from '@/hooks/navigation/BottomSheet'
+import EvilIcons from '@expo/vector-icons/EvilIcons';
+import { useGetOrgSdfByOrgQuery, useLazyGetOrgSdfByOrgQuery } from '@/store/api/api'
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 const AddNewOrganization = () => {
-    const { filteredOrganizations, searchQuery, organizations, loading } = useSelector(
+    const { filteredOrganizations, searchQuery, loading } = useSelector(
         (state: RootState) => state.linkedOrganization
     );
+
+    const { user } = useSelector((state: RootState) => state.auth);
 
     const [showSearch, setSearchVisible] = useState(false);
     const [pageIndex, setPageIndex] = useState(0);
@@ -25,7 +30,15 @@ const AddNewOrganization = () => {
     const { onBack } = usePageTransition();
     const dispatch = useDispatch<AppDispatch>();
 
+    const [getOrgSdf] = useLazyGetOrgSdfByOrgQuery();
+
     const pageSize = 20;
+
+    const { open, close } = useGlobalBottomSheet();
+
+    function showLinkedCompanyError(item: any) {
+        open(<AlreadLinked orgName={item} close={close} />, { snapPoints: ['35%'] });
+    }
 
     // Initial load
     useEffect(() => {
@@ -33,20 +46,43 @@ const AddNewOrganization = () => {
     }, [dispatch]);
 
     function handleLinkOrganization(item: OrganisationDto) {
-        dispatch(linkOrganizationAsync(item))
+        // Fetch org SDF details first
+        getOrgSdf({ organisationId: item.id, userId: user ? Number(user.id) : 0 })
             .unwrap()
-            .then(() => {
-                onBack();
-                showToast({
-                    message: 'Organization linked successfully to your profile',
-                    type: 'success',
-                    title: 'Organization Linking',
-                    position: 'bottom',
-                });
+            .then((sdfOrgData: any) => {
+                console.log('SDF Org Data:', sdfOrgData);
+
+                // Check if organization is already linked to this SDF
+                if (sdfOrgData && sdfOrgData.id) {
+                    // Organization already linked
+                    showLinkedCompanyError(item.organisationTradingName);
+                    return;
+                }
+
+                // Organization not linked yet, proceed with linking
+                dispatch(linkOrganizationAsync(item))
+                    .unwrap()
+                    .then(() => {
+                        onBack();
+                        showToast({
+                            message: 'Organization linked successfully to your profile',
+                            type: 'success',
+                            title: 'Organization Linking',
+                            position: 'bottom',
+                        });
+                    })
+                    .catch((error: any) => {
+                        showToast({
+                            message: error || 'Failed to link organization',
+                            type: 'error',
+                            title: 'Error',
+                            position: 'bottom',
+                        });
+                    });
             })
             .catch((error: any) => {
                 showToast({
-                    message: error || 'Failed to link organization',
+                    message: error || 'Failed to fetch organization details',
                     type: 'error',
                     title: 'Error',
                     position: 'bottom',
@@ -75,7 +111,7 @@ const AddNewOrganization = () => {
 
     const renderList = ({ index, item }: { index: number, item: OrganisationDto }) => {
         return (
-            <ItemOrganization key={`org-${item.id}-${index}`} onPress={() => handleLinkOrganization(item)} item={item} />
+            <ItemOrganization key={`${item.id}-${index}`} onPress={() => handleLinkOrganization(item)} item={item} />
         )
     }
 
@@ -122,6 +158,26 @@ const AddNewOrganization = () => {
 }
 
 export default AddNewOrganization
+
+interface props {
+    orgName: string;
+    close: () => void;
+}
+function AlreadLinked({ close, orgName }: props) {
+    return <View>
+        <RRow style={{ padding: 8, alignItems: 'center', justifyContent: 'space-between' }}>
+            <Text variant='bodyMedium'>Error Linking {orgName.length > 20 ? orgName.substring(0, 20) + "..." : orgName}</Text>
+            <TouchableOpacity onPress={close}>
+                <EvilIcons name="close" size={24} color="black" />
+            </TouchableOpacity>
+        </RRow>
+        <RCol style={{ padding: 12, alignItems: 'center', justifyContent: 'center', gap: 12 }}>
+            <MaterialIcons name="error-outline" size={48} color={colors.red[700]} />
+            <Text variant='titleMedium' style={{ textAlign: 'center' }}>Organization Already Linked</Text>
+            <Text variant='bodySmall' style={{ textAlign: 'center', color: colors.slate[400], fontWeight: "ultralight" }}>The organization "{orgName}" is already linked to another profile under another SDF. Please check your linked organizations or contact support for assistance.</Text>
+        </RCol>
+    </View>
+}
 
 const styles = StyleSheet.create({
     col: {

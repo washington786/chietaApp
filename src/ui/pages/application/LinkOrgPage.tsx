@@ -180,23 +180,28 @@ const LinkOrgPage = () => {
                         foundOrg && foundOrg.isUploadedAppointmentLetter == false &&
                         <InfoWrapper />
                     }
+                    {
+                        foundOrg && foundOrg.isUploadedAppointmentLetter == false &&
+                        <RCol style={[styles.wrapper, { backgroundColor: colors.primary[100] }]}>
+                            <Text variant='titleSmall' style={styles.orgTitle}>{foundOrg?.organisationTradingName}</Text>
+                            <Text variant='bodySmall' style={styles.orgTitle}>{foundOrg?.organisationRegistrationNumber}</Text>
+                            <RRow style={[styles.rowtFlex, styles.center, styles.gap, styles.row]}>
+                                <Feather name="mail" size={18} color="black" />
+                                <Text variant='labelMedium'>{foundOrg?.organisationContactEmailAddress}</Text>
+                            </RRow>
+                            <RRow style={[styles.rowtFlex, styles.center, styles.gap, styles.row]}>
+                                <Feather name="phone" size={18} color="black" />
+                                <Text variant='labelMedium'>{foundOrg?.organisationContactCellNumber}</Text>
+                            </RRow>
+                            <RRow style={[styles.rowtFlex, styles.center, styles.gap, styles.row]}>
+                                <Feather name="calendar" size={18} color="black" />
+                                <Text variant='labelMedium'>{foundOrg?.dateBusinessCommenced.toString()}</Text>
+                            </RRow>
+                        </RCol>
+                    }
 
-                    <RCol style={[styles.wrapper, { backgroundColor: colors.primary[100] }]}>
-                        <Text variant='titleSmall' style={styles.orgTitle}>{foundOrg?.organisationTradingName}</Text>
-                        <Text variant='bodySmall' style={styles.orgTitle}>{foundOrg?.organisationRegistrationNumber}</Text>
-                        <RRow style={[styles.rowtFlex, styles.center, styles.gap, styles.row]}>
-                            <Feather name="mail" size={18} color="black" />
-                            <Text variant='labelMedium'>{foundOrg?.organisationContactEmailAddress}</Text>
-                        </RRow>
-                        <RRow style={[styles.rowtFlex, styles.center, styles.gap, styles.row]}>
-                            <Feather name="phone" size={18} color="black" />
-                            <Text variant='labelMedium'>{foundOrg?.organisationContactCellNumber}</Text>
-                        </RRow>
-                        <RRow style={[styles.rowtFlex, styles.center, styles.gap, styles.row]}>
-                            <Feather name="calendar" size={18} color="black" />
-                            <Text variant='labelMedium'>{foundOrg?.dateBusinessCommenced.toString()}</Text>
-                        </RRow>
-                    </RCol>
+
+
 
                     {
                         foundOrg && foundOrg.isUploadedAppointmentLetter == true && <>

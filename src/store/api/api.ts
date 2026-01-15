@@ -452,6 +452,16 @@ export const api = createApi({
                 `/api/services/app/Documents/GetDocumentsByEntity?entityid=${entityId}&module=${module}&documenttype=${encodeURIComponent(documentType)}`,
             providesTags: ['Document'],
         }),
+
+        /**
+         * Organization SDF Endpoints
+         */
+        getOrgSdfByOrg: builder.query({
+            query: ({ organisationId, userId }: { organisationId: number; userId: number }) =>
+                `/api/services/app/Sdf/GetOrgSdfByOrg?Id=${organisationId}&userid=${userId}`,
+            transformResponse: (response: any) => response?.result?.organisation_Sdf || response?.result || response,
+            providesTags: ['Organization'],
+        }),
     }),
 })
 
@@ -505,4 +515,6 @@ export const {
     useGetOrganizationByProjectQuery,
     useGetOrganizationByIdQuery,
     useGetDocumentsByEntityQuery,
+    useGetOrgSdfByOrgQuery,
+    useLazyGetOrgSdfByOrgQuery,
 } = api
