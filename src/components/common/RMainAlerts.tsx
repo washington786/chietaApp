@@ -4,8 +4,6 @@ import { LinearGradient } from 'expo-linear-gradient'
 import colors from '@/config/colors'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 
-const bgImage = require('@/assets/bg.jpg');
-
 interface RMainAlertsProps {
     visible: boolean;
     title: string;
@@ -27,13 +25,13 @@ const RMainAlerts: FC<RMainAlertsProps> = ({
     onDismiss,
     icon = "bell",
     bgColor = colors.primary[900],
-    backgroundImage = bgImage
+    backgroundImage
 }) => {
     if (!visible) return null;
 
     return (
         <ImageBackground
-            source={backgroundImage}
+            source={require("../../../assets/bg.jpg") || backgroundImage}
             style={[styles.container]}
             imageStyle={styles.backgroundImage}
         >

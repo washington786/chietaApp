@@ -11,6 +11,7 @@ import RListLoading from "./RListLoading";
 import RLoader from "./RLoader";
 import RLoaderAnimation from "./RLoaderAnimation";
 import RLogo from "./RLogo";
+import RMainAlerts from "./RMainAlerts";
 import RNetworkAlert from "./RNetworkAlert";
 import RNotification from "./RNotification";
 import RPickerContainer from "./RPickerContainer";
@@ -54,5 +55,5 @@ export {
   RWrapperInput as RChildWrapper,
   RPickerContainer,
   RRNButton,
-  RDialog, RRPicker, REmpty, RLoaderAnimation, SkeletonLoader, RListLoading, RNetworkAlert
+  RDialog, RRPicker, REmpty, RLoaderAnimation, SkeletonLoader, RListLoading, RNetworkAlert, RMainAlerts
 };
