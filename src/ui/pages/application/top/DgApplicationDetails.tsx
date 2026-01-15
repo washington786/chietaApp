@@ -18,6 +18,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from '@/store/store'
 import { generateApplicationPdf } from '@/core/helpers/pdfGenerator';
 import { useGlobalBottomSheet } from '@/hooks/navigation/BottomSheet'
+import ProjectDetailsItem from '@/components/modules/application/grants/ProjectDetailsItem'
 
 const DgApplicationDetails = () => {
     const { appId: projectId } = useRoute<RouteProp<navigationTypes, "applicationDetails">>().params;
@@ -25,6 +26,7 @@ const DgApplicationDetails = () => {
 
     const user = useSelector((state: RootState) => state.auth.user);
     const userId = user?.id || 0;
+    const isClosed = useSelector((state: RootState) => state.discretionaryGrant.isProjectClosed);
 
     const { open, close } = useGlobalBottomSheet();
 
@@ -730,7 +732,7 @@ const DgApplicationDetails = () => {
         try {
             // Validate project submission
             const validationResult = await validateProjectSubmission(appId).unwrap();
-
+            console.log("Validation result:", validationResult);
             // Check if submission is valid
             if (!validationResult.success) {
                 open(<WindowClose close={close} color={colors.red[900]} title="Window Closed" substitle="Grant Window Closed" message={validationResult.message || "The discretionary project window for this application has closed. Please try other applications."} />, { snapPoints: ["40%"] });
@@ -746,6 +748,14 @@ const DgApplicationDetails = () => {
             showToast({ message: errorMessage, title: "Error", type: "error", position: "top" });
         }
     };
+
+    {/* Display Project Details when closed */ }
+
+    if (isClosed) {
+        return (
+            <ProjectDetailsItem projectId={appId} />
+        )
+    }
 
     return (
         <View style={{ flex: 1 }}>
