@@ -7,6 +7,9 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { dgProject } from '@/core/models/DiscretionaryDto'
 
 import usePageTransition from '@/hooks/navigation/usePageTransition'
+import { isProjectClosed } from '@/core/utils/CheckClosed'
+import { useDispatch } from 'react-redux'
+import { setSelectedProject } from '@/store/slice/DiscretionarySlice'
 
 interface props {
   item: dgProject;
@@ -15,10 +18,16 @@ interface props {
 const DgApplicationItem: FC<props> = ({ item }) => {
   const { focusArea, sdlNo, projectStatus, projectEndDate: endDate, projType, projectNam: title } = item;
   const { applicationDetails } = usePageTransition();
+  const dispatch = useDispatch();
+
+  const handlePress = () => {
+    const isClosed = isProjectClosed(endDate);
+    dispatch(setSelectedProject({ project: item, isClosed }));
+    applicationDetails({ type: "dg-app", appId: `${item.id}`, orgId: `${item.organisationId}` });
+  };
+
   return (
-    <TouchableOpacity
-      onPress={() => applicationDetails({ type: "dg-app", appId: `${item.id}`, orgId: `${item.organisationId}` })}
-    >
+    <TouchableOpacity onPress={handlePress}>
       <RCol style={styles.con}>
         <RRow style={styles.title}>
           <MaterialCommunityIcons name="application-outline" size={18} color="black" />
