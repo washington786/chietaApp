@@ -16,6 +16,7 @@ import Animated, { FadeInDown } from 'react-native-reanimated';
 
 const AddNewApplicationPage = () => {
     const [searchQuery, setSearchQuery] = useState('');
+    const [show, setShow] = useState(false);
     const [snackbar, setSnackbar] = useState<{ visible: boolean; lastLinkedId: number | null }>({
         visible: false,
         lastLinkedId: null,
@@ -72,15 +73,18 @@ const AddNewApplicationPage = () => {
 
     return (
         <SafeArea>
-            <RHeader name='Add Mg Application' />
-            <RCol style={styles.col}>
-                <Searchbar
-                    placeholder="Search application"
-                    onChangeText={setSearchQuery}
-                    value={searchQuery}
-                    style={styles.searchBar}
-                />
-            </RCol>
+            <RHeader name='Add Mg Application' hasRightIcon iconRight='search' onPressRight={() => setShow(!show)} />
+            {
+                show &&
+                <RCol style={styles.col}>
+                    <Searchbar
+                        placeholder="Search application"
+                        onChangeText={setSearchQuery}
+                        value={searchQuery}
+                        style={styles.searchBar}
+                    />
+                </RCol>
+            }
             <FlatList data={filteredApplications}
                 style={{ paddingHorizontal: 12, paddingVertical: 6, flex: 1, flexGrow: 1 }}
                 renderItem={renderList}

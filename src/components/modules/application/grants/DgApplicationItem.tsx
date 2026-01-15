@@ -64,7 +64,7 @@ const DgApplicationItem: FC<props> = ({ item }) => {
 export default DgApplicationItem
 
 const styles = StyleSheet.create({
-  con: { paddingHorizontal: 8, paddingVertical: 12, backgroundColor: colors.slate[50], borderRadius: 5, marginBottom: 12, borderColor: colors.slate[200], borderWidth: 1 },
+  con: { paddingHorizontal: 8, paddingVertical: 12, backgroundColor: colors.zinc[50], borderRadius: 5, marginBottom: 12, borderColor: colors.slate[200], borderWidth: 1 },
   title: { alignItems: "center", gap: 4 },
   text: { textTransform: "capitalize" },
   wrap: { alignItems: "center", justifyContent: "space-between" },

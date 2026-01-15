@@ -1,8 +1,8 @@
 import { FlatList, View } from 'react-native'
 import React, { useState, useMemo, useEffect } from 'react'
 import colors from '@/config/colors'
-import { Text, IconButton } from 'react-native-paper'
-import { Expandable, RUploadSuccess, DgEntryList, RUploadSuccessFile, MessageWrapper } from '@/components/modules/application'
+import { Text, IconButton, Tooltip } from 'react-native-paper'
+import { Expandable, RUploadSuccess, DgEntryList, RUploadSuccessFile, MessageWrapper, WindowClose } from '@/components/modules/application'
 import { RButton, RInput, RUpload } from '@/components/common'
 import { main_manicipalities, mainDistricts, provinces } from '@/core/helpers/data'
 import { Province } from '@/core/types/provTypes'
@@ -10,13 +10,14 @@ import { SelectList } from 'react-native-dropdown-select-list'
 import { DocumentPickerResult } from 'expo-document-picker'
 import useDocumentPicker from '@/hooks/main/UseDocumentPicker'
 import { showToast } from '@/core'
-import { useGetProjectTypeQuery, useGetFocusAreaQuery, useGetAdminCritQuery, useGetEvalMethodsQuery, useDeleteApplicationMutation, useCreateEditApplicationDetailsMutation, useUploadProjectDocumentMutation, useGetDGProjectDetailsAppQuery, useGetDocumentsByEntityQuery } from '@/store/api/api';
+import { useGetProjectTypeQuery, useGetFocusAreaQuery, useGetAdminCritQuery, useGetEvalMethodsQuery, useDeleteApplicationMutation, useCreateEditApplicationDetailsMutation, useUploadProjectDocumentMutation, useGetDGProjectDetailsAppQuery, useGetDocumentsByEntityQuery, useValidateProjSubmissionMutation } from '@/store/api/api';
 import { dg_styles as styles } from '@/styles/DgStyles';
 import { RouteProp, useRoute } from '@react-navigation/native'
 import { navigationTypes } from '@/core/types/navigationTypes'
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store/store'
 import { generateApplicationPdf } from '@/core/helpers/pdfGenerator';
+import { useGlobalBottomSheet } from '@/hooks/navigation/BottomSheet'
 
 const DgApplicationDetails = () => {
     const { appId: projectId } = useRoute<RouteProp<navigationTypes, "applicationDetails">>().params;
@@ -25,6 +26,8 @@ const DgApplicationDetails = () => {
     const user = useSelector((state: RootState) => state.auth.user);
     const userId = user?.id || 0;
 
+    const { open, close } = useGlobalBottomSheet();
+
     // Fetch existing application entries
     const { data: dgProjectDetailsApp } = useGetDGProjectDetailsAppQuery(projectId, { skip: !projectId });
 
@@ -32,8 +35,10 @@ const DgApplicationDetails = () => {
 
     const [createEditApplicationDetails, { isLoading: isSavingApplication }] = useCreateEditApplicationDetailsMutation();
 
-
     const [uploadProjectDocument] = useUploadProjectDocumentMutation();
+
+    // Validation mutation
+    const [validateProjectSubmission] = useValidateProjSubmissionMutation();
 
     const [currentStep, setCurrentStep] = useState(1);
     const [expandDocs, setDocs] = useState(false);
@@ -717,12 +722,29 @@ const DgApplicationDetails = () => {
     }
 
     const handleSubmitApplication = async () => {
-        if (!applicationForm?.assets) {
+        if (!applicationForm?.assets && !getDocument(appFormQuery)) {
             showToast({ message: "Please upload the signed application form", title: "Submission", type: "error", position: "top" });
             return;
         }
-        // TODO: Submit application with all data
-        showToast({ message: "Application submitted successfully", title: "Success", type: "success", position: "top" });
+
+        try {
+            // Validate project submission
+            const validationResult = await validateProjectSubmission(appId).unwrap();
+
+            // Check if submission is valid
+            if (!validationResult.success) {
+                open(<WindowClose close={close} color={colors.red[900]} title="Window Closed" substitle="Grant Window Closed" message={validationResult.message || "The discretionary project window for this application has closed. Please try other applications."} />, { snapPoints: ["40%"] });
+                return;
+            }
+
+            // If validation passed, proceed with submission
+            showToast({ message: "Application submitted successfully", title: "Success", type: "success", position: "top" });
+
+        } catch (error: any) {
+            console.error("Validation error:", error);
+            const errorMessage = error?.data?.error?.message || error?.message || "Failed to validate application";
+            showToast({ message: errorMessage, title: "Error", type: "error", position: "top" });
+        }
     };
 
     return (
@@ -1111,12 +1133,25 @@ const DgApplicationDetails = () => {
                     disabled={currentStep === 1}
                 />
                 <Text variant='labelLarge' style={styles.stepText}>Step {currentStep} of 3</Text>
-                <IconButton
-                    icon={currentStep === 3 ? "check" : "chevron-right"}
-                    iconColor={colors.primary[900]}
-                    size={32}
-                    onPress={currentStep === 3 ? handleSubmitApplication : handleNext}
-                />
+
+                {
+                    currentStep === 3 ? (
+                        <Tooltip title="Submit Application">
+                            <IconButton
+                                icon={"check"}
+                                iconColor={colors.green[600]}
+                                size={32}
+                                onPress={handleSubmitApplication}
+                            />
+                        </Tooltip>
+                    ) : <IconButton
+                        icon={"chevron-right"}
+                        iconColor={colors.primary[900]}
+                        size={32}
+                        onPress={handleNext}
+                    />
+                }
+
             </View>
         </View>
     )

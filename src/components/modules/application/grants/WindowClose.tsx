@@ -23,7 +23,7 @@ function WindowClose({ close, message, substitle, title, color }: props) {
         </RRow>
 
         <RCol style={{ padding: 12, alignItems: 'center', justifyContent: 'center', gap: 12 }}>
-            <FontAwesome6 name="window-close" size={24} color={colors.red[900]} />
+            <FontAwesome6 name="window-close" size={50} color={colors.red[900]} />
             <RnText variant='titleLarge' style={{ textAlign: 'center', color: color, fontWeight: "bold" }}>{substitle}</RnText>
             <RnText variant='bodySmall' style={{ textAlign: 'center', color: colors.gray[400], fontWeight: "ultralight", width: "80%" }}>{message}</RnText>
         </RCol>

@@ -14,7 +14,7 @@ import { AppDispatch, RootState } from '@/store/store'
 import { linkOrganizationAsync, loadAllOrganizations } from '@/store/slice/thunks/OrganizationThunks'
 import { useGlobalBottomSheet } from '@/hooks/navigation/BottomSheet'
 import EvilIcons from '@expo/vector-icons/EvilIcons';
-import { useGetOrgSdfByOrgQuery, useLazyGetOrgSdfByOrgQuery } from '@/store/api/api'
+import { useLazyGetOrgSdfByOrgQuery } from '@/store/api/api'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 const AddNewOrganization = () => {
     const { filteredOrganizations, searchQuery, loading } = useSelector(
