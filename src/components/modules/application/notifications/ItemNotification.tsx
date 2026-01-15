@@ -4,17 +4,19 @@ import { RCol, RRow } from '@/components/common'
 import colors from '@/config/colors'
 import Feather from '@expo/vector-icons/Feather';
 import { Text } from 'react-native-paper';
+import { AppNotification } from '@/core/types/notifications';
 
-interface props {
-    isNew?: boolean
+interface props extends AppNotification {
+    notification: AppNotification;
 }
-const ItemNotification: FC<props> = ({ isNew = false }) => {
+const ItemNotification: FC<props> = ({ notification }) => {
+    const isNew = !notification.read;
     return (
         <RCol style={styles.con}>
             <RRow style={{ position: "relative", padding: 8 }}>
                 <RRow style={styles.center}>
                     <Feather name="bell" size={24} color="black" />
-                    <Text variant='titleMedium' style={{ marginLeft: 6, color: colors.slate[700] }}>Application successful</Text>
+                    <Text variant='titleMedium' style={{ marginLeft: 6, color: colors.slate[700] }}>{notification.title}</Text>
                 </RRow>
                 {isNew &&
                     <View style={styles.newBadge}>
@@ -23,8 +25,8 @@ const ItemNotification: FC<props> = ({ isNew = false }) => {
                 }
             </RRow>
             <RCol style={{ paddingHorizontal: 8 }}>
-                <Text variant='labelSmall' style={[styles.dteTxt, { paddingHorizontal: 6, paddingVertical: 2 }]}>20-12-2025 | 20:09 PM</Text>
-                <Text variant='bodySmall' style={[styles.messageTxt, { paddingHorizontal: 6, paddingVertical: 2 }]}>congratulations! you have successfully applied for the mandatory grant. You'll be notified when its ready.</Text>
+                <Text variant='labelSmall' style={[styles.dteTxt, { paddingHorizontal: 6, paddingVertical: 2 }]}>{notification.timestamp}</Text>
+                <Text variant='bodySmall' style={[styles.messageTxt, { paddingHorizontal: 6, paddingVertical: 2 }]}>{notification.body}</Text>
             </RCol>
         </RCol>
     )
