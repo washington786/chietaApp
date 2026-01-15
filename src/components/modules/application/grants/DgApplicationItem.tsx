@@ -6,8 +6,6 @@ import colors from '@/config/colors'
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { dgProject } from '@/core/models/DiscretionaryDto'
 
-import { mapDgProjectToApplicationForm } from '../../../../core/helpers/mappers'
-import { generateApplicationPdf } from '../../../../core/helpers/pdfGenerator'
 import usePageTransition from '@/hooks/navigation/usePageTransition'
 
 interface props {

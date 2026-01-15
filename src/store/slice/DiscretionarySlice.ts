@@ -7,12 +7,14 @@ import type {
 } from '@/core/models/MandatoryDto';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { BankDetail } from '@/core/models/BankDto';
-import { DiscretionaryProjectDto } from '../../core/models/DiscretionaryDto'
+import { DiscretionaryProjectDto, dgProject } from '../../core/models/DiscretionaryDto'
 import { fetchDiscretionaryGrantData } from './thunks/DiscretionaryThunks';
 
 export interface DiscretionaryGrantState {
     // Applications
     applications: DiscretionaryProjectDto[];
+    selectedProject: dgProject | null;
+    isProjectClosed: boolean;
     // Addresses
     physicalAddresses: OrganisationPhysicalAddressDto[];
     postalAddresses: OrganisationPostalAddressDto[];
@@ -30,6 +32,8 @@ export interface DiscretionaryGrantState {
 
 const initialState: DiscretionaryGrantState = {
     applications: [],
+    selectedProject: null,
+    isProjectClosed: false,
     physicalAddresses: [],
     postalAddresses: [],
     documents: [],
@@ -45,6 +49,14 @@ const discretionaryGrantSlice = createSlice({
     initialState,
     reducers: {
         clearDiscretionaryGrantData: () => initialState,
+        setSelectedProject: (state, action: PayloadAction<{ project: dgProject; isClosed: boolean }>) => {
+            state.selectedProject = action.payload.project;
+            state.isProjectClosed = action.payload.isClosed;
+        },
+        clearSelectedProject: (state) => {
+            state.selectedProject = null;
+            state.isProjectClosed = false;
+        },
         linkProjectToOrganization: (state, action: PayloadAction<number>) => {
             const project = state.applications.find(p => p.id === action.payload);
             if (project) {
@@ -76,6 +88,6 @@ const discretionaryGrantSlice = createSlice({
     },
 });
 
-export const { clearDiscretionaryGrantData, linkProjectToOrganization } = discretionaryGrantSlice.actions;
+export const { clearDiscretionaryGrantData, linkProjectToOrganization, setSelectedProject, clearSelectedProject } = discretionaryGrantSlice.actions;
 const discretionaryGrantReducer = discretionaryGrantSlice.reducer;
 export default discretionaryGrantReducer;

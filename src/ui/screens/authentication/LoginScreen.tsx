@@ -1,7 +1,7 @@
 import { Text, View } from 'react-native'
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import colors from '@/config/colors'
-import { Button } from 'react-native-paper'
+import { Button, TextInput } from 'react-native-paper'
 import appFonts from '@/config/fonts'
 import { AuthWrapper } from '@/components/modules/authentication'
 import { RButton, RErrorMessage, RInput, RKeyboardView, RLogo, SafeArea, Scroller } from '@/components/common'
@@ -26,6 +26,7 @@ const LoginScreen = () => {
     const { login } = UseAuth();
     const { isLoading, error } = useSelector((state: RootState) => state.auth)
     const prevErrorRef = useRef<typeof error>(null);
+    const [showPassword, setShowPassword] = useState(false);
 
     const handleSubmit = async (email: string, password: string) => {
         const result = await login({
@@ -65,10 +66,25 @@ const LoginScreen = () => {
                                 {({ handleSubmit, handleBlur, handleChange, touched, errors, values }) => (
                                     <RKeyboardView style={{ gap: 12 }}>
 
-                                        <RInput placeholder='Email' icon={'mail'} onChangeText={handleChange('email')} onBlur={handleBlur('email')} value={values.email} />
+                                        <RInput
+                                            placeholder='Email'
+                                            icon={'mail'}
+                                            keyboardType='email-address'
+                                            onChangeText={handleChange('email')}
+                                            onBlur={handleBlur('email')}
+                                            value={values.email}
+                                        />
                                         {touched.email && errors.email && (<RErrorMessage error={errors.email} />)}
 
-                                        <RInput placeholder='Password' icon={'lock'} secureTextEntry onChangeText={handleChange("password")} onBlur={handleBlur("password")} value={values.password} />
+                                        <RInput
+                                            placeholder='Password'
+                                            icon={'lock'}
+                                            keyboardType='default'
+                                            onChangeText={handleChange("password")}
+                                            onBlur={handleBlur("password")}
+                                            value={values.password}
+                                            secureTextEntry={!showPassword}
+                                        />
                                         {touched.password && errors.password && (<RErrorMessage error={errors.password} />)}
 
                                         <RButton title='Sign In' onPressButton={handleSubmit} styleBtn={styles.button} isSubmitting={isLoading} />
