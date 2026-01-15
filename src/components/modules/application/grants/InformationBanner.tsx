@@ -21,7 +21,7 @@ export default InformationBanner
 
 const styles = StyleSheet.create({
     con: {
-        paddingHorizontal: 12, backgroundColor: colors.yellow[100], borderRadius: 8, marginBottom: 12,
+        paddingHorizontal: 12, backgroundColor: colors.secondary[200], borderRadius: 8, marginBottom: 12,
         alignItems: "center", gap: 4,
         overflow: "hidden",
         paddingVertical: 8
