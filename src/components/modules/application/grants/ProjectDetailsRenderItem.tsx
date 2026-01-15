@@ -6,19 +6,6 @@ import colors from '@/config/colors';
 const ProjectDetailRenderItem = ({ item }: { item: DGProjectDetailsAppItem }) => {
   const project = item.projectDetails;
 
-  const getStatusColor = (status: string) => {
-    switch (status?.toLowerCase()) {
-      case 'registered':
-        return '#4CAF50'; // green
-      case 'pending':
-        return '#FF9800'; // orange
-      case 'approved':
-        return '#2196F3'; // blue
-      default:
-        return '#757575'; // gray
-    }
-  };
-
   return (
     <TouchableOpacity
       activeOpacity={0.88}
@@ -33,17 +20,6 @@ const ProjectDetailRenderItem = ({ item }: { item: DGProjectDetailsAppItem }) =>
           <Text style={styles.title}>
             {project.intervention}
           </Text>
-          <View style={[
-            styles.statusBadge,
-            { backgroundColor: getStatusColor(project.status) + '22' }
-          ]}>
-            <Text style={[
-              styles.statusText,
-              { color: getStatusColor(project.status) }
-            ]}>
-              {project.status}
-            </Text>
-          </View>
         </View>
 
         {/* Divider */}
@@ -183,7 +159,7 @@ const styles = StyleSheet.create({
     textAlign: 'right',
   },
   valueHighlight: {
-    color: '#1976d2',
+    color: colors.gray[500],
   },
   valueBold: {
     fontWeight: '700',
