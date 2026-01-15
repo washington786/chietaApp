@@ -9,6 +9,9 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import colors from '@/config/colors'; // your color config
 import usePageTransition from '@/hooks/navigation/usePageTransition';
 import { dgProject } from '@/core/models/DiscretionaryDto';
+import { useDispatch } from 'react-redux';
+import { setSelectedProject } from '@/store/slice/DiscretionarySlice';
+import { isProjectClosed } from '@/core/utils/CheckClosed';
 
 interface Props {
   item: dgProject;
@@ -18,6 +21,13 @@ const DgApplicationItem: FC<Props> = ({ item }) => {
   const { focusArea, sdlNo, projectStatus, projectEndDate: endDate, projType, projectNam: title, id, organisationId } = item;
 
   const { applicationDetails } = usePageTransition();
+  const dispatch = useDispatch();
+
+  const handlePress = () => {
+    const isClosed = isProjectClosed(endDate);
+    dispatch(setSelectedProject({ project: item, isClosed }));
+    applicationDetails({ type: "dg-app", appId: `${id}`, orgId: `${organisationId}` });
+  };
 
   // Dynamic status color
   const getStatusStyle = (status: string = '') => {
@@ -34,7 +44,7 @@ const DgApplicationItem: FC<Props> = ({ item }) => {
   return (
     <TouchableOpacity
       activeOpacity={0.88}
-      onPress={() => applicationDetails({ type: "dg-app", appId: `${id}`, orgId: `${organisationId}` })}
+      onPress={handlePress}
       style={styles.card}
     >
       {/* Title Row */}
