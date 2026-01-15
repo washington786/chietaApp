@@ -278,3 +278,65 @@ export interface dgProject {
     winid: number;
     isLinked?: boolean;
 }
+
+export interface GCStatus {
+    applicationId: number;
+    approvalTypeId: number;
+    approvalStatusId: number;
+    comments: string | null;
+    dateCreated: string;
+    userId: number;
+    dteUpd: string | null;
+    userUpd: string | null;
+    id: number;
+}
+
+export interface ProjectDetail {
+    id: number;
+    projectType: string;
+    projectId: number;
+    applicationStatusId: number | null;
+    contract_Number: string | null;
+    submittedBy: string | null;
+    submissionDte: string | null;
+    current_Approver: string | null;
+    reason: string | null;
+    approvalStatus: string | null;
+    focusArea: string;
+    subCategory: string;
+    intervention: string;
+    otherIntervention: string | null;
+    number_Continuing: number;
+    number_New: number;
+    costPerLearner: number;
+    gC_Continuing: number | null;
+    gC_New: number | null;
+    gC_CostPerLearner: number | null;
+    hdi: number;
+    female: number;
+    youth: number;
+    number_Disabled: number;
+    rural: number;
+    province: string;
+    municipality: string;
+    status: string;
+    organisationId: number;
+    gcStatus: GCStatus | null;
+    dateCreated: string;
+}
+
+export interface DGProjectDetailsAppItem {
+    projectDetails: ProjectDetail;
+}
+
+export interface DGProjectDetailsAppResponse {
+    result: {
+        totalCount: number;
+        items: DGProjectDetailsAppItem[];
+    };
+    targetUrl: string | null;
+    success: boolean;
+    error: string | null;
+    unAuthorizedRequest: boolean;
+    __abp: boolean;
+}
