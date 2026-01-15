@@ -50,7 +50,6 @@ const AddNewOrganization = () => {
         getOrgSdf({ organisationId: item.id, userId: user ? Number(user.id) : 0 })
             .unwrap()
             .then((sdfOrgData: any) => {
-                console.log('SDF Org Data:', sdfOrgData);
 
                 // Check if organization is already linked to this SDF
                 if (sdfOrgData && sdfOrgData.id) {

@@ -60,7 +60,6 @@ const LinkOrgPage = () => {
 
 
     if (error) {
-        console.log(error);
         showToast({ message: error, title: "Upload", type: "error", position: "top" })
     }
 
@@ -154,8 +153,6 @@ const LinkOrgPage = () => {
     }
 
     const foundOrg = linkedOrganizations.find(org => org.id === Number(orgId));
-
-    console.log(foundOrg);
 
 
     function handleRemoveOrg() {
