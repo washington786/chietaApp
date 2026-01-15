@@ -29,7 +29,6 @@ if (Platform.OS === 'android') {
  */
 export async function requestNotificationPermission() {
     if (!Device.isDevice) {
-        console.log('Notifications are not supported on simulators/emulators');
         return false;
     }
 
@@ -43,7 +42,6 @@ export async function requestNotificationPermission() {
     }
 
     if (finalStatus !== 'granted') {
-        console.warn('Notification permission denied');
         return false;
     }
 
@@ -84,7 +82,6 @@ export async function scheduleNotification({
             trigger,
         });
 
-        console.log('Scheduled notification ID:', notificationId);
         return notificationId;
     } catch (error) {
         console.error('Failed to schedule notification:', error);

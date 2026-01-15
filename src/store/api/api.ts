@@ -277,16 +277,6 @@ export const api = createApi({
             transformResponse: (response: any) => response?.result?.items || response?.result || response,
             providesTags: ['Grant'],
         }),
-        validateProjSubmission: builder.mutation({
-            query: (payload) => ({
-                url: '/api/services/app/DiscretionaryProject/validateProjSubmission',
-                method: 'POST',
-                body: payload,
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            }),
-        }),
         getDGProjectDetById: builder.query({
             query: (projectId) =>
                 `/api/services/app/DiscretionaryProject/GetDGProjectDetById?ProjectId=${projectId}`,
@@ -462,6 +452,21 @@ export const api = createApi({
             transformResponse: (response: any) => response?.result?.organisation_Sdf || response?.result || response,
             providesTags: ['Organization'],
         }),
+
+        /**
+         * Discretionary Project Submission Endpoints
+         */
+        validateProjSubmission: builder.mutation({
+            query: (projId: number) => ({
+                url: `/api/services/app/DiscretionaryProject/validateProjSubmission?projId=${projId}`,
+                method: 'POST',
+            }),
+            transformResponse: (response: any) => ({
+                message: response?.result,
+                success: response?.success,
+            }),
+            invalidatesTags: ['Grant'],
+        }),
     }),
 })
 
@@ -498,7 +503,6 @@ export const {
     useGetFocusAreaQuery,
     useGetAdminCritQuery,
     useGetEvalMethodsQuery,
-    useValidateProjSubmissionMutation,
     useGetDGProjectDetByIdQuery,
     useGetProjectDetailsQuery,
     useGetDGProjectDetailsAppQuery,
@@ -517,4 +521,5 @@ export const {
     useGetDocumentsByEntityQuery,
     useGetOrgSdfByOrgQuery,
     useLazyGetOrgSdfByOrgQuery,
+    useValidateProjSubmissionMutation,
 } = api
