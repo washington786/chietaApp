@@ -17,8 +17,10 @@ import { navigationTypes } from '@/core/types/navigationTypes'
 import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch, RootState } from '@/store/store'
 import { removeLinkedOrganizationAsync, updateAppointmentLetterStatus, updateApprovalStatus } from '@/store/slice/thunks/OrganizationThunks';
+import { saveNotification } from '@/store/slice/NotificationSlice';
 import { Step } from '@/core/types/steps'
 import { Feather } from '@expo/vector-icons'
+import { useGetSDFByUserQuery, useLinkOrganizationMutation, useUploadProjectDocumentMutation } from '@/store/api/api'
 
 const steps: Step[] = [
     {
@@ -39,16 +41,23 @@ const LinkOrgPage = () => {
     const route = useRoute<RouteProp<navigationTypes, 'orgLinking'>>();
     const { linkedOrganizations } = useSelector((state: RootState) => state.linkedOrganization);
 
+    const { user } = useSelector((state: RootState) => state.auth);
+
+    const { data: sdfData } = useGetSDFByUserQuery(user ? user.id : 0, { skip: !user || !user.id });
+
     const { orgId } = route.params;
 
     const dispatch = useDispatch<AppDispatch>();
+    const [linkOrganization] = useLinkOrganizationMutation();
 
     const [removeDialog, setRemoveVisible] = useState(false);
     const [cancelDialog, setCancelVisible] = useState(false);
 
     const { pickDocument, error, isLoading } = useDocumentPicker();
+    const [uploadProjectDocument] = useUploadProjectDocumentMutation();
 
     const [file, setFile] = useState<DocumentPickerResult>();
+
 
     if (error) {
         console.log(error);
@@ -58,35 +67,96 @@ const LinkOrgPage = () => {
     async function handleUpload() {
         try {
             const result = await pickDocument();
-            if (result) {
+            if (result && result.assets && result.assets[0]) {
+                const uploadResult = await uploadProjectDocument({
+                    file: result.assets[0],
+                    docType: 'Appointment Letter',
+                    userId: user ? user.id : 0,
+                    appId: orgId ? Number(orgId) : 0,
+                }).unwrap();
                 setFile(result);
+                console.log("Tax upload response:", uploadResult);
             }
         } catch (error) {
             showToast({ message: "failed to upload document", title: "Upload", type: "error", position: "top" })
         }
     }
 
-    function handleSubmit() {
-        dispatch(updateAppointmentLetterStatus({ isUploaded: true, orgId: Number(orgId) })).unwrap().then(() => {
+    async function handleSubmit() {
+        try {
+            // Link the organization
+            await linkOrganization({
+                organisationId: orgId ? Number(orgId) : 0,
+                sdfId: sdfData ? sdfData.id : 0,
+                userId: user ? Number(user.id) : 0,
+                personId: sdfData ? sdfData.personId : 0,
+                statusId: 1,
+                statusDate: new Date().toISOString(),
+                dateCreated: new Date().toISOString(),
+            }).unwrap();
+
+            // Update appointment letter status
+            await dispatch(updateAppointmentLetterStatus({ isUploaded: true, orgId: Number(orgId) })).unwrap();
+
+            // Show toast
             showToast({ message: "Successfully submitted your appointment.", title: "Submitted", type: "success", position: "bottom" });
-        }).catch((error) => {
-            console.log(error);
-            showToast({ message: error || "Failed to submit appointment letter.", title: "Error", type: "error", position: "top" });
-        });
+
+            // Add notification
+            dispatch(saveNotification({
+                id: `link-org-${orgId}-${Date.now()}`,
+                title: "Organization Linked",
+                body: `${foundOrg?.organisationTradingName || 'Organization'} has been successfully linked to your profile.`,
+                timestamp: Date.now(),
+                read: false,
+                source: 'local',
+            }));
+        } catch (error: any) {
+            console.error("Error linking organization:", error);
+            showToast({
+                message: error?.data?.message || "Failed to submit appointment letter.",
+                title: "Error",
+                type: "error",
+                position: "top"
+            });
+        }
     }
 
     function handleCancel() {
-        dispatch(updateApprovalStatus({ status: 'cancelled', orgId: Number(orgId) })).unwrap().then(() => {
+        try {
+            dispatch(updateApprovalStatus({ status: 'cancelled', orgId: Number(orgId) })).unwrap().then(() => {
+                setCancelVisible(false);
+                showToast({ message: "Successfully cancelled your appointment letter.", title: "Cancelled", type: "success", position: "bottom" });
+
+                // Add notification
+                dispatch(saveNotification({
+                    id: `cancel-org-${orgId}-${Date.now()}`,
+                    title: "Organization Linking Cancelled",
+                    body: `${foundOrg?.organisationTradingName || 'Organization'} linking has been cancelled.`,
+                    timestamp: Date.now(),
+                    read: false,
+                    source: 'local',
+                }));
+            }).catch((error) => {
+                console.log(error);
+                setCancelVisible(false);
+                showToast({ message: error || "Failed to submit appointment letter.", title: "Error", type: "error", position: "top" });
+            });
+        } catch (error) {
+            console.error("Error cancelling organization:", error);
             setCancelVisible(false);
-            showToast({ message: "Successfully cancelled your appointment letter.", title: "Cancelled", type: "success", position: "bottom" });
-        }).catch((error) => {
-            console.log(error);
-            setCancelVisible(false);
-            showToast({ message: error || "Failed to submit appointment letter.", title: "Error", type: "error", position: "top" });
-        });
+            showToast({
+                message: error instanceof Error ? error.message : "Failed to cancel appointment letter.",
+                title: "Error",
+                type: "error",
+                position: "top"
+            });
+        }
     }
 
     const foundOrg = linkedOrganizations.find(org => org.id === Number(orgId));
+
+    console.log(foundOrg);
+
 
     function handleRemoveOrg() {
         dispatch(removeLinkedOrganizationAsync(Number(orgId))).unwrap().then(() => {
@@ -110,6 +180,23 @@ const LinkOrgPage = () => {
                         foundOrg && foundOrg.isUploadedAppointmentLetter == false &&
                         <InfoWrapper />
                     }
+
+                    <RCol style={[styles.wrapper, { backgroundColor: colors.primary[100] }]}>
+                        <Text variant='titleSmall' style={styles.orgTitle}>{foundOrg?.organisationTradingName}</Text>
+                        <Text variant='bodySmall' style={styles.orgTitle}>{foundOrg?.organisationRegistrationNumber}</Text>
+                        <RRow style={[styles.rowtFlex, styles.center, styles.gap, styles.row]}>
+                            <Feather name="mail" size={18} color="black" />
+                            <Text variant='labelMedium'>{foundOrg?.organisationContactEmailAddress}</Text>
+                        </RRow>
+                        <RRow style={[styles.rowtFlex, styles.center, styles.gap, styles.row]}>
+                            <Feather name="phone" size={18} color="black" />
+                            <Text variant='labelMedium'>{foundOrg?.organisationContactCellNumber}</Text>
+                        </RRow>
+                        <RRow style={[styles.rowtFlex, styles.center, styles.gap, styles.row]}>
+                            <Feather name="calendar" size={18} color="black" />
+                            <Text variant='labelMedium'>{foundOrg?.dateBusinessCommenced.toString()}</Text>
+                        </RRow>
+                    </RCol>
 
                     {
                         foundOrg && foundOrg.isUploadedAppointmentLetter == true && <>
