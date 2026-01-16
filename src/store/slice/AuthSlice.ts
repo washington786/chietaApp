@@ -66,13 +66,20 @@ const login = createAsyncThunk<
 
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({
-                message: 'Login failed',
+                error: { message: 'Login failed' }
             }))
             console.error('[LOGIN] Error response:', response.status, errorData);
+            
+            // Extract error message from nested structure: error.message or error.details
+            const errorMessage = errorData?.error?.message || 
+                                errorData?.error?.details || 
+                                errorData?.message || 
+                                `Login failed with status ${response.status}`;
+            
             return rejectWithValue({
                 code: 'LOGIN_ERROR',
-                message: errorData.message || `Login failed with status ${response.status}`,
-                details: errorData.details,
+                message: errorMessage,
+                details: errorData?.error?.details,
             })
         }
 
@@ -132,12 +139,19 @@ const register = createAsyncThunk<
 
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({
-                message: 'Registration failed',
+                error: { message: 'Registration failed' }
             }))
+            
+            // Extract error message from nested structure: error.message or error.details
+            const errorMessage = errorData?.error?.message || 
+                                errorData?.error?.details || 
+                                errorData?.message || 
+                                `Registration failed with status ${response.status}`;
+            
             return rejectWithValue({
                 code: 'REGISTRATION_ERROR',
-                message: errorData.message || `Registration failed with status ${response.status}`,
-                details: errorData.details,
+                message: errorMessage,
+                details: errorData?.error?.details,
             })
         }
 
