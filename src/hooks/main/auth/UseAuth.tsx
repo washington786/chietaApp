@@ -34,7 +34,7 @@ const UseAuth = () => {
         
         // If login was successful, fetch the SDF ID
         if (result.meta.requestStatus === 'fulfilled' && result.payload?.user?.id) {
-            dispatch(fetchPersonBySdfId(result.payload.user.id))
+            await dispatch(fetchPersonBySdfId(result.payload.user.id))
         }
         
         return result
@@ -43,9 +43,17 @@ const UseAuth = () => {
     /**
      * Register new user account
      * Dispatches register thunk and handles the async operation
+     * Then fetches the SDF ID for the new user
      */
     const register = async (payload: RegisterRequest) => {
-        return dispatch(registerThunk(payload))
+        const result = await dispatch(registerThunk(payload))
+        
+        // If registration was successful, fetch the SDF ID
+        if (result.meta.requestStatus === 'fulfilled' && result.payload?.user?.id) {
+            await dispatch(fetchPersonBySdfId(result.payload.user.id))
+        }
+        
+        return result
     }
 
     /**
@@ -91,9 +99,17 @@ const UseAuth = () => {
     /**
      * Restore user session from secure storage
      * Called on app startup to check if user is still logged in
+     * Also fetches the SDF ID for the restored user
      */
     const restoreUserSession = async () => {
-        return dispatch(restoreSession())
+        const result = await dispatch(restoreSession())
+        
+        // If session was restored successfully, fetch the SDF ID
+        if (result.meta.requestStatus === 'fulfilled' && result.payload?.user?.id) {
+            await dispatch(fetchPersonBySdfId(result.payload.user.id))
+        }
+        
+        return result
     }
 
     /**
