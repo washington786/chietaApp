@@ -76,6 +76,10 @@ export const api = createApi({
             query: (userId: string) => `/api/services/app/Organisation/GetSdfLinked?userid=${userId}`,
             providesTags: ['Organization'],
         }),
+        getOrganizationsBySdfId: builder.query({
+            query: (sdfId: number) => `/api/services/app/Organisation/GetSdfLinked?sdfId=${sdfId}`,
+            providesTags: ['Organization'],
+        }),
         getOrganizationByProject: builder.query({
             query: (projectId) =>
                 `/api/services/app/Organisation/GetByProject?id=${projectId}`,
@@ -476,6 +480,7 @@ export const {
     useGetOrganizationQuery,
     useGetOrganizationByTenantQuery,
     useGetUserOrganizationsQuery,
+    useGetOrganizationsBySdfIdQuery,
     useUploadDocumentMutation,
     useUploadProjectDocumentMutation,
     useDownloadDocumentMutation,

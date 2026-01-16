@@ -13,7 +13,8 @@ import { Searchbar } from 'react-native-paper'
 import colors from '@/config/colors'
 import { showToast } from '@/core'
 import { UnifiedOrgItem } from '@/core/types/unifiedData'
-import { loadLinkedOrganizationsAsync, loadOrganizations } from '@/store/slice/thunks/OrganizationThunks'
+import { loadLinkedOrganizationsAsync } from '@/store/slice/thunks/OrganizationThunks'
+import { useGetOrganizationsBySdfIdQuery, useGetPersonByUserIdQuery } from '@/store/api/api'
 
 const LinkedOrganizationsPage = () => {
 
@@ -21,8 +22,17 @@ const LinkedOrganizationsPage = () => {
 
     const { discretionaryGrants, mandatoryGrants, linkOrgDoc } = usePageTransition();
 
-    const { linkedOrganizations, error, loading, organizations } = useSelector((state: RootState) => state.linkedOrganization);
+    const { linkedOrganizations, error, loading } = useSelector((state: RootState) => state.linkedOrganization);
     const { user } = useSelector((state: RootState) => state.auth);
+
+    // Get person details to extract SDF ID
+    const { data: personData } = useGetPersonByUserIdQuery(user ? user.id : 0, { skip: !user || !user.id });
+    const sdfId = personData?.result?.person?.id;
+
+    // Get organizations using SDF ID
+    const { data: organizationsData, isLoading: orgLoading, error: orgError } = useGetOrganizationsBySdfIdQuery(sdfId || 0, {
+        skip: !sdfId
+    });
 
     const dispatch = useDispatch<AppDispatch>();
 
@@ -36,11 +46,8 @@ const LinkedOrganizationsPage = () => {
     const { close, open } = useGlobalBottomSheet();
 
     useEffect(() => {
-        if (user && user?.sdfId) {
-            dispatch(loadOrganizations(user.sdfId));
-        }
         dispatch(loadLinkedOrganizationsAsync());
-    }, [dispatch, user?.sdfId]);
+    }, [dispatch]);
 
     useEffect(() => {
         if (error && !prevErrorRef.current) {
@@ -76,16 +83,17 @@ const LinkedOrganizationsPage = () => {
 
     const unifiedList = useMemo(() => {
         const allItems: UnifiedOrgItem[] = [];
+        const orgs = organizationsData?.result?.items?.map((item: any) => item.organisation) || [];
 
         // Add main organizations
-        organizations.forEach(org => {
+        orgs.forEach((org: OrganisationDto) => {
             allItems.push({ type: 'main', data: org });
         });
 
         // Add footer organizations (linked, not cancelled)
         linkedOrganizations
             .filter(l => l.approvalStatus !== 'cancelled')
-            .map(l => organizations.find(o => o.id === l.id))
+            .map(l => orgs.find((o: OrganisationDto) => o.id === l.id))
             .filter(Boolean)
             .forEach(org => {
                 allItems.push({ type: 'footer', data: org as OrganisationDto });
@@ -100,7 +108,7 @@ const LinkedOrganizationsPage = () => {
             item.data.organisationTradingName.toLowerCase().includes(query) ||
             item.data.organisationRegistrationNumber.includes(searchQuery)
         );
-    }, [organizations, linkedOrganizations, searchQuery]);
+    }, [organizationsData, linkedOrganizations, searchQuery]);
 
     const renderItem = ({ item }: { item: UnifiedOrgItem }) => {
         if (item.type === 'main') {
@@ -116,7 +124,7 @@ const LinkedOrganizationsPage = () => {
         }
     };
 
-    if (loading) {
+    if (loading || orgLoading) {
         return (<RListLoading count={7} />);
     } else {
         return (

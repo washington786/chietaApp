@@ -47,8 +47,6 @@ const login = createAsyncThunk<
     { rejectValue: AuthError }
 >('auth/login', async (payload, { rejectWithValue }) => {
     try {
-        console.log('[LOGIN] Starting login request for:', payload.email);
-        
         const response = await fetch(`${API_BASE_URL}/api/TokenAuth/Authenticate`, {
             method: 'POST',
             headers: {
@@ -62,20 +60,17 @@ const login = createAsyncThunk<
             }),
         })
 
-        console.log('[LOGIN] Response status:', response.status, response.ok);
-
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({
                 error: { message: 'Login failed' }
             }))
-            console.error('[LOGIN] Error response:', response.status, errorData);
-            
-            // Extract error message from nested structure: error.message or error.details
-            const errorMessage = errorData?.error?.message || 
-                                errorData?.error?.details || 
-                                errorData?.message || 
-                                `Login failed with status ${response.status}`;
-            
+
+            // Extract error message from nested structure: prioritize details for user-friendliness
+            const errorMessage = errorData?.error?.details ||
+                errorData?.error?.message ||
+                errorData?.message ||
+                `Login failed with status ${response.status}`;
+
             return rejectWithValue({
                 code: 'LOGIN_ERROR',
                 message: errorMessage,
@@ -84,7 +79,6 @@ const login = createAsyncThunk<
         }
 
         const data = await response.json()
-        console.log('[LOGIN] Success - received user data for:', data.result?.userId);
 
         // Decode JWT to get expiry
         const expiresIn = extractTokenExpiry(data.result?.accessToken)
@@ -105,7 +99,6 @@ const login = createAsyncThunk<
             expiresIn: expiresIn || 3600,
         }
     } catch (error) {
-        console.error('[LOGIN] Catch error:', error);
         return rejectWithValue({
             code: 'NETWORK_ERROR',
             message: error instanceof Error ? error.message : 'Network error occurred',
@@ -141,13 +134,13 @@ const register = createAsyncThunk<
             const errorData = await response.json().catch(() => ({
                 error: { message: 'Registration failed' }
             }))
-            
-            // Extract error message from nested structure: error.message or error.details
-            const errorMessage = errorData?.error?.message || 
-                                errorData?.error?.details || 
-                                errorData?.message || 
-                                `Registration failed with status ${response.status}`;
-            
+
+            // Extract error message from nested structure: prioritize details for user-friendliness
+            const errorMessage = errorData?.error?.message ||
+                errorData?.error?.details ||
+                errorData?.message ||
+                `Registration failed with status ${response.status}`;
+
             return rejectWithValue({
                 code: 'REGISTRATION_ERROR',
                 message: errorMessage,
