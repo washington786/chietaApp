@@ -288,16 +288,13 @@ export const loadOrganizations = createAsyncThunk<
 
 export const fetchPersonBySdfId = createAsyncThunk<
     number,
-    string,
+    { userId: string; token: string },
     { state: any }
->('organization/fetchPersonBySdfId', async (userId, { rejectWithValue, getState }) => {
+>('organization/fetchPersonBySdfId', async ({ userId, token }, { rejectWithValue }) => {
     try {
         if (!userId) {
             return rejectWithValue('User ID is required');
         }
-
-        const state = getState();
-        const token = state.auth?.token;
 
         if (!token) {
             return rejectWithValue('Authentication token not found');
