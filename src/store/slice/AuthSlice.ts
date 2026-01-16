@@ -47,6 +47,8 @@ const login = createAsyncThunk<
     { rejectValue: AuthError }
 >('auth/login', async (payload, { rejectWithValue }) => {
     try {
+        console.log('[LOGIN] Starting login request for:', payload.email);
+        
         const response = await fetch(`${API_BASE_URL}/api/TokenAuth/Authenticate`, {
             method: 'POST',
             headers: {
@@ -60,10 +62,13 @@ const login = createAsyncThunk<
             }),
         })
 
+        console.log('[LOGIN] Response status:', response.status, response.ok);
+
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({
                 message: 'Login failed',
             }))
+            console.error('[LOGIN] Error response:', response.status, errorData);
             return rejectWithValue({
                 code: 'LOGIN_ERROR',
                 message: errorData.message || `Login failed with status ${response.status}`,
@@ -72,6 +77,7 @@ const login = createAsyncThunk<
         }
 
         const data = await response.json()
+        console.log('[LOGIN] Success - received user data for:', data.result?.userId);
 
         // Decode JWT to get expiry
         const expiresIn = extractTokenExpiry(data.result?.accessToken)
@@ -92,6 +98,7 @@ const login = createAsyncThunk<
             expiresIn: expiresIn || 3600,
         }
     } catch (error) {
+        console.error('[LOGIN] Catch error:', error);
         return rejectWithValue({
             code: 'NETWORK_ERROR',
             message: error instanceof Error ? error.message : 'Network error occurred',

@@ -292,11 +292,15 @@ export const fetchPersonBySdfId = createAsyncThunk<
     { state: any }
 >('organization/fetchPersonBySdfId', async ({ userId, token }, { rejectWithValue }) => {
     try {
+        console.log('[FETCH_PERSON] Starting person fetch for userId:', userId);
+        
         if (!userId) {
+            console.error('[FETCH_PERSON] User ID is missing');
             return rejectWithValue('User ID is required');
         }
 
         if (!token) {
+            console.error('[FETCH_PERSON] Token is missing');
             return rejectWithValue('Authentication token not found');
         }
 
@@ -309,21 +313,29 @@ export const fetchPersonBySdfId = createAsyncThunk<
             },
         });
 
+        console.log('[FETCH_PERSON] Response status:', response.status, response.ok);
+
         if (!response.ok) {
+            const errorText = await response.text();
+            console.error('[FETCH_PERSON] Error response:', response.status, errorText);
             return rejectWithValue('Failed to fetch person details');
         }
 
         const data = await response.json();
+        console.log('[FETCH_PERSON] Response data:', data);
 
         // Extract SDF ID from person.id
         const sdfId = data?.result?.person?.id;
         
         if (!sdfId) {
+            console.error('[FETCH_PERSON] SDF ID not found in response');
             return rejectWithValue('SDF ID not found in person details');
         }
 
+        console.log('[FETCH_PERSON] Success - SDF ID:', sdfId);
         return sdfId;
     } catch (error: any) {
+        console.error('[FETCH_PERSON] Catch error:', error);
         return rejectWithValue(error instanceof Error ? error.message : 'Failed to fetch person details');
     }
 });
