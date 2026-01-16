@@ -1,7 +1,7 @@
 import { View, Text, FlatList } from 'react-native'
 import React from 'react'
 import { useGetDGProjectDetailsAppQuery } from '@/store/api/api'
-import { RLoader } from '@/components/common'
+import { REmpty, RLoader } from '@/components/common'
 import ProjectDetailRenderItem from './ProjectDetailsRenderItem'
 
 interface ProjectDetailsItemProps {
@@ -31,7 +31,9 @@ const ProjectDetailsItem: React.FC<ProjectDetailsItemProps> = ({ projectId }) =>
                 data={items}
                 renderItem={({ item }) => <ProjectDetailRenderItem item={item} />}
                 keyExtractor={(item) => `${item.projectDetails.id}`}
-                scrollEnabled={false}
+                showsVerticalScrollIndicator={false}
+                ListEmptyComponent={<REmpty title='No Project Entry' subtitle='You do not have any project entries yet for this project..' icon='archive' />}
+                scrollEnabled={true}
             />
         </View>
     )
