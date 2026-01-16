@@ -9,6 +9,7 @@ import {
     logout as logoutAction,
     restoreSession,
 } from '@/store/slice/AuthSlice'
+import { fetchPersonBySdfId } from '@/store/slice/thunks/OrganizationThunks'
 import {
     LoginRequest,
     RegisterRequest,
@@ -26,9 +27,17 @@ const UseAuth = () => {
     /**
      * Login with email and password
      * Dispatches login thunk and handles the async operation
+     * Then fetches the SDF ID for the authenticated user
      */
     const login = async (payload: LoginRequest) => {
-        return dispatch(loginThunk(payload))
+        const result = await dispatch(loginThunk(payload))
+        
+        // If login was successful, fetch the SDF ID
+        if (result.meta.requestStatus === 'fulfilled' && result.payload?.user?.id) {
+            dispatch(fetchPersonBySdfId(result.payload.user.id))
+        }
+        
+        return result
     }
 
     /**

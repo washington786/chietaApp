@@ -14,6 +14,7 @@ import {
     AuthError,
 } from '@/core/models/UserDto'
 import * as SecureStore from 'expo-secure-store'
+import { fetchPersonBySdfId } from './thunks/OrganizationThunks';
 
 interface AuthState {
     user: UserDto | null
@@ -82,6 +83,7 @@ const login = createAsyncThunk<
                 firstName: data.result?.firstName || '',
                 lastName: data.result?.lastName || '',
                 username: data.result?.userName || '',
+                sdfId: data.result?.sdfId,
                 isActive: true,
                 isEmailConfirmed: true,
             },
@@ -143,6 +145,7 @@ const register = createAsyncThunk<
                 firstName: payload.firstName,
                 lastName: payload.lastName,
                 username: payload.username,
+                sdfId: data.result?.sdfId,
                 isActive: true,
                 isEmailConfirmed: false,
             },
@@ -787,6 +790,18 @@ const authSlice = createSlice({
                     code: 'TOKEN_REFRESH_ERROR',
                     message: 'Session expired',
                 }
+            })
+
+        // Fetch Person by SDF ID
+        builder
+            .addCase(fetchPersonBySdfId.fulfilled, (state, action) => {
+                if (state.user) {
+                    state.user.sdfId = action.payload
+                }
+            })
+            .addCase(fetchPersonBySdfId.rejected, (state, action) => {
+                console.warn('Failed to fetch SDF ID:', action.payload)
+                // Don't fail authentication if SDF ID fetch fails
             })
     },
 })

@@ -1,14 +1,16 @@
 import { StyleSheet } from 'react-native'
 import React, { useState } from 'react'
-import { RCol, Scroller } from '@/components/common'
+import { RCol, RLoaderAnimation, Scroller } from '@/components/common'
 import { useRoute, RouteProp } from '@react-navigation/native'
 import { navigationTypes } from '@/core/types/navigationTypes'
 import { DocumentDto } from '@/core/models/MandatoryDto'
 import { showToast } from '@/core'
-import { Text } from 'react-native-paper'
 import { useGetDocumentsByEntityQuery } from '@/store/api/api'
 import { Expandable } from '@/components/modules/application'
 import RDownload from '@/components/common/RDownload'
+import Entypo from '@expo/vector-icons/Entypo';
+import colors from '@/config/colors'
+import { Text } from 'react-native-paper'
 
 const FileManagementPage = () => {
     const { appId } = useRoute<RouteProp<navigationTypes, "applicationDetails">>().params;
@@ -98,6 +100,31 @@ const FileManagementPage = () => {
                     {
                         appFormQuery.isSuccess && getDocument(appFormQuery) && (<RDownload title={getDocument(appFormQuery).documenttype} fileName={getDocument(appFormQuery).filename} onPress={() => { handleDownload(getDocument(appFormQuery)) }} />)
                     }
+
+                    {
+                        taxQuery.isLoading ||
+                            companyQuery.isLoading ||
+                            beeQuery.isLoading ||
+                            accredQuery.isLoading ||
+                            commitQuery.isLoading ||
+                            learnerQuery.isLoading ||
+                            orgQuery.isLoading ||
+                            bankQuery.isLoading ||
+                            appFormQuery.isLoading ? (
+                            <RLoaderAnimation />
+                        ) : null
+                    }
+
+                    {
+                        !taxQuery.data && !companyQuery.data && !beeQuery.data && !accredQuery.data &&
+                        !commitQuery.data && !learnerQuery.data && !orgQuery.data &&
+                        !bankQuery.data && !appFormQuery.data && (
+                            <RCol style={{ alignItems: 'center', gap: 10 }}>
+                                <Entypo name="documents" size={40} color={colors.gray[700]} />
+                                <Text variant='bodySmall'>No documents found for this application.</Text>
+                            </RCol>
+                        )
+                    }
                 </RCol>
 
             </Expandable>
@@ -117,5 +144,7 @@ const styles = StyleSheet.create({
     docs: {
         marginVertical: 10,
         gap: 10,
+        alignItems: 'center',
+        justifyContent: 'center',
     }
 })

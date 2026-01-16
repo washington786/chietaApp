@@ -33,11 +33,11 @@ const LinkedOrganizations = () => {
     const prevErrorRef = useRef<typeof error>(null);
 
     useEffect(() => {
-        if (user && user?.id) {
-            dispatch(loadOrganizations(user.id));
+        if (user && user?.sdfId) {
+            dispatch(loadOrganizations(user.sdfId));
         }
         dispatch(loadLinkedOrganizationsAsync());
-    }, [dispatch, user?.id]);
+    }, [dispatch, user?.sdfId]);
 
     useEffect(() => {
         if (error && !prevErrorRef.current) {

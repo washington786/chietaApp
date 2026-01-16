@@ -204,12 +204,12 @@ export const updateApprovalStatus = createAsyncThunk(
 
 export const loadOrganizations = createAsyncThunk<
     OrganisationDto[],
-    string | undefined,
+    number | undefined,
     { state: any }
->('linkedOrganization/fetchAvailableOrganizations', async (userId, { rejectWithValue, getState }) => {
+>('linkedOrganization/fetchAvailableOrganizations', async (sdfId, { rejectWithValue, getState }) => {
     try {
-        if (!userId) {
-            return rejectWithValue('User ID is required');
+        if (!sdfId) {
+            return rejectWithValue('SDF ID is required');
         }
 
         const state = getState();
@@ -219,7 +219,7 @@ export const loadOrganizations = createAsyncThunk<
             return rejectWithValue('Authentication token not found');
         }
 
-        const response = await fetch(`https://ims.chieta.org.za:22743/api/services/app/Organisation/GetSdfLinked?userid=${userId}`, {
+        const response = await fetch(`https://ims.chieta.org.za:22743/api/services/app/Organisation/GetSdfLinked?sdfId=${sdfId}`, {
             method: 'GET',
             headers: {
                 'Accept': 'application/json',
@@ -283,5 +283,50 @@ export const loadOrganizations = createAsyncThunk<
         return org_data;
     } catch (error: any) {
         return org_data;
+    }
+});
+
+export const fetchPersonBySdfId = createAsyncThunk<
+    number,
+    string,
+    { state: any }
+>('organization/fetchPersonBySdfId', async (userId, { rejectWithValue, getState }) => {
+    try {
+        if (!userId) {
+            return rejectWithValue('User ID is required');
+        }
+
+        const state = getState();
+        const token = state.auth?.token;
+
+        if (!token) {
+            return rejectWithValue('Authentication token not found');
+        }
+
+        const response = await fetch(`https://ims.chieta.org.za:22743/api/services/app/Person/GetPersonByUserId?userid=${userId}`, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+            },
+        });
+
+        if (!response.ok) {
+            return rejectWithValue('Failed to fetch person details');
+        }
+
+        const data = await response.json();
+
+        // Extract SDF ID from person.id
+        const sdfId = data?.result?.person?.id;
+        
+        if (!sdfId) {
+            return rejectWithValue('SDF ID not found in person details');
+        }
+
+        return sdfId;
+    } catch (error: any) {
+        return rejectWithValue(error instanceof Error ? error.message : 'Failed to fetch person details');
     }
 });

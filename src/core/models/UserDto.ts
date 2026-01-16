@@ -22,6 +22,7 @@ export interface UserDto {
     lastName: string;
     username: string;
     phoneNumber?: string;
+    sdfId?: number;
     isActive: boolean;
     isEmailConfirmed: boolean;
     creationTime?: string;
