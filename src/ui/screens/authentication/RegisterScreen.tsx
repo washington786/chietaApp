@@ -86,7 +86,7 @@ const RegisterScreen = () => {
                                 styles.title,
                                 {
                                     fontFamily: `${appFonts.bold}`,
-                                    fontWeight: "500",
+                                    fontWeight: "bold",
                                     textTransform: "capitalize",
                                 },
                             ]}

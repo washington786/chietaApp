@@ -9,15 +9,17 @@ export const Authstyles = StyleSheet.create({
     },
     title: {
         fontSize: 28,
-        color: colors.slate['900'],
+        color: colors.primary['900'],
         textAlign: 'center',
+        fontWeight: "black"
     },
     description: {
         fontSize: 16,
         color: colors.slate['600'],
         textAlign: 'center',
         marginBottom: 8,
-        fontFamily: `${appFonts.medium}`
+        fontFamily: `${appFonts.medium}`,
+        fontWeight: "thin"
     },
     button: {
         marginTop: 8,

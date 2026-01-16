@@ -1,6 +1,6 @@
 import { Platform, Text, View } from 'react-native'
 import React from 'react'
-import { AuthWrapper } from '@/components/modules/authentication';
+import { AuthWrapper, BackBtn } from '@/components/modules/authentication';
 import usePageTransition from '@/hooks/navigation/usePageTransition';
 import { RButton, RErrorMessage, RInput, RKeyboardView, RLogo, RRow, RText, SafeArea, Scroller } from '@/components/common';
 import { Authstyles as styles } from '@/styles/AuthStyles';
@@ -64,21 +64,12 @@ const ForgotPasswordScreen = () => {
         <Scroller>
             <AuthWrapper>
                 <SafeArea>
-                    <RRow>
-                        {
-                            Platform.OS === 'ios' ?
-                                <RRow style={{ alignItems: "center" }}>
-                                    <IconButton icon={'chevron-left'} onPress={onBack} rippleColor={colors.violet[50]} />
-                                    <RText title='go back' onPress={onBack} style={styles.backButton}></RText>
-                                </RRow>
-                                :
-                                <IconButton icon={'arrow-left'} onPress={onBack} />
-                        }
+                    <BackBtn />
 
-                    </RRow>
-                    <RLogo stylesLogo={{ alignContent: "center", marginTop: 60, marginBottom: 20, width: "auto" }} />
+                    <RLogo stylesLogo={{ alignContent: "center", marginTop: 120, marginBottom: 20, width: "auto" }} />
+
                     <View style={styles.content}>
-                        <Text style={[styles.title, { fontFamily: `${appFonts.bold}`, fontWeight: "500", textTransform: "capitalize" }]}>
+                        <Text style={[styles.title, { fontFamily: `${appFonts.bold}`, fontWeight: "bold", textTransform: "capitalize" }]}>
                             forgot your password
                         </Text>
                         <Text style={[styles.description]}>
@@ -88,7 +79,6 @@ const ForgotPasswordScreen = () => {
                         <Formik initialValues={initialValues} onSubmit={(values) => handleSubmit(values)} validationSchema={resetPasswordSchema}>
                             {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
                                 <RKeyboardView style={{ gap: 12 }}>
-                                    ƒ
                                     <RInput placeholder='Email' icon={'mail'} onChangeText={handleChange('email')} onBlur={handleBlur('email')} value={values.email} />
 
                                     {

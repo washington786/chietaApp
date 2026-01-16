@@ -8,7 +8,15 @@ interface childrenProps {
 
 const AuthWrapper: FC<childrenProps> = ({ children }) => {
     return (
-        <LinearGradient colors={[colors.slate['50'], colors.slate['100']]} style={{ flex: 1 }}>
+        <LinearGradient
+            colors={[
+                `${colors.secondary[100]}E6`,
+                `${colors.slate[50]}F2`,
+            ]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={{ flex: 1, }}
+        >
             {children}
         </LinearGradient>
     )

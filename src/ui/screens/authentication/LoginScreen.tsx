@@ -1,9 +1,9 @@
 import { Text, View } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
 import colors from '@/config/colors'
-import { Button, TextInput } from 'react-native-paper'
+import { Button } from 'react-native-paper'
 import appFonts from '@/config/fonts'
-import { AuthWrapper } from '@/components/modules/authentication'
+import { AuthWrapper, BackBtn } from '@/components/modules/authentication'
 import { RButton, RErrorMessage, RInput, RKeyboardView, RLogo, SafeArea, Scroller } from '@/components/common'
 import usePageTransition from '@/hooks/navigation/usePageTransition'
 import { Authstyles as styles } from '@/styles/AuthStyles'
@@ -13,7 +13,8 @@ import UseAuth from '@/hooks/main/auth/UseAuth'
 import { useSelector, useDispatch } from 'react-redux'
 import { RootState } from '@/store/store'
 import { clearError } from '@/store/slice/AuthSlice'
-import RHeader from '@/components/common/RHeader'
+import Ionicons from '@expo/vector-icons/Ionicons';
+import { TouchableOpacity } from 'react-native'
 
 const formValues = {
     email: '',
@@ -21,7 +22,7 @@ const formValues = {
 }
 
 const LoginScreen = () => {
-    const { register, resetPassword, onAuth } = usePageTransition();
+    const { register, resetPassword, onAuth, onBack } = usePageTransition();
     const dispatch = useDispatch();
     const { login } = UseAuth();
     const { isLoading, error } = useSelector((state: RootState) => state.auth)
@@ -49,13 +50,13 @@ const LoginScreen = () => {
 
     return (
         <>
-            <Scroller>
+            <Scroller style={{ flexGrow: 1, paddingBottom: 20 }}>
                 <AuthWrapper>
                     <SafeArea>
-                        <RHeader name='Go-back' />
+                        <BackBtn />
                         <RLogo stylesLogo={{ alignContent: "center", marginTop: 90, marginBottom: 20, width: "auto" }} />
                         <View style={styles.content}>
-                            <Text style={[styles.title, { fontFamily: `${appFonts.bold}`, fontWeight: "500" }]}>
+                            <Text style={[styles.title, { fontFamily: `${appFonts.bold}`, fontWeight: "bold" }]}>
                                 Welcome Back
                             </Text>
                             <Text style={[styles.description]}>

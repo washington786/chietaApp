@@ -118,7 +118,7 @@ const NewPasswordScreen = () => {
                 <SafeArea>
                     <RLogo stylesLogo={{ alignContent: "center", marginTop: 40, marginBottom: 20, width: "auto" }} />
                     <View style={styles.content}>
-                        <Text style={[styles.title, { fontFamily: `${appFonts.bold}`, fontWeight: "500", textTransform: "capitalize" }]}>
+                        <Text style={[styles.title, { fontFamily: `${appFonts.bold}`, fontWeight: "bold", textTransform: "capitalize" }]}>
                             New Password
                         </Text>
                         <Text style={[styles.description]}>
