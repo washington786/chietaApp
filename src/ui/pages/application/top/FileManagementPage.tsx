@@ -1,31 +1,61 @@
-import { FlatList, StyleSheet, View } from 'react-native'
-import React, { useMemo } from 'react'
-import { RCol, REmpty } from '@/components/common'
+import { StyleSheet } from 'react-native'
+import React, { useState } from 'react'
+import { RCol, Scroller } from '@/components/common'
 import { useRoute, RouteProp } from '@react-navigation/native'
 import { navigationTypes } from '@/core/types/navigationTypes'
 import { DocumentDto } from '@/core/models/MandatoryDto'
-import { useSelector } from 'react-redux'
-import { RootState } from '@/store/store'
-import { mockDocuments } from '@/core/types/dummy'
 import { showToast } from '@/core'
-import RDownload from '@/components/common/RDownload'
 import { Text } from 'react-native-paper'
+import { useGetDocumentsByEntityQuery } from '@/store/api/api'
+import { Expandable } from '@/components/modules/application'
+import RDownload from '@/components/common/RDownload'
 
 const FileManagementPage = () => {
-    const route = useRoute<RouteProp<navigationTypes, "applicationDetails">>();
-    const { item } = route.params || {};
+    const { appId } = useRoute<RouteProp<navigationTypes, "applicationDetails">>().params;
 
-    const discretionaryDocs = useSelector((state: RootState) => state.discretionaryGrant.documents);
+    const [showDocs, setShowDocs] = useState<boolean>(true);
 
-    const documents = useMemo<DocumentDto[]>(() => {
-        if (item?.documents && Array.isArray(item.documents) && item.documents.length) {
-            return item.documents;
-        }
-        if (discretionaryDocs.length) {
-            return discretionaryDocs;
-        }
-        return mockDocuments;
-    }, [item?.documents, discretionaryDocs]);
+    // Fetch all document types
+    const taxQuery = useGetDocumentsByEntityQuery(
+        { entityId: appId, module: 'Projects', documentType: 'Tax Compliance' },
+        { skip: !appId }
+    );
+    const companyQuery = useGetDocumentsByEntityQuery(
+        { entityId: appId, module: 'Projects', documentType: 'Company Registration' },
+        { skip: !appId }
+    );
+    const beeQuery = useGetDocumentsByEntityQuery(
+        { entityId: appId, module: 'Projects', documentType: 'BBBEE Certificate' },
+        { skip: !appId }
+    );
+    const accredQuery = useGetDocumentsByEntityQuery(
+        { entityId: appId, module: 'Projects', documentType: 'Proof of Accreditation' },
+        { skip: !appId }
+    );
+    const commitQuery = useGetDocumentsByEntityQuery(
+        { entityId: appId, module: 'Projects', documentType: 'Letter of Commitment' },
+        { skip: !appId }
+    );
+    const learnerQuery = useGetDocumentsByEntityQuery(
+        { entityId: appId, module: 'Projects', documentType: 'Learner Schedule' },
+        { skip: !appId }
+    );
+    const orgQuery = useGetDocumentsByEntityQuery(
+        { entityId: appId, module: 'Projects', documentType: 'Organization Declaration of Interest' },
+        { skip: !appId }
+    );
+    const bankQuery = useGetDocumentsByEntityQuery(
+        { entityId: appId, module: 'Projects', documentType: 'Proof of Banking Details' },
+        { skip: !appId }
+    );
+    const appFormQuery = useGetDocumentsByEntityQuery(
+        { entityId: appId, module: 'Projects', documentType: 'Application Form' },
+        { skip: !appId }
+    );
+
+    // Helper function to get document from RTK Query data
+    const getDocument = (query: any) => query.data?.result?.items?.[0]?.documents;
+
 
     const handleDownload = (doc: DocumentDto) => {
         showToast({
@@ -36,29 +66,42 @@ const FileManagementPage = () => {
         });
     };
 
-    const renderItem = ({ item }: { item: DocumentDto }) => (
-        <RDownload
-            title={item.documentType || "Document"}
-            fileName={item.filename}
-            onPress={() => handleDownload(item)}
-        />
-    );
-
     return (
-        <FlatList
-            data={documents}
-            keyExtractor={(doc) => `${doc.id}-${doc.filename}`}
-            style={styles.list}
-            renderItem={renderItem}
-            ListHeaderComponent={<RCol style={{ paddingVertical: 6 }}><Text>Documents to Download</Text></RCol>}
-            showsVerticalScrollIndicator={false}
-            ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
-            ListEmptyComponent={<REmpty title='No Files Found' subtitle={`Files available in the cycle will appear here.`} />}
-            removeClippedSubviews={false}
-            initialNumToRender={10}
-            maxToRenderPerBatch={10}
-            windowSize={21}
-        />
+        <Scroller style={styles.list}>
+            <Expandable title='Manage Uploaded Documents' isExpanded={showDocs} onPress={() => setShowDocs(!showDocs)}>
+
+                <RCol style={styles.docs}>
+                    {
+                        taxQuery.isSuccess && getDocument(taxQuery) && (<RDownload title={getDocument(taxQuery).documenttype} fileName={getDocument(taxQuery).filename} onPress={() => { handleDownload(getDocument(taxQuery)) }} />)
+                    }
+                    {
+                        companyQuery.isSuccess && getDocument(companyQuery) && (<RDownload title={getDocument(companyQuery).documenttype} fileName={getDocument(companyQuery).filename} onPress={() => { handleDownload(getDocument(companyQuery)) }} />)
+                    }
+                    {
+                        beeQuery.isSuccess && getDocument(beeQuery) && (<RDownload title={getDocument(beeQuery).documenttype} fileName={getDocument(beeQuery).filename} onPress={() => { handleDownload(getDocument(beeQuery)) }} />)
+                    }
+                    {
+                        accredQuery.isSuccess && getDocument(accredQuery) && (<RDownload title={getDocument(accredQuery).documenttype} fileName={getDocument(accredQuery).filename} onPress={() => { handleDownload(getDocument(accredQuery)) }} />)
+                    }
+                    {
+                        commitQuery.isSuccess && getDocument(commitQuery) && (<RDownload title={getDocument(commitQuery).documenttype} fileName={getDocument(commitQuery).filename} onPress={() => { handleDownload(getDocument(commitQuery)) }} />)
+                    }
+                    {
+                        learnerQuery.isSuccess && getDocument(learnerQuery) && (<RDownload title={getDocument(learnerQuery).documenttype} fileName={getDocument(learnerQuery).filename} onPress={() => { handleDownload(getDocument(learnerQuery)) }} />)
+                    }
+                    {
+                        orgQuery.isSuccess && getDocument(orgQuery) && (<RDownload title={getDocument(orgQuery).documenttype} fileName={getDocument(orgQuery).filename} onPress={() => { handleDownload(getDocument(orgQuery)) }} />)
+                    }
+                    {
+                        bankQuery.isSuccess && getDocument(bankQuery) && (<RDownload title={getDocument(bankQuery).documenttype} fileName={getDocument(bankQuery).filename} onPress={() => { handleDownload(getDocument(bankQuery)) }} />)
+                    }
+                    {
+                        appFormQuery.isSuccess && getDocument(appFormQuery) && (<RDownload title={getDocument(appFormQuery).documenttype} fileName={getDocument(appFormQuery).filename} onPress={() => { handleDownload(getDocument(appFormQuery)) }} />)
+                    }
+                </RCol>
+
+            </Expandable>
+        </Scroller>
     )
 }
 
@@ -71,4 +114,8 @@ const styles = StyleSheet.create({
         paddingHorizontal: 12,
         paddingVertical: 6,
     },
+    docs: {
+        marginVertical: 10,
+        gap: 10,
+    }
 })
