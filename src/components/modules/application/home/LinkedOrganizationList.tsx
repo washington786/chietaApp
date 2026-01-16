@@ -46,8 +46,8 @@ export const LinkedOrganizationList: FC<linkedProps> = ({ org, isLinkingRequired
                     initialNumToRender={10}
                     maxToRenderPerBatch={10}
                     ListEmptyComponent={<>
-                        <RCol style={{ alignItems: 'center', justifyContent: 'center', paddingVertical: 20 }}>
-                            <Feather name="box" size={16} color="gray" style={{ marginLeft: 6 }} />
+                        <RCol style={{ alignItems: 'center', justifyContent: 'center', paddingVertical: 20, flex: 1 }}>
+                            <Feather name="box" size={40} color="gray" style={{ marginLeft: 6 }} />
                             <Text variant='bodyMedium' style={{ color: colors.slate[400] }}>No linked organizations found.</Text>
                         </RCol>
                     </>}
