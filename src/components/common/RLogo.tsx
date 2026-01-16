@@ -19,7 +19,7 @@ export default RLogo;
 
 const styles = StyleSheet.create({
   logo: {
-    minHeight: 60,
-    minWidth: 60,
+    minHeight: 80,
+    minWidth: 80,
   },
 });
