@@ -10,18 +10,25 @@ import { showToast } from '@/core';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '@/store/store';
 import { LinkedOrganizationList } from './LinkedOrganizationList';
-import { loadLinkedOrganizationsAsync, loadOrganizations } from '@/store/slice/thunks/OrganizationThunks';
+import { loadLinkedOrganizationsAsync } from '@/store/slice/thunks/OrganizationThunks';
 import { OrganisationDto } from '@/core/models/organizationDto';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import { useDelinkOrganizationMutation, useGetSDFByUserQuery } from '@/store/api/api';
+import { useDelinkOrganizationMutation, useGetOrganizationsBySdfIdQuery, useGetPersonByUserIdQuery } from '@/store/api/api';
 
 const LinkedOrganizations = () => {
     const { newOrg, discretionaryGrants, mandatoryGrants, linkOrgDoc } = usePageTransition();
     const { open, close } = useGlobalBottomSheet();
-    const { linkedOrganizations, organizations, loading, error } = useSelector((state: RootState) => state.linkedOrganization);
+    const { linkedOrganizations, loading, error } = useSelector((state: RootState) => state.linkedOrganization);
     const { user } = useSelector((state: RootState) => state.auth);
 
-    const { data: sdfData } = useGetSDFByUserQuery(user ? user.id : 0, { skip: !user || !user.id });
+    // Get person details to extract SDF ID
+    const { data: personData } = useGetPersonByUserIdQuery(user ? user.id : 0, { skip: !user || !user.id });
+    const sdfId = personData?.result?.person?.id;
+
+    // Get organizations using SDF ID
+    const { data: organizationsData, isLoading: orgLoading, error: orgError } = useGetOrganizationsBySdfIdQuery(sdfId || 0, {
+        skip: !sdfId
+    });
 
     const userId = user && user.id || 0;
 
@@ -33,11 +40,8 @@ const LinkedOrganizations = () => {
     const prevErrorRef = useRef<typeof error>(null);
 
     useEffect(() => {
-        if (user && user?.sdfId) {
-            dispatch(loadOrganizations(user.sdfId));
-        }
         dispatch(loadLinkedOrganizationsAsync());
-    }, [dispatch, user?.sdfId]);
+    }, [dispatch]);
 
     useEffect(() => {
         if (error && !prevErrorRef.current) {
@@ -53,14 +57,14 @@ const LinkedOrganizations = () => {
 
     async function handleContinue() {
 
-        if (!sdfData || !sdfData.id) {
+        if (!sdfId) {
             showToast({ message: "SDF ID not found", type: "error", title: "Error", position: "top" });
             return;
         }
 
         setVisible(false);
         try {
-            await delinkOrganization({ id: sdfData.id, userid: Number(userId) }).unwrap();
+            await delinkOrganization({ id: sdfId, userid: Number(userId) }).unwrap();
             showToast({ message: "successfully delinked organization from your list.", type: "success", title: "De-linking", position: "top" });
             dispatch(loadLinkedOrganizationsAsync());
         } catch (err) {
@@ -82,14 +86,14 @@ const LinkedOrganizations = () => {
         linkOrgDoc({ orgId: String(org.id) });
     }
 
-    if (loading) {
+    if (loading || orgLoading) {
         return (<RListLoading count={7} />);
     } else {
         return (
             <RCol style={{ marginTop: 12 }}>
                 <RCol>
                     <LinkedOrganizationList
-                        org={organizations}
+                        org={organizationsData?.result?.items?.map((item: any) => item.organisation) || []}
                         onNewLinking={(selected) => handleOrgLinking(selected)}
                         onPress={(selectedOrg: OrganisationDto) => open(
                             <OrgDetails
@@ -98,7 +102,7 @@ const LinkedOrganizations = () => {
                         isLinkingRequiredNew={true} />
                 </RCol>
 
-                <RDialog hideDialog={handleDialog} visible={visible} message={`are you sure you want to de-link this organization with SDFID-${sdfData?.id}?`} title='Delink Org' onContinue={handleContinue} />
+                <RDialog hideDialog={handleDialog} visible={visible} message={`are you sure you want to de-link this organization with SDFID-${sdfId}?`} title='Delink Org' onContinue={handleContinue} />
             </RCol>
         )
     }

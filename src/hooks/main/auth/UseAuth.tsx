@@ -33,22 +33,16 @@ const UseAuth = () => {
      * Then fetches the SDF ID for the authenticated user
      */
     const login = async (payload: LoginRequest) => {
-        console.log('[UseAuth] Login started');
         const result = await dispatch(loginThunk(payload))
-        
-        console.log('[UseAuth] Login result:', result.meta.requestStatus, result.payload?.user?.id);
-        
+
         // If login was successful, fetch the SDF ID
-        if (result.meta.requestStatus === 'fulfilled' && result.payload?.user?.id && result.payload?.accessToken) {
-            console.log('[UseAuth] Fetching person SDF ID');
+        if (result.meta.requestStatus === 'fulfilled' && result.payload && 'user' in result.payload && 'accessToken' in result.payload) {
             await dispatch(fetchPersonBySdfId({
                 userId: result.payload.user.id,
                 token: result.payload.accessToken
             }))
-        } else if (result.meta.requestStatus === 'rejected') {
-            console.error('[UseAuth] Login rejected:', result.payload);
         }
-        
+
         return result
     }
 
@@ -59,15 +53,15 @@ const UseAuth = () => {
      */
     const register = async (payload: RegisterRequest) => {
         const result = await dispatch(registerThunk(payload))
-        
+
         // If registration was successful, fetch the SDF ID
-        if (result.meta.requestStatus === 'fulfilled' && result.payload?.user?.id && result.payload?.accessToken) {
+        if (result.meta.requestStatus === 'fulfilled' && result.payload && 'user' in result.payload && 'accessToken' in result.payload) {
             await dispatch(fetchPersonBySdfId({
                 userId: result.payload.user.id,
                 token: result.payload.accessToken
             }))
         }
-        
+
         return result
     }
 
@@ -118,15 +112,15 @@ const UseAuth = () => {
      */
     const restoreUserSession = async () => {
         const result = await dispatch(restoreSession())
-        
+
         // If session was restored successfully, fetch the SDF ID
-        if (result.meta.requestStatus === 'fulfilled' && result.payload?.user?.id && result.payload?.token) {
+        if (result.meta.requestStatus === 'fulfilled' && result.payload && 'user' in result.payload && 'token' in result.payload) {
             await dispatch(fetchPersonBySdfId({
                 userId: result.payload.user.id,
                 token: result.payload.token
             }))
         }
-        
+
         return result
     }
 
