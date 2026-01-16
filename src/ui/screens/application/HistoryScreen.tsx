@@ -48,6 +48,7 @@ const HistoryScreen = () => {
                     ListHeaderComponent={<RCol style={styles.conWrap}>
                         <Text variant='titleMedium' style={styles.textColor}>application tracking status</Text>
                     </RCol>}
+                    stickyHeaderIndices={[0]}
                     showsVerticalScrollIndicator={false}
                     ItemSeparatorComponent={() => <View style={{ height: 5 }} />}
                     removeClippedSubviews={false}
@@ -68,8 +69,8 @@ const styles = StyleSheet.create({
     conWrap: {
         justifyContent: "center",
         alignItems: "center",
-        paddingVertical: 2
-
+        paddingVertical: 8,
+        backgroundColor: colors.slate[50],
     },
     textColor: {
         color: colors.slate[900],

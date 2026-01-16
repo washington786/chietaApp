@@ -50,7 +50,7 @@ export function AppTrackingItem({ onPress, item }: Props) {
                     <MaterialCommunityIcons
                         name="domain"
                         size={26}
-                        color={colors.primary[700] || '#6d28d9'}
+                        color={colors.slate[700] || '#6d28d9'}
                     />
                     <Text
                         style={styles.orgName}
@@ -107,7 +107,7 @@ const styles = StyleSheet.create({
     card: {
         marginVertical: 8,
         backgroundColor: '#ffffff',
-        borderRadius: 16,
+        borderRadius: 5,
         padding: 18,
         borderWidth: 1,
         borderColor: '#e2e8f0',
