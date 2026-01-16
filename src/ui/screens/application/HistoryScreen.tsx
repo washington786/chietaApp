@@ -1,6 +1,6 @@
 import { FlatList, StyleSheet, View } from 'react-native'
 import React, { useEffect } from 'react'
-import { RCol, REmpty, RListLoading, SafeArea, SkeletonLoader } from '@/components/common'
+import { RCol, REmpty, RListLoading, SafeArea } from '@/components/common'
 import { Text } from 'react-native-paper'
 import colors from '@/config/colors'
 import { AppTrackingItem } from '@/components/modules/application'
@@ -22,13 +22,15 @@ const HistoryScreen = () => {
         dispatch(fetchDiscretionaryProjectsAsync());
     }, [dispatch]);
 
-    if (error) {
-        showToast({ message: error, type: "error", title: "Error", position: "top" });
-    }
+    useEffect(() => {
+        if (error) {
+            showToast({ message: error, type: "error", title: "Error", position: "top" });
+        }
+    }, [error]);
 
     const renderList = ({ index, item }: { index: number, item: DiscretionaryGrantApplication }) => {
         return (
-            <Animated.View key={`proj-${item.id}}`} entering={FadeInDown.duration(600).delay(index * 100).springify()}>
+            <Animated.View key={`proj-${item.id}`} entering={FadeInDown.duration(600).delay(index * 100).springify()}>
                 <AppTrackingItem onPress={() => historyItemDetails({ appId: item.id, item: item })} item={item} />
             </Animated.View>
         )
@@ -46,6 +48,7 @@ const HistoryScreen = () => {
                     ListHeaderComponent={<RCol style={styles.conWrap}>
                         <Text variant='titleMedium' style={styles.textColor}>application tracking status</Text>
                     </RCol>}
+                    stickyHeaderIndices={[0]}
                     showsVerticalScrollIndicator={false}
                     ItemSeparatorComponent={() => <View style={{ height: 5 }} />}
                     removeClippedSubviews={false}
@@ -66,8 +69,8 @@ const styles = StyleSheet.create({
     conWrap: {
         justifyContent: "center",
         alignItems: "center",
-        paddingVertical: 2
-
+        paddingVertical: 8,
+        backgroundColor: colors.slate[50],
     },
     textColor: {
         color: colors.slate[900],

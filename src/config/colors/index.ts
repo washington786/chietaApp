@@ -162,6 +162,9 @@ const bossanova = {
     '950': '#311240',
 };
 
+const white = "#FFFFFF";
+const black = "#000000";
+
 export const colors = {
     primary: bossanova,
     secondary: putty,
@@ -174,7 +177,9 @@ export const colors = {
     blue: blue,
     red: red,
     violet: violet,
-
+    white,
+    black
 };
+
 
 export default colors;
