@@ -1,5 +1,5 @@
 import { Text, View } from "react-native";
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import usePageTransition from "@/hooks/navigation/usePageTransition";
 import { AuthWrapper } from "@/components/modules/authentication";
 import {
@@ -38,6 +38,7 @@ const RegisterScreen = () => {
     const { isLoading, error } = useSelector(
         (state: RootState) => state.auth
     );
+    const prevErrorRef = useRef<typeof error>(null);
 
     const handleSubmit = async (values: RegisterRequest) => {
         const { email, firstName, lastName, password, username } = values;
@@ -51,23 +52,26 @@ const RegisterScreen = () => {
 
         if (result.type === 'auth/register/fulfilled') {
             showToast({
-                message: "Registration successful",
+                message: "Registration successful! Welcome aboard.",
                 type: "success",
-                title: "Success",
+                title: "Account Created",
                 position: "top",
             });
             onAuth();
         }
     }
 
-    if (error) {
-        showToast({
-            message: error.message,
-            type: "error",
-            title: "Login Error",
-            position: "top",
-        });
-    }
+    useEffect(() => {
+        if (error && !prevErrorRef.current) {
+            showToast({
+                message: error.message,
+                type: "error",
+                title: "Registration Error",
+                position: "top",
+            });
+        }
+        prevErrorRef.current = error;
+    }, [error]);
     return (
         <Scroller>
             <AuthWrapper>

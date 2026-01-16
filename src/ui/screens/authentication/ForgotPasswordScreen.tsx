@@ -1,5 +1,5 @@
 import { Platform, Text, View } from 'react-native'
-import React from 'react'
+import React, { useEffect, useRef } from 'react'
 import { AuthWrapper, BackBtn } from '@/components/modules/authentication';
 import usePageTransition from '@/hooks/navigation/usePageTransition';
 import { RButton, RErrorMessage, RInput, RKeyboardView, RLogo, RRow, RText, SafeArea, Scroller } from '@/components/common';
@@ -28,6 +28,19 @@ const ForgotPasswordScreen = () => {
     const { isLoading, error } = useSelector(
         (state: RootState) => state.auth
     );
+    const prevErrorRef = useRef<typeof error>(null);
+
+    useEffect(() => {
+        if (error && !prevErrorRef.current) {
+            showToast({
+                message: error.message,
+                type: "error",
+                title: "Login Error",
+                position: "top",
+            });
+        }
+        prevErrorRef.current = error;
+    }, [error]);
 
     const handleSubmit = async (values: ResetPasswordRequest) => {
         const { email } = values;
@@ -49,15 +62,6 @@ const ForgotPasswordScreen = () => {
             // Navigate to OTP screen without passing email as param
             otp();
         }
-    }
-
-    if (error) {
-        showToast({
-            message: error.message,
-            type: "error",
-            title: "Login Error",
-            position: "top",
-        });
     }
 
     return (

@@ -43,10 +43,9 @@ const LoginScreen = () => {
     useEffect(() => {
         if (error && !prevErrorRef.current) {
             showToast({ message: error.message, type: 'error', title: 'Login Error', position: "top" });
-            dispatch(clearError());
         }
         prevErrorRef.current = error;
-    }, [error, dispatch])
+    }, [error])
 
     return (
         <>
