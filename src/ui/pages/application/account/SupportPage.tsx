@@ -1,13 +1,15 @@
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import React from 'react'
+import React, { useState } from 'react'
 import RHeader from '@/components/common/RHeader'
-import { Scroller } from '@/components/common'
+import { RCol, RDivider, Scroller } from '@/components/common'
 import Animated, { FadeInDown } from 'react-native-reanimated'
 import { Feather, MaterialIcons } from '@expo/vector-icons';
 import { contactOptions, faqs } from '@/core/helpers/support'
 import colors from '@/config/colors'
+import { Expandable } from '@/components/modules/application'
 
 const SupportPage = () => {
+    const [expandedIndex, setExpandedIndex] = useState<number | null>(null)
 
     return (
         <>
@@ -17,43 +19,48 @@ const SupportPage = () => {
                     {/* Header */}
                     <View style={styles.header}>
                         <View style={styles.iconCircle}>
-                            <Feather name="headphones" size={42} color="#6c5ce7" />
+                            <Feather name="headphones" size={42} color={colors.primary[800]} />
                         </View>
                         <Text style={styles.mainTitle}>Help & Support</Text>
                         <Text style={styles.subtitle}>We're here to help you</Text>
                     </View>
 
                     {/* Quick Contact Cards */}
-                    <Text style={styles.sectionHeader}>Contact Us</Text>
-                    {contactOptions.map((item, index) => (
-                        <Animated.View
-                            key={index}
-                            entering={FadeInDown.delay(100 + index * 80).duration(500)}
-                        >
-                            <TouchableOpacity style={styles.contactCard} onPress={item.action}>
-                                <View style={styles.contactLeft}>
-                                    <Feather name={item.icon} size={24} color="#6c5ce7" />
-                                    <View style={{ marginLeft: 16 }}>
-                                        <Text style={styles.contactTitle}>{item.title}</Text>
-                                        <Text style={styles.contactSubtitle}>{item.subtitle}</Text>
+                    <RCol style={{ backgroundColor: colors.white, borderWidth: 1, borderColor: colors.gray[200], padding: 16, borderRadius: 8, }}>
+                        <Text style={styles.sectionHeader}>Contact Us</Text>
+                        {contactOptions.map((item, index) => (
+                            <Animated.View
+                                key={index}
+                                entering={FadeInDown.delay(100 + index * 80).duration(500)}
+                            >
+                                <TouchableOpacity style={styles.contactCard} onPress={item.action}>
+                                    <View style={styles.contactLeft}>
+                                        <Feather name={item.icon} size={14} color={colors.primary[800]} />
+                                        <View style={{ marginLeft: 16 }}>
+                                            <Text style={styles.contactTitle}>{item.title}</Text>
+                                            <Text style={styles.contactSubtitle}>{item.subtitle}</Text>
+                                        </View>
                                     </View>
-                                </View>
-                                <MaterialIcons name="arrow-forward-ios" size={18} color="#aaa" />
-                            </TouchableOpacity>
-                        </Animated.View>
-                    ))}
+                                    <MaterialIcons name="arrow-forward-ios" size={18} color="#aaa" />
+                                </TouchableOpacity>
+                            </Animated.View>
+                        ))}
+                    </RCol>
+
 
                     {/* FAQs */}
                     <Text style={[styles.sectionHeader, { marginTop: 30 }]}>Frequently Asked Questions</Text>
+                    <RDivider />
                     {faqs.map((faq, index) => (
-                        <Animated.View
-                            key={index}
-                            entering={FadeInDown.delay(400 + index * 80).duration(500)}
-                            style={styles.faqCard}
-                        >
-                            <Text style={styles.faqQuestion}>{faq.question}</Text>
-                            <Text style={styles.faqAnswer}>{faq.answer}</Text>
-                        </Animated.View>
+                        <Expandable isExpanded={expandedIndex === index} key={index} title={faq.question} onPress={() => setExpandedIndex(expandedIndex === index ? null : index)}>
+                            <Animated.View
+                                key={index}
+                                entering={FadeInDown.delay(400 + index * 80).duration(500)}
+                                style={styles.faqCard}
+                            >
+                                <Text style={styles.faqAnswer}>{faq.answer}</Text>
+                            </Animated.View>
+                        </Expandable>
                     ))}
 
                     {/* Footer */}
@@ -97,7 +104,6 @@ const styles = StyleSheet.create({
     contactTitle: { fontSize: 17, fontWeight: '600', color: '#2d3436' },
     contactSubtitle: { fontSize: 15, color: '#636e72', marginTop: 2 },
     faqCard: {
-        backgroundColor: colors.zinc[100],
         padding: 18,
         borderRadius: 16,
         marginBottom: 12,
