@@ -62,10 +62,6 @@ const DetailsPage = () => {
 
     const organization = orgData?.result?.organisation;
 
-    console.log('====================================');
-    console.log(organization);
-    console.log('====================================');
-
     const person = sdfData?.result?.person;
 
     return (

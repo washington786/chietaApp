@@ -14,7 +14,7 @@ interface props {
 
 export function Expandable({ onPress, isExpanded = true, children, title }: props) {
     return (
-        <RCol style={{ backgroundColor: colors.slate[100], marginVertical: 10, padding: 4 }}>
+        <RCol style={{ backgroundColor: "#ffffff", marginVertical: 10, padding: 4, borderColor: colors.gray[200], borderWidth: 0.5, borderRadius: 6 }}>
             <TouchableOpacity onPress={onPress}>
                 <RRow style={{ alignItems: 'center', justifyContent: "space-between", paddingVertical: 12 }}>
                     <Text variant='titleMedium' style={styles.capText}>{title}</Text>
@@ -25,7 +25,7 @@ export function Expandable({ onPress, isExpanded = true, children, title }: prop
                 isExpanded && (
                     <>
                         <RDivider />
-                        <RCol>
+                        <RCol style={{paddingHorizontal:6}}>
                             {children}
                         </RCol>
 
