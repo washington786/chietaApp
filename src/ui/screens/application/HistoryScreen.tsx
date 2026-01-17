@@ -5,7 +5,6 @@ import { Text } from 'react-native-paper'
 import colors from '@/config/colors'
 import { AppTrackingItem } from '@/components/modules/application'
 import usePageTransition from '@/hooks/navigation/usePageTransition'
-import Animated, { FadeInDown } from 'react-native-reanimated'
 import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch, RootState } from '@/store/store'
 import { showToast } from '@/core'
@@ -30,9 +29,9 @@ const HistoryScreen = () => {
 
     const renderList = ({ index, item }: { index: number, item: DiscretionaryGrantApplication }) => {
         return (
-            <Animated.View key={`proj-${item.id}`} entering={FadeInDown.duration(600).delay(index * 100).springify()}>
+            <View key={`proj-${item.id}`}>
                 <AppTrackingItem onPress={() => historyItemDetails({ appId: item.id, item: item })} item={item} />
-            </Animated.View>
+            </View>
         )
     }
 
