@@ -6,7 +6,7 @@ const navigationTheme = {
     colors: {
         ...DefaultTheme.colors,
         primary: colors.primary[500],
-        background: colors.slate[50],
+        background: colors.zinc[50],
     },
 };
 
