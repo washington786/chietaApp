@@ -93,6 +93,7 @@ const NewHome = () => {
         fullname = name.split('.').map(part => part.charAt(0).toUpperCase() + part.slice(1)).join(' ');
     }
 
+
     return (
         <SafeAreaView style={styles.container}>
             <FlatList

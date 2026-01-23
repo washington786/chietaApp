@@ -13,7 +13,7 @@ import { LinkedOrganizationList } from './LinkedOrganizationList';
 import { loadLinkedOrganizationsAsync } from '@/store/slice/thunks/OrganizationThunks';
 import { OrganisationDto } from '@/core/models/organizationDto';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import { useDelinkOrganizationMutation, useGetOrganizationsBySdfIdQuery, useGetPersonByUserIdQuery } from '@/store/api/api';
+import { useDelinkOrganizationMutation, useGetOrganizationsBySdfIdQuery } from '@/store/api/api';
 
 const LinkedOrganizations = () => {
     const { newOrg, discretionaryGrants, mandatoryGrants, linkOrgDoc } = usePageTransition();
@@ -21,14 +21,15 @@ const LinkedOrganizations = () => {
     const { linkedOrganizations, loading, error } = useSelector((state: RootState) => state.linkedOrganization);
     const { user } = useSelector((state: RootState) => state.auth);
 
-    // Get person details to extract SDF ID
-    const { data: personData } = useGetPersonByUserIdQuery(user ? user.id : 0, { skip: !user || !user.id });
-    const sdfId = personData?.result?.person?.id;
+    // Use sdfId directly from authenticated user (now correctly populated after login)
+    const sdfId = user?.sdfId;
 
     // Get organizations using SDF ID
     const { data: organizationsData, isLoading: orgLoading, error: orgError } = useGetOrganizationsBySdfIdQuery(sdfId || 0, {
         skip: !sdfId
     });
+
+    console.log('[LinkedOrganizations] sdfId:', sdfId, 'orgLoading:', orgLoading, 'orgError:', orgError, 'organizationsData:', organizationsData);
 
     const userId = user && user.id || 0;
 
@@ -93,7 +94,7 @@ const LinkedOrganizations = () => {
             <RCol style={{ marginTop: 12 }}>
                 <RCol>
                     <LinkedOrganizationList
-                        org={organizationsData?.result?.items?.map((item: any) => item.organisation) || []}
+                        org={organizationsData || []}
                         onNewLinking={(selected) => handleOrgLinking(selected)}
                         onPress={(selectedOrg: OrganisationDto) => open(
                             <OrgDetails

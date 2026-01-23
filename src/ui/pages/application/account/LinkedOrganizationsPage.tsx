@@ -14,7 +14,7 @@ import colors from '@/config/colors'
 import { showToast } from '@/core'
 import { UnifiedOrgItem } from '@/core/types/unifiedData'
 import { loadLinkedOrganizationsAsync } from '@/store/slice/thunks/OrganizationThunks'
-import { useGetOrganizationsBySdfIdQuery, useGetPersonByUserIdQuery } from '@/store/api/api'
+import { useGetOrganizationsBySdfIdQuery } from '@/store/api/api'
 
 const LinkedOrganizationsPage = () => {
 
@@ -25,9 +25,8 @@ const LinkedOrganizationsPage = () => {
     const { linkedOrganizations, error, loading } = useSelector((state: RootState) => state.linkedOrganization);
     const { user } = useSelector((state: RootState) => state.auth);
 
-    // Get person details to extract SDF ID
-    const { data: personData } = useGetPersonByUserIdQuery(user ? user.id : 0, { skip: !user || !user.id });
-    const sdfId = personData?.result?.person?.id;
+    // Use sdfId directly from authenticated user (now correctly populated after login)
+    const sdfId = user?.sdfId;
 
     // Get organizations using SDF ID
     const { data: organizationsData, isLoading: orgLoading, error: orgError } = useGetOrganizationsBySdfIdQuery(sdfId || 0, {
@@ -83,7 +82,7 @@ const LinkedOrganizationsPage = () => {
 
     const unifiedList = useMemo(() => {
         const allItems: UnifiedOrgItem[] = [];
-        const orgs = organizationsData?.result?.items?.map((item: any) => item.organisation) || [];
+        const orgs = organizationsData || [];
 
         // Add main organizations
         orgs.forEach((org: OrganisationDto) => {

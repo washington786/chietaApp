@@ -77,7 +77,58 @@ export const api = createApi({
             providesTags: ['Organization'],
         }),
         getOrganizationsBySdfId: builder.query({
-            query: (sdfId: number) => `/api/services/app/Organisation/GetSdfLinked?sdfId=${sdfId}`,
+            query: (sdfId: number) => {
+                console.log('[RTK Query] getOrganizationsBySdfId called with sdfId:', sdfId);
+                return `/api/services/app/Organisation/GetSdfLinked?sdfId=${sdfId}`;
+            },
+            transformResponse: (response: any) => {
+                console.log('[RTK Query] Raw response:', response);
+                // Extract organization items from result.items[].organisation
+                if (response?.result?.items && Array.isArray(response.result.items)) {
+                    const organizations = response.result.items.map((item: any) => {
+                        const org = item.organisation;
+                        return {
+                            sdlNo: org?.sdL_No,
+                            setaId: org?.setA_Id,
+                            seta: org?.seta,
+                            sicCode: org?.siC_Code,
+                            organisationRegistrationNumber: org?.organisation_Registration_Number,
+                            organisationName: org?.organisation_Name,
+                            organisationTradingName: org?.organisation_Trading_Name,
+                            organisationFaxNumber: org?.organisation_Fax_Number,
+                            organisationContactName: org?.organisation_Contact_Name,
+                            organisationContactEmailAddress: org?.organisation_Contact_Email_Address,
+                            organisationContactPhoneNumber: org?.organisation_Contact_Phone_Number,
+                            organisationContactCellNumber: org?.organisation_Contact_Cell_Number,
+                            companySize: org?.companY_SIZE,
+                            numberOfEmployees: org?.numbeR_OF_EMPLOYEES,
+                            typeOfEntity: org?.typE_OF_ENTITY,
+                            coreBusiness: org?.corE_BUSINESS,
+                            parentSdlNumber: org?.parenT_SDL_NUMBER,
+                            bbbeeStatus: org?.bbbeE_Status,
+                            bbbeeLevel: org?.bbbeE_LEVEL,
+                            dateBusinessCommenced: org?.datebusinesscommenced,
+                            status: org?.status,
+                            exemptionCode: org?.exmptioncode,
+                            chamber: org?.chamber,
+                            ceoName: org?.ceO_Name,
+                            ceoSurname: org?.ceO_Surname,
+                            ceoEmail: org?.ceO_Email,
+                            ceoRaceId: org?.ceO_RaceId,
+                            ceoGenderId: org?.ceO_GenderId,
+                            seniorRepName: org?.senior_Rep_Name,
+                            seniorRepSurname: org?.senior_Rep_Surname,
+                            seniorRepEmail: org?.senior_Rep_Email,
+                            seniorRepRaceId: org?.senior_Rep_RaceId,
+                            seniorRepGenderId: org?.senior_Rep_GenderId,
+                            id: org?.id,
+                        };
+                    });
+                    console.log('[RTK Query] Transformed organizations:', organizations);
+                    return organizations;
+                }
+                return [];
+            },
             providesTags: ['Organization'],
         }),
         getOrganizationByProject: builder.query({

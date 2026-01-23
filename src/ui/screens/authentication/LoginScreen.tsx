@@ -67,7 +67,7 @@ const LoginScreen = () => {
                                     <RKeyboardView style={{ gap: 12 }}>
 
                                         <RInput
-                                            placeholder='Email'
+                                            placeholder='Email or Username'
                                             icon={'mail'}
                                             keyboardType='email-address'
                                             onChangeText={handleChange('email')}
