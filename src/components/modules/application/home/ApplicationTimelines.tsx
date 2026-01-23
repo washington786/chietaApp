@@ -1,13 +1,23 @@
 import { StyleSheet, View } from 'react-native'
-import React from 'react'
+import React, { useMemo } from 'react'
 import { RCol, RRow } from '@/components/common'
 import colors from '@/config/colors'
 import { Text } from 'react-native-paper'
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { usePeriodInfo } from '@/hooks/main/UsePeriodInfo'
 import { formatCountdown, formatDate } from '@/core/utils/dayTime'
+import { useGetActiveWindowsParamsQuery } from '@/store/api/api'
 
 const ApplicationTimelines = () => {
+    // Fetch active discretionary windows
+    const { data: windowsData, isLoading: windowsLoading } = useGetActiveWindowsParamsQuery(undefined);
+
+    // Get active discretionary window
+    const activeDiscretionaryWindow = useMemo(() => {
+        const items = windowsData?.result?.items || [];
+        const active = items.find((w: any) => w.activeYN === true);
+        return active;
+    }, [windowsData]);
 
     const mgOpen = '2025-12-01';
     const mgClose = '2025-12-12';
@@ -22,9 +32,26 @@ const ApplicationTimelines = () => {
         <RCol style={styles.col}>
             <Text variant='titleLarge' style={[styles.txt, styles.title]}>Application timelines</Text>
             <RRow style={{ flexWrap: "nowrap", height: 200, marginVertical: 10, gap: 6 }}>
-                <TimeLineItem name='Mandatory Grants' period={formatCountdown(mgPeriod.countdown)} closeDate={new Date("2025-12-01")} cycle={0} isClosed={mgPeriod.status === 'closed'} openDate={new Date("2025-11-12")} status={mgPeriod.status} />
+                <TimeLineItem
+                    name='Mandatory Grants'
+                    period={formatCountdown(mgPeriod.countdown)}
+                    closeDate={new Date("2025-12-01")}
+                    cycle={0}
+                    isClosed={mgPeriod.status === 'closed'}
+                    openDate={new Date("2025-11-12")}
+                    status={mgPeriod.status}
+                />
 
-                <TimeLineItem name='Discretionary Grants' period={formatCountdown(dgPeriod.countdown)} closeDate={new Date("2025-11-12")} cycle={1} isClosed={dgPeriod.status === 'closed'} openDate={new Date("2026-10-12")} status={dgPeriod.status} />
+                <TimeLineItem
+                    name={windowsLoading ? 'Loading...' : activeDiscretionaryWindow?.title || 'Discretionary Grants'}
+                    period={formatCountdown(dgPeriod.countdown)}
+                    closeDate={new Date("2025-11-12")}
+                    cycle={1}
+                    isClosed={dgPeriod.status === 'closed'}
+                    openDate={new Date("2026-10-12")}
+                    status={dgPeriod.status}
+                    isActive={activeDiscretionaryWindow?.activeYN}
+                />
             </RRow>
         </RCol>
     )
@@ -38,10 +65,25 @@ interface props {
     cycle?: number;
     period: any;
     status?: string;
+    isActive?: boolean;
 }
-function TimeLineItem({ name, closeDate, isClosed, cycle, openDate, period, status }: props) {
+function TimeLineItem({ name, closeDate, isClosed, cycle, openDate, period, status, isActive }: props) {
     const fmOpenDate = openDate ? formatDate(openDate) : null;
     const fmCloseDate = closeDate ? formatDate(closeDate) : null;
+
+    // If isActive is explicitly false, show no active cycles message
+    if (isActive === false) {
+        return (
+            <RCol style={styles.con}>
+                <Text variant='titleMedium' style={styles.conText}>{name}</Text>
+                <Text variant='labelSmall' style={styles.conText}>Status</Text>
+                <View style={{ position: "absolute", bottom: -30, right: -10, backgroundColor: colors.red[400], padding: 6, width: "50%", alignItems: "center", borderTopLeftRadius: 100 }}>
+                    <Text variant='titleSmall' style={styles.conText}>No active cycles</Text>
+                </View>
+            </RCol>
+        );
+    }
+
     return (
         <RCol style={styles.con}>
             <Text variant='titleMedium' style={styles.conText}>{name}</Text>

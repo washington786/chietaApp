@@ -200,7 +200,19 @@ export interface ApprovalStatus {
 }
 
 // Optional: normalized naming suggestion
-
+export interface activeWindow {
+    id: number,
+    dG_Window: string,
+    projectType: string | null,
+    title: string,
+    projType: string,
+    focusArea: string,
+    subCategory: string | null,
+    intervention: string | null,
+    activeYN: boolean,
+    skipCount: number,
+    maxResultCount: number
+}
 export interface DiscretionaryProjectDto {
 
     id: number;
