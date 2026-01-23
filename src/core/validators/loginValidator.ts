@@ -2,7 +2,7 @@ import * as Yup from 'yup';
 
 export const loginSchema = Yup.object().shape({
     email: Yup.string()
-        .test('email-or-username', 'Enter a valid email or username', function(value) {
+        .test('email-or-username', 'Enter a valid email or username', function (value) {
             if (!value) return false;
             // Check if it's a valid email
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
