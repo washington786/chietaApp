@@ -1,8 +1,8 @@
 import { FlatList, StyleSheet, View } from 'react-native'
-import React, { useEffect, useState } from 'react'
-import { REmpty, RListLoading, SafeArea } from '@/components/common'
+import React, { useEffect, useMemo, useState } from 'react'
+import { RCol, REmpty, RListLoading, SafeArea } from '@/components/common'
 import RHeader from '@/components/common/RHeader'
-import { FAB } from 'react-native-paper'
+import { FAB, Searchbar } from 'react-native-paper'
 import usePageTransition from '@/hooks/navigation/usePageTransition'
 import { DgApplicationItem, InformationBanner } from '@/components/modules/application'
 import colors from '@/config/colors'
@@ -16,6 +16,10 @@ import { useGetDGOrgApplicationsQuery } from '@/store/api/api'
 const DiscretionaryPage = () => {
     const { newDgApplication } = usePageTransition();
     const [allApplications, setAllApplications] = useState<{ discretionaryProject: dgProject }[]>([]);
+
+    const [showSearch, setShowSearch] = useState<boolean>(false);
+
+    const [searchQuery, setSearchQuery] = useState<string>('');
 
     const router = useRoute<RouteProp<navigationTypes, "discretionary">>();
 
@@ -44,6 +48,26 @@ const DiscretionaryPage = () => {
         }
     }, [data]);
 
+    const fieldsToSearch = [
+        'title',
+        'focusArea',
+        'projType',
+        'subCategory',
+    ] as const;
+
+    const filteredProjects = useMemo(() => {
+        if (!searchQuery?.trim()) return allApplications;
+
+        const query = searchQuery.trim().toLowerCase();
+
+        return allApplications.filter(({ discretionaryProject }) => {
+            return fieldsToSearch.some((field) => {
+                const value = discretionaryProject[field];
+                return typeof value === 'string' && value.toLowerCase().includes(query);
+            });
+        });
+    }, [allApplications, searchQuery]);
+
     const renderList = ({ index, item }: { index: number, item: { discretionaryProject: dgProject } }) => {
         return (
             <Animated.View key={`app-${item.discretionaryProject.id}`} entering={FadeInDown.duration(600).delay(index * 100).springify()}>
@@ -57,12 +81,28 @@ const DiscretionaryPage = () => {
     } else {
         return (
             <SafeArea>
-                <RHeader name='Discretionary Grant Applications' />
+                <RHeader name='Discretionary Grant Applications' hasRightIcon iconRight='search' onPressRight={() => setShowSearch(!showSearch)} />
+
+                {
+                    showSearch &&
+                    <RCol style={{
+                        paddingVertical: 6,
+                        paddingHorizontal: 12
+                    }}>
+                        <Searchbar
+                            placeholder="Search application"
+                            onChangeText={setSearchQuery}
+                            value={searchQuery}
+                            style={{ backgroundColor: colors.zinc[50], borderWidth: 1, borderColor: colors.zinc[300] }}
+                        />
+                    </RCol>
+                }
+
                 <FlatList
-                    data={allApplications}
+                    data={filteredProjects}
                     style={{ paddingHorizontal: 12, paddingVertical: 6, flex: 1, flexGrow: 1 }}
                     renderItem={renderList}
-                    ListHeaderComponent={< InformationBanner title='list of Discretionary grants applied for.You can only submit during open grant window.' />}
+                    ListHeaderComponent={<>{!showSearch && < InformationBanner title='list of Discretionary grants applied for.You can only submit during open grant window.' />}</>}
                     showsVerticalScrollIndicator={false}
                     ItemSeparatorComponent={() => <View style={{ height: 5 }} />}
                     removeClippedSubviews={false}
