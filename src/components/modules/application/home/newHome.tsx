@@ -1,4 +1,4 @@
-import React, { memo, useState } from 'react';
+import React, { memo, useState, useMemo } from 'react';
 import {
     View,
     Text,
@@ -19,6 +19,7 @@ import { usePeriodInfo } from '@/hooks/main/UsePeriodInfo';
 import { formatCountdown } from '@/core/utils/dayTime';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store/store';
+import { useGetActiveWindowsParamsQuery } from '@/store/api/api';
 
 interface StatItem {
     icon: keyof typeof Ionicons.glyphMap;
@@ -58,23 +59,46 @@ const NewHome = () => {
     const [addLinking, setAdd] = useState<boolean>(false);
     const { newOrg, notifications, linkedOrganizations } = usePageTransition();
 
-    function handleLinkNewOrg() {
-        setAdd(!addLinking);
-    }
-    function handleAddLinkNewOrg() {
-        newOrg()
-        setAdd(!addLinking);
-    }
+    // Fetch active discretionary windows
+    const { data: windowsData, isLoading: windowsLoading } = useGetActiveWindowsParamsQuery(undefined);
 
-    const time = new Date().getTime();
+    // Process windows data to separate mandatory and discretionary
+    const { mandatory, discretionary } = useMemo(() => {
+        const items = windowsData?.result?.items || [];
+        const mandatory: any[] = [];
+        const discretionary: any[] = [];
 
-    const currentDayTime = getTimeOfDay(new Date(time));
+        items.forEach((window: any) => {
+            if (window.activeYN) {
+                // For now, assume all items are discretionary windows
+                // In production, you might need additional logic to identify mandatory grants
+                discretionary.push(window);
+            }
+        });
 
+        // If no discretionary windows, use fallback dates
+        if (discretionary.length === 0) {
+            discretionary.push({
+                title: 'No active cycles',
+                activeYN: false,
+                dG_Window: 'N/A'
+            });
+        }
+
+        return { mandatory, discretionary };
+    }, [windowsData]);
+
+    // Use first active discretionary window for display, with fallback to hardcoded dates
+    const activeDiscretionaryWindow = discretionary[0];
+
+    // For dates, we'll use fallback since the API doesn't provide specific open/close dates
+    // In production, you might have another endpoint that provides these dates
+    const dgOpen = activeDiscretionaryWindow?.openDate || '2025-12-01';
+    const dgClose = activeDiscretionaryWindow?.closeDate || '2025-12-23';
+
+    // Mandatory grants - fallback to hardcoded if no data
     const mgOpen = '2025-12-01';
     const mgClose = '2025-12-23';
-
-    const dgOpen = '2025-12-01';
-    const dgClose = '2025-12-23';
 
     const mgPeriod = usePeriodInfo(mgOpen, mgClose, { autoUpdate: true });
     const dgPeriod = usePeriodInfo(dgOpen, dgClose, { autoUpdate: true });
@@ -92,6 +116,18 @@ const NewHome = () => {
 
         fullname = name.split('.').map(part => part.charAt(0).toUpperCase() + part.slice(1)).join(' ');
     }
+
+    function handleLinkNewOrg() {
+        setAdd(!addLinking);
+    }
+
+    function handleAddLinkNewOrg() {
+        newOrg()
+        setAdd(!addLinking);
+    }
+
+    const time = new Date().getTime();
+    const currentDayTime = getTimeOfDay(new Date(time));
 
     return (
         <SafeAreaView style={styles.container}>
@@ -169,21 +205,42 @@ const NewHome = () => {
                             {
                                 expanded &&
                                 <View style={styles.timelineGrid}>
-                                    {['Mandatory Grants', 'Discretionary Grants'].map((label) => (
-                                        <Card key={label} style={styles.timelineCard}>
-                                            <Text style={styles.timelineLabel}>{label}</Text>
+                                    {/* Mandatory Grants Card */}
+                                    <Card style={styles.timelineCard}>
+                                        <Text style={styles.timelineLabel}>Mandatory Grants</Text>
+                                        <View style={styles.countdownContainer}>
+                                            <Ionicons name="time-outline" size={30} color="#fff" />
+                                            <Text style={styles.countdownValue}>{formatCountdown(mgPeriod.countdown)}</Text>
+                                            <Text style={styles.countdownUnit}>dd hh mm ss</Text>
+                                        </View>
+                                        <View style={styles.statusBadge}>
+                                            <Text style={styles.statusText}>{mgPeriod.status}</Text>
+                                        </View>
+                                    </Card>
 
-                                            <View style={styles.countdownContainer}>
-                                                <Ionicons name="time-outline" size={30} color="#fff" />
-                                                <Text style={styles.countdownValue}>{label.includes("Mandatory Grants") ? formatCountdown(mgPeriod.countdown) : formatCountdown(dgPeriod.countdown)}</Text>
-                                                <Text style={styles.countdownUnit}>dd hh mm ss</Text>
-                                            </View>
-
+                                    {/* Discretionary Grants Card - Dynamic */}
+                                    <Card style={styles.timelineCard}>
+                                        <Text style={styles.timelineLabel}>
+                                            {windowsLoading ? 'Loading...' : activeDiscretionaryWindow?.title || 'Discretionary Grants'}
+                                        </Text>
+                                        {activeDiscretionaryWindow?.activeYN && (
+                                            <>
+                                                <View style={styles.countdownContainer}>
+                                                    <Ionicons name="time-outline" size={30} color="#fff" />
+                                                    <Text style={styles.countdownValue}>{formatCountdown(dgPeriod.countdown)}</Text>
+                                                    <Text style={styles.countdownUnit}>dd hh mm ss</Text>
+                                                </View>
+                                                <View style={styles.statusBadge}>
+                                                    <Text style={styles.statusText}>{dgPeriod.status}</Text>
+                                                </View>
+                                            </>
+                                        )}
+                                        {!activeDiscretionaryWindow?.activeYN && (
                                             <View style={styles.statusBadge}>
-                                                <Text style={styles.statusText}>{label.includes("Mandatory Grants") ? mgPeriod.status : dgPeriod.status}</Text>
+                                                <Text style={styles.statusText}>No active cycles</Text>
                                             </View>
-                                        </Card>
-                                    ))}
+                                        )}
+                                    </Card>
                                 </View>
                             }
                         </View>

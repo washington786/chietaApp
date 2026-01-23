@@ -1,108 +1,182 @@
-import { StyleSheet, TouchableOpacity } from 'react-native'
-import React, { FC } from 'react'
-import colors from '@/config/colors'
-import { RCol, RDivider, RRow } from '@/components/common';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import React, { FC } from 'react';
 import { Text } from 'react-native-paper';
-
 import Feather from '@expo/vector-icons/Feather';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import { DiscretionaryProjectDto } from '@/core/models/DiscretionaryDto';
 
-interface props {
+import { RCol, RDivider, RRow } from '@/components/common';
+import colors from '@/config/colors';
+import { activeWindow, DiscretionaryProjectDto } from '@/core/models/DiscretionaryDto';
+
+interface AddDgApplicationItemProps {
   onPress: (id?: number) => void;
-  item?: DiscretionaryProjectDto;
+  item?: activeWindow;
 }
-const AddDgApplicationItem: FC<props> = ({ onPress, item }) => {
-  const { fullName, focusArea, projectType, subCategory, title, projectStatus: isActive } = item as DiscretionaryProjectDto;
+
+const AddDgApplicationItem: FC<AddDgApplicationItemProps> = ({ onPress, item }) => {
+  if (!item) return null;
+
+  const {
+    id,
+    focusArea,
+    title, intervention,
+    subCategory,
+    activeYN, projType
+  } = item;
+
+  const statusColor = activeYN ? colors.green[600] : colors.red[600];
+  const statusIcon = activeYN ? 'check-circle' : 'x-circle';
+  const statusText = activeYN ? 'active' : 'inactive';
 
   return (
-    <RCol style={styles.con}>
-      <RRow style={styles.title}>
-        <MaterialCommunityIcons name="application-outline" size={18} color="black" />
-        <Text>{fullName}</Text>
+    <RCol style={styles.container}>
+      {/* Header */}
+      <RRow style={styles.header}>
+        <MaterialCommunityIcons name="application-outline" size={20} color={colors.slate[700]} />
+        <Text variant="titleMedium" style={styles.headerText}>
+          {title || 'Unnamed Application'}
+        </Text>
       </RRow>
+
       <RDivider />
-      <RRow style={styles.wrap}>
-        <Text variant='labelSmall' style={[styles.text]}>Focus Area</Text>
-        <Text variant='titleMedium' style={[styles.text, styles.appTitle]}>{focusArea}</Text>
+
+      {/* Content rows */}
+      <View style={styles.fields}>
+        <Field label="Focus Area" value={focusArea} />
+        <Field label="Type" value={projType ? projType : 'unknown'} />
+        <Field label="Intervention" value={intervention ? intervention : 'unknown'} />
+        <Field label="Sub-Category" value={subCategory ? subCategory : 'unknown'} last />
+      </View>
+
+      {/* Status */}
+      <RRow style={styles.statusRow}>
+        <Feather name={statusIcon} size={16} color={statusColor} />
+        <Text variant="labelMedium" style={[styles.statusText, { color: statusColor }]}>
+          {statusText}
+        </Text>
       </RRow>
-      <RRow style={styles.wrap}>
-        <Text variant='labelSmall' style={[styles.text]}>Type</Text>
-        <Text variant='titleMedium' style={[styles.text, styles.appTitle]}>{projectType}</Text>
-      </RRow>
-      <RRow style={styles.wrap}>
-        <Text variant='labelSmall' style={[styles.text]}>Intervention</Text>
-        <Text variant='titleMedium' style={[styles.text, styles.appTitle]}>{title}</Text>
-      </RRow>
-      <RRow style={styles.wrap}>
-        <Text variant='labelSmall' style={[styles.text]}>Sub-Category</Text>
-        <Text variant='titleMedium' style={[styles.text, styles.appTitle]}>{subCategory}</Text>
-      </RRow>
-      <RRow style={styles.row}>
-        <Feather name={isActive ? "check-circle" : "x-circle"} size={16} color={isActive ? colors.green[600] : colors.red[600]} />
-        <Text variant='labelMedium' style={[styles.regTxt, { color: isActive ? colors.green[600] : colors.red[600] }]}>{isActive ? "active" : "inactive"}</Text>
-      </RRow>
-      <TouchableOpacity style={styles.abBtn} onPress={() => onPress(item?.id)}>
-        <Feather name={"plus"} size={20} color={colors.slate[50]} />
+
+      {/* Floating action button */}
+      <TouchableOpacity
+        style={styles.addButton}
+        activeOpacity={0.8}
+        onPress={() => onPress(id)}
+      >
+        <Feather name="plus" size={22} color="white" />
       </TouchableOpacity>
     </RCol>
-  )
-}
+  );
+};
 
-export default AddDgApplicationItem
+export default AddDgApplicationItem;
+
+// ────────────────────────────────────────────────
+// Helpers
+// ────────────────────────────────────────────────
+
+type FieldProps = {
+  label: string;
+  value?: string;
+  last?: boolean;
+};
+
+const Field: FC<FieldProps> = ({ label, value, last }) => (
+  <RRow style={[styles.fieldRow, last && styles.lastField]}>
+    <Text variant="labelSmall" style={styles.label}>
+      {label}
+    </Text>
+    <Text variant="bodyMedium" style={styles.value}>
+      {value || '—'}
+    </Text>
+  </RRow>
+);
+
+// ────────────────────────────────────────────────
+// Styles
+// ────────────────────────────────────────────────
 
 const styles = StyleSheet.create({
-  con: {
-    backgroundColor: colors.slate[100], flex: 1, borderRadius: 10,
-    paddingVertical: 6,
-    paddingHorizontal: 4,
-    marginBottom: 6,
-    gap: 4,
+  container: {
+    backgroundColor: colors.white,
+    borderRadius: 12,
     borderWidth: 1,
     borderColor: colors.slate[200],
-    position: "relative",
-    marginTop: 10
+    padding: 14,
+    paddingTop: 16,
+    marginBottom: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.06,
+    shadowRadius: 4,
+    elevation: 2,
+    position: 'relative',
+    marginTop: 8
   },
-  itemText: {
-    color: colors.slate[600],
-    fontSize: 18
+
+  header: {
+    alignItems: 'center',
+    gap: 8,
   },
-  regTxt: {
-    fontSize: 14
+  headerText: {
+    color: colors.slate[800],
+    flex: 1,
+    fontWeight: '600',
   },
-  txt: {
-    color: colors.gray[400],
-    fontSize: 12,
-    fontWeight: "thin"
+
+  fields: {
+    gap: 8,
   },
-  row: {
-    alignItems: "center",
-    gap: 4,
-    marginVertical: 4
+  fieldRow: {
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 2,
   },
-  abBtn: {
-    position: "absolute", top: -15, right: -6, backgroundColor: colors.violet[900], padding: 10, borderRadius: 100
+  lastField: {
+    marginBottom: 4,
   },
-  trdeName: {
-    fontSize: 11,
+  label: {
+    color: colors.slate[500],
+    fontSize: 13,
+    letterSpacing: 0.2,
   },
-  title: {
-    alignItems: "center",
-    gap: 4
+  value: {
+    color: colors.slate[800],
+    fontSize: 13.5,
+    fontWeight: '500',
+    textAlign: 'right',
+    flexShrink: 1,
+    flexWrap: 'wrap',
   },
-  text: {
-    textTransform: "capitalize"
+
+  statusRow: {
+    alignItems: 'center',
+    gap: 6,
+    marginTop: 8,
+    paddingTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: colors.slate[100],
   },
-  wrap: {
-    alignItems: "center",
-    justifyContent: "space-between"
+  statusText: {
+    fontWeight: '500',
+    textTransform: 'capitalize',
   },
-  appTitle: {
-    fontSize: 12
+
+  addButton: {
+    position: 'absolute',
+    top: -18,
+    right: -12,
+    backgroundColor: colors.primary[700],
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 3,
+    borderColor: colors.white,
+    shadowColor: colors.primary[900],
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.35,
+    shadowRadius: 5,
+    elevation: 5,
   },
-  statusTxt: {
-    backgroundColor: colors.emerald[100],
-    borderRadius: 5,
-    padding: 4
-  }
-})
+});

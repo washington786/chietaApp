@@ -21,7 +21,9 @@ export type navigationTypes = {
     notifications: undefined;
     newOrgLink: undefined;
     newApplication: undefined;
-    newDgApplication: undefined;
+    newDgApplication: {
+        orgId: string;
+    };
 
     account: undefined;
     privacy: undefined;

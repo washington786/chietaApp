@@ -300,7 +300,8 @@ export const fetchPersonBySdfId = createAsyncThunk<
             return rejectWithValue('Authentication token not found');
         }
 
-        const response = await fetch(`https://ims.chieta.org.za:22743/api/services/app/Person/GetPersonByUserId?userid=${userId}`, {
+        // Fetch SDF details for the user to get the SDF ID
+        const response = await fetch(`https://ims.chieta.org.za:22743/api/services/app/Sdf/GetSDFByUser?userId=${userId}`, {
             method: 'GET',
             headers: {
                 'Accept': 'application/json',
@@ -310,16 +311,25 @@ export const fetchPersonBySdfId = createAsyncThunk<
         });
 
         if (!response.ok) {
-            return rejectWithValue('Failed to fetch person details');
+            console.error('[SDF] Failed to fetch SDF details, status:', response.status);
+            return rejectWithValue('Failed to fetch SDF details');
         }
 
         const data = await response.json();
 
-        // Extract SDF ID from person.id
-        const sdfId = data?.result?.person?.id;
+        console.log('[SDF] SDF response:', data);
+        console.log('[SDF] sdfDetails:', data?.result?.sdfDetails);
+        console.log('[SDF] personId:', data?.result?.sdfDetails?.personId);
+        console.log('[SDF] id:', data?.result?.sdfDetails?.id);
+
+        // Extract SDF ID from sdfDetails.id
+        const sdfId = data?.result?.sdfDetails?.id;
+
+        console.log('[SDF] Extracted SDF ID:', sdfId);
 
         if (!sdfId) {
-            return rejectWithValue('SDF ID not found in person details');
+            console.error('[SDF] No SDF ID found in response:', data);
+            return rejectWithValue('SDF ID not found in response');
         }
 
         return sdfId;

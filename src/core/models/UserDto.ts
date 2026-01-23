@@ -39,7 +39,8 @@ export interface AuthTokenResponse {
 }
 
 export interface LoginRequest {
-    email: string;
+    email?: string;
+    username?: string;
     password: string;
     rememberMe?: boolean;
 }

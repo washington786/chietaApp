@@ -33,14 +33,18 @@ const UseAuth = () => {
      * Then fetches the SDF ID for the authenticated user
      */
     const login = async (payload: LoginRequest) => {
+        console.log('[UseAuth] Starting login with:', { email: payload.email, username: payload.username })
         const result = await dispatch(loginThunk(payload))
+        console.log('[UseAuth] Login result status:', result.meta.requestStatus)
 
         // If login was successful, fetch the SDF ID
         if (result.meta.requestStatus === 'fulfilled' && result.payload && 'user' in result.payload && 'accessToken' in result.payload) {
-            await dispatch(fetchPersonBySdfId({
+            console.log('[UseAuth] Login successful, user.id:', result.payload.user.id, 'calling fetchPersonBySdfId')
+            const sdfResult = await dispatch(fetchPersonBySdfId({
                 userId: result.payload.user.id,
                 token: result.payload.accessToken
             }))
+            console.log('[UseAuth] fetchPersonBySdfId result:', sdfResult.meta.requestStatus, 'payload:', sdfResult.payload)
         }
 
         return result
@@ -111,14 +115,18 @@ const UseAuth = () => {
      * Also fetches the SDF ID for the restored user
      */
     const restoreUserSession = async () => {
+        console.log('[UseAuth] Restoring session from secure storage...')
         const result = await dispatch(restoreSession())
+        console.log('[UseAuth] restoreSession result status:', result.meta.requestStatus)
 
         // If session was restored successfully, fetch the SDF ID
         if (result.meta.requestStatus === 'fulfilled' && result.payload && 'user' in result.payload && 'token' in result.payload) {
-            await dispatch(fetchPersonBySdfId({
+            console.log('[UseAuth] Session restored, user.id:', result.payload.user.id, 'current sdfId:', result.payload.user.sdfId, 'calling fetchPersonBySdfId')
+            const sdfResult = await dispatch(fetchPersonBySdfId({
                 userId: result.payload.user.id,
                 token: result.payload.token
             }))
+            console.log('[UseAuth] fetchPersonBySdfId result:', sdfResult.meta.requestStatus, 'payload:', sdfResult.payload)
         }
 
         return result

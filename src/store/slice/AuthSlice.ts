@@ -47,6 +47,21 @@ const login = createAsyncThunk<
     { rejectValue: AuthError }
 >('auth/login', async (payload, { rejectWithValue }) => {
     try {
+        // Use username if provided, otherwise use email
+        let userNameOrEmailAddress = payload.username || payload.email;
+        let password = payload.password;
+
+        if (!userNameOrEmailAddress) {
+            return rejectWithValue({
+                code: 'LOGIN_ERROR',
+                message: 'Username or email is required',
+            });
+        }
+
+        // Trim credentials to handle user input errors (don't lowercase - backend is case-sensitive)
+        userNameOrEmailAddress = userNameOrEmailAddress.trim();
+        password = password.trim();
+
         const response = await fetch(`${API_BASE_URL}/api/TokenAuth/Authenticate`, {
             method: 'POST',
             headers: {
@@ -54,51 +69,78 @@ const login = createAsyncThunk<
                 Accept: 'application/json',
             },
             body: JSON.stringify({
-                userNameOrEmailAddress: payload.email,
-                password: payload.password,
+                userNameOrEmailAddress: userNameOrEmailAddress,
+                password: password,
                 rememberClient: payload.rememberMe || false,
             }),
         })
 
-        if (!response.ok) {
-            const errorData = await response.json().catch(() => ({
-                error: { message: 'Login failed' }
-            }))
+        const data = await response.json()
 
+        // Check for API-level errors (success field) or HTTP errors
+        if (!response.ok || !data?.success) {
             // Extract error message from nested structure: prioritize details for user-friendliness
-            const errorMessage = errorData?.error?.details ||
-                errorData?.error?.message ||
-                errorData?.message ||
+            const errorMessage = data?.error?.details ||
+                data?.error?.message ||
+                data?.message ||
                 `Login failed with status ${response.status}`;
 
             return rejectWithValue({
                 code: 'LOGIN_ERROR',
                 message: errorMessage,
-                details: errorData?.error?.details,
+                details: data?.error?.details,
             })
         }
 
-        const data = await response.json()
+        // Log response for debugging
+        console.log('[AUTH] Login response received:', {
+            hasResult: !!data.result,
+            hasAccessToken: !!data.result?.accessToken,
+            accessTokenLength: data.result?.accessToken?.length,
+            userId: data.result?.userId,
+            userName: data.result?.userName,
+            sdfId: data.result?.sdfId,
+            id: data.result?.id,
+        })
 
-        // Decode JWT to get expiry
+        // Decode JWT to get expiry and additional claims
         const expiresIn = extractTokenExpiry(data.result?.accessToken)
+
+        // Decode JWT to get additional claims like sdfId if present
+        const jwtPayload = decodeJWT(data.result?.accessToken)
+        console.log('[AUTH] JWT Payload:', jwtPayload)
+
+        // Validate token
+        const accessToken = data.result?.accessToken
+        if (!accessToken) {
+            return rejectWithValue({
+                code: 'LOGIN_ERROR',
+                message: 'No access token received from server',
+            })
+        }
+
+        // Note: SDF ID will be fetched and populated by fetchPersonBySdfId thunk after login
+        // Don't try to extract it from login response
+
+        console.log('[AUTH] Login successful for userId:', data.result?.userId)
 
         return {
             user: {
                 id: data.result?.userId || '',
-                email: payload.email,
+                email: payload.email || '',
                 firstName: data.result?.firstName || '',
                 lastName: data.result?.lastName || '',
-                username: data.result?.userName || '',
-                sdfId: data.result?.sdfId,
+                username: data.result?.userName || payload.username || '',
+                sdfId: undefined, // Will be set by fetchPersonBySdfId
                 isActive: true,
                 isEmailConfirmed: true,
             },
-            accessToken: data.result?.accessToken || '',
+            accessToken: accessToken,
             refreshToken: data.result?.refreshToken || undefined,
             expiresIn: expiresIn || 3600,
         }
     } catch (error) {
+        console.error('[AUTH] Login error:', error)
         return rejectWithValue({
             code: 'NETWORK_ERROR',
             message: error instanceof Error ? error.message : 'Network error occurred',
@@ -115,6 +157,10 @@ const register = createAsyncThunk<
     { rejectValue: AuthError }
 >('auth/register', async (payload, { rejectWithValue }) => {
     try {
+        // Normalize email and password - trim only, don't change case as backend is case-sensitive
+        const trimmedEmail = payload.email.trim();
+        const trimmedPassword = payload.password.trim();
+
         const response = await fetch(`${API_BASE_URL}/api/services/app/Account/Register`, {
             method: 'POST',
             headers: {
@@ -122,11 +168,11 @@ const register = createAsyncThunk<
                 Accept: 'application/json',
             },
             body: JSON.stringify({
-                firstName: payload.firstName,
-                lastName: payload.lastName,
-                emailAddress: payload.email,
-                userName: payload.username,
-                password: payload.password,
+                firstName: payload.firstName.trim(),
+                lastName: payload.lastName.trim(),
+                emailAddress: trimmedEmail,
+                userName: payload.username.trim(),
+                password: trimmedPassword,
             }),
         })
 
@@ -553,8 +599,16 @@ const restoreSession = createAsyncThunk<
         }
 
         // Parse stored data
-        const user = JSON.parse(storedUser)
+        let user = JSON.parse(storedUser)
         const expiresIn = storedExpiresIn ? parseInt(storedExpiresIn) : 0
+
+        console.log('[AUTH] Restoring user from SecureStore:', { id: user.id, email: user.email, sdfId: user.sdfId })
+
+        // Ensure sdfId is undefined so it will be refetched
+        if (user.sdfId) {
+            console.log('[AUTH] Clearing stale sdfId from restored user:', user.sdfId)
+            user.sdfId = undefined
+        }
 
         // Check if token is still valid
         const tokenExpiry = extractTokenExpiry(storedToken)
@@ -809,8 +863,11 @@ const authSlice = createSlice({
         // Fetch Person by SDF ID
         builder
             .addCase(fetchPersonBySdfId.fulfilled, (state, action) => {
+                console.log('[AUTH] fetchPersonBySdfId fulfilled with payload:', action.payload)
                 if (state.user) {
+                    console.log('[AUTH] Setting sdfId from', state.user.sdfId, 'to', action.payload)
                     state.user.sdfId = action.payload
+                    console.log('[AUTH] After setting, sdfId is now:', state.user.sdfId)
                 }
             })
             .addCase(fetchPersonBySdfId.rejected, (state, action) => {
@@ -841,6 +898,7 @@ export {
 
 /**
  * Save credentials to secure storage
+ * NOTE: We don't save sdfId because it should be refetched after session restore
  */
 function saveCredentialsToSecureStore(
     user: UserDto,
@@ -848,7 +906,10 @@ function saveCredentialsToSecureStore(
     refreshToken?: string,
     expiresIn?: number
 ) {
-    SecureStore.setItemAsync('user', JSON.stringify(user)).catch((error) =>
+    // Create a copy of user without sdfId to avoid saving a potentially stale value
+    const userToSave = { ...user, sdfId: undefined };
+    console.log('[AUTH] Saving user to SecureStore:', { ...userToSave, password: '[hidden]' })
+    SecureStore.setItemAsync('user', JSON.stringify(userToSave)).catch((error) =>
         console.error('Failed to save user to secure store:', error)
     )
     SecureStore.setItemAsync('accessToken', token).catch((error) =>
@@ -885,25 +946,98 @@ function clearCredentialsFromSecureStore() {
 }
 
 /**
+ * Validate and decode JWT token
+ * Returns the decoded payload if valid, null if invalid
+ */
+function decodeJWT(token: string): Record<string, any> | null {
+    if (!token) return null
+
+    try {
+        // Validate token format (should have 3 parts separated by dots)
+        const parts = token.split('.')
+        if (parts.length !== 3) {
+            console.warn('[JWT] Invalid token format: expected 3 parts, got', parts.length)
+            return null
+        }
+
+        // Decode header
+        const header = JSON.parse(atob(parts[0]))
+        console.log('[JWT] Token header:', header)
+
+        // Decode payload safely with padding
+        const base64Url = parts[1]
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
+        const paddedBase64 = base64 + '='.repeat((4 - base64.length % 4) % 4)
+        const decodedStr = atob(paddedBase64)
+        const payload = JSON.parse(decodedStr)
+
+        console.log('[JWT] Token payload:', {
+            sub: payload?.sub,
+            exp: payload?.exp,
+            iat: payload?.iat,
+            issuer: payload?.iss,
+        })
+
+        // Check if token is expired
+        if (payload?.exp) {
+            const now = Math.floor(Date.now() / 1000)
+            if (payload.exp < now) {
+                console.warn('[JWT] Token is expired')
+                return null
+            }
+        }
+
+        return payload
+    } catch (error) {
+        console.error('[JWT] Failed to decode token:', error)
+        return null
+    }
+}
+
+/**
  * Helper function to extract expiry time from JWT token
+ * Safely decodes JWT token and extracts exp claim
  */
 function extractTokenExpiry(token?: string): number | null {
     if (!token) return null
 
     try {
+        // Validate token format
         const parts = token.split('.')
-        if (parts.length !== 3) return null
+        if (parts.length !== 3) {
+            console.warn('Invalid JWT format: expected 3 parts, got', parts.length)
+            return null
+        }
 
-        const payload = JSON.parse(atob(parts[1]))
-        const exp = payload.exp
+        // Decode payload safely
+        let payload
+        try {
+            // Add padding if necessary for base64 decoding
+            const base64Url = parts[1]
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
+            const paddedBase64 = base64 + '='.repeat((4 - base64.length % 4) % 4)
+            const decodedStr = atob(paddedBase64)
+            payload = JSON.parse(decodedStr)
+        } catch (decodeError) {
+            console.error('Failed to decode JWT payload:', decodeError)
+            return null
+        }
 
-        if (!exp) return null
+        const exp = payload?.exp
+        if (typeof exp !== 'number') {
+            console.warn('JWT token missing or invalid exp claim:', exp)
+            return 3600 // Default to 1 hour if exp is missing
+        }
 
         // Return seconds until expiry (subtract current time)
         const now = Math.floor(Date.now() / 1000)
-        return Math.max(exp - now, 0)
+        const secondsUntilExpiry = Math.max(exp - now, 0)
+
+        console.log('[AUTH] Token expiry:', { exp, now, secondsUntilExpiry })
+
+        return secondsUntilExpiry
     } catch (error) {
         console.error('Failed to extract token expiry:', error)
-        return null
+        return 3600 // Default fallback
     }
 }

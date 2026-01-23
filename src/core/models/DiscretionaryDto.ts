@@ -200,7 +200,35 @@ export interface ApprovalStatus {
 }
 
 // Optional: normalized naming suggestion
+export interface activeWindow {
+    id: number,
+    dG_Window: string,
+    projectType: string | null,
+    title: string,
+    projType: string,
+    focusArea: string,
+    subCategory: string | null,
+    intervention: string | null,
+    activeYN: boolean,
+    skipCount: number,
+    maxResultCount: number
+}
 
+export interface activeWindowBodyRequest {
+    organisationId: number;
+    projectStatusID: number; // defaults to 9
+    projectStatDte?: string | Date;
+    projShortNam?: string;
+    projectNam?: string;
+    grantWindowId?: number;
+    windowParamId: number; // refers to DG application/project id
+    projectTypeId: number;
+    submittedBy: number; // refers to userId
+    submissionDte: string | Date;
+    captureDte: string | Date;
+    usrUpd: string; // refers to userId
+    dteCreated: string | Date;
+}
 export interface DiscretionaryProjectDto {
 
     id: number;
