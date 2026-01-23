@@ -12,6 +12,8 @@ import RDownload from '@/components/common/RDownload'
 const FileManagementPage = () => {
     const { appId } = useRoute<RouteProp<navigationTypes, "applicationDetails">>().params;
 
+    // const {} = useGet
+
     const [showDocs, setShowDocs] = useState<boolean>(true);
 
     // Fetch all document types

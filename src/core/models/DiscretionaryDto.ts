@@ -215,20 +215,19 @@ export interface activeWindow {
 }
 
 export interface activeWindowBodyRequest {
-    organisationId: number,
-    projectStatusID: number,
-    projectStatDte: string | Date,
-    projShortNam: string,
-    projectNam: string,
-    grantWindowId: number,
-    windowParamId: number,
-    projectTypeId: number,
-    submittedBy: number,
-    submissionDte: string | Date,
-    captureDte: string | Date,
-    dteUpd: string | Date,
-    usrUpd: string,
-    dteCreated: string | Date,
+    organisationId: number;
+    projectStatusID: number; // defaults to 9
+    projectStatDte?: string | Date;
+    projShortNam?: string;
+    projectNam?: string;
+    grantWindowId?: number;
+    windowParamId: number; // refers to DG application/project id
+    projectTypeId: number;
+    submittedBy: number; // refers to userId
+    submissionDte: string | Date;
+    captureDte: string | Date;
+    usrUpd: string; // refers to userId
+    dteCreated: string | Date;
 }
 export interface DiscretionaryProjectDto {
 

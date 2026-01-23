@@ -45,8 +45,8 @@ const usePageTransition = () => {
     function newApplication() {
         navigation.navigate("newApplication");
     }
-    function newDgApplication() {
-        navigation.navigate("newDgApplication");
+    function newDgApplication({ orgId }: { orgId: string }) {
+        navigation.navigate("newDgApplication", { orgId });
     }
     function account() {
         navigation.navigate("account");

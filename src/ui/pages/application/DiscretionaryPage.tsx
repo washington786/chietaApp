@@ -75,7 +75,7 @@ const DiscretionaryPage = () => {
                     mode='flat'
                     icon="plus"
                     style={styles.fab}
-                    onPress={newDgApplication}
+                    onPress={() => newDgApplication({ orgId: orgId || '' })}
                     color='white'
                 />
             </SafeArea>

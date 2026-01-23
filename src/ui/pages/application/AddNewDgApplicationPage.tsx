@@ -8,14 +8,18 @@ import { AddDgApplicationItem } from '@/components/modules/application';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/store/store';
 import Animated, { FadeInDown } from 'react-native-reanimated';
-import { activeWindow, DiscretionaryProjectDto } from '@/core/models/DiscretionaryDto';
+import { activeWindow, activeWindowBodyRequest, DiscretionaryProjectDto } from '@/core/models/DiscretionaryDto';
 import { showToast } from '@/core';
 import { fetchDiscretionaryGrantData } from '@/store/slice/thunks/DiscretionaryThunks';
 import { linkProjectToOrganization } from '@/store/slice/DiscretionarySlice';
 import usePageTransition from '@/hooks/navigation/usePageTransition';
-import { useGetActiveWindowsParamsQuery } from '@/store/api/api';
+import { useCreateEditApplicationMutation, useGetActiveWindowsParamsQuery } from '@/store/api/api';
+import { RouteProp, useRoute } from '@react-navigation/native';
+import { navigationTypes } from '@/core/types/navigationTypes';
 
 const AddNewDgApplicationPage = () => {
+    const { orgId } = useRoute<RouteProp<navigationTypes, "newDgApplication">>().params;
+
     const [searchQuery, setSearchQuery] = useState('');
     const [showSearch, setShowSearch] = useState(false);
 
@@ -23,6 +27,18 @@ const AddNewDgApplicationPage = () => {
         visible: false,
         lastLinkedId: null,
     });
+
+    const { user, error: authError } = useSelector((state: RootState) => state.auth);
+
+    useEffect(() => {
+        if (authError) {
+            showToast({ message: authError.message, type: "error", title: "Authentication Error", position: "top" });
+        }
+    }, [authError])
+
+
+    const [createApplication] = useCreateEditApplicationMutation();
+
 
     const { onBack } = usePageTransition();
 
@@ -49,12 +65,45 @@ const AddNewDgApplicationPage = () => {
 
     const dispatch = useDispatch<AppDispatch>();
 
-    const handleLinkingProject = (id: number) => {
-        dispatch(linkProjectToOrganization(id));
-        setSnackbar({ visible: true, lastLinkedId: id });
-        setTimeout(() => {
-            onBack();
-        }, 2000);
+
+    const handleLinkingProject = async (item: activeWindow) => {
+        let projTypeCode = 0;
+        switch (item.projType) {
+            case 'Learning Projects':
+                projTypeCode = 2;
+                break;
+            case "Research Projects":
+                projTypeCode = 3;
+                break;
+            case "Strategic Projects":
+                projTypeCode = 4;
+                break;
+        };
+
+        const payload: activeWindowBodyRequest = {
+            organisationId: Number(orgId),
+            projectStatusID: 9,
+            windowParamId: item.id,
+            projectTypeId: projTypeCode,
+            submittedBy: Number(user?.id) || 0,
+            submissionDte: new Date(),
+            captureDte: new Date(),
+            usrUpd: user?.id || '0',
+            dteCreated: new Date(),
+            projectNam: item.projType,
+            projShortNam: item.projType,
+            projectStatDte: new Date(),
+        };
+        try {
+            await createApplication(payload).unwrap();
+            setSnackbar({ visible: true, lastLinkedId: item.id });
+            setTimeout(() => {
+                onBack();
+            }, 2000);
+        } catch (error) {
+            showToast({ message: "Failed to create application", type: "error", title: "Error", position: "top" });
+            console.error('Create application error:', error);
+        }
     };
 
     const handleUndo = () => {
@@ -76,7 +125,7 @@ const AddNewDgApplicationPage = () => {
     const renderList = ({ index, item }: { index: number, item: activeWindow }) => {
         return (
             <Animated.View key={`app-${item.id}}`} entering={FadeInDown.duration(600).delay(index * 100).springify()}>
-                <AddDgApplicationItem onPress={() => handleLinkingProject(item.id)} item={item} />
+                <AddDgApplicationItem onPress={() => handleLinkingProject(item)} item={item} />
             </Animated.View>
         )
     }

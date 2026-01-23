@@ -1,6 +1,7 @@
 import { createApi, fetchBaseQuery, FetchBaseQueryError } from '@reduxjs/toolkit/query/react'
 import { RootState } from '../store'
 import { refreshTokenThunk, logout } from '../slice/AuthSlice'
+import { activeWindowBodyRequest } from '@/core/models/DiscretionaryDto'
 
 const baseQuery = fetchBaseQuery({
     baseUrl: 'https://ims.chieta.org.za:22743',
@@ -251,7 +252,7 @@ export const api = createApi({
             query: () => '/api/services/app/DiscretionaryWindow/GetActiveWindowsParams',
             providesTags: ['Grant'],
         }),
-        createEditApplication: builder.mutation({
+        createEditApplication: builder.mutation<any, activeWindowBodyRequest>({
             query: (payload) => ({
                 url: '/api/services/app/DiscretionaryProject/CreateEditApplication',
                 method: 'POST',

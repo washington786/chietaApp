@@ -254,7 +254,7 @@ const DgApplicationDetails = () => {
     );
 
     // document upload
-    const { pickDocument, error, isLoading } = useDocumentPicker();
+    const { pickDocument, error } = useDocumentPicker();
 
     const [taxComplience, setTaxComplience] = useState<DocumentPickerResult>();
     const [companyReg, setCompanyReg] = useState<DocumentPickerResult>();

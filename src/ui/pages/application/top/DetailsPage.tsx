@@ -30,8 +30,6 @@ const DetailsPage = () => {
     // Fetch SDF/Person details
     const { data: sdfData, isLoading: sdfLoading, error: sdfError } = useGetPersonByUserIdQuery(user?.id, { skip: !user?.id });
 
-    console.log('sdf: ', sdfData);
-
     // Use appropriate org data based on type
     const orgData = type === "dg-app" ? dgOrgData : mgOrgData;
     const orgLoading = type === "dg-app" ? dgOrgLoading : mgOrgLoading;
