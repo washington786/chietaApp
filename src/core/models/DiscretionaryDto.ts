@@ -213,6 +213,23 @@ export interface activeWindow {
     skipCount: number,
     maxResultCount: number
 }
+
+export interface activeWindowBodyRequest {
+    organisationId: number,
+    projectStatusID: number,
+    projectStatDte: string | Date,
+    projShortNam: string,
+    projectNam: string,
+    grantWindowId: number,
+    windowParamId: number,
+    projectTypeId: number,
+    submittedBy: number,
+    submissionDte: string | Date,
+    captureDte: string | Date,
+    dteUpd: string | Date,
+    usrUpd: string,
+    dteCreated: string | Date,
+}
 export interface DiscretionaryProjectDto {
 
     id: number;

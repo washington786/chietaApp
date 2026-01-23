@@ -5,10 +5,11 @@ import { Text } from 'react-native-paper'
 import { Expandable, TextWrap } from '@/components/modules/application';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { showToast } from '@/core';
-import { useGetOrgBankQuery, useGetOrganizationByProjectQuery, useGetPersonByIdQuery, useGetOrganizationByIdQuery } from '@/store/api/api';
+import { useGetOrgBankQuery, useGetOrganizationByProjectQuery, useGetPersonByIdQuery, useGetOrganizationByIdQuery, useGetPersonByUserIdQuery } from '@/store/api/api';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store/store';
 import { navigationTypes } from '@/core/types/navigationTypes';
+import { getDesignation } from '@/core/utils/designation';
 
 const DetailsPage = () => {
 
@@ -27,7 +28,9 @@ const DetailsPage = () => {
     const { data: mgOrgData, isLoading: mgOrgLoading, error: mgOrgError } = useGetOrganizationByIdQuery(orgId, { skip: type !== "mg-app" || !orgId });
 
     // Fetch SDF/Person details
-    const { data: sdfData, isLoading: sdfLoading, error: sdfError } = useGetPersonByIdQuery(user?.id, { skip: !user?.id });
+    const { data: sdfData, isLoading: sdfLoading, error: sdfError } = useGetPersonByUserIdQuery(user?.id, { skip: !user?.id });
+
+    console.log('sdf: ', sdfData);
 
     // Use appropriate org data based on type
     const orgData = type === "dg-app" ? dgOrgData : mgOrgData;
@@ -74,17 +77,8 @@ const DetailsPage = () => {
             ListFooterComponent={() => {
                 return (
                     <>
-                        <Expandable title='bank details' isExpanded={expandBank} onPress={() => setExpandBank(!expandBank)}>
-                            <TextWrap desc='Bank' title={bankName || 'N/A'} />
-                            <TextWrap desc='Branch Name' title={bankDetails?.branch_Name || 'N/A'} />
-                            <TextWrap desc='code' title={bankDetails?.branch_Code || 'N/A'} />
-                            <TextWrap desc='Account Number' title={bankDetails?.account_Number ? '*'.repeat(bankDetails.account_Number.length - 4) + bankDetails.account_Number.slice(-4) : 'N/A'} />
-                            <TextWrap desc='Account holder' title={bankDetails?.account_Holder || 'N/A'} />
-                            <TextWrap desc='Type' title={accountType || 'N/A'} />
-                        </Expandable>
-
                         <Expandable title='sdf details' isExpanded={expandSdf} onPress={() => setExpandSdf(!expandSdf)}>
-                            <TextWrap desc='Designation' title={person?.designation ? String(person.designation) : 'N/A'} />
+                            <TextWrap desc='Designation' title={person?.designation ? getDesignation(person.designation) : 'N/A'} />
                             <TextWrap desc='title' title={person?.title || 'N/A'} />
                             <TextWrap desc='Fullnames' title={`${person?.firstname || ''} ${person?.middlenames || ''} ${person?.lastname || ''}`.trim() || 'N/A'} />
                             <TextWrap desc='ID Number' title={person?.saidnumber || 'N/A'} />
@@ -132,6 +126,15 @@ const DetailsPage = () => {
                             <TextWrap desc='Email' title={organization?.senior_Rep_Email || 'N/A'} />
                             <TextWrap desc='Race' title={organization?.senior_Rep_RaceId || 'N/A'} />
                             <TextWrap desc='Gender' title={organization?.senior_Rep_GenderId || 'N/A'} />
+                        </Expandable>
+
+                        <Expandable title='bank details' isExpanded={expandBank} onPress={() => setExpandBank(!expandBank)}>
+                            <TextWrap desc='Bank' title={bankName || 'N/A'} />
+                            <TextWrap desc='Branch Name' title={bankDetails?.branch_Name || 'N/A'} />
+                            <TextWrap desc='code' title={bankDetails?.branch_Code || 'N/A'} />
+                            <TextWrap desc='Account Number' title={bankDetails?.account_Number ? '*'.repeat(bankDetails.account_Number.length - 4) + bankDetails.account_Number.slice(-4) : 'N/A'} />
+                            <TextWrap desc='Account holder' title={bankDetails?.account_Holder || 'N/A'} />
+                            <TextWrap desc='Type' title={accountType || 'N/A'} />
                         </Expandable>
                     </>
                 )
