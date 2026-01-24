@@ -6,7 +6,7 @@ import { ApplicationItem, InformationBanner } from '@/components/modules/applica
 import { FAB, Searchbar } from 'react-native-paper'
 import usePageTransition from '@/hooks/navigation/usePageTransition'
 import colors from '@/config/colors'
-import Animated, { FadeInDown } from 'react-native-reanimated';
+import Animated, { FadeInDown } from 'react-native-reanimated'
 import { showToast } from '@/core'
 import { MandatoryApplicationDto } from '@/core/models/MandatoryDto'
 import { RouteProp, useRoute } from '@react-navigation/native'
