@@ -1,19 +1,26 @@
-import { StyleSheet, View, FlatList, Dimensions, TouchableOpacity } from 'react-native'
-import React, { useEffect } from 'react'
+import { StyleSheet, View, FlatList, Dimensions, TouchableOpacity, Modal } from 'react-native'
+import React, { useEffect, useState, useRef } from 'react'
 import { Text } from 'react-native-paper'
 import colors from '@/config/colors'
-import { RCol, RListLoading } from '@/components/common'
+import { RCol, RListLoading, RRow } from '@/components/common'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import { DiscretionaryWindow } from '@/core/models/DiscretionaryDto'
 import { useGetActiveWindowsQuery } from '@/store/api/api'
 import { showToast } from '@/core'
-import { LinearGradient } from 'expo-linear-gradient'
+import ActiveWindowDetails from './ActiveWindowDetails'
+import ActiveWindowRenderItem from './ActiveWindowRenderItem'
 
+const CARD_WIDTH = Dimensions.get('window').width * 0.7;
+const SPACING = 16;
 
 const DgActiveWindow = () => {
-    const { data: apiData, isLoading, error } = useGetActiveWindowsQuery(undefined)
+    const { data: apiData, isLoading, error } = useGetActiveWindowsQuery(undefined);
+    const [selectedWindow, setSelectedWindow] = useState<DiscretionaryWindow | null>(null)
+    const [currentIndex, setCurrentIndex] = useState(0)
+    const flatListRef = useRef<FlatList>(null)
 
-    const discretionaryWindows: DiscretionaryWindow[] = apiData?.result?.items?.map((item: any) => item.discretionaryWindow) || []
+    const discretionaryWindowsUnsorted: DiscretionaryWindow[] = apiData?.result?.items?.map((item: any) => item.discretionaryWindow) || []
+    const discretionaryWindows = [...discretionaryWindowsUnsorted].sort((a, b) => b.id - a.id)
 
     useEffect(() => {
         if (error) {
@@ -24,229 +31,140 @@ const DgActiveWindow = () => {
                 position: 'top',
             })
         }
-    }, [error])
-
-    const formatDate = (dateString: string | null | undefined): string => {
-        if (!dateString) return 'N/A'
-        const date = new Date(dateString)
-        // Check if date is valid and not a default date
-        if (isNaN(date.getTime()) || date.getFullYear() === 1) {
-            return 'N/A'
-        }
-        return date.toLocaleDateString('en-ZA', { day: '2-digit', month: 'short', year: 'numeric' })
-    }
-
-    const formatCurrency = (amount: number): string => {
-        return new Intl.NumberFormat('en-ZA', {
-            style: 'currency',
-            currency: 'ZAR',
-        }).format(amount)
-    }
-
-    const renderCard = ({ item }: { item: DiscretionaryWindow }) => (
-        <TouchableOpacity activeOpacity={0.5}>
-            <View style={styles.card}>
-
-                {/* Top Row */}
-                <View style={styles.headerRow}>
-                    <View style={{ flex: 1 }}>
-                        <Text style={styles.title}>{item.title}</Text>
-                        <Text style={styles.reference}>{item.reference}</Text>
-                    </View>
-
-                    <View style={[
-                        styles.statusBadge,
-                        { backgroundColor: item.activeYN ? colors.green[500] : colors.red[500] }
-                    ]}>
-                        <Text style={styles.statusText}>
-                            {item.activeYN ? 'Active' : 'Inactive'}
-                        </Text>
-                    </View>
-                </View>
-
-                {/* Budget */}
-                <Text style={styles.budget}>
-                    {formatCurrency(item.totBdgt)}
-                </Text>
-
-                {/* Dates Row */}
-                <View style={styles.dateRow}>
-                    <View>
-                        <Text style={styles.dateLabel}>Launch</Text>
-                        <Text style={styles.dateValue}>{formatDate(item.launchDte)}</Text>
-                    </View>
-
-                    <View>
-                        <Text style={styles.dateLabel}>Deadline</Text>
-                        <Text style={styles.deadlineValue}>
-                            {formatDate(item.deadlineTime)}
-                        </Text>
-                    </View>
-                </View>
-            </View>
-        </TouchableOpacity>
-    );
-
+    }, [error]);
 
     return (
         <View style={styles.container}>
             {isLoading ? (
-                <RListLoading count={3} />
+                <RListLoading count={1} />
             ) : discretionaryWindows.length > 0 ? (
-                <FlatList
-                    data={discretionaryWindows}
-                    renderItem={renderCard}
-                    keyExtractor={(item) => item.id.toString()}
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    snapToInterval={Dimensions.get('window').width - 40}
-                    decelerationRate="fast"
-                    contentContainerStyle={styles.carousel}
-                />
+                <View style={{ backgroundColor: colors.white }}>
+                    <FlatList
+                        ref={flatListRef}
+                        data={discretionaryWindows}
+                        renderItem={({ item }) => <ActiveWindowRenderItem item={item} onPress={() => setSelectedWindow(item)} />}
+                        keyExtractor={(item) => item.id.toString()}
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        snapToInterval={CARD_WIDTH + SPACING}
+                        snapToAlignment="start"
+                        decelerationRate="fast"
+                        scrollEventThrottle={16}
+                        contentContainerStyle={styles.carousel}
+                        pagingEnabled={true}
+                        onMomentumScrollEnd={(event) => {
+                            const contentOffsetX = event.nativeEvent.contentOffset.x;
+                            const index = Math.round(contentOffsetX / (CARD_WIDTH + SPACING));
+                            setCurrentIndex(index);
+                        }}
+                    />
+                    {/* Pagination Dots */}
+                    <RRow style={styles.pagination}>
+                        {discretionaryWindows.map((_, index) => (
+                            <TouchableOpacity
+                                key={index}
+                                style={[
+                                    styles.dot,
+                                    {
+                                        backgroundColor: index === currentIndex ? colors.primary[900] : colors.zinc[300],
+                                        width: index === currentIndex ? 32 : 8,
+                                    }
+                                ]}
+                                onPress={() => {
+                                    setCurrentIndex(index);
+                                    flatListRef.current?.scrollToIndex({ index, animated: true });
+                                }}
+                            />
+                        ))}
+                    </RRow>
+                </View>
             ) : (
                 <RCol style={styles.emptyState}>
-                    <MaterialIcons name='inbox' size={48} color={colors.zinc[400]} />
-                    <Text variant='bodyMedium' style={styles.emptyText}>No discretionary windows available</Text>
+                    <MaterialIcons name='inbox' size={64} color={colors.zinc[300]} />
+                    <Text variant='bodyLarge' style={styles.emptyText}>No discretionary windows available</Text>
+                    <Text variant='bodySmall' style={styles.emptySubText}>Check back later for new opportunities</Text>
                 </RCol>
             )}
+
+            {/* Details Modal */}
+            <Modal
+                visible={!!selectedWindow}
+                animationType="slide"
+                transparent={false}
+                onRequestClose={() => setSelectedWindow(null)}
+                presentationStyle="fullScreen"
+            >
+                {selectedWindow && (
+                    <ActiveWindowDetails
+                        window={selectedWindow}
+                        onClose={() => setSelectedWindow(null)}
+                    />
+                )}
+            </Modal>
         </View>
     )
 }
 
-export default DgActiveWindow
+export default DgActiveWindow;
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: colors.white,
-    },
-    carousel: {
-        paddingHorizontal: 12,
-        gap: 8,
-        paddingVertical: 8
-    },
-    card: {
-        backgroundColor: colors.primary[50],
-        borderWidth: 1,
-        borderColor: colors.primary[200],
-        width: Dimensions.get('window').width * 0.65,
-        borderRadius: 18,
-        padding: 16,
-        marginBottom: 14,
+        marginBottom: 8,
+        borderRadius: 16,
+        overflow: 'hidden',
         shadowColor: '#000',
         shadowOpacity: 0.05,
-        shadowRadius: 10,
-        elevation: 3,
+        shadowRadius: 12,
+        elevation: 4,
     },
-
-    headerRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginBottom: 8,
-    },
-
-    title: {
-        fontSize: 16,
-        fontWeight: '700',
-        color: '#1A1A1A',
-    },
-
-    reference: {
-        fontSize: 12,
-        color: '#888',
-        marginTop: 2,
-    },
-
-    statusBadge: {
-        paddingHorizontal: 10,
-        paddingVertical: 4,
-        borderRadius: 20,
-    },
-
-    statusText: {
-        fontSize: 11,
-        fontWeight: '600',
-        color: '#FFF',
-    },
-
-    budget: {
-        fontSize: 18,
-        fontWeight: '800',
-        color: '#2B2B2B',
-        marginVertical: 6,
-    },
-
-    dateRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginTop: 6,
-    },
-
-    dateLabel: {
-        fontSize: 11,
-        color: '#999',
-    },
-
-    dateValue: {
-        fontSize: 13,
-        fontWeight: '600',
-        color: '#333',
-    },
-
-    deadlineValue: {
-        fontSize: 13,
-        fontWeight: '700',
-        color: '#D32F2F',
-    },
-
-    description: {
-        color: colors.zinc[700],
-        lineHeight: 18,
-    },
-    infoSection: {
-        gap: 8,
+    header: {
+        paddingHorizontal: 20,
         paddingVertical: 8,
-        borderTopWidth: 1,
-        borderTopColor: colors.zinc[200],
+        borderBottomWidth: 1,
+        borderBottomColor: colors.zinc[100],
     },
-    dateSection: {
-        gap: 8,
-        paddingVertical: 8,
-        borderTopWidth: 1,
-        borderTopColor: colors.zinc[200],
+    headerTitle: {
+        fontWeight: '700',
+        color: colors.zinc[800],
     },
-    sectionLabel: {
-        color: colors.primary[900],
-        fontWeight: '600',
-        marginBottom: 4,
-    },
-    infoItem: {
-        alignItems: 'center',
-    },
-    infoLabel: {
-        color: colors.zinc[600],
-    },
-    infoValue: {
-        color: colors.zinc[900],
-        fontWeight: '500',
-        marginTop: 2,
-    },
-    metaSection: {
-        paddingTop: 8,
-        borderTopWidth: 1,
-        borderTopColor: colors.zinc[200],
-    },
-    metaText: {
+    headerSubtitle: {
+        fontWeight: '400',
         color: colors.zinc[500],
-        fontSize: 11,
+        marginTop: 1,
+    },
+    carousel: {
+        paddingHorizontal: 20,
+        paddingVertical: 2,
+        gap: SPACING,
     },
     emptyState: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        gap: 12,
+        gap: 16,
+        paddingVertical: 48,
+        paddingHorizontal: 20,
     },
     emptyText: {
-        color: colors.zinc[600],
+        color: colors.zinc[700],
+        fontWeight: '600',
+        textAlign: 'center',
     },
-})
+    emptySubText: {
+        color: colors.zinc[500],
+        textAlign: 'center',
+    },
+    pagination: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        gap: 6,
+        paddingVertical: 16,
+        backgroundColor: colors.white,
+    },
+    dot: {
+        height: 8,
+        borderRadius: 4,
+    },
+});

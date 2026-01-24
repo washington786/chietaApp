@@ -59,7 +59,9 @@ export const LinkedOrganizationList: FC<linkedProps> = ({ org, isLinkingRequired
 
             <View style={{ height: 210 }}>
                 {newOrgs && newOrgs?.length > 0 && <RCol>
-                    <Text style={{ paddingVertical: 2 }}>{newOrgs.length} New Organization(s)</Text>
+                    <Text style={{ paddingVertical: 2 }}>
+                        {newOrgs.length} New Organization(s)
+                    </Text>
                     <RDivider />
                 </RCol>
                 }
