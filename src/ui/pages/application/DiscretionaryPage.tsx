@@ -70,12 +70,8 @@ const DiscretionaryPage = () => {
             });
         }
 
-        // Sort by date in descending order (most recent first)
-        return projects.sort((a, b) => {
-            const dateA = new Date(a.discretionaryProject.projectStatDte || a.discretionaryProject.submissionDte || 0).getTime();
-            const dateB = new Date(b.discretionaryProject.projectStatDte || b.discretionaryProject.submissionDte || 0).getTime();
-            return dateB - dateA;
-        });
+        // Sort by ID in descending order (most recent first)
+        return projects.sort((a, b) => b.discretionaryProject.id - a.discretionaryProject.id);
     }, [allApplications, searchQuery]);
 
     const renderList = ({ index, item }: { index: number, item: { discretionaryProject: dgProject } }) => {
