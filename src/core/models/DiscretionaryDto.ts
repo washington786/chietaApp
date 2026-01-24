@@ -214,22 +214,23 @@ export interface activeWindow {
     maxResultCount: number
 }
 
-export interface discretionaryWindow {
-    id: number,
-    progCd: string,
-    reference: string,
-    description: string,
-    title: string,
-    launchDte: string | Date,
-    deadlineTime: string | Date,
-    totBdgt: number,
-    contractStartDate: string | Date,
-    contractEndDate: string | Date,
-    activeYN: true,
-    dteUpd: string | Date,
-    usrUpd: number,
-    dteCreated: string | Date
+export interface DiscretionaryWindow {
+    id: number
+    progCd: string
+    reference: string
+    description: string
+    title: string
+    launchDte: string
+    deadlineTime: string
+    totBdgt: number
+    contractStartDate: string
+    contractEndDate: string
+    activeYN: boolean
+    dteUpd: string
+    usrUpd: number
+    dteCreated: string
 }
+
 
 export interface activeWindowBodyRequest {
     organisationId: number;
