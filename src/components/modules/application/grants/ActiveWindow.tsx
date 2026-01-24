@@ -1,15 +1,16 @@
-import { StyleSheet, View, FlatList, Dimensions } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import { StyleSheet, View, FlatList, Dimensions, TouchableOpacity } from 'react-native'
+import React, { useEffect } from 'react'
 import { Text } from 'react-native-paper'
 import colors from '@/config/colors'
-import { RCol, RRow, RListLoading } from '@/components/common'
+import { RCol, RListLoading } from '@/components/common'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import { DiscretionaryWindow } from '@/core/models/DiscretionaryDto'
 import { useGetActiveWindowsQuery } from '@/store/api/api'
 import { showToast } from '@/core'
+import { LinearGradient } from 'expo-linear-gradient'
 
 
-const ActiveWindow = () => {
+const DgActiveWindow = () => {
     const { data: apiData, isLoading, error } = useGetActiveWindowsQuery(undefined)
 
     const discretionaryWindows: DiscretionaryWindow[] = apiData?.result?.items?.map((item: any) => item.discretionaryWindow) || []
@@ -43,44 +44,49 @@ const ActiveWindow = () => {
     }
 
     const renderCard = ({ item }: { item: DiscretionaryWindow }) => (
-        <RCol style={styles.card}>
-            {/* Header */}
-            <RRow style={styles.cardHeader}>
-                <RCol style={{ flex: 1 }}>
-                    <Text variant='titleMedium' style={styles.cardTitle}>{item.title}</Text>
-                    <Text variant='labelSmall' style={styles.cardReference}>{item.reference}</Text>
-                </RCol>
-                <View style={[styles.statusBadge, { backgroundColor: item.activeYN ? colors.green[500] : colors.red[500] }]}>
-                    <Text style={styles.statusText}>{item.activeYN ? 'Active' : 'Inactive'}</Text>
+        <TouchableOpacity activeOpacity={0.5}>
+            <View style={styles.card}>
+
+                {/* Top Row */}
+                <View style={styles.headerRow}>
+                    <View style={{ flex: 1 }}>
+                        <Text style={styles.title}>{item.title}</Text>
+                        <Text style={styles.reference}>{item.reference}</Text>
+                    </View>
+
+                    <View style={[
+                        styles.statusBadge,
+                        { backgroundColor: item.activeYN ? colors.green[500] : colors.red[500] }
+                    ]}>
+                        <Text style={styles.statusText}>
+                            {item.activeYN ? 'Active' : 'Inactive'}
+                        </Text>
+                    </View>
                 </View>
-            </RRow>
 
-            {/* Description */}
-            {item.description && (
-                <Text variant='bodySmall' style={styles.description}>{item.description}</Text>
-            )}
+                {/* Budget */}
+                <Text style={styles.budget}>
+                    {formatCurrency(item.totBdgt)}
+                </Text>
 
-            {/* Key Info */}
-            <RCol style={styles.infoSection}>
-                <InfoItem icon='code' label='Program Code' value={item.progCd} />
-                <InfoItem icon='attach-money' label='Total Budget' value={formatCurrency(item.totBdgt)} />
-            </RCol>
+                {/* Dates Row */}
+                <View style={styles.dateRow}>
+                    <View>
+                        <Text style={styles.dateLabel}>Launch</Text>
+                        <Text style={styles.dateValue}>{formatDate(item.launchDte)}</Text>
+                    </View>
 
-            {/* Dates */}
-            <RCol style={styles.dateSection}>
-                <Text variant='labelSmall' style={styles.sectionLabel}>Timeline</Text>
-                <InfoItem icon='event' label='Launch Date' value={formatDate(item.launchDte)} />
-                <InfoItem icon='deadline' label='Deadline' value={formatDate(item.deadlineTime)} />
-                <InfoItem icon='date-range' label='Contract Start' value={formatDate(item.contractStartDate)} />
-                <InfoItem icon='date-range' label='Contract End' value={formatDate(item.contractEndDate)} />
-            </RCol>
+                    <View>
+                        <Text style={styles.dateLabel}>Deadline</Text>
+                        <Text style={styles.deadlineValue}>
+                            {formatDate(item.deadlineTime)}
+                        </Text>
+                    </View>
+                </View>
+            </View>
+        </TouchableOpacity>
+    );
 
-            {/* Metadata */}
-            <RCol style={styles.metaSection}>
-                <Text variant='labelSmall' style={styles.metaText}>Updated: {formatDate(item.dteUpd)}</Text>
-            </RCol>
-        </RCol>
-    )
 
     return (
         <View style={styles.container}>
@@ -107,64 +113,92 @@ const ActiveWindow = () => {
     )
 }
 
-function InfoItem({ icon, label, value }: { icon: string; label: string; value: string }) {
-    return (
-        <RRow style={styles.infoItem}>
-            <MaterialIcons name={icon as any} size={16} color={colors.primary[900]} />
-            <RCol style={{ flex: 1, marginLeft: 8 }}>
-                <Text variant='labelSmall' style={styles.infoLabel}>{label}</Text>
-                <Text variant='bodySmall' style={styles.infoValue}>{value}</Text>
-            </RCol>
-        </RRow>
-    )
-}
-
-export default ActiveWindow
+export default DgActiveWindow
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: colors.zinc[50],
-        paddingVertical: 12,
+        backgroundColor: colors.white,
     },
     carousel: {
         paddingHorizontal: 12,
-        gap: 16,
+        gap: 8,
+        paddingVertical: 8
     },
     card: {
-        width: Dimensions.get('window').width - 40,
-        backgroundColor: colors.white,
-        borderRadius: 12,
+        backgroundColor: colors.primary[50],
+        borderWidth: 1,
+        borderColor: colors.primary[200],
+        width: Dimensions.get('window').width * 0.65,
+        borderRadius: 18,
         padding: 16,
-        shadowColor: colors.black,
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 8,
-        elevation: 4,
-        gap: 12,
+        marginBottom: 14,
+        shadowColor: '#000',
+        shadowOpacity: 0.05,
+        shadowRadius: 10,
+        elevation: 3,
     },
-    cardHeader: {
-        justifyContent: 'space-between',
-        alignItems: 'flex-start',
+
+    headerRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 8,
     },
-    cardTitle: {
-        color: colors.primary[900],
-        fontWeight: '600',
-        marginBottom: 4,
+
+    title: {
+        fontSize: 16,
+        fontWeight: '700',
+        color: '#1A1A1A',
     },
-    cardReference: {
-        color: colors.zinc[500],
-    },
-    statusBadge: {
-        paddingHorizontal: 12,
-        paddingVertical: 6,
-        borderRadius: 16,
-    },
-    statusText: {
-        color: colors.white,
+
+    reference: {
         fontSize: 12,
-        fontWeight: '600',
+        color: '#888',
+        marginTop: 2,
     },
+
+    statusBadge: {
+        paddingHorizontal: 10,
+        paddingVertical: 4,
+        borderRadius: 20,
+    },
+
+    statusText: {
+        fontSize: 11,
+        fontWeight: '600',
+        color: '#FFF',
+    },
+
+    budget: {
+        fontSize: 18,
+        fontWeight: '800',
+        color: '#2B2B2B',
+        marginVertical: 6,
+    },
+
+    dateRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginTop: 6,
+    },
+
+    dateLabel: {
+        fontSize: 11,
+        color: '#999',
+    },
+
+    dateValue: {
+        fontSize: 13,
+        fontWeight: '600',
+        color: '#333',
+    },
+
+    deadlineValue: {
+        fontSize: 13,
+        fontWeight: '700',
+        color: '#D32F2F',
+    },
+
     description: {
         color: colors.zinc[700],
         lineHeight: 18,

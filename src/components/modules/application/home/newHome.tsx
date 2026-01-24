@@ -20,6 +20,7 @@ import { formatCountdown } from '@/core/utils/dayTime';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store/store';
 import { useGetActiveWindowsParamsQuery } from '@/store/api/api';
+import DgActiveWindow from '../grants/ActiveWindow';
 
 interface StatItem {
     icon: keyof typeof Ionicons.glyphMap;
@@ -180,6 +181,9 @@ const NewHome = () => {
                                 </TouchableOpacity>
                             </View>
                         </View>
+
+                        {/* active windows */}
+                        <DgActiveWindow />
 
                         {/* Stats */}
                         <RCol style={{ backgroundColor: colors.primary[950], marginBottom: 8 }}>
