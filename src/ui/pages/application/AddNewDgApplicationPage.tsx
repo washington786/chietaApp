@@ -68,6 +68,7 @@ const AddNewDgApplicationPage = () => {
 
     const handleLinkingProject = async (item: activeWindow) => {
         let projTypeCode = 0;
+
         switch (item.projType) {
             case 'Learning Projects':
                 projTypeCode = 2;
@@ -77,6 +78,9 @@ const AddNewDgApplicationPage = () => {
                 break;
             case "Strategic Projects":
                 projTypeCode = 4;
+                break;
+            default:
+                projTypeCode = 0;
                 break;
         };
 
