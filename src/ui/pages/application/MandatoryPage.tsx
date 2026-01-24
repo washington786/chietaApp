@@ -1,12 +1,12 @@
 import { FlatList, StyleSheet, View } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { REmpty, RListLoading, SafeArea } from '@/components/common'
 import RHeader from '@/components/common/RHeader'
 import { ApplicationItem, InformationBanner } from '@/components/modules/application'
 import { FAB } from 'react-native-paper'
 import usePageTransition from '@/hooks/navigation/usePageTransition'
 import colors from '@/config/colors'
-import Animated, { FadeInDown } from 'react-native-reanimated'
+import Animated, { FadeInDown } from 'react-native-reanimated';
 import { showToast } from '@/core'
 import { MandatoryApplicationDto } from '@/core/models/MandatoryDto'
 import { RouteProp, useRoute } from '@react-navigation/native'
@@ -43,6 +43,10 @@ const MandatoryPage = () => {
         }
     }, [data]);
 
+    const sortedApplications = useMemo(() => {
+        return [...allApplications].sort((a, b) => b.id - a.id);
+    }, [allApplications]);
+
     const renderList = ({ index, item }: { index: number, item: MandatoryApplicationDto }) => {
         return (
             <Animated.View key={`app-${item.id}}`} entering={FadeInDown.duration(600).delay(index * 100).springify()}>
@@ -57,7 +61,7 @@ const MandatoryPage = () => {
         return (
             <SafeArea>
                 <RHeader name='Mandatory Grant Applications' />
-                <FlatList data={allApplications}
+                <FlatList data={sortedApplications}
                     style={{ paddingHorizontal: 12, paddingVertical: 6, flex: 1, flexGrow: 1 }}
                     renderItem={renderList}
                     ListHeaderComponent={<InformationBanner title='view your applications and apply for new grants. You can only submit during open grant window.' />}
