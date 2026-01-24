@@ -168,7 +168,8 @@ const styles = StyleSheet.create({
         flex: 1,
         flexGrow: 1,
         paddingHorizontal: 12,
-        paddingVertical: 6,
+        paddingTop: 6,
+        paddingBottom: 20,
     },
     docs: {
         marginVertical: 10,
