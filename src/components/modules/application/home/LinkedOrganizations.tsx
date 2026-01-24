@@ -29,8 +29,6 @@ const LinkedOrganizations = () => {
         skip: !sdfId
     });
 
-    console.log('[LinkedOrganizations] sdfId:', sdfId, 'orgLoading:', orgLoading, 'orgError:', orgError, 'organizationsData:', organizationsData);
-
     const userId = user && user.id || 0;
 
     const [delinkOrganization] = useDelinkOrganizationMutation();
