@@ -40,6 +40,7 @@ const styles = StyleSheet.create({
         gap: 4,
         backgroundColor: colors.blue[50],
         overflow: "hidden",
+        width: "100%",
     },
     title: {
         color: colors.slate[700],
