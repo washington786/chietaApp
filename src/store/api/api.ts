@@ -245,6 +245,10 @@ export const api = createApi({
         /**
          * Discretionary Grants Endpoints
          */
+        getActiveWindows: builder.query({
+            query: () => '/api/services/app/DiscretionaryWindow/GetActiveWindows',
+            providesTags: ['Grant'],
+        }),
         getActiveWindowsParams: builder.query({
             query: () => '/api/services/app/DiscretionaryWindow/GetActiveWindowsParams',
             providesTags: ['Grant'],
@@ -543,6 +547,7 @@ export const {
     useGetNationalitiesQuery,
     useGetLanguagesQuery,
     useGetEquityQuery,
+    useGetActiveWindowsQuery,
     useGetActiveWindowsParamsQuery,
     useCreateEditApplicationMutation,
     useDeleteApplicationMutation,
