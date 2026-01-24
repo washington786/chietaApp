@@ -13,7 +13,7 @@ import { showToast } from '@/core';
 import { fetchDiscretionaryGrantData } from '@/store/slice/thunks/DiscretionaryThunks';
 import { linkProjectToOrganization } from '@/store/slice/DiscretionarySlice';
 import usePageTransition from '@/hooks/navigation/usePageTransition';
-import { useCreateEditApplicationMutation, useGetActiveWindowsParamsQuery } from '@/store/api/api';
+import { useCreateEditApplicationMutation, useGetActiveWindowsParamsQuery, api } from '@/store/api/api';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { navigationTypes } from '@/core/types/navigationTypes';
 
@@ -48,7 +48,7 @@ const AddNewDgApplicationPage = () => {
     // Get active windows filtered by search query
     const activeWindows = useMemo(() => {
         const items = windowsData?.result?.items || [];
-        return items.filter((w: activeWindow) => {
+        const filtered = items.filter((w: activeWindow) => {
             // Only show active windows
             if (!w.activeYN) return false;
             // If no search query, show all active windows
@@ -60,6 +60,9 @@ const AddNewDgApplicationPage = () => {
             const projMatch = w.projType?.toLowerCase().includes(query) ?? false;
             return titleMatch || focusMatch || projMatch;
         });
+
+        // Sort by id in descending order (most recent first)
+        return filtered.sort((a: { id: number; }, b: { id: number; }) => b.id - a.id);
     }, [windowsData, searchQuery]);
 
 
@@ -68,6 +71,7 @@ const AddNewDgApplicationPage = () => {
 
     const handleLinkingProject = async (item: activeWindow) => {
         let projTypeCode = 0;
+
         switch (item.projType) {
             case 'Learning Projects':
                 projTypeCode = 2;
@@ -78,7 +82,12 @@ const AddNewDgApplicationPage = () => {
             case "Strategic Projects":
                 projTypeCode = 4;
                 break;
+            default:
+                projTypeCode = 0;
+                break;
         };
+
+        const now = new Date().toISOString();
 
         const payload: activeWindowBodyRequest = {
             organisationId: Number(orgId),
@@ -86,16 +95,21 @@ const AddNewDgApplicationPage = () => {
             windowParamId: item.id,
             projectTypeId: projTypeCode,
             submittedBy: Number(user?.id) || 0,
-            submissionDte: new Date(),
-            captureDte: new Date(),
+            submissionDte: now,
+            captureDte: now,
             usrUpd: user?.id || '0',
-            dteCreated: new Date(),
+            dteCreated: now,
             projectNam: item.projType,
             projShortNam: item.projType,
-            projectStatDte: new Date(),
+            projectStatDte: now,
+            grantWindowId: 0
         };
         try {
             await createApplication(payload).unwrap();
+            // Refetch discretionary grant data and RTK Query cache to show new application on top
+            dispatch(fetchDiscretionaryGrantData());
+            // Invalidate the cache for getOrgProjects so it refetches with the new application
+            dispatch(api.util.invalidateTags(['Grant']));
             setSnackbar({ visible: true, lastLinkedId: item.id });
             setTimeout(() => {
                 onBack();

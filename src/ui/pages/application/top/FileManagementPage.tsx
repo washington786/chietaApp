@@ -8,84 +8,118 @@ import { showToast } from '@/core'
 import { useGetDocumentsByEntityQuery } from '@/store/api/api'
 import { Expandable } from '@/components/modules/application'
 import RDownload from '@/components/common/RDownload'
+import { useSelector } from 'react-redux'
+import { RootState } from '@/store/store'
 
 const FileManagementPage = () => {
     const { appId } = useRoute<RouteProp<navigationTypes, "applicationDetails">>().params;
-
-    // const {} = useGet
+    const { selectedProject } = useSelector((state: RootState) => state.discretionaryGrant);
+    const projType = selectedProject?.projType;
 
     const [showDocs, setShowDocs] = useState<boolean>(true);
 
+    // Define required documents by project type (using actual DB names)
+    const documentsByProjectType: Record<string, string[]> = {
+        'Learning Projects': [
+            'Bank Proof',
+            'BEE Certificate',
+            'Schedule',
+            'Declaration',
+            'Workplace Approval',
+            'Signed Application',
+            'Tax Clearance',
+            'Accreditation',
+            'Proposal',
+            'Company Registration',
+            'Commitment'
+        ],
+        'Research Projects': [
+            'Bank Proof',
+            'BEE Certificate',
+            'Schedule',
+            'Declaration',
+            'Workplace Approval',
+            'Signed Application',
+            'Tax Clearance',
+            'Accreditation',
+            'Proposal',
+            'Company Registration',
+            'Commitment'
+        ],
+        'Strategic Projects': [
+            'Bank Proof',
+            'Tax Clearance',
+            'BEE Certificate',
+            'Declaration',
+            'Signed Application',
+            'Proposal',
+            'Company Registration',
+            'Commitment'
+        ]
+    };
+
+    const requiredDocuments = documentsByProjectType[projType || ''] || [];
+
     // Fetch all document types
-    const taxQuery = useGetDocumentsByEntityQuery(
-        { entityId: appId, module: 'Projects', documentType: 'Tax Compliance' },
-        { skip: !appId }
-    );
-    const companyQuery = useGetDocumentsByEntityQuery(
-        { entityId: appId, module: 'Projects', documentType: 'Company Registration' },
-        { skip: !appId }
-    );
-    const beeQuery = useGetDocumentsByEntityQuery(
-        { entityId: appId, module: 'Projects', documentType: 'BBBEE Certificate' },
-        { skip: !appId }
-    );
-    const accredQuery = useGetDocumentsByEntityQuery(
-        { entityId: appId, module: 'Projects', documentType: 'Proof of Accreditation' },
-        { skip: !appId }
-    );
-    const commitQuery = useGetDocumentsByEntityQuery(
-        { entityId: appId, module: 'Projects', documentType: 'Letter of Commitment' },
-        { skip: !appId }
-    );
-    const learnerQuery = useGetDocumentsByEntityQuery(
-        { entityId: appId, module: 'Projects', documentType: 'Learner Schedule' },
-        { skip: !appId }
-    );
-    const orgQuery = useGetDocumentsByEntityQuery(
-        { entityId: appId, module: 'Projects', documentType: 'Organization Declaration of Interest' },
-        { skip: !appId }
-    );
-    const bankQuery = useGetDocumentsByEntityQuery(
-        { entityId: appId, module: 'Projects', documentType: 'Proof of Banking Details' },
-        { skip: !appId }
-    );
-    const appFormQuery = useGetDocumentsByEntityQuery(
-        { entityId: appId, module: 'Projects', documentType: 'Application Form' },
-        { skip: !appId }
-    );
+    const allDocuments: Record<string, any> = {
+        'Bank Proof': useGetDocumentsByEntityQuery(
+            { entityId: appId, module: 'Projects', documentType: 'Bank Proof' },
+            { skip: !appId || !requiredDocuments.includes('Bank Proof') }
+        ),
+        'BEE Certificate': useGetDocumentsByEntityQuery(
+            { entityId: appId, module: 'Projects', documentType: 'BEE Certificate' },
+            { skip: !appId || !requiredDocuments.includes('BEE Certificate') }
+        ),
+        'Schedule': useGetDocumentsByEntityQuery(
+            { entityId: appId, module: 'Projects', documentType: 'Schedule' },
+            { skip: !appId || !requiredDocuments.includes('Schedule') }
+        ),
+        'Declaration': useGetDocumentsByEntityQuery(
+            { entityId: appId, module: 'Projects', documentType: 'Declaration' },
+            { skip: !appId || !requiredDocuments.includes('Declaration') }
+        ),
+        'Workplace Approval': useGetDocumentsByEntityQuery(
+            { entityId: appId, module: 'Projects', documentType: 'Workplace Approval' },
+            { skip: !appId || !requiredDocuments.includes('Workplace Approval') }
+        ),
+        'Signed Application': useGetDocumentsByEntityQuery(
+            { entityId: appId, module: 'Projects', documentType: 'Signed Application' },
+            { skip: !appId || !requiredDocuments.includes('Signed Application') }
+        ),
+        'Tax Clearance': useGetDocumentsByEntityQuery(
+            { entityId: appId, module: 'Projects', documentType: 'Tax Clearance' },
+            { skip: !appId || !requiredDocuments.includes('Tax Clearance') }
+        ),
+        'Accreditation': useGetDocumentsByEntityQuery(
+            { entityId: appId, module: 'Projects', documentType: 'Accreditation' },
+            { skip: !appId || !requiredDocuments.includes('Accreditation') }
+        ),
+        'Proposal': useGetDocumentsByEntityQuery(
+            { entityId: appId, module: 'Projects', documentType: 'Proposal' },
+            { skip: !appId || !requiredDocuments.includes('Proposal') }
+        ),
+        'Company Registration': useGetDocumentsByEntityQuery(
+            { entityId: appId, module: 'Projects', documentType: 'Company Registration' },
+            { skip: !appId || !requiredDocuments.includes('Company Registration') }
+        ),
+        'Commitment': useGetDocumentsByEntityQuery(
+            { entityId: appId, module: 'Projects', documentType: 'Commitment' },
+            { skip: !appId || !requiredDocuments.includes('Commitment') }
+        ),
+    };
 
     // Helper function to get document from RTK Query data
     const getDocument = (query: any) => query.data?.result?.items?.[0]?.documents;
 
     // Check if any documents exist
     const hasDocuments = useMemo(() => {
-        return !!(
-            getDocument(taxQuery) ||
-            getDocument(companyQuery) ||
-            getDocument(beeQuery) ||
-            getDocument(accredQuery) ||
-            getDocument(commitQuery) ||
-            getDocument(learnerQuery) ||
-            getDocument(orgQuery) ||
-            getDocument(bankQuery) ||
-            getDocument(appFormQuery)
-        );
-    }, [taxQuery.data, companyQuery.data, beeQuery.data, accredQuery.data, commitQuery.data, learnerQuery.data, orgQuery.data, bankQuery.data, appFormQuery.data]);
+        return requiredDocuments.some(docType => getDocument(allDocuments[docType]));
+    }, [requiredDocuments, allDocuments]);
 
     // Check if any queries are loading
     const isLoading = useMemo(() => {
-        return !!(
-            taxQuery.isLoading ||
-            companyQuery.isLoading ||
-            beeQuery.isLoading ||
-            accredQuery.isLoading ||
-            commitQuery.isLoading ||
-            learnerQuery.isLoading ||
-            orgQuery.isLoading ||
-            bankQuery.isLoading ||
-            appFormQuery.isLoading
-        );
-    }, [taxQuery.isLoading, companyQuery.isLoading, beeQuery.isLoading, accredQuery.isLoading, commitQuery.isLoading, learnerQuery.isLoading, orgQuery.isLoading, bankQuery.isLoading, appFormQuery.isLoading]);
+        return requiredDocuments.some(docType => allDocuments[docType]?.isLoading);
+    }, [requiredDocuments, allDocuments]);
 
 
     const handleDownload = (doc: DocumentDto) => {
@@ -106,33 +140,20 @@ const FileManagementPage = () => {
             ) : (
                 <Expandable title='Manage Uploaded Documents' isExpanded={showDocs} onPress={() => setShowDocs(!showDocs)}>
                     <RCol style={styles.docs}>
-                        {
-                            taxQuery.isSuccess && getDocument(taxQuery) && (<RDownload title={getDocument(taxQuery).documenttype} fileName={getDocument(taxQuery).filename} onPress={() => { handleDownload(getDocument(taxQuery)) }} />)
-                        }
-                        {
-                            companyQuery.isSuccess && getDocument(companyQuery) && (<RDownload title={getDocument(companyQuery).documenttype} fileName={getDocument(companyQuery).filename} onPress={() => { handleDownload(getDocument(companyQuery)) }} />)
-                        }
-                        {
-                            beeQuery.isSuccess && getDocument(beeQuery) && (<RDownload title={getDocument(beeQuery).documenttype} fileName={getDocument(beeQuery).filename} onPress={() => { handleDownload(getDocument(beeQuery)) }} />)
-                        }
-                        {
-                            accredQuery.isSuccess && getDocument(accredQuery) && (<RDownload title={getDocument(accredQuery).documenttype} fileName={getDocument(accredQuery).filename} onPress={() => { handleDownload(getDocument(accredQuery)) }} />)
-                        }
-                        {
-                            commitQuery.isSuccess && getDocument(commitQuery) && (<RDownload title={getDocument(commitQuery).documenttype} fileName={getDocument(commitQuery).filename} onPress={() => { handleDownload(getDocument(commitQuery)) }} />)
-                        }
-                        {
-                            learnerQuery.isSuccess && getDocument(learnerQuery) && (<RDownload title={getDocument(learnerQuery).documenttype} fileName={getDocument(learnerQuery).filename} onPress={() => { handleDownload(getDocument(learnerQuery)) }} />)
-                        }
-                        {
-                            orgQuery.isSuccess && getDocument(orgQuery) && (<RDownload title={getDocument(orgQuery).documenttype} fileName={getDocument(orgQuery).filename} onPress={() => { handleDownload(getDocument(orgQuery)) }} />)
-                        }
-                        {
-                            bankQuery.isSuccess && getDocument(bankQuery) && (<RDownload title={getDocument(bankQuery).documenttype} fileName={getDocument(bankQuery).filename} onPress={() => { handleDownload(getDocument(bankQuery)) }} />)
-                        }
-                        {
-                            appFormQuery.isSuccess && getDocument(appFormQuery) && (<RDownload title={getDocument(appFormQuery).documenttype} fileName={getDocument(appFormQuery).filename} onPress={() => { handleDownload(getDocument(appFormQuery)) }} />)
-                        }
+                        {requiredDocuments.map((docType) => {
+                            const query = allDocuments[docType];
+                            const doc = getDocument(query);
+                            return (
+                                doc && query.isSuccess && (
+                                    <RDownload
+                                        key={docType}
+                                        title={doc.documenttype}
+                                        fileName={doc.filename}
+                                        onPress={() => { handleDownload(doc) }}
+                                    />
+                                )
+                            );
+                        })}
                     </RCol>
                 </Expandable>
             )}
@@ -147,7 +168,8 @@ const styles = StyleSheet.create({
         flex: 1,
         flexGrow: 1,
         paddingHorizontal: 12,
-        paddingVertical: 6,
+        paddingTop: 6,
+        paddingBottom: 20,
     },
     docs: {
         marginVertical: 10,

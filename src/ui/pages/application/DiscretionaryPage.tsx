@@ -15,6 +15,7 @@ import { useGetDGOrgApplicationsQuery } from '@/store/api/api'
 
 const DiscretionaryPage = () => {
     const { newDgApplication } = usePageTransition();
+
     const [allApplications, setAllApplications] = useState<{ discretionaryProject: dgProject }[]>([]);
 
     const [showSearch, setShowSearch] = useState<boolean>(false);
@@ -53,19 +54,24 @@ const DiscretionaryPage = () => {
         'focusArea',
         'projType',
         'subCategory',
+        'projectStatus'
     ] as const;
 
     const filteredProjects = useMemo(() => {
-        if (!searchQuery?.trim()) return allApplications;
+        let projects = allApplications;
 
-        const query = searchQuery.trim().toLowerCase();
-
-        return allApplications.filter(({ discretionaryProject }) => {
-            return fieldsToSearch.some((field) => {
-                const value = discretionaryProject[field];
-                return typeof value === 'string' && value.toLowerCase().includes(query);
+        if (searchQuery?.trim()) {
+            const query = searchQuery.trim().toLowerCase();
+            projects = allApplications.filter(({ discretionaryProject }) => {
+                return fieldsToSearch.some((field) => {
+                    const value = discretionaryProject[field];
+                    return typeof value === 'string' && value.toLowerCase().includes(query);
+                });
             });
-        });
+        }
+
+        // Sort by ID in descending order (most recent first)
+        return projects.sort((a, b) => b.discretionaryProject.id - a.discretionaryProject.id);
     }, [allApplications, searchQuery]);
 
     const renderList = ({ index, item }: { index: number, item: { discretionaryProject: dgProject } }) => {
@@ -78,50 +84,48 @@ const DiscretionaryPage = () => {
 
     if (loading) {
         return <RListLoading count={7} />
-    } else {
-        return (
-            <SafeArea>
-                <RHeader name='Discretionary Grant Applications' hasRightIcon iconRight='search' onPressRight={() => setShowSearch(!showSearch)} />
-
-                {
-                    showSearch &&
-                    <RCol style={{
-                        paddingVertical: 6,
-                        paddingHorizontal: 12
-                    }}>
-                        <Searchbar
-                            placeholder="Search application"
-                            onChangeText={setSearchQuery}
-                            value={searchQuery}
-                            style={{ backgroundColor: colors.zinc[50], borderWidth: 1, borderColor: colors.zinc[300] }}
-                        />
-                    </RCol>
-                }
-
-                <FlatList
-                    data={filteredProjects}
-                    style={{ paddingHorizontal: 12, paddingVertical: 6, flex: 1, flexGrow: 1 }}
-                    renderItem={renderList}
-                    ListHeaderComponent={<>{!showSearch && < InformationBanner title='list of Discretionary grants applied for.You can only submit during open grant window.' />}</>}
-                    showsVerticalScrollIndicator={false}
-                    ItemSeparatorComponent={() => <View style={{ height: 5 }} />}
-                    removeClippedSubviews={false}
-                    initialNumToRender={10}
-                    maxToRenderPerBatch={10}
-                    windowSize={21}
-                    ListEmptyComponent={<REmpty title='No Applications Found' subtitle={`when you have applications, they'll appear here`} />}
-                />
-                <FAB
-                    mode='flat'
-                    icon="plus"
-                    style={styles.fab}
-                    onPress={() => newDgApplication({ orgId: orgId || '' })}
-                    color='white'
-                />
-            </SafeArea>
-        )
     }
+    return (
+        <SafeArea>
+            <RHeader name='Discretionary Grant Applications' hasRightIcon iconRight='search' onPressRight={() => setShowSearch(!showSearch)} />
 
+            {
+                showSearch &&
+                <RCol style={{
+                    paddingVertical: 6,
+                    paddingHorizontal: 12
+                }}>
+                    <Searchbar
+                        placeholder="Search application"
+                        onChangeText={setSearchQuery}
+                        value={searchQuery}
+                        style={{ backgroundColor: colors.zinc[50], borderWidth: 1, borderColor: colors.zinc[300] }}
+                    />
+                </RCol>
+            }
+
+            <FlatList
+                data={filteredProjects}
+                style={{ paddingHorizontal: 12, paddingVertical: 6, flex: 1, flexGrow: 1 }}
+                renderItem={renderList}
+                ListHeaderComponent={<>{!showSearch && < InformationBanner title='list of Discretionary grants applied for.You can only submit during open grant window.' />}</>}
+                showsVerticalScrollIndicator={false}
+                ItemSeparatorComponent={() => <View style={{ height: 5 }} />}
+                removeClippedSubviews={false}
+                initialNumToRender={10}
+                maxToRenderPerBatch={10}
+                windowSize={21}
+                ListEmptyComponent={<REmpty title='No Applications Found' subtitle={`when you have applications, they'll appear here`} />}
+            />
+            <FAB
+                mode='flat'
+                icon="plus"
+                style={styles.fab}
+                onPress={() => newDgApplication({ orgId: orgId || '' })}
+                color='white'
+            />
+        </SafeArea>
+    )
 }
 
 export default DiscretionaryPage

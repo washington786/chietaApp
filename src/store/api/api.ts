@@ -79,11 +79,9 @@ export const api = createApi({
         }),
         getOrganizationsBySdfId: builder.query({
             query: (sdfId: number) => {
-                console.log('[RTK Query] getOrganizationsBySdfId called with sdfId:', sdfId);
                 return `/api/services/app/Organisation/GetSdfLinked?sdfId=${sdfId}`;
             },
             transformResponse: (response: any) => {
-                console.log('[RTK Query] Raw response:', response);
                 // Extract organization items from result.items[].organisation
                 if (response?.result?.items && Array.isArray(response.result.items)) {
                     const organizations = response.result.items.map((item: any) => {
@@ -125,7 +123,6 @@ export const api = createApi({
                             id: org?.id,
                         };
                     });
-                    console.log('[RTK Query] Transformed organizations:', organizations);
                     return organizations;
                 }
                 return [];
