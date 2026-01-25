@@ -28,7 +28,7 @@ export default function LandingScreen() {
 
   return (
     <LinearGradient
-      colors={["#fff6eb", "#fff6eb", "#b68bfa", "#fff6eb"]}
+      colors={[colors.secondary[300] || "#fff6eb", "#fff6eb", colors.primary[700] || "#6d28d9", "#fff6eb"]}
       start={{ x: 0.5, y: 0 }}
       end={{ x: 0.5, y: 1 }}
       style={styles.container}
@@ -52,7 +52,7 @@ export default function LandingScreen() {
           badge="Visit Website"
           desc="Jobs & Opportunities"
           onPress={() => Linking.openURL("https://chieta.org.za/careers/vacancies/")}
-          color={colors.primary[500] || "#6d28d9"}
+          color={colors.primary[700] || "#6d28d9"}
         />
 
         <Card
@@ -63,7 +63,7 @@ export default function LandingScreen() {
           onPress={() =>
             Linking.openURL("https://glittery-pony-b3e00d.netlify.app/")
           }
-          color={colors.primary[500] || "#6d28d9"}
+          color={colors.primary[700] || "#6d28d9"}
         />
 
         <Card
@@ -72,7 +72,7 @@ export default function LandingScreen() {
           badge="Login to IMS Portal"
           desc="Grants Applications"
           onPress={login}
-          color={colors.primary[500] || "#6d28d9"}
+          color={colors.primary[700] || "#6d28d9"}
         />
 
         <Card
@@ -146,7 +146,7 @@ function ChatBot({ close }: { close: () => void }) {
       </RRow>
 
       <RCol style={{ alignItems: "center", gap: 16 }}>
-        <AntDesign name="robot" size={64} color={colors.primary[500] || "#6d28d9"} />
+        <AntDesign name="robot" size={64} color={colors.primary[700] || "#6d28d9"} />
         <RnText variant="headlineMedium" style={{ fontWeight: "bold" }}>
           Coming Soon
         </RnText>
