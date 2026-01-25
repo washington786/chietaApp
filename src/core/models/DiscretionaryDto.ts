@@ -386,3 +386,27 @@ export interface DGProjectDetailsAppResponse {
     unAuthorizedRequest: boolean;
     __abp: boolean;
 }
+
+export interface ProjectTimeline {
+    projectId: number;
+    projectName: string;
+    projectShortName: string;
+    status: string;
+    statusChangedDate: string;
+    organisationName: string;
+    sdlNo: string;
+    focusArea: string | null;
+    subCategory: string | null;
+    intervention: string | null;
+    projectType: string | null;
+    windowTitle: string;
+    projectEndDate: string;
+    applicationStarted: boolean;
+    applicationSubmitted: boolean;
+    rsaReviewCompleted: boolean;
+    grantsCommitteeReview: boolean;
+    evaluationCompleted: boolean;
+    rejectedAfterAssessment: boolean;
+    isFinalStage: boolean;
+    currentStage: string;
+}

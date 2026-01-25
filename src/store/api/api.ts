@@ -1,7 +1,7 @@
 import { createApi, fetchBaseQuery, FetchBaseQueryError } from '@reduxjs/toolkit/query/react'
 import { RootState } from '../store'
 import { refreshTokenThunk, logout } from '../slice/AuthSlice'
-import { activeWindowBodyRequest } from '@/core/models/DiscretionaryDto'
+import { activeWindowBodyRequest, ProjectTimeline } from '@/core/models/DiscretionaryDto'
 
 const baseQuery = fetchBaseQuery({
     baseUrl: 'https://ims.chieta.org.za:22743',
@@ -328,6 +328,17 @@ export const api = createApi({
             transformResponse: (response: any) => response?.result?.items || response?.result || response,
             providesTags: ['Grant'],
         }),
+        getProjectTimeline: builder.query<{ items: ProjectTimeline[] }, number>({
+            query: (organisationId) =>
+                `/api/services/app/DiscretionaryProject/GetProjectTimeline?OrganisationId=${organisationId}`,
+            transformResponse: (response: any) => {
+                if (response?.result?.items) {
+                    return { items: response.result.items };
+                }
+                return { items: [] };
+            },
+            providesTags: ['Grant'],
+        }),
         getEvalMethods: builder.query({
             query: ({ projType, focusId, critId }) =>
                 `/api/services/app/DiscretionaryWindow/GetEvalMeth?projType=${projType}&focusId=${focusId}&critId=${critId}`,
@@ -561,6 +572,7 @@ export const {
     useGetProjectTypeQuery,
     useGetFocusAreaQuery,
     useGetAdminCritQuery,
+    useGetProjectTimelineQuery,
     useGetEvalMethodsQuery,
     useGetDGProjectDetByIdQuery,
     useGetProjectDetailsQuery,
