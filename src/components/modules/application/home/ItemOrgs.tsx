@@ -1,9 +1,10 @@
-import { Dimensions, StyleSheet, TouchableOpacity } from 'react-native'
+import { Dimensions, StyleSheet, TouchableOpacity, View } from 'react-native'
 import React, { FC } from 'react'
 import { RCol, RRow } from '@/components/common'
 import { Text } from 'react-native-paper'
 import colors from '@/config/colors'
 import Feather from '@expo/vector-icons/Feather';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { OrganisationDto } from '@/core/models/organizationDto'
 
 interface props {
@@ -25,47 +26,58 @@ const ItemOrgs: FC<props> = ({ onPress, isLinkingRequired = false, onNewLinking,
         }
     }
 
-    const isVerified = org?.status ? "verified" : "unverified";
-
     return (
         <TouchableOpacity onPress={handlePress} activeOpacity={0.85} style={styles.touch}>
-            <RCol style={[styles.con, { position: 'relative' }]}>
-                {/* Absolute NEW badge at top right */}
+            <View style={styles.con}>
+                <RRow style={{ gap: 20, alignItems: 'flex-start' }}>
+                    {/* Left Icon Container */}
+                    <View style={styles.iconContainer}>
+                        <MaterialIcons name="business" size={40} color={colors.slate[300]} />
+                    </View>
+
+                    {/* Center Content - Full Width */}
+                    <RCol style={{ flex: 1 }}>
+                        {/* Title with Verified Badge */}
+                        <RRow style={{ alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                            <Text style={styles.itemText} numberOfLines={1}>
+                                {org?.organisationName}
+                            </Text>
+                            {org?.status && (
+                                <MaterialIcons name="verified" size={22} color={colors.green[500]} />
+                            )}
+                        </RRow>
+
+                        {/* Reference Number */}
+                        <Text style={styles.regTxt}>#{org?.organisationRegistrationNumber}</Text>
+
+                        {/* Description */}
+                        {org?.organisationTradingName && (
+                            <Text style={styles.description} numberOfLines={2}>
+                                {org.organisationTradingName}
+                            </Text>
+                        )}
+
+                        {/* Bottom Badges */}
+                        <RRow style={{ gap: 12, marginTop: 12 }}>
+                            {org?.typeOfEntity && (
+                                <Text style={[styles.badge, styles.entityBadge]}>
+                                    {org.typeOfEntity}
+                                </Text>
+                            )}
+                            {org?.bbbeeLevel && (
+                                <Text style={[styles.badge, styles.bbbeeBadge]}>
+                                    B-BBEE: {org.bbbeeLevel}
+                                </Text>
+                            )}
+                        </RRow>
+                    </RCol>
+                </RRow>
+
+                {/* NEW Badge */}
                 {isLinkingRequired && (
                     <Text style={styles.newBadgeAbs}>new</Text>
                 )}
-                <Text variant='titleLarge' style={styles.itemText} numberOfLines={2}>{org?.organisationName}</Text>
-                {org?.organisationTradingName ? (
-                    <Text style={styles.tradingName} numberOfLines={1}>{org.organisationTradingName}</Text>
-                ) : null}
-                <Text variant='labelLarge' style={styles.regTxt}>#{org?.organisationRegistrationNumber}</Text>
-                <RRow style={{ gap: 8, marginTop: 4, flexWrap: 'wrap' }}>
-                    {org?.companySize && (
-                        <Text style={styles.badge}>{org.companySize}</Text>
-                    )}
-                    {org?.typeOfEntity && (
-                        <Text style={[styles.badge, styles.entityBadge]}>{org.typeOfEntity}</Text>
-                    )}
-                    {org?.bbbeeLevel ? (
-                        <Text style={[styles.badge, styles.bbbeeBadge]}>B-BBEE: {org.bbbeeLevel}</Text>
-                    ) : null}
-                    {/* Verified/unverified badge with other badges */}
-                    <RRow style={styles.verifiedRowInline}>
-                        <Feather
-                            name={isVerified === "verified" ? "check-circle" : "x-circle"}
-                            size={16}
-                            color={isVerified === "verified" ? colors.green[600] : colors.red[600]}
-                        />
-                        <Text style={{
-                            color: isVerified === "verified" ? colors.green[600] : colors.red[600],
-                            fontWeight: 'bold',
-                            fontSize: 13
-                        }}>
-                            {isVerified}
-                        </Text>
-                    </RRow>
-                </RRow>
-            </RCol>
+            </View>
         </TouchableOpacity>
     )
 }
@@ -74,45 +86,57 @@ export default ItemOrgs
 
 const styles = StyleSheet.create({
     touch: {
-        marginBottom: 10,
+        marginBottom: 12,
         width: (width) * 0.95,
-        height: 160,
     },
     con: {
         backgroundColor: colors.zinc[50],
-        borderRadius: 4,
-        padding: 16,
-        shadowColor: colors.secondary[200],
-        shadowOpacity: 0.01,
-        shadowRadius: 8,
-        elevation: 2,
+        borderRadius: 20,
+        padding: 20,
+        shadowColor: colors.primary[100],
+        shadowOpacity: 0.08,
+        shadowRadius: 12,
+        elevation: 3,
         borderWidth: 1,
-        borderColor: colors.slate[200],
-        height: 160,
+        borderColor: colors.primary[100],
+        minHeight: 130,
         width: "100%",
+        position: 'relative',
+    },
+    iconContainer: {
+        backgroundColor: colors.slate[100],
+        borderRadius: 14,
+        padding: 14,
+        justifyContent: 'center',
+        alignItems: 'center',
+        width: 70,
+        height: 70,
+        flexShrink: 0,
     },
     itemText: {
-        color: colors.slate[800],
-        fontWeight: 'bold',
+        color: colors.slate[950],
+        fontWeight: '800',
         fontSize: 18,
     },
-    tradingName: {
-        color: colors.slate[500],
-        fontSize: 14,
-        marginTop: 2,
+    description: {
+        color: colors.slate[600],
+        fontSize: 15,
+        lineHeight: 21,
+        marginTop: 6,
     },
     regTxt: {
-        color: colors.gray[400],
-        fontSize: 12,
-        marginTop: 2,
+        color: colors.slate[500],
+        fontSize: 13,
+        fontWeight: '600',
+        marginTop: 4,
     },
     badge: {
-        backgroundColor: colors.slate[200],
-        color: colors.slate[700],
         borderRadius: 8,
-        paddingHorizontal: 8,
-        paddingVertical: 2,
-        fontSize: 12,
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        fontSize: 13,
+        fontWeight: '700',
+        textTransform: 'uppercase',
     },
     entityBadge: {
         backgroundColor: colors.blue[100],
@@ -124,20 +148,26 @@ const styles = StyleSheet.create({
     },
     newBadgeAbs: {
         position: 'absolute',
-        top: 8,
+        bottom: 20,
         right: 16,
         backgroundColor: colors.yellow[600],
         color: '#fff',
-        borderRadius: 10,
+        borderRadius: 6,
         paddingHorizontal: 10,
-        paddingVertical: 2,
-        fontSize: 12,
+        paddingVertical: 4,
+        fontSize: 11,
         zIndex: 2,
         overflow: 'hidden',
         elevation: 2,
         shadowColor: '#000',
-        shadowOpacity: 0.08,
+        shadowOpacity: 0.1,
         shadowRadius: 4,
+        fontWeight: '600',
+    },
+    tradingName: {
+        color: colors.slate[500],
+        fontSize: 14,
+        marginTop: 2,
     },
     verifiedRowInline: {
         backgroundColor: colors.green[300],

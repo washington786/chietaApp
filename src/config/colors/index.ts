@@ -178,7 +178,8 @@ export const colors = {
     red: red,
     violet: violet,
     white,
-    black
+    black,
+    purple: purple,
 };
 
 

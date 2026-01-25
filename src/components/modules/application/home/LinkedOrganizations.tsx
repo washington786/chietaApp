@@ -86,27 +86,27 @@ const LinkedOrganizations = () => {
     }
 
     if (loading || orgLoading) {
-        return (<RListLoading count={7} />);
-    } else {
-        return (
-            <RCol style={{ marginTop: 12 }}>
-                <RCol>
-                    <LinkedOrganizationList
-                        org={organizationsData || []}
-                        onNewLinking={(selected) => handleOrgLinking(selected)}
-                        onPress={(selectedOrg: OrganisationDto) => open(
-                            <OrgDetails
-                                onDiscretionaryGrants={() => handleDiscretionaryGrants(selectedOrg)} onMandatoryGrants={() => handleMandatoryGrants(selectedOrg)} onDelink={handleDialog} orgName={`${selectedOrg.organisationTradingName}`} />, { snapPoints: ["50%"] })} isLinkingRequired={false}
-                        newOrgs={linkedOrganizations.filter(l => l.approvalStatus !== 'cancelled')}
-                        isLinkingRequiredNew={true} />
-                </RCol>
-
-                <RDialog hideDialog={handleDialog} visible={visible} message={`are you sure you want to de-link this organization with SDFID-${sdfId}?`} title='Delink Org' onContinue={handleContinue} />
-            </RCol>
-        )
+        return (<RListLoading count={1} />);
     }
+    return (
+        <RCol style={{ marginTop: 12 }}>
+            <RCol>
+                <LinkedOrganizationList
+                    org={organizationsData || []}
+                    onNewLinking={(selected) => handleOrgLinking(selected)}
+                    onPress={(selectedOrg: OrganisationDto) => open(
+                        <OrgDetails
+                            onDiscretionaryGrants={() => handleDiscretionaryGrants(selectedOrg)} onMandatoryGrants={() => handleMandatoryGrants(selectedOrg)} onDelink={handleDialog} orgName={`${selectedOrg.organisationTradingName}`} />, { snapPoints: ["50%"] })} isLinkingRequired={false}
+                    newOrgs={linkedOrganizations.filter(l => l.approvalStatus !== 'cancelled')}
+                    isLinkingRequiredNew={true} />
+            </RCol>
 
+            <RDialog hideDialog={handleDialog} visible={visible} message={`are you sure you want to de-link this organization with SDFID-${sdfId}?`} title='Delink Org' onContinue={handleContinue} />
+        </RCol>
+    )
 }
+
+
 
 interface OrgDetailsProps {
     onDiscretionaryGrants?: () => void;

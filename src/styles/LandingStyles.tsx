@@ -1,15 +1,16 @@
+import colors from "@/config/colors";
 import { StyleSheet } from "react-native";
 
 export const landing_styles = StyleSheet.create({
     container: {
         flex: 1,
-        paddingTop: 60,
+        paddingTop: 40,
         paddingHorizontal: 20,
     },
 
     logo: {
-        width: 140,
-        height: 140,
+        width: 180,
+        height: 180,
         alignSelf: "center",
         marginVertical: 30,
     },
@@ -17,7 +18,7 @@ export const landing_styles = StyleSheet.create({
     title: {
         fontSize: 28,
         fontWeight: "700",
-        color: "#4c1d95",
+        color: colors.primary[700] || "#4c1d95",
         textAlign: "center",
         marginBottom: 8,
     },
@@ -76,7 +77,7 @@ export const landing_styles = StyleSheet.create({
     badgeText: {
         fontSize: 12,
         fontWeight: "600",
-        color: "#4c1d95",
+        color: colors.primary[700] || "#4c1d95",
     },
 
     cardDesc: {
@@ -103,10 +104,10 @@ export const landing_styles = StyleSheet.create({
         width: 60,
         height: 60,
         borderRadius: 30,
-        backgroundColor: "#6d28d9",
+        backgroundColor: colors.primary[700] || "#6d28d9",
         justifyContent: "center",
         alignItems: "center",
-        shadowColor: "#6d28d9",
+        shadowColor: colors.primary[700] || "#6d28d9",
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.4,
         shadowRadius: 8,

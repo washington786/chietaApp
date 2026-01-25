@@ -1,16 +1,15 @@
 import {
-  Platform,
-  StatusBar,
   StyleSheet,
 } from "react-native";
 import React, { FC, ReactNode } from "react";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface IAreaProps {
   children: ReactNode;
 }
+
 const SafeArea: FC<IAreaProps> = ({ children }) => {
-  return <SafeAreaView style={styles.con}>{children}</SafeAreaView>;
+  return <SafeAreaView style={styles.con} edges={['top', 'left', 'right']}>{children}</SafeAreaView>
 };
 
 export default SafeArea;
