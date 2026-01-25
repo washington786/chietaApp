@@ -1,25 +1,16 @@
-import React, { memo, useState, useMemo } from 'react';
+import React, { memo, useState } from 'react';
 import {
-    View,
     Text,
-    StyleSheet,
     FlatList,
     TouchableOpacity,
 } from 'react-native';
-import { Card } from 'react-native-paper';
-import { Ionicons, Feather } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Animated, { FadeInDown } from 'react-native-reanimated';
-import colors from '@/config/colors';
-import { RCol, RDivider, RRow } from '@/components/common';
+import { RRow } from '@/components/common';
 import LinkedOrganizations from './LinkedOrganizations';
 import usePageTransition from '@/hooks/navigation/usePageTransition';
 import { getTimeOfDay } from '@/core';
-import { usePeriodInfo } from '@/hooks/main/UsePeriodInfo';
-import { formatCountdown } from '@/core/utils/dayTime';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store/store';
-import { useGetActiveWindowsParamsQuery } from '@/store/api/api';
 import DgActiveWindow from '../grants/ActiveWindow';
 import HomeHeader from './HomeHeader';
 import AppStatsSection from './AppStats';

@@ -4,9 +4,9 @@ import navigationTheme from "@/theme/themeConfig";
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 const ParentNavigation: FC<{ children: ReactNode }> = ({ children }) => {
-    return <SafeAreaProvider>
-        <NavigationContainer theme={navigationTheme}>{children}</NavigationContainer>;
-    </SafeAreaProvider>
+    return (<SafeAreaProvider>
+        <NavigationContainer theme={navigationTheme}>{children}</NavigationContainer>
+    </SafeAreaProvider>)
 };
 
 export default ParentNavigation;

@@ -1,6 +1,6 @@
 import { FlatList, StyleSheet, View, ActivityIndicator, TouchableOpacity } from 'react-native'
 import React, { useEffect, useState } from 'react'
-import { RCol, REmpty, RRow, SafeArea } from '@/components/common'
+import { RCol, REmpty, RListLoading, RRow, SafeArea } from '@/components/common'
 import RHeader from '@/components/common/RHeader'
 import { ItemOrganization } from '@/components/modules/application'
 import { Searchbar, Text } from 'react-native-paper'
@@ -122,6 +122,10 @@ const AddNewOrganization = () => {
             </View>
         );
     };
+
+    if (loading) {
+        return (<RListLoading count={7} />);
+    }
 
     return (
         <SafeArea>

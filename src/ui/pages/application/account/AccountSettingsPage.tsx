@@ -8,7 +8,6 @@ import Animated, { FadeInDown } from 'react-native-reanimated'
 import { useSelector } from 'react-redux'
 import { RootState } from '@/store/store'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import { useGlobalBottomSheet } from '@/hooks/navigation/BottomSheet'
 import { Formik } from 'formik'
 import UseAuth from '@/hooks/main/auth/UseAuth'
 import { showToast } from '@/core'
@@ -33,8 +32,6 @@ const AccountSettingsPage = () => {
     const person = sdfData?.result.person;
 
     const [showForm, setShowForm] = React.useState(false);
-
-    const { open } = useGlobalBottomSheet();
 
     const { updateProfile } = UseAuth();
 
@@ -86,7 +83,7 @@ const AccountSettingsPage = () => {
     }
 
     if (sdfLoading) {
-        return <RListLoading count={4} />;
+        return (<RListLoading count={4} />);
     }
 
     return (

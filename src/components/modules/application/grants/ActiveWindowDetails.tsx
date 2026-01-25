@@ -6,8 +6,6 @@ import { RCol, RRow, SafeArea } from '@/components/common'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import { DiscretionaryWindow } from '@/core/models/DiscretionaryDto'
 import { LinearGradient } from 'expo-linear-gradient'
-import { FadeInDown } from 'react-native-reanimated'; // Optional: for reanimated if using
-// Or use RN Animated for simplicity
 
 interface ActiveWindowDetailsProps {
     window: DiscretionaryWindow
