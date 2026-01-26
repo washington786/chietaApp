@@ -1,7 +1,7 @@
 import { createApi, fetchBaseQuery, FetchBaseQueryError } from '@reduxjs/toolkit/query/react'
 import { RootState } from '../store'
 import { refreshTokenThunk, logout } from '../slice/AuthSlice'
-import { activeWindowBodyRequest } from '@/core/models/DiscretionaryDto'
+import { activeWindowBodyRequest, ProjectTimeline } from '@/core/models/DiscretionaryDto'
 
 const baseQuery = fetchBaseQuery({
     baseUrl: 'https://ims.chieta.org.za:22743',
@@ -75,6 +75,30 @@ export const api = createApi({
         }),
         getUserOrganizations: builder.query({
             query: (userId: string) => `/api/services/app/Organisation/GetSdfLinked?userid=${userId}`,
+            transformResponse: (response: any) => {
+                // Extract organization items from result.items[].organisation
+                if (response?.result?.items && Array.isArray(response.result.items)) {
+                    const organizations = response.result.items.map((item: any) => {
+                        const org = item.organisation || item;
+                        return {
+                            organisationId: org?.id || org?.organisation_Id,
+                            sdlNo: org?.sdL_No,
+                            setaId: org?.setA_Id,
+                            seta: org?.seta,
+                            sicCode: org?.siC_Code,
+                            organisationRegistrationNumber: org?.organisation_Registration_Number,
+                            organisationName: org?.organisation_Name || org?.name,
+                            organisationTradingName: org?.organisation_Trading_Name,
+                            organisationFaxNumber: org?.organisation_Fax_Number,
+                            organisationContactName: org?.organisation_Contact_Name,
+                            organisationContactEmailAddress: org?.organisation_Contact_Email_Address,
+                            organisationContactPhoneNumber: org?.organisation_Contact_Phone_Number,
+                        };
+                    });
+                    return { items: organizations };
+                }
+                return { items: [] };
+            },
             providesTags: ['Organization'],
         }),
         getOrganizationsBySdfId: builder.query({
@@ -328,6 +352,17 @@ export const api = createApi({
             transformResponse: (response: any) => response?.result?.items || response?.result || response,
             providesTags: ['Grant'],
         }),
+        getProjectTimeline: builder.query<{ items: ProjectTimeline[] }, number>({
+            query: (organisationId) =>
+                `/api/services/app/DiscretionaryProject/GetProjectTimeline?OrganisationId=${organisationId}`,
+            transformResponse: (response: any) => {
+                if (response?.result?.items) {
+                    return { items: response.result.items };
+                }
+                return { items: [] };
+            },
+            providesTags: ['Grant'],
+        }),
         getEvalMethods: builder.query({
             query: ({ projType, focusId, critId }) =>
                 `/api/services/app/DiscretionaryWindow/GetEvalMeth?projType=${projType}&focusId=${focusId}&critId=${critId}`,
@@ -561,6 +596,7 @@ export const {
     useGetProjectTypeQuery,
     useGetFocusAreaQuery,
     useGetAdminCritQuery,
+    useGetProjectTimelineQuery,
     useGetEvalMethodsQuery,
     useGetDGProjectDetByIdQuery,
     useGetProjectDetailsQuery,
