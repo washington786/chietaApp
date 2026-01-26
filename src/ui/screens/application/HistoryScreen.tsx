@@ -1,6 +1,6 @@
 import { FlatList, StyleSheet, View, TouchableOpacity, Text as NativeText } from 'react-native'
 import React, { useEffect, useMemo, useState } from 'react'
-import { REmpty, RListLoading, SafeArea } from '@/components/common'
+import { RCol, REmpty, RListLoading, SafeArea } from '@/components/common'
 import colors from '@/config/colors'
 import usePageTransition from '@/hooks/navigation/usePageTransition'
 import { useSelector } from 'react-redux'
@@ -10,6 +10,7 @@ import { useGetOrganizationsBySdfIdQuery, useGetProjectTimelineQuery } from '@/s
 import { ProjectTimeline } from '@/core/models/DiscretionaryDto'
 import RHeader from '@/components/common/RHeader'
 import { history_styles as styles } from '@/styles/HistoryStyles';
+import { Searchbar } from 'react-native-paper'
 
 const HistoryScreen = () => {
     const { historyItemDetails } = usePageTransition();
@@ -23,6 +24,9 @@ const HistoryScreen = () => {
     const { data: orgsData, isLoading: orgsLoading, error: orgsError } = useGetOrganizationsBySdfIdQuery(sdfId || 0, {
         skip: !sdfId
     });
+
+    const [searchQuery, setSearchQuery] = useState('');
+    const [show, setShow] = useState<boolean>(false);
 
     const organizations = useMemo(() => {
         if (orgsData) {
@@ -47,6 +51,21 @@ const HistoryScreen = () => {
     const timelineItems = useMemo(() => {
         return data?.items || [];
     }, [data]);
+
+    const filteredTimelineItems = useMemo(() => {
+        if (!searchQuery.trim()) {
+            return timelineItems;
+        }
+
+        const query = searchQuery.toLowerCase().trim();
+        return timelineItems.filter(item =>
+            item.projectName.toLowerCase().includes(query) ||
+            item.windowTitle.toLowerCase().includes(query) ||
+            item.organisationName.toLowerCase().includes(query) ||
+            item.status.toLowerCase().includes(query) ||
+            item.sdlNo.toLowerCase().includes(query)
+        );
+    }, [timelineItems, searchQuery]);
 
     useEffect(() => {
         if (orgsError) {
@@ -96,7 +115,8 @@ const HistoryScreen = () => {
 
     return (
         <SafeArea>
-            <RHeader name='Application Timelines' showBack={false} iconRight='search' hasRightIcon />
+            <RHeader name='Application Timelines' showBack={false} iconRight='search' hasRightIcon onPressRight={() => setShow(!show)} />
+
             {/* Organizations Filter */}
             {organizations.length > 0 && (
                 <View style={styles.orgFilterContainer}>
@@ -111,8 +131,25 @@ const HistoryScreen = () => {
                 </View>
             )}
 
+            {
+                show && (
+
+                    <RCol style={{
+                        paddingVertical: 6,
+                        paddingHorizontal: 12
+                    }}>
+                        <Searchbar
+                            placeholder="Search application"
+                            onChangeText={setSearchQuery}
+                            value={searchQuery}
+                            style={{ backgroundColor: colors.zinc[50], borderWidth: 1, borderColor: colors.zinc[300] }}
+                        />
+                    </RCol>
+                )
+            }
+
             {/* Timeline List */}
-            <FlatList data={timelineItems}
+            <FlatList data={filteredTimelineItems}
                 keyExtractor={(item) => `${item.projectId}`}
                 style={{ paddingHorizontal: 12, paddingVertical: 5, flex: 1, flexGrow: 1 }}
                 renderItem={renderList}
@@ -122,7 +159,7 @@ const HistoryScreen = () => {
                 initialNumToRender={10}
                 maxToRenderPerBatch={10}
                 windowSize={21}
-                ListEmptyComponent={<REmpty title='No Applications Available' icon='rotate-ccw' subtitle={`You currently do not have any applications for tracking status. Please create an application.`} />}
+                ListEmptyComponent={<REmpty title='No Applications Found' icon='rotate-ccw' subtitle={searchQuery ? 'No applications match your search. Try different keywords.' : 'You currently do not have any applications for tracking status. Please create an application.'} />}
             />
         </SafeArea>
     )
