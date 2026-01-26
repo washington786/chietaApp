@@ -36,7 +36,9 @@ const ProgressTracker = ({ steps }: ProgressTrackerProps) => {
                         ]}>
                             {step.title}
                         </Text>
-                        <Text style={styles.date}>Done - {step.date}</Text>
+                        <Text style={styles.date}>
+                            {step.status === 'completed' ? `Done - ${step.date}` : 'Awaiting'}
+                        </Text>
                     </View>
 
                     {/* Connector (except last item) */}
@@ -69,7 +71,7 @@ const styles = StyleSheet.create({
         zIndex: 1,
     },
     circleCompleted: {
-        backgroundColor: colors.primary[900],
+        backgroundColor: colors.emerald[500],
     },
     circleFailed: {
         backgroundColor: colors.red[600],
@@ -85,7 +87,8 @@ const styles = StyleSheet.create({
         color: colors.gray[500],
     },
     titleCompleted: {
-        color: colors.gray[600],
+        color: colors.emerald[600],
+        fontWeight: '600',
     },
     titleFailed: {
         color: colors.gray[600],

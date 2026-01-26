@@ -19,18 +19,20 @@ interface prop {
     hasRightIcon?: boolean;
     iconRight?: 'search';
     onPressRight?(): void;
+    showBack?: boolean;
 }
 
-const RHeader: FC<prop> = ({ name, hasRightIcon = false, onPressRight, iconRight }) => {
+const RHeader: FC<prop> = ({ name, hasRightIcon = false, onPressRight, iconRight, showBack = true }) => {
     const { onBack } = usePageTransition();
     return (
         <RRow style={styles.con}>
-            <TouchableWithoutFeedback onPress={onBack}>
-                <Feather
-                    name={Platform.OS === "ios" ? "chevron-left" : "arrow-left"}
-                    size={24}
-                />
-            </TouchableWithoutFeedback>
+            {showBack &&
+                <TouchableWithoutFeedback onPress={onBack}>
+                    <Feather
+                        name={Platform.OS === "ios" ? "chevron-left" : "arrow-left"}
+                        size={24}
+                    />
+                </TouchableWithoutFeedback>}
             <View
                 style={[
                     Platform.OS === "ios" && styles.ios,

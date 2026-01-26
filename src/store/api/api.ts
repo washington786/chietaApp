@@ -75,6 +75,30 @@ export const api = createApi({
         }),
         getUserOrganizations: builder.query({
             query: (userId: string) => `/api/services/app/Organisation/GetSdfLinked?userid=${userId}`,
+            transformResponse: (response: any) => {
+                // Extract organization items from result.items[].organisation
+                if (response?.result?.items && Array.isArray(response.result.items)) {
+                    const organizations = response.result.items.map((item: any) => {
+                        const org = item.organisation || item;
+                        return {
+                            organisationId: org?.id || org?.organisation_Id,
+                            sdlNo: org?.sdL_No,
+                            setaId: org?.setA_Id,
+                            seta: org?.seta,
+                            sicCode: org?.siC_Code,
+                            organisationRegistrationNumber: org?.organisation_Registration_Number,
+                            organisationName: org?.organisation_Name || org?.name,
+                            organisationTradingName: org?.organisation_Trading_Name,
+                            organisationFaxNumber: org?.organisation_Fax_Number,
+                            organisationContactName: org?.organisation_Contact_Name,
+                            organisationContactEmailAddress: org?.organisation_Contact_Email_Address,
+                            organisationContactPhoneNumber: org?.organisation_Contact_Phone_Number,
+                        };
+                    });
+                    return { items: organizations };
+                }
+                return { items: [] };
+            },
             providesTags: ['Organization'],
         }),
         getOrganizationsBySdfId: builder.query({
