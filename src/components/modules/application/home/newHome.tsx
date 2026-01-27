@@ -1,4 +1,4 @@
-import React, { memo, useState } from 'react';
+import React, { memo, useState, useMemo } from 'react';
 import {
     Text,
     FlatList,
@@ -15,12 +15,26 @@ import DgActiveWindow from '../grants/ActiveWindow';
 import HomeHeader from './HomeHeader';
 import AppStatsSection from './AppStats';
 import { home_styles as styles } from '@/styles/HomeStyles';
+import { useGetNotificationsByUserQuery } from '@/store/api/api';
+import { AppNotification } from '@/core/types/notifications';
 
 const NewHome = () => {
     const [addLinking, setAdd] = useState<boolean>(false);
     const { newOrg, notifications, linkedOrganizations } = usePageTransition();
 
     const { user } = useSelector((state: RootState) => state.auth);
+
+    // Fetch notifications
+    const userId: number = user?.id ? parseInt(String(user.id), 10) : 0;
+    const { data: serverNotifications } = useGetNotificationsByUserQuery(userId, {
+        skip: userId === 0
+    });
+
+    // Count unread notifications
+    const unreadNotificationsCount = useMemo(() => {
+        const notifications = serverNotifications?.items || [];
+        return notifications.filter((n: AppNotification) => !n.read).length;
+    }, [serverNotifications]);
 
     let fullname: string = '';
 
@@ -56,7 +70,7 @@ const NewHome = () => {
                 ListHeaderComponent={
                     <>
                         {/* Header */}
-                        <HomeHeader currentDayTime={currentDayTime} fullname={fullname} addLinking={addLinking} handleAddLinkNewOrg={handleAddLinkNewOrg} notifications={notifications} handleLinkNewOrg={handleLinkNewOrg} />
+                        <HomeHeader currentDayTime={currentDayTime} fullname={fullname} addLinking={addLinking} handleAddLinkNewOrg={handleAddLinkNewOrg} notifications={notifications} handleLinkNewOrg={handleLinkNewOrg} unreadNotificationsCount={unreadNotificationsCount} />
 
 
                         {/* active windows */}
