@@ -22,6 +22,7 @@ import RServerError from "./RServerError";
 import RSplash from "./RSplash";
 import RSwitch from "./RSwitch";
 import RText from "./RText";
+import RToggleInfo from "./RToggleInfo";
 import RUpload from "./RUpload";
 import RVersion from "./RVersion";
 import RWrapper from "./RWrapper";
@@ -43,6 +44,7 @@ export {
   RLogo,
   RText,
   RLoader,
+  RToggleInfo,
   RUpload,
   RImageCon,
   RServerError,
