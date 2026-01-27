@@ -355,6 +355,19 @@ export const api = createApi({
                 }
             },
         }),
+        registerPushToken: builder.mutation<any, { userId: number; token: string }>({
+            query: (payload) => ({
+                url: '/api/services/app/User/RegisterPushToken',
+                method: 'POST',
+                body: {
+                    userId: payload.userId,
+                    pushToken: payload.token,
+                },
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            }),
+        }),
         getOrgProjects: builder.query({
             query: (organisationId) =>
                 `/api/services/app/DiscretionaryProject/GetOrgProjects?OrganisationId=${organisationId}`,
@@ -639,6 +652,7 @@ export const {
     useCreateNotificationMutation,
     useGetNotificationsByUserQuery,
     useMarkNotificationAsReadMutation,
+    useRegisterPushTokenMutation,
     useDelinkOrganizationMutation,
     useLinkOrganizationMutation,
     useGetOrgProjectsQuery,

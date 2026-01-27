@@ -49,6 +49,24 @@ export async function requestNotificationPermission() {
 }
 
 /**
+ * Get push notification token for the device
+ */
+export async function getPushNotificationToken(): Promise<string | null> {
+    if (!Device.isDevice) {
+        console.warn('Push notifications not available on simulator');
+        return null;
+    }
+
+    try {
+        const token = await Notifications.getExpoPushTokenAsync();
+        return token.data;
+    } catch (error) {
+        console.error('Failed to get push notification token:', error);
+        return null;
+    }
+}
+
+/**
  * Schedule a local notification
  */
 export async function scheduleNotification({
@@ -87,4 +105,17 @@ export async function scheduleNotification({
         console.error('Failed to schedule notification:', error);
         throw error;
     }
+}
+
+/**
+ * Set up listener for incoming push notifications
+ */
+export function setupPushNotificationListener(callback?: (notification: Notifications.Notification) => void) {
+    const subscription = Notifications.addNotificationResponseReceivedListener(response => {
+        if (callback) {
+            callback(response.notification);
+        }
+    });
+
+    return subscription;
 }
