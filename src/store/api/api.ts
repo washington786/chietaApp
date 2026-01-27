@@ -2,6 +2,7 @@ import { createApi, fetchBaseQuery, FetchBaseQueryError } from '@reduxjs/toolkit
 import { RootState } from '../store'
 import { refreshTokenThunk, logout } from '../slice/AuthSlice'
 import { activeWindowBodyRequest, ProjectTimeline } from '@/core/models/DiscretionaryDto'
+import { notificationPayload } from '@/core/types/notifications'
 
 const baseQuery = fetchBaseQuery({
     baseUrl: 'https://ims.chieta.org.za:22743',
@@ -43,7 +44,7 @@ const baseQueryWithReauth = async (args: any, api: any, extraOptions: any) => {
 export const api = createApi({
     reducerPath: 'api',
     baseQuery: baseQueryWithReauth,
-    tagTypes: ['Grant', 'Document', 'Organization', 'User', 'Auth'],
+    tagTypes: ['Grant', 'Document', 'Organization', 'User', 'Auth', 'Notification'],
 
     endpoints: (builder) => ({
         /**
@@ -305,6 +306,54 @@ export const api = createApi({
                 },
             }),
             invalidatesTags: ['Grant'],
+        }),
+        createNotification: builder.mutation<any, notificationPayload>({
+            query: (payload) => ({
+                url: '/api/services/app/Notification/CreateNotification',
+                method: 'POST',
+                body: payload,
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            }),
+        }),
+        getNotificationsByUser: builder.query<any, number>({
+            query: (userId) =>
+                `/api/services/app/Notification/GetByUser?userId=${userId}`,
+            transformResponse: (response: any) => {
+                if (response?.result) {
+                    return {
+                        items: response.result.map((item: any) => ({
+                            id: String(item.id),
+                            title: item.title,
+                            body: item.body,
+                            data: {},
+                            timestamp: new Date(item.timestamp).getTime(),
+                            read: item.read,
+                            source: item.source,
+                        })),
+                    };
+                }
+                return { items: [] };
+            },
+            providesTags: ['Notification'],
+        }),
+        markNotificationAsRead: builder.mutation<any, number>({
+            query: (notificationId) => ({
+                url: `/api/services/app/Notification/MarkAsRead?notificationId=${notificationId}`,
+                method: 'POST',
+            }),
+            async onQueryStarted(notificationId, { dispatch, queryFulfilled }) {
+                try {
+                    await queryFulfilled;
+                    // Wait a moment then invalidate the notifications cache to force refetch
+                    setTimeout(() => {
+                        dispatch(api.util.invalidateTags(['Notification']));
+                    }, 100);
+                } catch (err) {
+                    console.error('Failed to mark notification as read:', err);
+                }
+            },
         }),
         getOrgProjects: builder.query({
             query: (organisationId) =>
@@ -587,6 +636,9 @@ export const {
     useCreateEditApplicationMutation,
     useDeleteApplicationMutation,
     useCreateEditApplicationDetailsMutation,
+    useCreateNotificationMutation,
+    useGetNotificationsByUserQuery,
+    useMarkNotificationAsReadMutation,
     useDelinkOrganizationMutation,
     useLinkOrganizationMutation,
     useGetOrgProjectsQuery,

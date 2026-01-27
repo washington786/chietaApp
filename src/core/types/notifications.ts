@@ -7,3 +7,12 @@ export type AppNotification = {
     read: boolean;
     source: 'local' | 'push';
 };
+
+export interface notificationPayload {
+    title: string,
+    body: string,
+    data: string,
+    source: string,
+    userId: number
+}
+

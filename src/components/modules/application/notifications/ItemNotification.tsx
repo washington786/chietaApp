@@ -10,19 +10,20 @@ import { markAsRead } from '@/store/slice/NotificationSlice'
 
 interface props extends AppNotification {
     notification: AppNotification;
+    onPress: () => void;
 }
-const ItemNotification: FC<props> = ({ notification }) => {
+const ItemNotification: FC<props> = ({ notification, onPress }) => {
     const dispatch = useDispatch();
     const isNew = !notification.read;
 
-    const handlePress = () => {
-        if (isNew) {
-            dispatch(markAsRead(notification.id));
-        }
-    };
+    // const handlePress = () => {
+    //     if (isNew) {
+    //         dispatch(markAsRead(notification.id));
+    //     }
+    // };
 
     return (
-        <TouchableOpacity onPress={handlePress} activeOpacity={0.7}>
+        <TouchableOpacity onPress={onPress} activeOpacity={0.7}>
             <RCol style={styles.con}>
                 <RRow style={{ position: "relative", padding: 8 }}>
                     <RRow style={styles.center}>
