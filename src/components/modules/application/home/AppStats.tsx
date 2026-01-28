@@ -104,8 +104,8 @@ const AppStatsSection = () => (
         style={styles.sectionContainer}
     >
         <View style={styles.headerSection}>
-            <Text style={styles.sectionTitle}>Your Workflow</Text>
-            <Text style={styles.subtitle}>Prioritized tasks for grant cycles</Text>
+            <Text style={styles.sectionTitle}>Your Dashboard</Text>
+            <Text style={styles.subtitle}>Prioritized overview for grant cycles</Text>
         </View>
         <View style={styles.workflowList}>
             {WORKFLOW_ITEMS.map((item, index) => (

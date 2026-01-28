@@ -13,9 +13,10 @@ interface HeaderProps {
     handleAddLinkNewOrg: () => void;
     notifications: () => void;
     handleLinkNewOrg: () => void;
+    unreadNotificationsCount?: number;
 }
 
-const HomeHeader = ({ currentDayTime, fullname, addLinking, handleAddLinkNewOrg, notifications, handleLinkNewOrg }: HeaderProps) => {
+const HomeHeader = ({ currentDayTime, fullname, addLinking, handleAddLinkNewOrg, notifications, handleLinkNewOrg, unreadNotificationsCount = 0 }: HeaderProps) => {
     const scaleAnim = useRef(new Animated.Value(1)).current;
 
     const handlePressIn = () => {
@@ -60,7 +61,7 @@ const HomeHeader = ({ currentDayTime, fullname, addLinking, handleAddLinkNewOrg,
                         onPress={notifications}
                         style={styles.iconButton}
                     >
-                        <View style={styles.badge} />
+                        {unreadNotificationsCount > 0 && <View style={styles.badge} />}
                         <Ionicons name="notifications-outline" size={28} color={colors.primary[950]} />
                     </TouchableOpacity>
                 )}

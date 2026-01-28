@@ -1,7 +1,7 @@
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React, { useState } from 'react'
 import RHeader from '@/components/common/RHeader'
-import { RCol, RDivider, Scroller } from '@/components/common'
+import { RCol, RDivider, RToggleInfo, Scroller } from '@/components/common'
 import Animated, { FadeInDown } from 'react-native-reanimated'
 import { Feather, MaterialIcons } from '@expo/vector-icons';
 import { contactOptions, faqs } from '@/core/helpers/support'
@@ -13,7 +13,7 @@ const SupportPage = () => {
 
     return (
         <>
-            <RHeader name='Support' />
+            <RHeader name='Help and Support' />
             <Scroller style={{ paddingHorizontal: 12 }}>
                 <Animated.View entering={FadeInDown.duration(500)}>
                     {/* Header */}
@@ -25,50 +25,56 @@ const SupportPage = () => {
                         <Text style={styles.subtitle}>We're here to help you</Text>
                     </View>
 
-                    {/* Quick Contact Cards */}
-                    <RCol style={{ backgroundColor: colors.white, borderWidth: 1, borderColor: colors.gray[200], padding: 16, borderRadius: 8, }}>
-                        <Text style={styles.sectionHeader}>Contact Us</Text>
-                        {contactOptions.map((item, index) => (
-                            <Animated.View
-                                key={index}
-                                entering={FadeInDown.delay(100 + index * 80).duration(500)}
-                            >
-                                <TouchableOpacity style={styles.contactCard} onPress={item.action}>
-                                    <View style={styles.contactLeft}>
-                                        <Feather name={item.icon} size={14} color={colors.primary[800]} />
-                                        <View style={{ marginLeft: 16 }}>
-                                            <Text style={styles.contactTitle}>{item.title}</Text>
-                                            <Text style={styles.contactSubtitle}>{item.subtitle}</Text>
-                                        </View>
-                                    </View>
-                                    <MaterialIcons name="arrow-forward-ios" size={18} color="#aaa" />
-                                </TouchableOpacity>
-                            </Animated.View>
-                        ))}
-                    </RCol>
-
-
-                    {/* FAQs */}
-                    <Text style={[styles.sectionHeader, { marginTop: 30 }]}>Frequently Asked Questions</Text>
-                    <RDivider />
-                    {faqs.map((faq, index) => (
-                        <Expandable isExpanded={expandedIndex === index} key={index} title={faq.question} onPress={() => setExpandedIndex(expandedIndex === index ? null : index)}>
-                            <Animated.View
-                                key={index}
-                                entering={FadeInDown.delay(400 + index * 80).duration(500)}
-                                style={styles.faqCard}
-                            >
-                                <Text style={styles.faqAnswer}>{faq.answer}</Text>
-                            </Animated.View>
-                        </Expandable>
-                    ))}
-
-                    {/* Footer */}
-                    <View style={styles.footer}>
-                        <Text style={styles.footerText}>
-                            Average response time: less than 24 hours
-                        </Text>
-                    </View>
+                    {/* Toggle between Contact Us and FAQs */}
+                    <RToggleInfo
+                        button1Label="Contact Us"
+                        button2Label="FAQs"
+                        defaultActive={1}
+                        containerStyle={{ marginTop: 20 }}
+                        buttonContainerStyle={{ marginBottom: 20 }}
+                        content1={
+                            <RCol style={{ backgroundColor: colors.white, borderWidth: 1, borderColor: colors.gray[200], padding: 16, borderRadius: 8, }}>
+                                {contactOptions.map((item, index) => (
+                                    <Animated.View
+                                        key={index}
+                                        entering={FadeInDown.delay(100 + index * 80).duration(500)}
+                                    >
+                                        <TouchableOpacity style={styles.contactCard} onPress={item.action}>
+                                            <View style={styles.contactLeft}>
+                                                <Feather name={item.icon} size={14} color={colors.primary[800]} />
+                                                <View style={{ marginLeft: 16 }}>
+                                                    <Text style={styles.contactTitle}>{item.title}</Text>
+                                                    <Text style={styles.contactSubtitle}>{item.subtitle}</Text>
+                                                </View>
+                                            </View>
+                                            <MaterialIcons name="arrow-forward-ios" size={18} color="#aaa" />
+                                        </TouchableOpacity>
+                                    </Animated.View>
+                                ))}
+                                <View style={styles.footer}>
+                                    <Text style={styles.footerText}>
+                                        Average response time: less than 24 hours
+                                    </Text>
+                                </View>
+                            </RCol>
+                        }
+                        content2={
+                            <View>
+                                <RDivider />
+                                {faqs.map((faq, index) => (
+                                    <Expandable isExpanded={expandedIndex === index} key={index} title={faq.question} onPress={() => setExpandedIndex(expandedIndex === index ? null : index)}>
+                                        <Animated.View
+                                            key={index}
+                                            entering={FadeInDown.delay(400 + index * 80).duration(500)}
+                                            style={styles.faqCard}
+                                        >
+                                            <Text style={styles.faqAnswer}>{faq.answer}</Text>
+                                        </Animated.View>
+                                    </Expandable>
+                                ))}
+                            </View>
+                        }
+                    />
                 </Animated.View>
             </Scroller>
         </>
