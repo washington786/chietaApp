@@ -12,11 +12,11 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useGlobalBottomSheet } from "@/hooks/navigation/BottomSheet";
 import usePageTransition from "@/hooks/navigation/usePageTransition";
 import EvilIcons from "@expo/vector-icons/EvilIcons";
-import AntDesign from "@expo/vector-icons/AntDesign";
 import { Text as RnText } from "react-native-paper";
 import { RCol, RRow } from "@/components/common";
 import colors from "@/config/colors";
 import { landing_styles as styles } from "@/styles/LandingStyles";
+import { chatSquare, errorInspect } from "@/components/loadAssets";
 
 export default function LandingScreen() {
   const { login } = usePageTransition();
@@ -136,17 +136,21 @@ function ChatBot({ close }: { close: () => void }) {
         style={{
           justifyContent: "space-between",
           alignItems: "center",
-          marginBottom: 24,
+          marginBottom: 24
         }}
       >
-        <RnText variant="titleMedium">CHIETA Assistant</RnText>
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 4 }}>
+          <Image source={chatSquare} style={{ width: 20, height: 20 }} />
+          <RnText variant="titleMedium">Chieta Assistant</RnText>
+        </View>
+
         <TouchableOpacity onPress={close}>
           <EvilIcons name="close" size={32} color="black" />
         </TouchableOpacity>
       </RRow>
 
       <RCol style={{ alignItems: "center", gap: 16 }}>
-        <AntDesign name="robot" size={64} color={colors.primary[700] || "#6d28d9"} />
+        <Image source={errorInspect} style={{ width: 64, height: 64 }} />
         <RnText variant="headlineMedium" style={{ fontWeight: "bold" }}>
           Coming Soon
         </RnText>
