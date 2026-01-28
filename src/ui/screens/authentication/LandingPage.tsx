@@ -33,66 +33,73 @@ export default function LandingScreen() {
       end={{ x: 0.5, y: 1 }}
       style={styles.container}
     >
-      {/* Logo */}
-      <Image
-        source={require("../../../../assets/logov2.png")}
-        style={styles.logo}
-        resizeMode="contain"
-      />
-
-      {/* Heading */}
-      <Text style={styles.title}>Welcome to CHIETA</Text>
-      <Text style={styles.subtitle}>Select a service to continue</Text>
-
-      {/* Cards */}
-      <View style={styles.grid}>
-        <Card
-          icon="briefcase"
-          title="Careers"
-          badge="Visit Website"
-          desc="Jobs & Opportunities"
-          onPress={() => Linking.openURL("https://chieta.org.za/careers/vacancies/")}
-          color={colors.primary[700] || "#6d28d9"}
-        />
-
-        <Card
-          icon="bulb"
-          title="SSC"
-          badge="Visit Website"
-          desc="Smart Skills Centres"
-          onPress={() =>
-            Linking.openURL("https://glittery-pony-b3e00d.netlify.app/")
-          }
-          color={colors.primary[700] || "#6d28d9"}
-        />
-
-        <Card
-          icon="business"
-          title="IMS"
-          badge="Login to IMS Portal"
-          desc="Grants Applications"
-          onPress={login}
-          color={colors.primary[700] || "#6d28d9"}
-        />
-
-        <Card
-          icon="school"
-          title="SSDD"
-          badge="Coming Soon"
-          desc="Learner Opportunities"
-          disabled
-          color="#9ca3af"
+      <View style={{ flex: 1 }}>
+        {/* Logo */}
+        <Image
+          source={require("../../../../assets/logov2.png")}
+          style={styles.logo}
+          resizeMode="contain"
         />
       </View>
 
-      <Text style={styles.footer}>
-        &copy; {new Date().getFullYear()} CHIETA. All rights reserved.
-      </Text>
+      <View style={{ flex: 2 }}>
+        {/* Heading */}
+        <Text style={styles.title}>Welcome to CHIETA</Text>
+        <Text style={styles.subtitle}>Select a service to continue</Text>
 
-      {/* Floating action button */}
-      <TouchableOpacity style={styles.fab} onPress={openInfoSheet}>
-        <Icon name="chatbubble-ellipses" size={26} color="white" />
-      </TouchableOpacity>
+        {/* Cards */}
+        <View style={styles.grid}>
+          <Card
+            icon="briefcase"
+            title="Careers"
+            badge="Visit Website"
+            desc="Jobs & Opportunities"
+            onPress={() => Linking.openURL("https://chieta.org.za/careers/vacancies/")}
+            color={colors.primary[700] || "#6d28d9"}
+          />
+
+          <Card
+            icon="bulb"
+            title="SSC"
+            badge="Visit Website"
+            desc="Smart Skills Centres"
+            onPress={() =>
+              Linking.openURL("https://glittery-pony-b3e00d.netlify.app/")
+            }
+            color={colors.primary[700] || "#6d28d9"}
+          />
+
+          <Card
+            icon="business"
+            title="IMS"
+            badge="Login to IMS Portal"
+            desc="Grants Applications"
+            onPress={login}
+            color={colors.primary[700] || "#6d28d9"}
+          />
+
+          <Card
+            icon="school"
+            title="SSDD"
+            badge="Coming Soon"
+            desc="Learner Opportunities"
+            disabled
+            color="#9ca3af"
+          />
+        </View>
+      </View>
+
+      <View style={{ flex: 1 }}>
+        <Text style={styles.footer}>
+          &copy; {new Date().getFullYear()} CHIETA. All rights reserved.
+        </Text>
+        {/* Floating action button */}
+        <TouchableOpacity style={styles.fab} onPress={openInfoSheet}>
+          <Icon name="chatbubble-ellipses" size={26} color="white" />
+        </TouchableOpacity>
+      </View>
+
+
     </LinearGradient>
   );
 }
