@@ -1,4 +1,4 @@
-import { FlatList, View, TouchableOpacity, SectionList } from 'react-native'
+import { View, SectionList } from 'react-native'
 import React, { useMemo } from 'react'
 import { REmpty, SafeArea, RListLoading, RToggleInfo, RText } from '@/components/common'
 import RHeader from '@/components/common/RHeader'
@@ -20,8 +20,6 @@ const NotificationsPage = () => {
     const { data: serverNotifications, isLoading, error } = useGetNotificationsByUserQuery(userId, {
         skip: userId === 0
     });
-
-    console.log(serverNotifications);
 
     // Mark notification as read mutation
     const [markAsRead] = useMarkNotificationAsReadMutation();
