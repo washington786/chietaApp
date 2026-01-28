@@ -17,7 +17,7 @@ import { Text as RnText } from "react-native-paper";
 import { RCol, RRow } from "@/components/common";
 import colors from "@/config/colors";
 import { landing_styles as styles } from "@/styles/LandingStyles";
-import { errorInspect } from "@/components/loadAssets";
+import { chatSquare, errorInspect } from "@/components/loadAssets";
 
 export default function LandingScreen() {
   const { login } = usePageTransition();
@@ -137,10 +137,14 @@ function ChatBot({ close }: { close: () => void }) {
         style={{
           justifyContent: "space-between",
           alignItems: "center",
-          marginBottom: 24,
+          marginBottom: 24
         }}
       >
-        <RnText variant="titleMedium">CHIETA Assistant</RnText>
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 4 }}>
+          <Image source={chatSquare} style={{ width: 20, height: 20 }} />
+          <RnText variant="titleMedium">Chieta Assistant</RnText>
+        </View>
+
         <TouchableOpacity onPress={close}>
           <EvilIcons name="close" size={32} color="black" />
         </TouchableOpacity>
