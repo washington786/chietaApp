@@ -12,7 +12,6 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useGlobalBottomSheet } from "@/hooks/navigation/BottomSheet";
 import usePageTransition from "@/hooks/navigation/usePageTransition";
 import EvilIcons from "@expo/vector-icons/EvilIcons";
-import AntDesign from "@expo/vector-icons/AntDesign";
 import { Text as RnText } from "react-native-paper";
 import { RCol, RRow } from "@/components/common";
 import colors from "@/config/colors";
