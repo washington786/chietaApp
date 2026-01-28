@@ -17,6 +17,7 @@ import { Text as RnText } from "react-native-paper";
 import { RCol, RRow } from "@/components/common";
 import colors from "@/config/colors";
 import { landing_styles as styles } from "@/styles/LandingStyles";
+import { errorInspect } from "@/components/loadAssets";
 
 export default function LandingScreen() {
   const { login } = usePageTransition();
@@ -146,7 +147,7 @@ function ChatBot({ close }: { close: () => void }) {
       </RRow>
 
       <RCol style={{ alignItems: "center", gap: 16 }}>
-        <AntDesign name="robot" size={64} color={colors.primary[700] || "#6d28d9"} />
+        <Image source={errorInspect} style={{ width: 64, height: 64 }} />
         <RnText variant="headlineMedium" style={{ fontWeight: "bold" }}>
           Coming Soon
         </RnText>

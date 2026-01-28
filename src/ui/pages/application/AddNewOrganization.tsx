@@ -1,4 +1,4 @@
-import { FlatList, StyleSheet, View, ActivityIndicator, TouchableOpacity } from 'react-native'
+import { FlatList, StyleSheet, View, ActivityIndicator, TouchableOpacity, Image } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { RCol, REmpty, RListLoading, RRow, SafeArea } from '@/components/common'
 import RHeader from '@/components/common/RHeader'
@@ -15,7 +15,7 @@ import { linkOrganizationAsync, loadAllOrganizations } from '@/store/slice/thunk
 import { useGlobalBottomSheet } from '@/hooks/navigation/BottomSheet'
 import EvilIcons from '@expo/vector-icons/EvilIcons';
 import { useLazyGetOrgSdfByOrgQuery } from '@/store/api/api'
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { errorBox } from '@/components/loadAssets'
 const AddNewOrganization = () => {
     const { filteredOrganizations, searchQuery, loading } = useSelector(
         (state: RootState) => state.linkedOrganization
@@ -167,17 +167,26 @@ interface props {
     close: () => void;
 }
 function AlreadLinked({ close, orgName }: props) {
-    return <View>
-        <RRow style={{ padding: 8, alignItems: 'center', justifyContent: 'space-between' }}>
-            <Text variant='bodyMedium'>Error Linking {orgName.length > 20 ? orgName.substring(0, 20) + "..." : orgName}</Text>
+    return <View style={{ flex: 1, backgroundColor: "white", padding: 16 }}>
+        <RRow
+            style={{
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginBottom: 24,
+            }}
+        >
+
+            <Text variant="titleMedium">Organization Error</Text>
+
             <TouchableOpacity onPress={close}>
-                <EvilIcons name="close" size={24} color="black" />
+                <EvilIcons name="close" size={32} color="black" />
             </TouchableOpacity>
         </RRow>
-        <RCol style={{ padding: 12, alignItems: 'center', justifyContent: 'center', gap: 12 }}>
-            <MaterialIcons name="error-outline" size={48} color={colors.red[700]} />
+
+        <RCol style={{ alignItems: "center", gap: 16 }}>
+            <Image source={errorBox} style={{ width: 64, height: 64 }} />
             <Text variant='titleMedium' style={{ textAlign: 'center' }}>Organization Already Linked</Text>
-            <Text variant='bodySmall' style={{ textAlign: 'center', color: colors.slate[400], fontWeight: "ultralight" }}>The organization "{orgName}" is already linked to another profile under another SDF. Please check your linked organizations or contact support for assistance.</Text>
+            <Text variant='bodySmall' style={{ textAlign: 'center', color: colors.gray[400], fontWeight: "ultralight" }}>The organization "{orgName}" is already linked to another profile under another SDF. Please check your linked organizations or contact support for assistance.</Text>
         </RCol>
     </View>
 }
