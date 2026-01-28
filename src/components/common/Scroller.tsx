@@ -1,6 +1,5 @@
 import { ScrollView, StyleProp, StyleSheet, ViewStyle } from "react-native";
 import React, { FC, ReactNode } from "react";
-import colors from "../../config/colors";
 
 interface prop {
   children: ReactNode;
@@ -22,8 +21,6 @@ export default Scroller;
 
 const styles = StyleSheet.create({
   con: {
-    flex: 1,
-    backgroundColor: colors.zinc[50],
-    flexGrow: 1,
+    backgroundColor: 'transparent',
   },
 });
