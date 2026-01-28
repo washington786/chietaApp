@@ -12,9 +12,6 @@ import { loginSchema, showToast } from '@/core'
 import UseAuth from '@/hooks/main/auth/UseAuth'
 import { useSelector, useDispatch } from 'react-redux'
 import { RootState } from '@/store/store'
-import { clearError } from '@/store/slice/AuthSlice'
-import Ionicons from '@expo/vector-icons/Ionicons';
-import { TouchableOpacity } from 'react-native'
 
 const formValues = {
     email: '',
@@ -48,7 +45,8 @@ const LoginScreen = () => {
     }, [error])
 
     return (
-        <>
+        <
+            >
             <Scroller style={{ flexGrow: 1, paddingBottom: 20 }}>
                 <AuthWrapper>
                     <SafeArea>
