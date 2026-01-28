@@ -21,6 +21,8 @@ const NotificationsPage = () => {
         skip: userId === 0
     });
 
+    console.log(serverNotifications);
+
     // Mark notification as read mutation
     const [markAsRead] = useMarkNotificationAsReadMutation();
 

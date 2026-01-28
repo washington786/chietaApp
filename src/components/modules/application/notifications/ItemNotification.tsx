@@ -48,7 +48,7 @@ const ItemNotification: FC<props> = ({ notification, onPress }) => {
             >
                 <RRow style={{ position: "relative", padding: 16, alignItems: 'center' }}>
                     <Feather name="bell" size={28} color={colors.primary[700]} />
-                    <Text variant='titleMedium' style={styles.title}>{notification.title}</Text>
+                    <Text variant='titleMedium' style={[styles.title, { flex: 1, marginRight: 80 }]}>{notification.title}</Text>
                     {isNew && (
                         <View style={styles.newBadge}>
                             <Text variant='labelSmall' style={styles.newBadgeText}>New</Text>

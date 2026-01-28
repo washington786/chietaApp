@@ -326,11 +326,11 @@ export const api = createApi({
                         items: response.result.map((item: any) => ({
                             id: String(item.id),
                             title: item.title,
-                            body: item.body,
+                            body: item.message, // Backend returns 'message' not 'body'
                             data: {},
-                            timestamp: new Date(item.timestamp).getTime(),
-                            read: item.read,
-                            source: item.source,
+                            timestamp: new Date(item.createdAt).getTime(), // Backend uses 'createdAt'
+                            read: item.isRead, // Backend returns 'isRead' not 'read'
+                            source: item.source || 'system', // Default to 'system' if not provided
                         })),
                     };
                 }
