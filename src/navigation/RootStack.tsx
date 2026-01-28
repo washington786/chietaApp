@@ -130,21 +130,11 @@ const RootStackNavigator = () => {
             <Stack.Screen
                 name="newApplication"
                 component={AddNewApplicationPage}
-                options={{
-                    presentation: 'fullScreenModal',
-                    animation: 'slide_from_bottom',
-                    headerShown: false
-                }}
             />
 
             <Stack.Screen
                 name="newDgApplication"
                 component={AddNewDgApplicationPage}
-                options={{
-                    presentation: 'fullScreenModal',
-                    animation: 'slide_from_bottom',
-                    headerShown: false
-                }}
             />
         </Stack.Navigator>
     )

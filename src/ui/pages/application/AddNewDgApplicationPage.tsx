@@ -1,6 +1,6 @@
-import { FlatList, StyleSheet, View } from 'react-native'
+import { FlatList, Image, StyleSheet, TouchableOpacity, View } from 'react-native'
 import React, { useEffect, useState, useMemo } from 'react'
-import { RCol, REmpty, RListLoading, SafeArea, RText } from '@/components/common';
+import { RCol, REmpty, RListLoading, SafeArea, RText, RRow } from '@/components/common';
 import RHeader from '@/components/common/RHeader';
 import { Searchbar, Snackbar } from 'react-native-paper';
 import colors from '@/config/colors';
@@ -17,6 +17,10 @@ import { useCreateEditApplicationMutation, useGetActiveWindowsParamsQuery, api }
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { navigationTypes } from '@/core/types/navigationTypes';
 
+import EvilIcons from "@expo/vector-icons/EvilIcons";
+import { Text as RnText } from 'react-native-paper'
+import { errorBox } from '@/components/loadAssets';
+import { useGlobalBottomSheet } from '@/hooks/navigation/BottomSheet';
 const AddNewDgApplicationPage = () => {
     const { orgId } = useRoute<RouteProp<navigationTypes, "newDgApplication">>().params;
 
@@ -30,11 +34,13 @@ const AddNewDgApplicationPage = () => {
 
     const { user, error: authError } = useSelector((state: RootState) => state.auth);
 
+    const { close, open } = useGlobalBottomSheet();
+
     useEffect(() => {
         if (authError) {
             showToast({ message: authError.message, type: "error", title: "Authentication Error", position: "top" });
         }
-    }, [authError])
+    }, [authError]);
 
 
     const [createApplication] = useCreateEditApplicationMutation();
@@ -115,8 +121,8 @@ const AddNewDgApplicationPage = () => {
                 onBack();
             }, 2000);
         } catch (error) {
-            showToast({ message: "Failed to create application", type: "error", title: "Error", position: "top" });
-            console.error('Create application error:', error);
+            open(<LinkingApplicationError close={close} />, { snapPoints: ["40%"] });
+            console.warn('Error linking project to organization:', error);
         }
     };
 
@@ -188,6 +194,42 @@ const AddNewDgApplicationPage = () => {
             </SafeArea>
         )
     }
+}
+
+
+function LinkingApplicationError({ close }: { close: () => void }) {
+    return (
+        <View style={{ flex: 1, backgroundColor: "white", padding: 16 }}>
+            <RRow
+                style={{
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    marginBottom: 24,
+                }}
+            >
+                <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
+                    <RnText variant="titleMedium">Application Error</RnText>
+                </View>
+
+                <TouchableOpacity onPress={close}>
+                    <EvilIcons name="close" size={32} color="black" />
+                </TouchableOpacity>
+            </RRow>
+
+            <RCol style={{ alignItems: "center", gap: 16 }}>
+                <Image source={errorBox} style={{ width: 64, height: 64 }} />
+                <RnText variant="headlineMedium" style={{ fontWeight: "bold" }}>
+                    Error Adding Application
+                </RnText>
+                <RnText
+                    variant="bodyMedium"
+                    style={{ textAlign: "center", color: "#666", lineHeight: 24 }}
+                >
+                    This application already exists in your organization profile. Please check your applications list.
+                </RnText>
+            </RCol>
+        </View>
+    )
 }
 
 export default AddNewDgApplicationPage
