@@ -20,7 +20,7 @@ const DgActiveWindow = () => {
     const flatListRef = useRef<FlatList>(null)
 
     const discretionaryWindowsUnsorted: DiscretionaryWindow[] = apiData?.result?.items?.map((item: any) => item.discretionaryWindow) || []
-    const discretionaryWindows = [...discretionaryWindowsUnsorted].sort((a, b) => b.id - a.id)
+    const discretionaryWindows = [...discretionaryWindowsUnsorted].filter((window) => window.activeYN).sort((a, b) => b.id - a.id)
 
     useEffect(() => {
         if (error) {
