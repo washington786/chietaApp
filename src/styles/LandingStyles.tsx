@@ -4,7 +4,7 @@ import { StyleSheet } from "react-native";
 export const landing_styles = StyleSheet.create({
     container: {
         flex: 1,
-        paddingTop: 40,
+        paddingTop: 15,
         paddingHorizontal: 20,
     },
 
@@ -22,6 +22,7 @@ export const landing_styles = StyleSheet.create({
         textAlign: "center",
         marginBottom: 8,
     },
+
     subtitle: {
         fontSize: 16,
         color: "#6b7280",
