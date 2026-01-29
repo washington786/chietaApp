@@ -47,7 +47,7 @@ export interface ApplicationForm {
     subCategory: string;
     intervention: string;
     cost: string;
-  };
+  }[];
 
   checklist: {
     csdOrSarsPin: string;

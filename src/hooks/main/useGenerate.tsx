@@ -1,25 +1,15 @@
 import { generateApplicationPdf } from '@/core/helpers/pdfGenerator';
 import { showToast } from '@/core';
-import { useGetOrganizationByProjectQuery, useGetPersonByIdQuery } from '@/store/api/api';
+import { useGetOrganizationByProjectQuery, useGetPersonByUserIdQuery, useGetOrganizationPhysicalAddressQuery, useGetDGProjectDetailsAppQuery } from '@/store/api/api';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store/store';
 
 interface UseGenerateProps {
-    orgId: number;
     appId: number;
     programmeType?: string;
     learningProgramme?: string;
     subCategory?: string;
     intervention?: string;
-    province?: string;
-    municipality?: string;
-    noContinuing?: number;
-    noNew?: number;
-    noFemale?: number;
-    noHDI?: number;
-    noYouth?: number;
-    noDisabled?: number;
-    noRural?: number;
     costPerLearner?: number;
     // Document upload status
     taxCompliance?: boolean;
@@ -31,62 +21,94 @@ interface UseGenerateProps {
     proofOfBanking?: boolean;
     workplaceApproval?: boolean;
     researchExportsQuestionnaire?: boolean;
+    referenceNumber?: string;
 }
 
-const useGenerate = ({ orgId, appId, programmeType, learningProgramme, subCategory, intervention, province, municipality, noContinuing, noNew, noFemale, noHDI, noYouth, noDisabled, noRural, costPerLearner, taxCompliance, companyRegistration, beeCertificate, letterOfCommitment, proofOfAccreditation, declarationOfInterest, proofOfBanking, workplaceApproval, researchExportsQuestionnaire }: UseGenerateProps) => {
+const useGenerate = ({ appId, programmeType, learningProgramme, subCategory, intervention, costPerLearner, taxCompliance, companyRegistration, beeCertificate, letterOfCommitment, proofOfAccreditation, declarationOfInterest, proofOfBanking, workplaceApproval, researchExportsQuestionnaire, referenceNumber }: UseGenerateProps) => {
+
     const { user } = useSelector((state: RootState) => state.auth);
 
-    const { data: dgOrgData, isLoading: dgOrgLoading, error: dgOrgError } = useGetOrganizationByProjectQuery(appId, { skip: !appId });
+    const { data: dgOrgData } = useGetOrganizationByProjectQuery(appId, { skip: !appId });
 
-    const { data: sdfData, isLoading: sdfLoading, error: sdfError } = useGetPersonByIdQuery(user?.id, { skip: !user?.id });
+    // Get organization ID from dgOrgData
+    const organizationId = dgOrgData?.result?.organisation?.id;
+
+    // Fetch physical address using organization ID
+    const { data: physicalAddressData } = useGetOrganizationPhysicalAddressQuery(organizationId, { skip: !organizationId });
+
+    const { selectedProject } = useSelector((state: RootState) => state.discretionaryGrant);
+
+    const { data: sdfData } = useGetPersonByUserIdQuery(user?.id, { skip: !user?.id });
+
+    const { data: entries } = useGetDGProjectDetailsAppQuery(appId, { skip: !appId });
 
     const generate = async () => {
         try {
+            // Extract organization data from result
+            const org = dgOrgData?.result?.organisation;
+
+            // Extract physical address data
+            const physicalAddress = physicalAddressData?.result?.organisationPhysicalAddress;
+
+            console.log('address: ', physicalAddress);
+            console.log('entries data: ', entries);
+            console.log('entries.result: ', entries?.result);
+
             // Generate PDF with actual data and fallback to placeholders
             const templateData = {
-                reference: '[Reference Number]',
-                projectType: programmeType || '[Programme Type]',
+                reference: referenceNumber || '',
+                projectType: selectedProject?.projType || '',
                 organisation: {
-                    organisationName: dgOrgData?.result?.organisationName || '[Your Organization Name]',
-                    tradingName: dgOrgData?.result?.tradingName || '[Trading Name]',
-                    coreBusiness: dgOrgData?.result?.coreBusiness || '[Core Business]',
-                    province: province || dgOrgData?.result?.province || '[Province]',
-                    municipality: municipality || dgOrgData?.result?.municipality || '[Municipality]',
-                    beeStatus: dgOrgData?.result?.beeStatus || '[BEE Status]',
-                    phoneNumber: dgOrgData?.result?.phoneNumber || '[Phone Number]',
-                    faxNumber: dgOrgData?.result?.faxNumber || '[Fax Number]',
-                    email: dgOrgData?.result?.email || '[Email]',
+                    organisationName: org?.organisation_Name || '',
+                    tradingName: org?.organisation_Trading_Name || '',
+                    coreBusiness: org?.corE_BUSINESS || '',
+                    province: physicalAddress?.province || '',
+                    municipality: physicalAddress?.municipality || '',
+                    beeStatus: org?.bbbeE_Status || '',
+                    phoneNumber: org?.organisation_Contact_Phone_Number || '',
+                    faxNumber: org?.organisation_Contact_Cell_Number || '',
+                    email: org?.organisation_Contact_Email_Address || '',
                 },
                 ceo: {
-                    firstName: dgOrgData?.result?.ceo?.firstName || '[CEO First Name]',
-                    surname: dgOrgData?.result?.ceo?.surname || '[CEO Surname]',
-                    email: dgOrgData?.result?.ceo?.email || '[CEO Email]',
-                    race: dgOrgData?.result?.ceo?.race || '[Race]',
-                    gender: dgOrgData?.result?.ceo?.gender || '[Gender]',
+                    firstName: org?.ceO_Name || '',
+                    surname: org?.ceO_Surname || '',
+                    email: org?.ceO_Email || '',
+                    race: org?.ceO_RaceId || '',
+                    gender: org?.ceO_GenderId || '',
                 },
                 cfo: {
-                    firstName: dgOrgData?.result?.senior?.firstName || '[CFO First Name]',
-                    surname: dgOrgData?.result?.senior?.surname || '[CFO Surname]',
-                    email: dgOrgData?.result?.senior?.email || '[CFO Email]',
-                    race: dgOrgData?.result?.senior?.race || '[Race]',
-                    gender: dgOrgData?.result?.senior?.gender || '[Gender]',
+                    firstName: org?.senior_Rep_Name || '',
+                    surname: org?.senior_Rep_Surname || '',
+                    email: org?.senior_Rep_Email || '',
+                    race: org?.senior_Rep_RaceId || '',
+                    gender: org?.senior_Rep_GenderId || '',
                 },
                 sdf: {
-                    firstName: sdfData?.result?.firstName || '[SDF First Name]',
-                    surname: sdfData?.result?.surname || '[SDF Surname]',
-                    role: sdfData?.result?.role || '[Role]',
-                    race: sdfData?.result?.race || '[Race]',
-                    gender: sdfData?.result?.gender || '[Gender]',
-                    phone: sdfData?.result?.phone || '[Phone]',
-                    mobile: sdfData?.result?.mobile || '[Mobile]',
-                    email: sdfData?.result?.email || '[Email]',
+                    firstName: sdfData?.result?.person?.firstname || '',
+                    surname: sdfData?.result?.person?.lastname || '',
+                    role: sdfData?.result?.person?.designation || '',
+                    race: sdfData?.result?.person?.equity || '',
+                    gender: sdfData?.result?.person?.gender || '',
+                    phone: sdfData?.result?.person?.phone || '',
+                    mobile: sdfData?.result?.person?.cellphone || '',
+                    email: sdfData?.result?.person?.email || '',
                 },
-                gms: {
-                    learningProgramme: learningProgramme || '[Learning Programme]',
-                    subCategory: subCategory || '[Sub Category]',
-                    intervention: intervention || '[Intervention]',
-                    cost: costPerLearner?.toString() || '[Cost]',
-                },
+                gms: entries?.result?.items && Array.isArray(entries.result.items) && entries.result.items.length > 0
+                    ? entries.result.items.map((item: any) => {
+                        const details = item.projectDetails;
+                        return {
+                            learningProgramme: details.projectType || programmeType || '',
+                            subCategory: details.subCategory || subCategory || '',
+                            intervention: details.intervention || intervention || '',
+                            cost: details.costPerLearner?.toString() || costPerLearner?.toString() || '',
+                        };
+                    })
+                    : [{
+                        learningProgramme: programmeType || '',
+                        subCategory: subCategory || '',
+                        intervention: intervention || '',
+                        cost: costPerLearner?.toString() || '',
+                    }],
                 checklist: {
                     csdOrSarsPin: taxCompliance ? 'Yes' : 'No',
                     companyRegistration: companyRegistration ? 'Yes' : 'No',
@@ -99,14 +121,15 @@ const useGenerate = ({ orgId, appId, programmeType, learningProgramme, subCatego
                     researchExportsQuestionnaire: researchExportsQuestionnaire ? 'Yes' : 'No',
                 },
                 signOff: {
-                    ceoName: dgOrgData?.result?.ceo?.name || '',
+                    ceoName: (org?.ceO_Name || '') + " " + (org?.ceO_Surname || ''),
                     ceoDate: new Date().toISOString(),
-                    cfoName: dgOrgData?.result?.cfo?.name || '',
+                    cfoName: (org?.senior_Rep_Name || '') + " " + (org?.senior_Rep_Surname || ''),
                     cfoDate: new Date().toISOString(),
                 },
                 generatedDate: new Date().toISOString(),
             };
 
+            console.log('TemplateData for PDF:', templateData);
             await generateApplicationPdf(templateData);
             showToast({ message: "Template downloaded successfully", title: "Success", type: "success", position: "top" });
         } catch (error) {

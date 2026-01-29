@@ -164,6 +164,11 @@ export const api = createApi({
                 `/api/services/app/Organisation/Get?id=${organisationId}`,
             providesTags: ['Organization'],
         }),
+        getOrganizationPhysicalAddress: builder.query({
+            query: (organisationId) =>
+                `/api/services/app/Organisation/GetOrganisationPhysAddress?organisationId=${organisationId}`,
+            providesTags: ['Organization'],
+        }),
 
         /**
          * Document Endpoints
@@ -178,24 +183,36 @@ export const api = createApi({
         }),
         uploadProjectDocument: builder.mutation({
             query: ({ file, docType, userId, appId }) => {
-                const formData = new FormData();
+                console.log('=== API UPLOAD MUTATION CALLED ===');
+                console.log('Params received:', { docType, userId, appId });
+                console.log('File object:', { name: file.name, mimeType: file.mimeType, uri: file.uri, size: file.size });
 
-                // Handle React Native file object from expo-document-picker
-                formData.append('file', {
-                    uri: file.uri,
-                    name: file.name,
-                    type: file.mimeType || 'application/octet-stream'
-                } as any);
+                // Extract file metadata
+                const lastModifiedDate = new Date().toISOString();
+                const type = file.mimeType || 'application/pdf';
 
-                const url = `/api/upload?DocType=${encodeURIComponent(docType)}&UserID=${userId}&module=Projects&appid=${appId}`;
+                // Build request body matching backend expectations
+                const body = {
+                    entityid: appId,
+                    module: 'Projects',
+                    userId: userId,
+                    documenttype: docType,
+                    filename: file.name,
+                    newfilename: file.name,
+                    size: file.size || 0,
+                    type: type,
+                    lastmodifieddate: lastModifiedDate
+                };
+
+                const url = '/api/services/app/Documents/FileUpload';
 
                 console.log('Upload URL:', url);
-                console.log('Upload file:', { name: file.name, mimeType: file.mimeType, uri: file.uri });
+                console.log('Upload body:', body);
 
                 return {
                     url,
                     method: 'POST',
-                    body: formData,
+                    body: body,
                 };
             },
             invalidatesTags: ['Document'],
@@ -592,8 +609,16 @@ export const api = createApi({
          * Documents Endpoints
          */
         getDocumentsByEntity: builder.query({
-            query: ({ entityId, module, documentType }) =>
-                `/api/services/app/Documents/GetDocumentsByEntity?entityid=${entityId}&module=${module}&documenttype=${encodeURIComponent(documentType)}`,
+            query: ({ entityId, module, documentType }) => {
+                const url = `/api/services/app/Documents/GetDocumentsByEntity?entityid=${entityId}&module=${module}&documenttype=${encodeURIComponent(documentType)}`;
+                console.log('getDocumentsByEntity - URL:', url);
+                console.log('getDocumentsByEntity - Params:', { entityId, module, documentType });
+                return url;
+            },
+            transformResponse: (response: any) => {
+                console.log('getDocumentsByEntity - Response:', JSON.stringify(response, null, 2));
+                return response;
+            },
             providesTags: ['Document'],
         }),
 
@@ -618,6 +643,18 @@ export const api = createApi({
             transformResponse: (response: any) => ({
                 message: response?.result,
                 success: response?.success,
+            }),
+            invalidatesTags: ['Grant'],
+        }),
+        submitApplication: builder.mutation({
+            query: ({ projId, userId }: { projId: number; userId: number }) => ({
+                url: `/api/services/app/DiscretionaryProject/SubmitApplication?id=${projId}&userid=${userId}`,
+                method: 'POST',
+            }),
+            transformResponse: (response: any) => ({
+                message: "Application submitted successfully",
+                success: response?.success === true,
+                data: response?.result,
             }),
             invalidatesTags: ['Grant'],
         }),
@@ -679,8 +716,10 @@ export const {
     useGetPersonByIdQuery,
     useGetOrganizationByProjectQuery,
     useGetOrganizationByIdQuery,
+    useGetOrganizationPhysicalAddressQuery,
     useGetDocumentsByEntityQuery,
     useGetOrgSdfByOrgQuery,
     useLazyGetOrgSdfByOrgQuery,
     useValidateProjSubmissionMutation,
+    useSubmitApplicationMutation,
 } = api
