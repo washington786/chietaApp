@@ -10,6 +10,7 @@ import { SelectList } from 'react-native-dropdown-select-list'
 import { DocumentPickerResult } from 'expo-document-picker'
 import useDocumentPicker from '@/hooks/main/UseDocumentPicker'
 import { showToast } from '@/core'
+import { checkProjectClosed } from '@/core/utils/CheckClosed'
 import { useGetProjectTypeQuery, useGetFocusAreaQuery, useGetAdminCritQuery, useGetEvalMethodsQuery, useDeleteApplicationMutation, useCreateEditApplicationDetailsMutation, useUploadProjectDocumentMutation, useGetDGProjectDetailsAppQuery, useGetDocumentsByEntityQuery, useValidateProjSubmissionMutation, useSubmitApplicationMutation } from '@/store/api/api';
 import { dg_styles as styles } from '@/styles/DgStyles';
 import { RouteProp, useRoute } from '@react-navigation/native'
@@ -32,6 +33,19 @@ const DgApplicationDetails = () => {
 
     // Fetch existing application entries
     const { data: dgProjectDetailsApp } = useGetDGProjectDetailsAppQuery(projectId, { skip: !projectId });
+
+    // Check if project is closed or status is not 'Registered' based on application details
+    const projectClosureStatus = useMemo(() => {
+        if (dgProjectDetailsApp?.result?.items?.[0]?.projectDetails) {
+            const details = dgProjectDetailsApp.result.items[0].projectDetails;
+            const projectStatus = details.status || 'Registered';
+            const projectEndDate = dgProjectDetailsApp.result.items[0]?.projectEndDate || new Date().toISOString();
+
+            const closureCheck = checkProjectClosed(projectStatus, projectEndDate);
+            return closureCheck;
+        }
+        return { isClosed: isClosed, isEditable: !isClosed };
+    }, [dgProjectDetailsApp, isClosed]);
 
     const [deleteApplication] = useDeleteApplicationMutation();
 
@@ -677,13 +691,13 @@ const DgApplicationDetails = () => {
             // Check if submission is valid
             if (!validationResult.success) {
                 open(
-                    <WindowClose 
-                        close={close} 
-                        color={colors.red[900]} 
-                        title="Window Closed" 
-                        substitle="Grant Window Closed" 
-                        message={validationResult.message || "The discretionary project window for this application has closed. Please try other applications."} 
-                    />, 
+                    <WindowClose
+                        close={close}
+                        color={colors.red[900]}
+                        title="Window Closed"
+                        substitle="Grant Window Closed"
+                        message={validationResult.message || "The discretionary project window for this application has closed. Please try other applications."}
+                    />,
                     { snapPoints: ["40%"] }
                 );
                 return;
@@ -697,11 +711,11 @@ const DgApplicationDetails = () => {
             console.log("Submit result:", submitResult);
 
             // Show success message
-            showToast({ 
-                message: submitResult.message || "The application has been submitted successfully.", 
-                title: "Success", 
-                type: "success", 
-                position: "top" 
+            showToast({
+                message: submitResult.message || "The application has been submitted successfully.",
+                title: "Success",
+                type: "success",
+                position: "top"
             });
 
             // TODO: Optionally navigate or refresh application status
@@ -713,9 +727,9 @@ const DgApplicationDetails = () => {
         }
     };
 
-    {/* Display Project Details when closed */ }
+    {/* Display Project Details when closed or not editable */ }
 
-    if (isClosed) {
+    if (projectClosureStatus.isClosed || !projectClosureStatus.isEditable) {
         return (
             <ProjectDetailsItem projectId={appId} />
         )
