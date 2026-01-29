@@ -1,17 +1,10 @@
 import { FlatList, View } from 'react-native'
-import React, { useState, useMemo, useEffect } from 'react'
+import React from 'react'
 import colors from '@/config/colors'
 import { Text, IconButton, Tooltip } from 'react-native-paper'
 import { Expandable, RUploadSuccess, DgEntryList, RUploadSuccessFile, MessageWrapper, WindowClose } from '@/components/modules/application'
 import { RButton, RInput, RUpload } from '@/components/common'
-import { main_manicipalities, mainDistricts, provinces } from '@/core/helpers/data'
-import { Province } from '@/core/types/provTypes'
 import { SelectList } from 'react-native-dropdown-select-list'
-import { DocumentPickerResult } from 'expo-document-picker'
-import useDocumentPicker from '@/hooks/main/UseDocumentPicker'
-import { showToast } from '@/core'
-import { checkProjectClosed } from '@/core/utils/CheckClosed'
-import { useGetProjectTypeQuery, useGetFocusAreaQuery, useGetAdminCritQuery, useGetEvalMethodsQuery, useDeleteApplicationMutation, useCreateEditApplicationDetailsMutation, useUploadProjectDocumentMutation, useGetDGProjectDetailsAppQuery, useGetDocumentsByEntityQuery, useValidateProjSubmissionMutation, useSubmitApplicationMutation } from '@/store/api/api';
 import { dg_styles as styles } from '@/styles/DgStyles';
 import { RouteProp, useRoute } from '@react-navigation/native'
 import { navigationTypes } from '@/core/types/navigationTypes'
@@ -19,716 +12,118 @@ import { useSelector } from 'react-redux';
 import { RootState } from '@/store/store'
 import { useGlobalBottomSheet } from '@/hooks/navigation/BottomSheet'
 import ProjectDetailsItem from '@/components/modules/application/grants/ProjectDetailsItem'
-import useGenerate from '@/hooks/main/useGenerate';
+import useDg from '@/hooks/main/useDg'
 
 const DgApplicationDetails = () => {
     const { appId: projectId } = useRoute<RouteProp<navigationTypes, "applicationDetails">>().params;
     const appId = parseInt(projectId as string || '0');
+    const projectIdStr = projectId as string;
 
     const user = useSelector((state: RootState) => state.auth.user);
     const userId = typeof user?.id === 'string' ? parseInt(user.id) : (user?.id || 0);
-    const isClosed = useSelector((state: RootState) => state.discretionaryGrant.isProjectClosed);
 
     const { open, close } = useGlobalBottomSheet();
 
-    // Fetch existing application entries
-    const { data: dgProjectDetailsApp } = useGetDGProjectDetailsAppQuery(projectId, { skip: !projectId });
-
-    // Check if project is closed or status is not 'Registered' based on application details
-    const projectClosureStatus = useMemo(() => {
-        if (dgProjectDetailsApp?.result?.items?.[0]?.projectDetails) {
-            const details = dgProjectDetailsApp.result.items[0].projectDetails;
-            const projectStatus = details.status || 'Registered';
-            const projectEndDate = dgProjectDetailsApp.result.items[0]?.projectEndDate || new Date().toISOString();
-
-            const closureCheck = checkProjectClosed(projectStatus, projectEndDate);
-            return closureCheck;
-        }
-        return { isClosed: isClosed, isEditable: !isClosed };
-    }, [dgProjectDetailsApp, isClosed]);
-
-    const [deleteApplication] = useDeleteApplicationMutation();
-
-    const [createEditApplicationDetails, { isLoading: isSavingApplication }] = useCreateEditApplicationDetailsMutation();
-
-    const [uploadProjectDocument] = useUploadProjectDocumentMutation();
-
-    // Validation and submission mutations
-    const [validateProjectSubmission] = useValidateProjSubmissionMutation();
-    const [submitApplication] = useSubmitApplicationMutation();
-
-    const [currentStep, setCurrentStep] = useState(1);
-    const [expandDocs, setDocs] = useState(false);
-    const [expandProv, setProv] = useState(false);
-    const [expandProg, setProg] = useState(false);
-    const [expandLoc, setLoc] = useState(false);
-
-    const [selectedProvince, setProvince] = useState<Province>("");
-    const [selectedDistrict, setSelectedDistrict] = useState<string>("");
-    const [selectedMunicipality, setSelectedMunipality] = useState<string>("");
-
-    const [district, setDistrict] = useState<string[]>([]);
-    const [manucipality, setManucipality] = useState<string[]>([]);
-
-    const [programmeType, setProgrammeType] = useState<string>("");
-    const [learningProgramme, setLearningProgramme] = useState<string>("");
-    const [subCategory, setSubCategory] = useState<string>("");
-    const [focusCritEvalId, setFocusCritEvalId] = useState<string>("");
-    const [intervention, setIntervention] = useState<string>("");
-
-    // Form inputs for learner details
-    const [noContinuing, setNoContinuing] = useState<string>("");
-    const [noNew, setNoNew] = useState<string>("");
-    const [noFemale, setNoFemale] = useState<string>("");
-    const [noHDI, setNoHDI] = useState<string>("");
-    const [noYouth, setNoYouth] = useState<string>("");
-    const [noDisabled, setNoDisabled] = useState<string>("");
-    const [noRural, setNoRural] = useState<string>("");
-    const [costPerLearner, setCostPerLearner] = useState<string>("");
-
-    // Store entries
-    const [entries, setEntries] = useState<any[]>([]);
-    const [editingEntryId, setEditingEntryId] = useState<string | null>(null);
-
-    const [applicationForm, setApplicationForm] = useState<DocumentPickerResult>();
-
-    // Fetch project types
-    const { data: projectTypesData } = useGetProjectTypeQuery(undefined);
-    const projectTypes = useMemo(() =>
-        Array.isArray(projectTypesData)
-            ? projectTypesData.map((pt: any) => ({ key: pt.id, value: pt.projTypDesc }))
-            : [],
-        [projectTypesData]
-    );
-
-    // Fetch focus areas (learning programmes) when project type is selected
-    const { data: focusAreaData } = useGetFocusAreaQuery(programmeType, { skip: !programmeType });
-    const focusAreas = useMemo(() =>
-        Array.isArray(focusAreaData)
-            ? focusAreaData.map((fa: any) => ({ key: fa.id, value: fa.focusAreaDesc || fa.name }))
-            : [],
-        [focusAreaData]
-    );
-
-    // Fetch admin criteria (sub categories) when both project type and focus area are selected
-    const { data: adminCritData } = useGetAdminCritQuery(
-        { projType: programmeType, focusId: learningProgramme },
-        { skip: !programmeType || !learningProgramme }
-    );
-    const adminCriteria = useMemo(() =>
-        Array.isArray(adminCritData)
-            ? adminCritData.map((ac: any) => ({
-                key: ac.id,
-                value: ac.adminDesc || ac.name,
-                focusCritEvalId: ac.focusCritEvalId || ac.id // Store the focusCritEvalId from response
-            }))
-            : [],
-        [adminCritData]
-    );
-
-    // Fetch evaluation methods (interventions) when all parameters are selected
-    const { data: evalMethodsData } = useGetEvalMethodsQuery(
-        { projType: programmeType, focusId: learningProgramme, critId: subCategory },
-        { skip: !programmeType || !learningProgramme || !subCategory }
-    );
-    const evalMethods = useMemo(() =>
-        Array.isArray(evalMethodsData)
-            ? evalMethodsData.map((em: any) => ({ key: em.id, value: em.evalMthdDesc || em.name }))
-            : [],
-        [evalMethodsData]
-    );
-
-    // Handle edit mode flow - set programme details in correct order
-    useEffect(() => {
-        if (editingEntryId && focusAreas.length > 0 && !subCategory) {
-            // Once focusAreas have loaded, set learning programme
-            setLearningProgramme(entries.find(e => e.id === editingEntryId)?.learningProgrammeId || "");
-        }
-    }, [focusAreas, editingEntryId, entries]);
-
-    useEffect(() => {
-        if (editingEntryId && adminCriteria.length > 0 && !intervention) {
-            // Once adminCriteria have loaded, set subCategory and let it load evalMethods
-            const entry = entries.find(e => e.id === editingEntryId);
-            if (entry) {
-                setSubCategory(entry.subCategoryId || "");
-                setFocusCritEvalId(entry.focusCritEvalId?.toString() || "");
-            }
-        }
-    }, [adminCriteria, editingEntryId, entries]);
-
-    useEffect(() => {
-        if (editingEntryId && evalMethods.length > 0 && !intervention) {
-            // Once evalMethods have loaded, set intervention
-            const entry = entries.find(e => e.id === editingEntryId);
-            setIntervention(entry?.interventionId || "");
-        }
-    }, [evalMethods, editingEntryId, entries]);
-
-    // Populate entries from API response
-    useEffect(() => {
-        if (dgProjectDetailsApp?.result?.items && dgProjectDetailsApp.result.items.length > 0) {
-            const mappedEntries = dgProjectDetailsApp.result.items.map((item: any) => {
-                const details = item.projectDetails;
-                return {
-                    id: details.id,
-                    programmeTypeId: details.projectType,
-                    learningProgrammeId: details.focusArea,
-                    subCategoryId: details.subCategory,
-                    interventionId: details.intervention,
-                    focusCritEvalId: details.subCategory,
-                    programType: details.projectType,
-                    learningProgramme: details.focusArea,
-                    subCategory: details.subCategory,
-                    intervention: details.intervention,
-                    noContinuing: details.number_Continuing,
-                    noNew: details.number_New,
-                    noFemale: details.female,
-                    noHistoricallyDisadvantaged: details.hdi,
-                    noYouth: details.youth,
-                    noDisabled: details.number_Disabled,
-                    noRural: details.rural,
-                    costPerLearner: details.costPerLearner,
-                    province: details.province,
-                    district: "",
-                    municipality: details.municipality,
-                };
-            });
-            setEntries(mappedEntries);
-        }
-    }, [dgProjectDetailsApp]);
-
-    // Fetch documents using RTK Query
-    const bankProofQuery = useGetDocumentsByEntityQuery(
-        { entityId: appId, module: 'Projects', documentType: 'Bank Proof' },
-        { skip: !appId }
-    );
-    const beeQuery = useGetDocumentsByEntityQuery(
-        { entityId: appId, module: 'Projects', documentType: 'BEE Certificate' },
-        { skip: !appId }
-    );
-    const scheduleQuery = useGetDocumentsByEntityQuery(
-        { entityId: appId, module: 'Projects', documentType: 'Schedule' },
-        { skip: !appId }
-    );
-    const declarationQuery = useGetDocumentsByEntityQuery(
-        { entityId: appId, module: 'Projects', documentType: 'Declaration' },
-        { skip: !appId }
-    );
-    const workplaceQuery = useGetDocumentsByEntityQuery(
-        { entityId: appId, module: 'Projects', documentType: 'Workplace Approval' },
-        { skip: !appId }
-    );
-    const signedAppQuery = useGetDocumentsByEntityQuery(
-        { entityId: appId, module: 'Projects', documentType: 'Signed Application' },
-        { skip: !appId }
-    );
-    const taxQuery = useGetDocumentsByEntityQuery(
-        { entityId: appId, module: 'Projects', documentType: 'Tax Clearance' },
-        { skip: !appId }
-    );
-    const accredQuery = useGetDocumentsByEntityQuery(
-        { entityId: appId, module: 'Projects', documentType: 'Accreditation' },
-        { skip: !appId }
-    );
-    const proposalQuery = useGetDocumentsByEntityQuery(
-        { entityId: appId, module: 'Projects', documentType: 'Proposal' },
-        { skip: !appId }
-    );
-    const companyQuery = useGetDocumentsByEntityQuery(
-        { entityId: appId, module: 'Projects', documentType: 'Company Registration' },
-        { skip: !appId }
-    );
-    const commitQuery = useGetDocumentsByEntityQuery(
-        { entityId: appId, module: 'Projects', documentType: 'Commitment' },
-        { skip: !appId }
-    );
-
-    // Helper function to get document from RTK Query data
-    const getDocument = (query: any) => query.data?.result?.items?.[0]?.documents;
-
-    // Debug: Log document queries
-    useEffect(() => {
-        console.log('=== DOCUMENT QUERIES STATUS ===');
-        console.log('appId:', appId);
-        console.log('Tax Query - entityId:', appId, 'Loading:', taxQuery.isLoading, 'Has data:', !!taxQuery.data);
-        if (taxQuery.data) {
-            console.log('Tax Query raw data:', JSON.stringify(taxQuery.data, null, 2));
-            console.log('Tax Query - getDocument result:', getDocument(taxQuery));
-            console.log('Tax Query - getDocument[0]:', getDocument(taxQuery)?.[0]);
-        }
-        console.log('Company Query - entityId:', appId, 'Loading:', companyQuery.isLoading, 'Has data:', !!companyQuery.data);
-        if (companyQuery.data) {
-            console.log('Company Query raw data:', JSON.stringify(companyQuery.data, null, 2));
-            console.log('Company Query - getDocument result:', getDocument(companyQuery));
-            console.log('Company Query - getDocument[0]:', getDocument(companyQuery)?.[0]);
-        }
-        console.log('BEE Query - entityId:', appId, 'Loading:', beeQuery.isLoading, 'Has data:', !!beeQuery.data);
-        if (beeQuery.data) console.log('BEE Query data:', JSON.stringify(beeQuery.data, null, 2));
-        console.log('Bank Proof Query - entityId:', appId, 'Loading:', bankProofQuery.isLoading, 'Has data:', !!bankProofQuery.data);
-        if (bankProofQuery.data) console.log('Bank Proof Query data:', JSON.stringify(bankProofQuery.data, null, 2));
-    }, [appId, taxQuery.data, companyQuery.data, beeQuery.data, bankProofQuery.data]);
-
-    // Helper function to handle document uploads
-    const handleDocumentUpload = async (
-        fileName: string,
-        docType: string,
-        setDocumentState: (result: DocumentPickerResult) => void,
-        queryToRefetch: any
-    ) => {
-        try {
-            console.log(`=== ${fileName} UPLOAD START ===`);
-            console.log('userId:', userId);
-            console.log('appId:', appId);
-
-            const result = await pickDocument();
-            if (result && result.assets && result.assets[0]) {
-                console.log("Picked file:", result.assets[0]);
-
-                const uploadResult = await uploadProjectDocument({
-                    file: result.assets[0],
-                    docType,
-                    userId,
-                    appId
-                }).unwrap();
-
-                console.log(`${fileName} upload response:`, uploadResult);
-
-                setDocumentState(result);
-
-                // Refetch documents
-                console.log(`Refetching ${docType} documents...`);
-                console.log('Query metadata:', queryToRefetch);
-                console.log('Query request params:', queryToRefetch?.queryCacheKey);
-                const refetchResult = await queryToRefetch.refetch();
-                console.log(`Refetch result for ${docType}:`, JSON.stringify(refetchResult, null, 2));
-
-                showToast({ message: `${fileName} uploaded successfully`, title: "Success", type: "success", position: "top" });
-            }
-        } catch (error: any) {
-            console.error(`=== ${fileName} UPLOAD ERROR ===`);
-            console.error("Error:", error);
-
-            const errorMessage = error?.data?.message || error?.data?.error?.message || error?.message || "failed to upload document";
-            showToast({ message: errorMessage, title: "Upload", type: "error", position: "top" })
-        }
-    };
-
-    function handleProvChange(val: Province) {
-        setProvince(val)
-        setDistrict(mainDistricts[val] || [])
-        setManucipality(main_manicipalities[val] || [])
-    }
-
-    function handleDistrictChange(val: string) {
-        setSelectedDistrict(val);
-    }
-    function handleMunicipalityChange(val: string) {
-        setSelectedMunipality(val);
-    }
-
-    // Memoize data arrays to prevent SelectList resets on re-render
-    const provinceOptions = useMemo(
-        () => provinces.map((p) => ({ key: p, value: p })),
-        []
-    );
-
-    const districtOptions = useMemo(
-        () => district.map((d) => ({ key: d, value: d })),
-        [district]
-    );
-
-    const municipalityOptions = useMemo(
-        () => manucipality.map((m) => ({ key: m, value: m })),
-        [manucipality]
-    );
-
-    // document upload
-    const { pickDocument, error } = useDocumentPicker();
-
-    const [taxComplience, setTaxComplience] = useState<DocumentPickerResult>();
-    const [companyReg, setCompanyReg] = useState<DocumentPickerResult>();
-    const [beeCert, setBeeCert] = useState<DocumentPickerResult>();
-    const [accredetation, setAccredetation] = useState<DocumentPickerResult>();
-    const [commitmentLetter, setCommitmentLetter] = useState<DocumentPickerResult>();
-    const [learnerSchedule, setLearnerSchedule] = useState<DocumentPickerResult>();
-    const [declarationInterest, setDeclarationInterest] = useState<DocumentPickerResult>();
-    const [bankingDetailsProof, setBankDetails] = useState<DocumentPickerResult>();
-
-    // Handle document picker errors
-    useEffect(() => {
-        if (error) {
-            console.log(error);
-            showToast({ message: error, title: "Upload", type: "error", position: "top" })
-        }
-    }, [error]);
-
-    async function handleTaxUpload() {
-        return handleDocumentUpload('Tax Clearance', 'Tax Clearance', setTaxComplience, taxQuery);
-    }
-    async function handleCompanyReg() {
-        return handleDocumentUpload('Company Registration', 'Company Registration', setCompanyReg, companyQuery);
-    }
-    async function handleBeeCert() {
-        return handleDocumentUpload('BEE Certificate', 'BEE Certificate', setBeeCert, beeQuery);
-    }
-    async function handleProofAccredetation() {
-        return handleDocumentUpload('Accreditation', 'Accreditation', setAccredetation, accredQuery);
-    }
-    async function handleLetterCommitment() {
-        return handleDocumentUpload('Commitment', 'Commitment', setCommitmentLetter, commitQuery);
-    }
-
-    async function handleLearnerSchedule() {
-        return handleDocumentUpload('Schedule', 'Schedule', setLearnerSchedule, scheduleQuery);
-    }
-
-    async function handleOrgInterest() {
-        return handleDocumentUpload('Declaration', 'Declaration', setDeclarationInterest, declarationQuery);
-    }
-
-    async function handleBankDetails() {
-        return handleDocumentUpload('Bank Proof', 'Bank Proof', setBankDetails, bankProofQuery);
-    }
-
-    function getSelectedLabel(selectedId: string, dataArray: any[]) {
-        if (!selectedId) return undefined;
-        const selected = dataArray.find(item => item.key == selectedId);
-        return selected ? { key: selected.key, value: selected.value } : undefined;
-    }
-
-    // Initialize useGenerate hook with document upload status
-    const { generate } = useGenerate({
-        appId,
-        programmeType: getSelectedLabel(programmeType, projectTypes)?.value,
-        learningProgramme: getSelectedLabel(learningProgramme, focusAreas)?.value,
-        subCategory: getSelectedLabel(subCategory, adminCriteria)?.value,
-        intervention: getSelectedLabel(intervention, evalMethods)?.value,
-        costPerLearner: costPerLearner ? parseFloat(costPerLearner) : 0,
-        // Document upload status
-        taxCompliance: !!(taxComplience?.assets || getDocument(taxQuery)?.filename),
-        companyRegistration: !!(companyReg?.assets || getDocument(companyQuery)?.filename),
-        beeCertificate: !!(beeCert?.assets || getDocument(beeQuery)?.filename),
-        letterOfCommitment: !!(commitmentLetter?.assets || getDocument(commitQuery)?.filename),
-        proofOfAccreditation: !!(accredetation?.assets || getDocument(accredQuery)?.filename),
-        declarationOfInterest: !!(declarationInterest?.assets || getDocument(declarationQuery)?.filename),
-        proofOfBanking: !!(bankingDetailsProof?.assets || getDocument(bankProofQuery)?.filename),
-        referenceNumber: `DG-${appId}`,
-    });
-
-    const requiredDocuments = [
-        { name: 'Bank Proof', file: bankingDetailsProof, query: bankProofQuery },
-        { name: 'Company Registration', file: companyReg, query: companyQuery },
-        { name: 'BEE Certificate', file: beeCert, query: beeQuery },
-        { name: 'Declaration', file: declarationInterest, query: declarationQuery },
-        { name: 'Tax Clearance', file: taxComplience, query: taxQuery }
-    ];
-
-    // Check if document is uploaded (either newly or previously)
-    const isDocumentUploaded = (doc: any) => {
-        return doc.file?.assets || getDocument(doc.query)?.filename;
-    };
-
-    const missingDocuments = requiredDocuments.filter(doc => !isDocumentUploaded(doc));
-    const allDocumentsUploaded = missingDocuments.length === 0;
-
-    const canProceedFromStep1 = () => {
-        return entries.length > 0;
-    };
-
-    const handleSaveApplication = async () => {
-        setProg(!expandProg); // Collapse programme section
-        setLoc(!expandLoc); // Collapse location section
-        setProv(!expandProv); // Collapse province section
-        if (!programmeType || !learningProgramme || !intervention) {
-            showToast({ message: "Please select Programme Type, Learning Programme, and Intervention", title: "Incomplete", type: "error", position: "top" });
-            return;
-        }
-        if (!selectedProvince || !selectedDistrict || !selectedMunicipality) {
-            showToast({ message: "Please select Province, District, and Municipality", title: "Incomplete", type: "error", position: "top" });
-            return;
-        }
-        if (!noContinuing || !noNew || !costPerLearner) {
-            showToast({ message: "Please fill all learner details", title: "Incomplete", type: "error", position: "top" });
-            return;
-        }
-
-        try {
-            const programTypeLabel = projectTypes.find(p => p.key === programmeType)?.value || programmeType;
-            const learningProgrammeLabel = focusAreas.find(f => f.key === learningProgramme)?.value || learningProgramme;
-            const subCategoryLabel = adminCriteria.find(a => a.key === subCategory)?.value || subCategory;
-            const interventionLabel = evalMethods.find(e => e.key === intervention)?.value || intervention;
-
-            // Use existing projectId - no need to create a new application
-            if (!projectId) {
-                throw new Error("Invalid project ID");
-            }
-
-            // Create the application details/entry for the existing project
-            const detailsPayload = {
-                projectId: parseInt(projectId),
-                projectTypeId: parseInt(programmeType),
-                focusAreaId: parseInt(learningProgramme),
-                subCategoryId: parseInt(subCategory),
-                interventionId: parseInt(intervention),
-                focusCritEvalId: parseInt(focusCritEvalId),
-                otherIntervention: "",
-                number_Continuing: parseInt(noContinuing),
-                number_New: parseInt(noNew),
-                costPerLearner: parseFloat(costPerLearner),
-                hdi: parseInt(noHDI) || 0,
-                female: parseInt(noFemale) || 0,
-                youth: parseInt(noYouth) || 0,
-                number_Disabled: parseInt(noDisabled) || 0,
-                rural: parseInt(noRural) || 0,
-                province: selectedProvince,
-                municipality: selectedMunicipality,
-                district: selectedDistrict,
-                focusarea: learningProgrammeLabel,
-                subcat: subCategoryLabel,
-                inter: interventionLabel,
-                userId: userId,
-            };
-
-            console.log("Creating application details with payload:", detailsPayload);
-            const detailsResult = await createEditApplicationDetails(detailsPayload).unwrap();
-
-            console.log("Application details response:", JSON.stringify(detailsResult, null, 2));
-
-            // If success is true, the record was created successfully
-            // Extract ID from result or generate one based on response
-            let detailsId = detailsResult?.result?.id ||
-                detailsResult?.id ||
-                detailsResult?.data?.id ||
-                detailsResult?.payload?.id;
-
-            // If no ID but success is true, generate a temporary unique ID
-            if (!detailsId && detailsResult?.success === true) {
-                detailsId = `${projectId}-${Date.now()}`;
-                console.log("Generated temporary ID:", detailsId);
-            }
-
-            if (!detailsId) {
-                console.error("Full response structure:", detailsResult);
-                console.error("Response keys:", Object.keys(detailsResult));
-                throw new Error(
-                    `Failed to create application entry: No ID returned from server. ` +
-                    `Server response: ${JSON.stringify(detailsResult)}`
-                );
-            }
-
-            const newEntry = {
-                id: detailsId.toString(),
-                // Store IDs for form repopulation
-                programmeTypeId: parseInt(programmeType),
-                learningProgrammeId: parseInt(learningProgramme),
-                subCategoryId: parseInt(subCategory),
-                interventionId: parseInt(intervention),
-                // Store labels for display
-                programType: programTypeLabel,
-                learningProgramme: learningProgrammeLabel,
-                subCategory: subCategoryLabel,
-                intervention: interventionLabel,
-                noContinuing: parseInt(noContinuing),
-                noNew: parseInt(noNew),
-                noFemale: parseInt(noFemale) || 0,
-                noHistoricallyDisadvantaged: parseInt(noHDI) || 0,
-                noYouth: parseInt(noYouth) || 0,
-                noDisabled: parseInt(noDisabled) || 0,
-                noRural: parseInt(noRural) || 0,
-                costPerLearner: parseFloat(costPerLearner),
-                province: selectedProvince,
-                district: selectedDistrict,
-                municipality: selectedMunicipality,
-                focusCritEvalId: parseInt(focusCritEvalId),
-            };
-
-            // Handle update or create
-            if (editingEntryId) {
-                // Update existing entry
-                setEntries(entries.map(e => e.id === editingEntryId ? newEntry : e));
-                setEditingEntryId(null);
-            } else {
-                // Create new entry
-                setEntries([...entries, newEntry]);
-            }
-
-            // Reset form
-            setProgrammeType("");
-            setLearningProgramme("");
-            setSubCategory("");
-            setFocusCritEvalId("");
-            setIntervention("");
-            setProvince("");
-            setSelectedDistrict("");
-            setSelectedMunipality("");
-            setNoContinuing("");
-            setNoNew("");
-            setNoFemale("");
-            setNoHDI("");
-            setNoYouth("");
-            setNoDisabled("");
-            setNoRural("");
-            setCostPerLearner("");
-            setDistrict([]);
-            setManucipality([]);
-
-            setProg(true); // Collapse programme section
-            setLoc(true); // Collapse location section
-            setProv(true); // Collapse province section
-
-            showToast({ message: editingEntryId ? "Application entry updated successfully" : "Application entry saved successfully", title: "Success", type: "success", position: "top" });
-        } catch (error: any) {
-            console.error("Full error object:", error);
-            console.error("Error data:", error?.data);
-
-            // Extract the most relevant error message
-            const errorMessage =
-                error?.data?.error?.message ||
-                error?.data?.message ||
-                error?.message ||
-                "Failed to save application entry";
-
-            showToast({
-                message: errorMessage,
-                title: "Error",
-                type: "error",
-                position: "top"
-            });
-        }
-    };
-
-    const handleEditEntry = (entry: any) => {
-        // Set programme type first - this will trigger focusAreas query
-        setProgrammeType(entry.programmeTypeId || "");
-
-        // Set all other form fields
-        setNoContinuing(entry.noContinuing?.toString() || "");
-        setNoNew(entry.noNew?.toString() || "");
-        setNoFemale(entry.noFemale?.toString() || "");
-        setNoHDI(entry.noHistoricallyDisadvantaged?.toString() || "");
-        setNoYouth(entry.noYouth?.toString() || "");
-        setNoDisabled(entry.noDisabled?.toString() || "");
-        setNoRural(entry.noRural?.toString() || "");
-        setCostPerLearner(entry.costPerLearner?.toString() || "");
-
-        setProvince(entry.province as Province || "");
-        setSelectedDistrict(entry.district || "");
-        setSelectedMunipality(entry.municipality || "");
-
-        // Set editing state - useEffect will handle the cascade
-        setEditingEntryId(entry.id);
-
-        // Expand all sections
-        setProg(false);
-        setLoc(false);
-        setProv(false);
-
-        showToast({ message: "Loading entry data...", title: "Edit Mode", type: "success", position: "top" });
-    };
-
-    const handleDeleteEntry = async (id: string) => {
-        try {
-            await deleteApplication({ id: parseInt(id), userId }).unwrap();
-            setEntries(entries.filter(e => e.id !== id));
-            showToast({ message: "Entry deleted successfully", title: "Success", type: "success", position: "top" });
-        } catch (error: any) {
-            console.log(error);
-            showToast({
-                message: error?.data?.error?.message || "Failed to delete entry",
-                title: "Error",
-                type: "error",
-                position: "top"
-            });
-        }
-    };
-
-    const canProceedFromStep2 = () => {
-        return missingDocuments.length === 0;
-    };
-
-    const handleNext = () => {
-        if (currentStep === 1 && !canProceedFromStep1()) {
-            showToast({ message: "Please fill all required fields in Step 1", title: "Incomplete", type: "error", position: "top" });
-            return;
-        }
-        if (currentStep === 2 && !canProceedFromStep2()) {
-            showToast({
-                message: `Missing required documents: ${missingDocuments.map(d => d.name).join(', ')}`,
-                title: "Upload Required Files",
-                type: "error",
-                position: "top"
-            });
-            return;
-        }
-        if (currentStep < 3) {
-            setCurrentStep(currentStep + 1);
-        }
-    };
-
-    const handlePrev = () => {
-        if (currentStep > 1) {
-            setCurrentStep(currentStep - 1);
-        }
-    };
-
-    async function handleApplicationFormUpload() {
-        return handleDocumentUpload('Signed Application', 'Signed Application', setApplicationForm, signedAppQuery);
-    }
-
-    const handleSubmitApplication = async () => {
-        // First check if signed application is uploaded (validsubmission check)
-        if (!applicationForm?.assets && !getDocument(signedAppQuery)?.filename) {
-            showToast({ message: "Please upload the signed application form", title: "Submission", type: "error", position: "top" });
-            return;
-        }
-
-        try {
-            // Step 1: Validate project submission
-            const validationResult = await validateProjectSubmission(appId).unwrap();
-            console.log("Validation result:", validationResult);
-
-            // Check if submission is valid
-            if (!validationResult.success) {
-                open(
-                    <WindowClose
-                        close={close}
-                        color={colors.red[900]}
-                        title="Window Closed"
-                        substitle="Grant Window Closed"
-                        message={validationResult.message || "The discretionary project window for this application has closed. Please try other applications."}
-                    />,
-                    { snapPoints: ["40%"] }
-                );
-                return;
-            }
-
-            // Step 2: Show confirmation dialog (like complete_capture)
-            // Note: You may want to add a proper confirmation dialog here
-
-            // Step 3: Submit application
-            const submitResult = await submitApplication({ projId: appId, userId }).unwrap();
-            console.log("Submit result:", submitResult);
-
-            // Show success message
-            showToast({
-                message: submitResult.message || "The application has been submitted successfully.",
-                title: "Success",
-                type: "success",
-                position: "top"
-            });
-
-            // TODO: Optionally navigate or refresh application status
-
-        } catch (error: any) {
-            console.error("Submission error:", error);
-            const errorMessage = error?.data?.error?.message || error?.message || "Failed to submit application";
-            showToast({ message: errorMessage, title: "Error", type: "error", position: "top" });
-        }
-    };
-
-    {/* Display Project Details when closed or not editable */ }
-
+    // Initialize the custom hook with application params
+    const {
+        // State
+        currentStep,
+        expandDocs,
+        expandProv,
+        expandProg,
+        expandLoc,
+        selectedProvince,
+        selectedDistrict,
+        selectedMunicipality,
+        district,
+        manucipality,
+        programmeType,
+        learningProgramme,
+        subCategory,
+        intervention,
+        noContinuing,
+        noNew,
+        noFemale,
+        noHDI,
+        noYouth,
+        noDisabled,
+        noRural,
+        costPerLearner,
+        entries,
+        editingEntryId,
+        applicationForm,
+        taxComplience,
+        companyReg,
+        beeCert,
+        accredetation,
+        commitmentLetter,
+        learnerSchedule,
+        declarationInterest,
+        bankingDetailsProof,
+
+        // Setters
+        setCurrentStep,
+        setDocs,
+        setProv,
+        setProg,
+        setLoc,
+        setProgrammeType,
+        setLearningProgramme,
+        setSubCategory,
+        setIntervention,
+
+        // Queries
+        projectTypes,
+        focusAreas,
+        adminCriteria,
+        evalMethods,
+        bankProofQuery,
+        beeQuery,
+        scheduleQuery,
+        declarationQuery,
+        signedAppQuery,
+        taxQuery,
+        accredQuery,
+        companyQuery,
+        commitQuery,
+
+        // Mutations
+        isSavingApplication,
+
+        // Computed values
+        projectClosureStatus,
+        provinceOptions,
+        districtOptions,
+        municipalityOptions,
+        missingDocuments,
+        allDocumentsUploaded,
+
+        // Handlers
+        handleProvChange,
+        handleDistrictChange,
+        handleMunicipalityChange,
+        handleTaxUpload,
+        handleCompanyReg,
+        handleBeeCert,
+        handleProofAccredetation,
+        handleLetterCommitment,
+        handleLearnerSchedule,
+        handleOrgInterest,
+        handleBankDetails,
+        handleEditEntry,
+        handleDeleteEntry,
+        handleNext,
+        handlePrev,
+        handleSubmitApplication,
+        handleSaveApplication,
+
+        // Helpers
+        getDocument,
+        getSelectedLabel,
+        generate,
+    } = useDg({ projectId: projectIdStr, appId, userId });
+
+    // Display read-only view if project is closed or not editable
     if (projectClosureStatus.isClosed || !projectClosureStatus.isEditable) {
         return (
             <ProjectDetailsItem projectId={appId} />
@@ -803,10 +198,9 @@ const DgApplicationDetails = () => {
                                         <SelectList
                                             setSelected={(val: any) => {
                                                 setSubCategory(val);
-                                                // Find and set focusCritEvalId from the selected admin criteria
                                                 const selectedCrit = adminCriteria.find(ac => ac.key === val);
                                                 if (selectedCrit?.focusCritEvalId) {
-                                                    setFocusCritEvalId(selectedCrit.focusCritEvalId.toString());
+                                                    setIntervention("");
                                                 }
                                                 setIntervention("");
                                             }}
@@ -828,63 +222,20 @@ const DgApplicationDetails = () => {
                                         />
                                     </Expandable>
 
-                                    {/* <Text variant='titleMedium' style={styles.title}>Capture Application</Text> */}
                                     <Expandable title='Learner Details' isExpanded={expandProv} onPress={() => setProv(!expandProv)}>
-
-                                        <RInput
-                                            placeholder='#Continuing'
-                                            keyboardType='number-pad'
-                                            value={noContinuing}
-                                            onChangeText={setNoContinuing}
-                                        />
-                                        <RInput
-                                            placeholder='#New'
-                                            keyboardType='number-pad'
-                                            value={noNew}
-                                            onChangeText={setNoNew}
-                                        />
-                                        <RInput
-                                            placeholder='#Female'
-                                            keyboardType='number-pad'
-                                            value={noFemale}
-                                            onChangeText={setNoFemale}
-                                        />
-                                        <RInput
-                                            placeholder='#HDI'
-                                            keyboardType='number-pad'
-                                            value={noHDI}
-                                            onChangeText={setNoHDI}
-                                        />
-                                        <RInput
-                                            placeholder='#Youth'
-                                            keyboardType='number-pad'
-                                            value={noYouth}
-                                            onChangeText={setNoYouth}
-                                        />
-                                        <RInput
-                                            placeholder='#Disabled'
-                                            keyboardType='number-pad'
-                                            value={noDisabled}
-                                            onChangeText={setNoDisabled}
-                                        />
-                                        <RInput
-                                            placeholder='#Rural'
-                                            keyboardType='number-pad'
-                                            value={noRural}
-                                            onChangeText={setNoRural}
-                                        />
-                                        <RInput
-                                            placeholder='#Cost Per learner'
-                                            keyboardType='numeric'
-                                            value={costPerLearner}
-                                            onChangeText={setCostPerLearner}
-                                        />
-
+                                        <RInput placeholder='#Continuing' keyboardType='number-pad' value={noContinuing} onChangeText={() => { }} />
+                                        <RInput placeholder='#New' keyboardType='number-pad' value={noNew} onChangeText={() => { }} />
+                                        <RInput placeholder='#Female' keyboardType='number-pad' value={noFemale} onChangeText={() => { }} />
+                                        <RInput placeholder='#HDI' keyboardType='number-pad' value={noHDI} onChangeText={() => { }} />
+                                        <RInput placeholder='#Youth' keyboardType='number-pad' value={noYouth} onChangeText={() => { }} />
+                                        <RInput placeholder='#Disabled' keyboardType='number-pad' value={noDisabled} onChangeText={() => { }} />
+                                        <RInput placeholder='#Rural' keyboardType='number-pad' value={noRural} onChangeText={() => { }} />
+                                        <RInput placeholder='#Cost Per learner' keyboardType='numeric' value={costPerLearner} onChangeText={() => { }} />
                                     </Expandable>
 
                                     <Expandable title='Project Location' isExpanded={expandLoc} onPress={() => setLoc(!expandLoc)}>
                                         <SelectList
-                                            setSelected={(val: any) => handleProvChange(val as Province)}
+                                            setSelected={(val: any) => handleProvChange(val)}
                                             data={provinceOptions}
                                             save="value"
                                             placeholder='Select Province'
@@ -893,7 +244,6 @@ const DgApplicationDetails = () => {
                                             dropdownStyles={styles.dropdown}
                                             defaultOption={selectedProvince ? { key: selectedProvince, value: selectedProvince } : undefined}
                                         />
-
                                         <SelectList
                                             setSelected={(val: any) => handleDistrictChange(val)}
                                             data={districtOptions}
@@ -904,7 +254,6 @@ const DgApplicationDetails = () => {
                                             dropdownStyles={styles.dropdown}
                                             defaultOption={selectedDistrict ? { key: selectedDistrict, value: selectedDistrict } : undefined}
                                         />
-
                                         <SelectList
                                             setSelected={(val: any) => handleMunicipalityChange(val)}
                                             data={municipalityOptions}
@@ -917,7 +266,6 @@ const DgApplicationDetails = () => {
                                         />
                                     </Expandable>
 
-                                    {/* Save Button */}
                                     <RButton
                                         onPressButton={handleSaveApplication}
                                         title={isSavingApplication ? 'Saving...' : editingEntryId ? 'Update Entry' : 'Save Application Entry'}
@@ -925,7 +273,6 @@ const DgApplicationDetails = () => {
                                         disabled={isSavingApplication}
                                     />
 
-                                    {/* Display Saved Entries */}
                                     {entries.length > 0 && (
                                         <>
                                             <Text variant='titleMedium' style={[styles.title, { marginTop: 20 }]}>Saved Entries</Text>
@@ -966,43 +313,36 @@ const DgApplicationDetails = () => {
                                                 {taxComplience && taxComplience.assets && <RUploadSuccess file={taxComplience} />}
                                                 {!taxComplience && getDocument(taxQuery)?.filename && <RUploadSuccessFile file={getDocument(taxQuery)?.filename} />}
                                             </View>
-
                                             <View>
                                                 <RUpload title='Company Registration' onPress={handleCompanyReg} />
                                                 {companyReg && companyReg.assets && <RUploadSuccess file={companyReg} />}
                                                 {!companyReg && getDocument(companyQuery)?.filename && <RUploadSuccessFile file={getDocument(companyQuery)?.filename} />}
                                             </View>
-
                                             <View>
                                                 <RUpload title='BEE Certificate' onPress={handleBeeCert} />
                                                 {beeCert && beeCert.assets && <RUploadSuccess file={beeCert} />}
                                                 {!beeCert && getDocument(beeQuery)?.filename && <RUploadSuccessFile file={getDocument(beeQuery)?.filename} />}
                                             </View>
-
                                             <View>
                                                 <RUpload title='Accreditation' onPress={handleProofAccredetation} />
                                                 {accredetation && accredetation.assets && <RUploadSuccess file={accredetation} />}
                                                 {!accredetation && getDocument(accredQuery)?.filename && <RUploadSuccessFile file={getDocument(accredQuery)?.filename} />}
                                             </View>
-
                                             <View>
                                                 <RUpload title='Commitment' onPress={handleLetterCommitment} />
                                                 {commitmentLetter && commitmentLetter.assets && <RUploadSuccess file={commitmentLetter} />}
                                                 {!commitmentLetter && getDocument(commitQuery)?.filename && <RUploadSuccessFile file={getDocument(commitQuery)?.filename} />}
                                             </View>
-
                                             <View>
                                                 <RUpload title='Schedule' onPress={handleLearnerSchedule} />
                                                 {learnerSchedule && learnerSchedule.assets && <RUploadSuccess file={learnerSchedule} />}
                                                 {!learnerSchedule && getDocument(scheduleQuery)?.filename && <RUploadSuccessFile file={getDocument(scheduleQuery)?.filename} />}
                                             </View>
-
                                             <View>
                                                 <RUpload title='Declaration' onPress={handleOrgInterest} />
                                                 {declarationInterest && declarationInterest.assets && <RUploadSuccess file={declarationInterest} />}
                                                 {!declarationInterest && getDocument(declarationQuery)?.filename && <RUploadSuccessFile file={getDocument(declarationQuery)?.filename} />}
                                             </View>
-
                                             <View>
                                                 <RUpload title='Bank Proof' onPress={handleBankDetails} />
                                                 {bankingDetailsProof && bankingDetailsProof.assets && <RUploadSuccess file={bankingDetailsProof} />}
@@ -1017,27 +357,24 @@ const DgApplicationDetails = () => {
                             {currentStep === 3 && (
                                 <>
                                     <MessageWrapper text="Ensure all uploaded documents are accurate and complete before submission." />
-
                                     <View style={styles.formSection}>
                                         <RButton
                                             onPressButton={generate}
                                             title='Download Application Form'
                                             styleBtn={styles.btnSecondary}
                                         />
-                                        <RUpload title='Upload Signed Application' onPress={handleApplicationFormUpload} />
+                                        <RUpload title='Upload Signed Application' onPress={() => handleTaxUpload()} />
                                         {applicationForm && applicationForm.assets && <RUploadSuccess file={applicationForm} />}
                                         {!applicationForm && getDocument(signedAppQuery)?.filename && <RUploadSuccessFile file={getDocument(signedAppQuery)?.filename} />}
                                     </View>
                                 </>
                             )}
 
-                            {/* Spacer for fixed buttons */}
                             <View style={{ height: 80 }} />
                         </>
                     )
                 }}
             />
-            {/* Navigation Icon Buttons - Fixed at Bottom */}
             <View style={styles.buttonContainer}>
                 <IconButton
                     icon="chevron-left"
@@ -1047,29 +384,27 @@ const DgApplicationDetails = () => {
                     disabled={currentStep === 1}
                 />
                 <Text variant='labelLarge' style={styles.stepText}>Step {currentStep} of 3</Text>
-
-                {
-                    currentStep === 3 ? (
-                        <Tooltip title="Submit Application">
-                            <IconButton
-                                icon={"check"}
-                                iconColor={colors.green[600]}
-                                size={32}
-                                onPress={handleSubmitApplication}
-                            />
-                        </Tooltip>
-                    ) : <IconButton
+                {currentStep === 3 ? (
+                    <Tooltip title="Submit Application">
+                        <IconButton
+                            icon={"check"}
+                            iconColor={colors.green[600]}
+                            size={32}
+                            onPress={handleSubmitApplication}
+                        />
+                    </Tooltip>
+                ) : (
+                    <IconButton
                         icon={"chevron-right"}
                         iconColor={colors.primary[900]}
                         size={32}
                         onPress={handleNext}
                     />
-                }
-
+                )}
             </View>
         </View>
     )
-
 }
 
-export default DgApplicationDetails
+export default DgApplicationDetails;
+
