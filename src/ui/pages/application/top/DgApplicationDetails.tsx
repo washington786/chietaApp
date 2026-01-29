@@ -16,7 +16,6 @@ import { RouteProp, useRoute } from '@react-navigation/native'
 import { navigationTypes } from '@/core/types/navigationTypes'
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store/store'
-import { generateApplicationPdf } from '@/core/helpers/pdfGenerator';
 import { useGlobalBottomSheet } from '@/hooks/navigation/BottomSheet'
 import ProjectDetailsItem from '@/components/modules/application/grants/ProjectDetailsItem'
 import useGenerate from '@/hooks/main/useGenerate';
@@ -24,6 +23,8 @@ import useGenerate from '@/hooks/main/useGenerate';
 const DgApplicationDetails = () => {
     const { appId: projectId } = useRoute<RouteProp<navigationTypes, "applicationDetails">>().params;
     const appId = parseInt(projectId as string || '0');
+
+    console.log('appId: ', appId);
 
     const user = useSelector((state: RootState) => state.auth.user);
     const userId = user?.id || 0;

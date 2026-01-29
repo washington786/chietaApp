@@ -36,12 +36,11 @@ const useGenerate = ({ appId, programmeType, learningProgramme, subCategory, int
     // Fetch physical address using organization ID
     const { data: physicalAddressData } = useGetOrganizationPhysicalAddressQuery(organizationId, { skip: !organizationId });
 
+    const { selectedProject } = useSelector((state: RootState) => state.discretionaryGrant);
 
     const { data: sdfData } = useGetPersonByUserIdQuery(user?.id, { skip: !user?.id });
 
     const { data: entries } = useGetDGProjectDetailsAppQuery(appId, { skip: !appId });
-
-    console.log('gms:', entries?.result?.items[0]);
 
     const generate = async () => {
         try {
@@ -58,7 +57,7 @@ const useGenerate = ({ appId, programmeType, learningProgramme, subCategory, int
             // Generate PDF with actual data and fallback to placeholders
             const templateData = {
                 reference: referenceNumber || '',
-                projectType: programmeType || '',
+                projectType: selectedProject?.projType || '',
                 organisation: {
                     organisationName: org?.organisation_Name || '',
                     tradingName: org?.organisation_Trading_Name || '',
