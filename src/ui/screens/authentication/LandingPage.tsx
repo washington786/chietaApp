@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef, useEffect } from "react";
 import {
   View,
   Text,
@@ -6,6 +6,10 @@ import {
   Linking,
   Image,
   TouchableOpacity,
+  ScrollView,
+  Dimensions,
+  StyleSheet,
+  Animated,
 } from "react-native";
 import { Ionicons as Icon } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
@@ -15,12 +19,43 @@ import EvilIcons from "@expo/vector-icons/EvilIcons";
 import { Text as RnText } from "react-native-paper";
 import { RCol, RRow } from "@/components/common";
 import colors from "@/config/colors";
-import { landing_styles as styles } from "@/styles/LandingStyles";
 import { chatSquare, errorInspect } from "@/components/loadAssets";
+
+const { width } = Dimensions.get("window");
+const cardWidth = width < 350 ? width - 40 : 140; // smaller cards for mobile
 
 export default function LandingScreen() {
   const { login } = usePageTransition();
   const { open, close } = useGlobalBottomSheet();
+
+  // Animated values
+  const messageOpacity = useRef(new Animated.Value(0)).current;
+  const exploreTranslateY = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    // Fade in attention message
+    Animated.timing(messageOpacity, {
+      toValue: 1,
+      duration: 800,
+      useNativeDriver: true,
+    }).start();
+
+    // Bounce animation for explore icon
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(exploreTranslateY, {
+          toValue: 6,
+          duration: 500,
+          useNativeDriver: true,
+        }),
+        Animated.timing(exploreTranslateY, {
+          toValue: 0,
+          duration: 500,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+  }, []);
 
   function openInfoSheet() {
     open(<ChatBot close={close} />, { snapPoints: ["50%"] });
@@ -28,24 +63,36 @@ export default function LandingScreen() {
 
   return (
     <LinearGradient
-      colors={[colors.secondary[300] || "#fff6eb", "#fff6eb", colors.primary[700] || "#6d28d9", "#fff6eb"]}
-      start={{ x: 0.5, y: 0 }}
-      end={{ x: 0.5, y: 1 }}
+      colors={["#ffffff", "#f7f5fc", "#e6e0f8"]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 0, y: 1 }}
       style={styles.container}
     >
-      <View style={{ flex: 1 }}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
         {/* Logo */}
         <Image
           source={require("../../../../assets/logov2.png")}
           style={styles.logo}
           resizeMode="contain"
         />
-      </View>
 
-      <View style={{ flex: 2 }}>
-        {/* Heading */}
-        <Text style={styles.title}>Welcome to CHIETA</Text>
-        <Text style={styles.subtitle}>Select a service to continue</Text>
+        {/* Wrapped Heading */}
+        <Text style={styles.title}>
+          Welcome to{"\n"}CHIETA Portal
+        </Text>
+
+        {/* One-line attention message */}
+        <Animated.Text style={[styles.attentionMessage, { opacity: messageOpacity }]}>
+          Discover Jobs, Grants & Skills – All in One App!
+        </Animated.Text>
+
+        {/* Smaller animated "Explore" Icon */}
+        <Animated.View style={{ transform: [{ translateY: exploreTranslateY }] }}>
+          <Icon name="chevron-down" size={24} color={colors.primary[700] || "#6d28d9"} />
+        </Animated.View>
 
         {/* Cards */}
         <View style={styles.grid}>
@@ -54,10 +101,11 @@ export default function LandingScreen() {
             title="Careers"
             badge="Visit Website"
             desc="Jobs & Opportunities"
-            onPress={() => Linking.openURL("https://chieta.org.za/careers/vacancies/")}
+            onPress={() =>
+              Linking.openURL("https://chieta.org.za/careers/vacancies/")
+            }
             color={colors.primary[700] || "#6d28d9"}
           />
-
           <Card
             icon="bulb"
             title="SSC"
@@ -68,7 +116,6 @@ export default function LandingScreen() {
             }
             color={colors.primary[700] || "#6d28d9"}
           />
-
           <Card
             icon="business"
             title="IMS"
@@ -77,7 +124,6 @@ export default function LandingScreen() {
             onPress={login}
             color={colors.primary[700] || "#6d28d9"}
           />
-
           <Card
             icon="school"
             title="SSDD"
@@ -87,33 +133,49 @@ export default function LandingScreen() {
             color="#9ca3af"
           />
         </View>
-      </View>
+      </ScrollView>
 
-      <View style={{ flex: 1 }}>
+      {/* Footer */}
+      <View style={styles.footerContainer}>
         <Text style={styles.footer}>
           &copy; {new Date().getFullYear()} CHIETA. All rights reserved.
         </Text>
-        {/* Floating action button */}
-        <TouchableOpacity style={styles.fab} onPress={openInfoSheet}>
-          <Icon name="chatbubble-ellipses" size={26} color="white" />
-        </TouchableOpacity>
       </View>
 
-
+      {/* Floating action button */}
+      <TouchableOpacity style={styles.fab} onPress={openInfoSheet}>
+        <Icon name="chatbubble-ellipses" size={26} color="white" />
+      </TouchableOpacity>
     </LinearGradient>
   );
 }
 
-// Reusable card component
-function Card({ icon, title, badge, desc, onPress, disabled = false, color }: { icon: keyof typeof Icon.glyphMap; title: string; badge: string; desc: string; onPress?: () => void; disabled?: boolean; color: string }) {
+// Reusable Card component
+function Card({
+  icon,
+  title,
+  badge,
+  desc,
+  onPress,
+  disabled = false,
+  color,
+}: {
+  icon: keyof typeof Icon.glyphMap;
+  title: string;
+  badge: string;
+  desc: string;
+  onPress?: () => void;
+  disabled?: boolean;
+  color: string;
+}) {
   return (
     <Pressable
-      style={[styles.card, disabled && styles.cardDisabled]}
+      style={[styles.card, { width: cardWidth }, disabled && styles.cardDisabled]}
       onPress={!disabled ? onPress : undefined}
     >
       <Icon
         name={icon}
-        size={32}
+        size={26}
         color={disabled ? "#9ca3af" : color}
         style={styles.icon}
       />
@@ -135,7 +197,7 @@ function Card({ icon, title, badge, desc, onPress, disabled = false, color }: { 
   );
 }
 
-// ChatBot bottom sheet content (kept simple)
+// ChatBot bottom sheet
 function ChatBot({ close }: { close: () => void }) {
   return (
     <View style={{ flex: 1, backgroundColor: "white", padding: 16 }}>
@@ -143,7 +205,7 @@ function ChatBot({ close }: { close: () => void }) {
         style={{
           justifyContent: "space-between",
           alignItems: "center",
-          marginBottom: 24
+          marginBottom: 24,
         }}
       >
         <View style={{ flexDirection: "row", alignItems: "center", gap: 4 }}>
@@ -172,3 +234,114 @@ function ChatBot({ close }: { close: () => void }) {
     </View>
   );
 }
+
+// Styles
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  scrollContent: {
+    alignItems: "center",
+    paddingTop: 40,
+    paddingHorizontal: 16,
+    paddingBottom: 20,
+  },
+  logo: {
+    width: 220,
+    height: 120, // slightly smaller
+    marginBottom: 16,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: "800",
+    textAlign: "center",
+    color: colors.primary[700] || "#6d28d9",
+    lineHeight: 34,
+    marginBottom: 8,
+    letterSpacing: 1,
+  },
+  attentionMessage: {
+    fontSize: 14, // smaller message text
+    fontWeight: "600",
+    color: colors.secondary[700] || "#f97316",
+    textAlign: "center",
+    marginBottom: 6,
+    lineHeight: 20,
+  },
+  grid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "center",
+    gap: 10,
+    marginTop: 16,
+  },
+  card: {
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    padding: 10,
+    marginBottom: 12,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 4,
+  },
+  cardDisabled: {
+    opacity: 0.6,
+  },
+  icon: {
+    marginBottom: 6,
+  },
+  cardTitle: {
+    fontSize: 13,
+    fontWeight: "600",
+    marginBottom: 4,
+    textAlign: "center",
+    color: "#111827",
+  },
+  cardTitleDisabled: {
+    color: "#9ca3af",
+  },
+  badge: {
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 8,
+    marginBottom: 4,
+  },
+  badgeText: {
+    fontSize: 10,
+    color: "#111827",
+  },
+  cardDesc: {
+    fontSize: 11,
+    textAlign: "center",
+    color: "#6b7280",
+  },
+  cardDescDisabled: {
+    color: "#9ca3af",
+  },
+  footerContainer: {
+    paddingVertical: 16,
+    alignItems: "center",
+  },
+  footer: {
+    fontSize: 12,
+    color: "#9ca3af",
+    textAlign: "center",
+  },
+  fab: {
+    position: "absolute",
+    bottom: 20,
+    right: 20,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: colors.primary[700] || "#6d28d9",
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
+    elevation: 5,
+  },
+});

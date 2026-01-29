@@ -99,10 +99,10 @@ const useGenerate = ({ orgId, appId, programmeType, learningProgramme, subCatego
                     researchExportsQuestionnaire: researchExportsQuestionnaire ? 'Yes' : 'No',
                 },
                 signOff: {
-                    ceoName: '[CEO Name]',
-                    ceoDate: '[Date]',
-                    cfoName: '[CFO Name]',
-                    cfoDate: '[Date]',
+                    ceoName: dgOrgData?.result?.ceo?.name || '',
+                    ceoDate: new Date().toISOString(),
+                    cfoName: dgOrgData?.result?.cfo?.name || '',
+                    cfoDate: new Date().toISOString(),
                 },
                 generatedDate: new Date().toISOString(),
             };
