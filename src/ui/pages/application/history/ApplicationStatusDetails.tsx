@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native'
+import { Image, StyleSheet, TouchableOpacity, View } from 'react-native'
 import React, { useMemo } from 'react'
 import RHeader from '@/components/common/RHeader'
 import { RCol, RRow, Scroller } from '@/components/common'
@@ -10,6 +10,9 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { RouteProp, useRoute } from '@react-navigation/native'
 import { navigationTypes } from '@/core/types/navigationTypes'
 import { ProjectTimeline } from '@/core/models/DiscretionaryDto'
+import EvilIcons from "@expo/vector-icons/EvilIcons";
+import { chatSquare } from '@/components/loadAssets'
+import { useGlobalBottomSheet } from '@/hooks/navigation/BottomSheet'
 
 const ApplicationStatusDetails = () => {
 
@@ -67,6 +70,11 @@ const ApplicationStatusDetails = () => {
         year: "numeric"
     });
 
+    const { open, close } = useGlobalBottomSheet();
+
+    function handleAssistance() {
+        open(<ApplicationHelp close={close} />, { snapPoints: ["40%"] });
+    }
     return (
         <>
             <RHeader name='Track Application Status' />
@@ -119,10 +127,10 @@ const ApplicationStatusDetails = () => {
                     </RCol>
 
                     {/* Help Section */}
-                    <RRow style={styles.helpSection}>
+                    <TouchableOpacity style={styles.helpSection} onPress={handleAssistance}>
                         <Ionicons name="help-circle-outline" size={20} color={colors.slate[400]} />
                         <Text variant='bodySmall' style={styles.helpText}>Need assistance with your application?</Text>
-                    </RRow>
+                    </TouchableOpacity>
                 </RCol>
 
             </Scroller>
@@ -130,7 +138,57 @@ const ApplicationStatusDetails = () => {
     )
 }
 
+function ApplicationHelp({ close }: { close: () => void }) {
+    return (
+        <View style={{ flex: 1, backgroundColor: "white", padding: 16 }}>
+            <RRow
+                style={{
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    marginBottom: 24,
+                }}
+            >
+                <View style={{ flexDirection: "row", alignItems: "center", gap: 4 }}>
+                    <Image source={chatSquare} style={{ width: 20, height: 20 }} />
+                    <Text variant="titleMedium">Application Assistant</Text>
+                </View>
 
+                <TouchableOpacity onPress={close} style={{ backgroundColor: colors.slate[100], borderRadius: 100, padding: 4 }}>
+                    <EvilIcons name="close" size={32} color="black" />
+                </TouchableOpacity>
+            </RRow>
+
+            {/* Main Content */}
+            <RCol style={styles.helpContent}>
+                <Text
+                    variant="bodyMedium"
+                    style={styles.helpDescription}
+                >
+                    Please email us your questions or concerns regarding your application, and our dedicated support team will get back to you as soon as possible.
+                </Text>
+
+                {/* Email Card */}
+                <TouchableOpacity style={styles.emailCard}>
+                    <View style={styles.emailLeft}>
+                        <View style={styles.emailIcon}>
+                            <MaterialIcons name="mail-outline" size={24} color="white" />
+                        </View>
+                        <RCol style={{ gap: 2 }}>
+                            <Text variant="labelSmall" style={styles.emailLabel}>CONTACT EMAIL</Text>
+                            <Text variant="titleMedium" style={styles.emailAddress}>misqueries@chieta.org.za</Text>
+                        </RCol>
+                    </View>
+                </TouchableOpacity>
+
+                {/* Response Time Info */}
+                <RRow style={styles.responseInfo}>
+                    <View style={styles.responseDot} />
+                    <Text variant="bodySmall" style={styles.responseText}>Our team typically responds within 24 hours</Text>
+                </RRow>
+            </RCol>
+        </View>
+    );
+}
 
 const styles = StyleSheet.create({
     container: {
@@ -251,6 +309,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         gap: 8,
         paddingVertical: 16,
+        flexDirection: 'row',
     },
     helpText: {
         color: colors.slate[400],
@@ -316,6 +375,113 @@ const styles = StyleSheet.create({
         color: colors.primary[700],
         fontWeight: '700',
         fontSize: 22,
+    },
+    helpModal: {
+        flex: 1,
+        backgroundColor: colors.white,
+    },
+    helpHeader: {
+        backgroundColor: colors.primary[600],
+        paddingHorizontal: 20,
+        paddingVertical: 16,
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        borderBottomLeftRadius: 20,
+        borderBottomRightRadius: 20,
+    },
+    headerContent: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 12,
+        flex: 1,
+    },
+    headerIcon: {
+        width: 48,
+        height: 48,
+        borderRadius: 12,
+        backgroundColor: colors.primary[700],
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    headerTitle: {
+        color: colors.white,
+        fontWeight: '700',
+    },
+    headerSubtitle: {
+        color: colors.primary[100],
+        fontWeight: '500',
+    },
+    helpContent: {
+        flex: 1,
+        padding: 8,
+        gap: 20,
+    },
+    helpDescription: {
+        color: colors.gray[400],
+        lineHeight: 18,
+        fontWeight: '400',
+    },
+    emailCard: {
+        flexDirection: 'row',
+        backgroundColor: colors.primary[100],
+        borderRadius: 16,
+        padding: 8,
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        borderWidth: 1,
+        borderColor: colors.primary[200],
+    },
+    emailLeft: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 12,
+        flex: 1,
+    },
+    emailIcon: {
+        width: 48,
+        height: 48,
+        borderRadius: 12,
+        backgroundColor: colors.primary[600],
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    emailLabel: {
+        color: colors.primary[600],
+        fontWeight: '700',
+        fontSize: 10,
+        letterSpacing: 0.5,
+        textTransform: 'uppercase',
+    },
+    emailAddress: {
+        color: colors.slate[900],
+        fontWeight: '700',
+        fontSize: 14,
+    },
+    emailRight: {
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    tapLabel: {
+        color: colors.primary[600],
+        fontWeight: '700',
+        fontSize: 10,
+        letterSpacing: 0.3,
+        textTransform: 'uppercase',
+    },
+    responseInfo: {
+        alignItems: 'center',
+        gap: 8,
+        paddingVertical: 12,
+    },
+    responseDot: {
+        width: 8,
+        height: 8,
+        borderRadius: 4,
+        backgroundColor: colors.emerald[500],
+    },
+    responseText: {
+        color: colors.slate[600],
+        fontWeight: '500',
     }
 })
 
