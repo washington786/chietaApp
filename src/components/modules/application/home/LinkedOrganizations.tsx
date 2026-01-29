@@ -96,7 +96,12 @@ const LinkedOrganizations = () => {
                     onNewLinking={(selected) => handleOrgLinking(selected)}
                     onPress={(selectedOrg: OrganisationDto) => open(
                         <OrgDetails
-                            onDiscretionaryGrants={() => handleDiscretionaryGrants(selectedOrg)} onMandatoryGrants={() => handleMandatoryGrants(selectedOrg)} onDelink={handleDialog} orgName={`${selectedOrg.organisationTradingName}`} />, { snapPoints: ["50%"] })} isLinkingRequired={false}
+                            onDiscretionaryGrants={() => handleDiscretionaryGrants(selectedOrg)}
+                            onMandatoryGrants={() => handleMandatoryGrants(selectedOrg)}
+                            onDelink={handleDialog}
+                            onCancel={close}
+                            orgName={`${selectedOrg.organisationTradingName}`}
+                        />, { snapPoints: ["70%"] })} isLinkingRequired={false}
                     newOrgs={linkedOrganizations.filter(l => l.approvalStatus !== 'cancelled')}
                     isLinkingRequiredNew={true} />
             </RCol>
@@ -113,35 +118,66 @@ interface OrgDetailsProps {
     onMandatoryGrants?: () => void;
     onDelink?: () => void;
     orgName: string;
+    onCancel?: () => void;
 }
 
-export function OrgDetails({ onDelink, onMandatoryGrants, onDiscretionaryGrants, orgName }: OrgDetailsProps) {
-    return <RCol style={{ position: 'relative' }}>
-        <RRow style={{ alignItems: 'center', gap: 8 }}>
-            <MaterialCommunityIcons name="office-building" size={24} color="gray" />
-            <Text variant='headlineLarge'>{orgName}</Text>
-        </RRow>
-        <Text variant='titleLarge' style={{ fontSize: 11 }}>Select a grant type to view your applications</Text>
-        <TypeDetails title='Mandator grants' onpress={onMandatoryGrants} />
-        <TypeDetails title='Discretionary grants' onpress={onDiscretionaryGrants} />
+export function OrgDetails({ onDelink, onMandatoryGrants, onDiscretionaryGrants, orgName, onCancel }: OrgDetailsProps) {
+    return <RCol style={{ alignItems: 'center', paddingVertical: 20, paddingHorizontal: 10, gap: 16 }}>
+        {/* Header with org icon and name */}
+        <View style={{ alignItems: 'center', width: '100%', marginBottom: 8 }}>
+            <TouchableOpacity style={styles.delinkBtn} onPress={onDelink}>
+                <Text style={styles.delinkText}>Delink</Text>
+                <Feather name="x" size={18} color={colors.red[600]} />
+            </TouchableOpacity>
+            <View style={styles.iconContainer}>
+                <MaterialCommunityIcons name="office-building" size={40} color={colors.slate[300]} />
+            </View>
+            <Text variant='headlineMedium' style={{ marginTop: 12, fontWeight: '700' }}>{orgName}</Text>
+            <Text variant='bodySmall' style={{ color: colors.zinc[400], marginTop: 4, textAlign: 'center' }}>Select grant type to view and manage your active applications for this organization</Text>
+        </View>
 
-        <TouchableOpacity style={styles.delink} onPress={onDelink}>
-            <Feather name="link-2" size={16} color="white" style={{ marginLeft: 6 }} />
-            <Text variant='titleSmall' style={[styles.text, { textAlign: 'center', color: colors.slate[50] }]}>delink</Text>
+        {/* Grant type options */}
+        <View style={{ width: '100%', gap: 12 }}>
+            <TypeDetails
+                icon="file-document"
+                title='Mandatory Grants'
+                description='View and manage mandatory submissions'
+                onpress={onMandatoryGrants}
+            />
+            <TypeDetails
+                icon="folder-multiple"
+                title='Discretionary Grants'
+                description='Explore additional funding opportunities'
+                onpress={onDiscretionaryGrants}
+            />
+        </View>
+
+        {/* Cancel button */}
+        <TouchableOpacity style={styles.cancelBtn} onPress={onCancel}>
+            <Text style={styles.cancelText}>CANCEL</Text>
         </TouchableOpacity>
-
     </RCol>
 }
 
 interface TypeDetailsProps {
     title?: string;
+    description?: string;
+    icon?: string;
     onpress?: () => void;
 }
 
-function TypeDetails({ title, onpress }: TypeDetailsProps) {
-    return <TouchableOpacity style={[styles.detbtn, { justifyContent: 'space-between' }]} onPress={onpress}>
-        <Text variant='titleSmall' style={styles.text}>{title}</Text>
-        <Feather name="chevron-right" size={16} color="black" style={{ marginLeft: 6 }} />
+function TypeDetails({ title, description, icon = "file-document", onpress }: TypeDetailsProps) {
+    return <TouchableOpacity style={styles.grantBtn} onPress={onpress}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, gap: 12 }}>
+            <View style={styles.iconBg}>
+                <MaterialCommunityIcons name={icon as any} size={28} color={colors.primary[600]} />
+            </View>
+            <View style={{ flex: 1 }}>
+                <Text variant='titleMedium' style={{ fontWeight: '600', color: colors.slate[900] }}>{title}</Text>
+                <Text variant='bodySmall' style={{ color: colors.slate[400], marginTop: 2 }}>{description}</Text>
+            </View>
+        </View>
+        <Feather name="chevron-right" size={20} color={colors.slate[600]} />
     </TouchableOpacity>
 }
 
@@ -161,20 +197,66 @@ const styles = StyleSheet.create({
         flex: 1,
         textTransform: 'capitalize'
     },
-    detbtn: {
-        backgroundColor: colors.primary[200],
+    iconContainer: {
+        width: 80,
+        height: 80,
+        borderRadius: 40,
+        backgroundColor: colors.slate[100],
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    iconBg: {
+        width: 56,
+        height: 56,
+        borderRadius: 12,
+        backgroundColor: colors.primary[100],
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    grantBtn: {
+        backgroundColor: colors.slate[50],
         paddingHorizontal: 16,
-        paddingVertical: 14,
-        borderRadius: 10,
+        paddingVertical: 16,
+        borderRadius: 12,
         alignItems: "center",
         flexDirection: "row",
-        marginVertical: 3
+        borderWidth: 1,
+        borderColor: colors.slate[200],
+        gap: 8,
     },
-    delink: {
-        justifyContent: 'center', marginTop: 12, position: 'absolute', bottom: -70, right: 0, padding: 10, borderRadius: 100, backgroundColor: colors.red[600], alignItems: 'center'
+    delinkBtn: {
+        position: 'absolute',
+        top: 0,
+        right: 0,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+        paddingHorizontal: 10,
+        paddingVertical: 6,
+        borderWidth: 0.4,
+        borderColor: colors.red[300],
+        borderRadius: 20,
+    },
+    delinkText: {
+        color: colors.red[600],
+        fontSize: 12,
+        fontWeight: '600',
+    },
+    cancelBtn: {
+        width: '100%',
+        paddingVertical: 12,
+        borderRadius: 8,
+        alignItems: 'center',
+        marginTop: 12,
+    },
+    cancelText: {
+        color: colors.slate[400],
+        fontSize: 14,
+        fontWeight: '600',
+        textTransform: 'uppercase',
+        letterSpacing: 0.5,
     },
     linkedOrgsHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
     linkedOrgsTitle: { fontSize: 15, fontWeight: '600', color: '#222' },
     viewAll: { color: '#4F8CFF', fontWeight: '500' },
-
 });
