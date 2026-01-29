@@ -648,12 +648,13 @@ export const api = createApi({
         }),
         submitApplication: builder.mutation({
             query: ({ projId, userId }: { projId: number; userId: number }) => ({
-                url: `/api/services/app/DiscretionaryProject/SubmitApplication?ProjectId=${projId}&UserID=${userId}`,
+                url: `/api/services/app/DiscretionaryProject/SubmitApplication?id=${projId}&userid=${userId}`,
                 method: 'POST',
             }),
             transformResponse: (response: any) => ({
-                message: response?.result,
-                success: response?.success,
+                message: "Application submitted successfully",
+                success: response?.success === true,
+                data: response?.result,
             }),
             invalidatesTags: ['Grant'],
         }),

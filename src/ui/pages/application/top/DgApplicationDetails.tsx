@@ -663,27 +663,48 @@ const DgApplicationDetails = () => {
     }
 
     const handleSubmitApplication = async () => {
-        if (!applicationForm?.assets && !getDocument(signedAppQuery)) {
+        // First check if signed application is uploaded (validsubmission check)
+        if (!applicationForm?.assets && !getDocument(signedAppQuery)?.filename) {
             showToast({ message: "Please upload the signed application form", title: "Submission", type: "error", position: "top" });
             return;
         }
 
         try {
-            // Validate project submission
+            // Step 1: Validate project submission
             const validationResult = await validateProjectSubmission(appId).unwrap();
             console.log("Validation result:", validationResult);
 
             // Check if submission is valid
             if (!validationResult.success) {
-                open(<WindowClose close={close} color={colors.red[900]} title="Window Closed" substitle="Grant Window Closed" message={validationResult.message || "The discretionary project window for this application has closed. Please try other applications."} />, { snapPoints: ["40%"] });
+                open(
+                    <WindowClose 
+                        close={close} 
+                        color={colors.red[900]} 
+                        title="Window Closed" 
+                        substitle="Grant Window Closed" 
+                        message={validationResult.message || "The discretionary project window for this application has closed. Please try other applications."} 
+                    />, 
+                    { snapPoints: ["40%"] }
+                );
                 return;
             }
 
-            // If validation passed, proceed with actual submission
+            // Step 2: Show confirmation dialog (like complete_capture)
+            // Note: You may want to add a proper confirmation dialog here
+
+            // Step 3: Submit application
             const submitResult = await submitApplication({ projId: appId, userId }).unwrap();
             console.log("Submit result:", submitResult);
 
-            showToast({ message: submitResult.message || "Application submitted successfully", title: "Success", type: "success", position: "top" });
+            // Show success message
+            showToast({ 
+                message: submitResult.message || "The application has been submitted successfully.", 
+                title: "Success", 
+                type: "success", 
+                position: "top" 
+            });
+
+            // TODO: Optionally navigate or refresh application status
 
         } catch (error: any) {
             console.error("Submission error:", error);
