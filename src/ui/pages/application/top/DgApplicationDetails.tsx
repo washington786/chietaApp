@@ -232,7 +232,66 @@ const DgApplicationDetails = () => {
     );
 
     // Helper function to get document from RTK Query data
-    const getDocument = (query: any) => query.data?.result?.items?.[0]?.documents;
+    const getDocument = (query: any) => query.data?.result?.items?.[0]?.documents?.[0];
+
+    // Debug: Log document queries
+    useEffect(() => {
+        console.log('=== DOCUMENT QUERIES STATUS ===');
+        console.log('appId:', appId);
+        console.log('Tax Query - entityId:', appId, 'Loading:', taxQuery.isLoading, 'Has data:', !!taxQuery.data);
+        if (taxQuery.data) console.log('Tax Query data:', JSON.stringify(taxQuery.data, null, 2));
+        console.log('Company Query - entityId:', appId, 'Loading:', companyQuery.isLoading, 'Has data:', !!companyQuery.data);
+        if (companyQuery.data) console.log('Company Query data:', JSON.stringify(companyQuery.data, null, 2));
+        console.log('BEE Query - entityId:', appId, 'Loading:', beeQuery.isLoading, 'Has data:', !!beeQuery.data);
+        if (beeQuery.data) console.log('BEE Query data:', JSON.stringify(beeQuery.data, null, 2));
+        console.log('Bank Proof Query - entityId:', appId, 'Loading:', bankProofQuery.isLoading, 'Has data:', !!bankProofQuery.data);
+        if (bankProofQuery.data) console.log('Bank Proof Query data:', JSON.stringify(bankProofQuery.data, null, 2));
+    }, [appId, taxQuery.data, companyQuery.data, beeQuery.data, bankProofQuery.data]);
+
+    // Helper function to handle document uploads
+    const handleDocumentUpload = async (
+        fileName: string,
+        docType: string,
+        setDocumentState: (result: DocumentPickerResult) => void,
+        queryToRefetch: any
+    ) => {
+        try {
+            console.log(`=== ${fileName} UPLOAD START ===`);
+            console.log('userId:', userId);
+            console.log('appId:', appId);
+
+            const result = await pickDocument();
+            if (result && result.assets && result.assets[0]) {
+                console.log("Picked file:", result.assets[0]);
+
+                const uploadResult = await uploadProjectDocument({
+                    file: result.assets[0],
+                    docType,
+                    userId,
+                    appId
+                }).unwrap();
+
+                console.log(`${fileName} upload response:`, uploadResult);
+
+                setDocumentState(result);
+
+                // Refetch documents
+                console.log(`Refetching ${docType} documents...`);
+                console.log('Query metadata:', queryToRefetch);
+                console.log('Query request params:', queryToRefetch?.queryCacheKey);
+                const refetchResult = await queryToRefetch.refetch();
+                console.log(`Refetch result for ${docType}:`, JSON.stringify(refetchResult, null, 2));
+
+                showToast({ message: `${fileName} uploaded successfully`, title: "Success", type: "success", position: "top" });
+            }
+        } catch (error: any) {
+            console.error(`=== ${fileName} UPLOAD ERROR ===`);
+            console.error("Error:", error);
+
+            const errorMessage = error?.data?.message || error?.data?.error?.message || error?.message || "failed to upload document";
+            showToast({ message: errorMessage, title: "Upload", type: "error", position: "top" })
+        }
+    };
 
     function handleProvChange(val: Province) {
         setProvince(val)
@@ -284,170 +343,31 @@ const DgApplicationDetails = () => {
     }, [error]);
 
     async function handleTaxUpload() {
-        try {
-            const result = await pickDocument();
-            if (result && result.assets && result.assets[0]) {
-                console.log("Picked file:", result.assets[0]);
-                // Upload to server
-                const uploadResult = await uploadProjectDocument({
-                    file: result.assets[0],
-                    docType: 'Tax Clearance',
-                    userId,
-                    appId
-                }).unwrap();
-
-                console.log("Tax upload response:", uploadResult);
-                setTaxComplience(result);
-                showToast({ message: "Tax Clearance uploaded successfully", title: "Success", type: "success", position: "top" });
-            }
-        } catch (error: any) {
-            console.error("Tax upload error details:", JSON.stringify(error, null, 2));
-            console.error("Tax upload error:", error);
-            showToast({ message: "failed to upload document", title: "Upload", type: "error", position: "top" })
-        }
+        return handleDocumentUpload('Tax Clearance', 'Tax Clearance', setTaxComplience, taxQuery);
     }
     async function handleCompanyReg() {
-        try {
-            const result = await pickDocument();
-            if (result && result.assets && result.assets[0]) {
-                const uploadResult = await uploadProjectDocument({
-                    file: result.assets[0],
-                    docType: 'Company Registration',
-                    userId,
-                    appId
-                }).unwrap();
-
-                console.log("Company Reg upload response:", uploadResult);
-                setCompanyReg(result);
-                showToast({ message: "Company Registration uploaded successfully", title: "Success", type: "success", position: "top" });
-            }
-        } catch (error) {
-            console.error("Company Reg upload error:", error);
-            showToast({ message: "failed to upload document", title: "Upload", type: "error", position: "top" })
-        }
+        return handleDocumentUpload('Company Registration', 'Company Registration', setCompanyReg, companyQuery);
     }
     async function handleBeeCert() {
-        try {
-            const result = await pickDocument();
-            if (result && result.assets && result.assets[0]) {
-                const uploadResult = await uploadProjectDocument({
-                    file: result.assets[0],
-                    docType: 'BEE Certificate',
-                    userId,
-                    appId
-                }).unwrap();
-
-                console.log("BEE Cert upload response:", uploadResult);
-                setBeeCert(result);
-                showToast({ message: "BEE Certificate uploaded successfully", title: "Success", type: "success", position: "top" });
-            }
-        } catch (error) {
-            console.error("BEE Cert upload error:", error);
-            showToast({ message: "failed to upload document", title: "Upload", type: "error", position: "top" })
-        }
+        return handleDocumentUpload('BEE Certificate', 'BEE Certificate', setBeeCert, beeQuery);
     }
     async function handleProofAccredetation() {
-        try {
-            const result = await pickDocument();
-            if (result && result.assets && result.assets[0]) {
-                const uploadResult = await uploadProjectDocument({
-                    file: result.assets[0],
-                    docType: 'Accreditation',
-                    userId,
-                    appId
-                }).unwrap();
-
-                console.log("Accreditation upload response:", uploadResult);
-                setAccredetation(result);
-                showToast({ message: "Accreditation uploaded successfully", title: "Success", type: "success", position: "top" });
-            }
-        } catch (error) {
-            console.error("Accreditation upload error:", error);
-            showToast({ message: "failed to upload document", title: "Upload", type: "error", position: "top" })
-        }
+        return handleDocumentUpload('Accreditation', 'Accreditation', setAccredetation, accredQuery);
     }
     async function handleLetterCommitment() {
-        try {
-            const result = await pickDocument();
-            if (result && result.assets && result.assets[0]) {
-                const uploadResult = await uploadProjectDocument({
-                    file: result.assets[0],
-                    docType: 'Commitment',
-                    userId,
-                    appId
-                }).unwrap();
-
-                console.log("Commitment upload response:", uploadResult);
-                setCommitmentLetter(result);
-                showToast({ message: "Commitment uploaded successfully", title: "Success", type: "success", position: "top" });
-            }
-        } catch (error) {
-            console.error("Letter of Commitment upload error:", error);
-            showToast({ message: "failed to upload document", title: "Upload", type: "error", position: "top" })
-        }
+        return handleDocumentUpload('Commitment', 'Commitment', setCommitmentLetter, commitQuery);
     }
 
     async function handleLearnerSchedule() {
-        try {
-            const result = await pickDocument();
-            if (result && result.assets && result.assets[0]) {
-                const uploadResult = await uploadProjectDocument({
-                    file: result.assets[0],
-                    docType: 'Schedule',
-                    userId,
-                    appId
-                }).unwrap();
-
-                console.log("Schedule upload response:", uploadResult);
-                setLearnerSchedule(result);
-                showToast({ message: "Schedule uploaded successfully", title: "Success", type: "success", position: "top" });
-            }
-        } catch (error) {
-            console.error("Learner Schedule upload error:", error);
-            showToast({ message: "failed to upload document", title: "Upload", type: "error", position: "top" })
-        }
+        return handleDocumentUpload('Schedule', 'Schedule', setLearnerSchedule, scheduleQuery);
     }
 
     async function handleOrgInterest() {
-        try {
-            const result = await pickDocument();
-            if (result && result.assets && result.assets[0]) {
-                const uploadResult = await uploadProjectDocument({
-                    file: result.assets[0],
-                    docType: 'Declaration',
-                    userId,
-                    appId
-                }).unwrap();
-
-                console.log("Declaration upload response:", uploadResult);
-                setDeclarationInterest(result);
-                showToast({ message: "Declaration uploaded successfully", title: "Success", type: "success", position: "top" });
-            }
-        } catch (error) {
-            console.error("Organization Interest upload error:", error);
-            showToast({ message: "failed to upload document", title: "Upload", type: "error", position: "top" })
-        }
+        return handleDocumentUpload('Declaration', 'Declaration', setDeclarationInterest, declarationQuery);
     }
 
     async function handleBankDetails() {
-        try {
-            const result = await pickDocument();
-            if (result && result.assets && result.assets[0]) {
-                const uploadResult = await uploadProjectDocument({
-                    file: result.assets[0],
-                    docType: 'Bank Proof',
-                    userId,
-                    appId
-                }).unwrap();
-
-                console.log("Bank Proof upload response:", uploadResult);
-                setBankDetails(result);
-                showToast({ message: "Bank Proof uploaded successfully", title: "Success", type: "success", position: "top" });
-            }
-        } catch (error) {
-            console.error("Bank Details upload error:", error);
-            showToast({ message: "failed to upload document", title: "Upload", type: "error", position: "top" })
-        }
+        return handleDocumentUpload('Bank Proof', 'Bank Proof', setBankDetails, bankProofQuery);
     }
 
     function getSelectedLabel(selectedId: string, dataArray: any[]) {
@@ -732,24 +652,7 @@ const DgApplicationDetails = () => {
     };
 
     async function handleApplicationFormUpload() {
-        try {
-            const result = await pickDocument();
-            if (result && result.assets && result.assets[0]) {
-                const uploadResult = await uploadProjectDocument({
-                    file: result.assets[0],
-                    docType: 'Signed Application',
-                    userId,
-                    appId
-                }).unwrap();
-
-                console.log("Signed Application upload response:", uploadResult);
-                setApplicationForm(result);
-                showToast({ message: "Signed Application uploaded successfully", title: "Success", type: "success", position: "top" });
-            }
-        } catch (error) {
-            console.error("Application Form upload error:", error);
-            showToast({ message: "failed to upload document", title: "Upload", type: "error", position: "top" })
-        }
+        return handleDocumentUpload('Signed Application', 'Signed Application', setApplicationForm, signedAppQuery);
     }
 
     const handleSubmitApplication = async () => {
@@ -1015,49 +918,49 @@ const DgApplicationDetails = () => {
                                             <View>
                                                 <RUpload title='Tax Clearance' onPress={handleTaxUpload} />
                                                 {taxComplience && taxComplience.assets && <RUploadSuccess file={taxComplience} />}
-                                                {!taxComplience && getDocument(taxQuery) && <RUploadSuccessFile file={getDocument(taxQuery).filename} />}
+                                                {!taxComplience && getDocument(taxQuery) && <RUploadSuccessFile file={getDocument(taxQuery)?.filename} />}
                                             </View>
 
                                             <View>
                                                 <RUpload title='Company Registration' onPress={handleCompanyReg} />
                                                 {companyReg && companyReg.assets && <RUploadSuccess file={companyReg} />}
-                                                {!companyReg && getDocument(companyQuery) && <RUploadSuccessFile file={getDocument(companyQuery).filename} />}
+                                                {!companyReg && getDocument(companyQuery) && <RUploadSuccessFile file={getDocument(companyQuery)?.filename} />}
                                             </View>
 
                                             <View>
                                                 <RUpload title='BEE Certificate' onPress={handleBeeCert} />
                                                 {beeCert && beeCert.assets && <RUploadSuccess file={beeCert} />}
-                                                {!beeCert && getDocument(beeQuery) && <RUploadSuccessFile file={getDocument(beeQuery).filename} />}
+                                                {!beeCert && getDocument(beeQuery) && <RUploadSuccessFile file={getDocument(beeQuery)?.filename} />}
                                             </View>
 
                                             <View>
                                                 <RUpload title='Accreditation' onPress={handleProofAccredetation} />
                                                 {accredetation && accredetation.assets && <RUploadSuccess file={accredetation} />}
-                                                {!accredetation && getDocument(accredQuery) && <RUploadSuccessFile file={getDocument(accredQuery).filename} />}
+                                                {!accredetation && getDocument(accredQuery) && <RUploadSuccessFile file={getDocument(accredQuery)?.filename} />}
                                             </View>
 
                                             <View>
                                                 <RUpload title='Commitment' onPress={handleLetterCommitment} />
                                                 {commitmentLetter && commitmentLetter.assets && <RUploadSuccess file={commitmentLetter} />}
-                                                {!commitmentLetter && getDocument(commitQuery) && <RUploadSuccessFile file={getDocument(commitQuery).filename} />}
+                                                {!commitmentLetter && getDocument(commitQuery) && <RUploadSuccessFile file={getDocument(commitQuery)?.filename} />}
                                             </View>
 
                                             <View>
                                                 <RUpload title='Schedule' onPress={handleLearnerSchedule} />
                                                 {learnerSchedule && learnerSchedule.assets && <RUploadSuccess file={learnerSchedule} />}
-                                                {!learnerSchedule && getDocument(scheduleQuery) && <RUploadSuccessFile file={getDocument(scheduleQuery).filename} />}
+                                                {!learnerSchedule && getDocument(scheduleQuery) && <RUploadSuccessFile file={getDocument(scheduleQuery)?.filename} />}
                                             </View>
 
                                             <View>
                                                 <RUpload title='Declaration' onPress={handleOrgInterest} />
                                                 {declarationInterest && declarationInterest.assets && <RUploadSuccess file={declarationInterest} />}
-                                                {!declarationInterest && getDocument(declarationQuery) && <RUploadSuccessFile file={getDocument(declarationQuery).filename} />}
+                                                {!declarationInterest && getDocument(declarationQuery) && <RUploadSuccessFile file={getDocument(declarationQuery)?.filename} />}
                                             </View>
 
                                             <View>
                                                 <RUpload title='Bank Proof' onPress={handleBankDetails} />
                                                 {bankingDetailsProof && bankingDetailsProof.assets && <RUploadSuccess file={bankingDetailsProof} />}
-                                                {!bankingDetailsProof && getDocument(bankProofQuery) && <RUploadSuccessFile file={getDocument(bankProofQuery).filename} />}
+                                                {!bankingDetailsProof && getDocument(bankProofQuery) && <RUploadSuccessFile file={getDocument(bankProofQuery)?.filename} />}
                                             </View>
                                         </View>
                                     </Expandable>
@@ -1077,7 +980,7 @@ const DgApplicationDetails = () => {
                                         />
                                         <RUpload title='Upload Signed Application' onPress={handleApplicationFormUpload} />
                                         {applicationForm && applicationForm.assets && <RUploadSuccess file={applicationForm} />}
-                                        {!applicationForm && getDocument(signedAppQuery) && <RUploadSuccessFile file={getDocument(signedAppQuery).filename} />}
+                                        {!applicationForm && getDocument(signedAppQuery) && <RUploadSuccessFile file={getDocument(signedAppQuery)?.filename} />}
                                     </View>
                                 </>
                             )}
