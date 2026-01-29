@@ -174,9 +174,9 @@ const HomePage = () => {
         </View>
       </View>
 
-      <View style={styles.footer}>
+      {/* <View style={styles.footer}>
         <Text style={styles.footerText}>Last update: 29 Jan 2026</Text>
-      </View>
+      </View> */}
     </ScrollView>
   );
 };
