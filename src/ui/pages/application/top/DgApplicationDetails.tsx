@@ -10,7 +10,7 @@ import { SelectList } from 'react-native-dropdown-select-list'
 import { DocumentPickerResult } from 'expo-document-picker'
 import useDocumentPicker from '@/hooks/main/UseDocumentPicker'
 import { showToast } from '@/core'
-import { useGetProjectTypeQuery, useGetFocusAreaQuery, useGetAdminCritQuery, useGetEvalMethodsQuery, useDeleteApplicationMutation, useCreateEditApplicationDetailsMutation, useUploadProjectDocumentMutation, useGetDGProjectDetailsAppQuery, useGetDocumentsByEntityQuery, useValidateProjSubmissionMutation } from '@/store/api/api';
+import { useGetProjectTypeQuery, useGetFocusAreaQuery, useGetAdminCritQuery, useGetEvalMethodsQuery, useDeleteApplicationMutation, useCreateEditApplicationDetailsMutation, useUploadProjectDocumentMutation, useGetDGProjectDetailsAppQuery, useGetDocumentsByEntityQuery, useValidateProjSubmissionMutation, useSubmitApplicationMutation } from '@/store/api/api';
 import { dg_styles as styles } from '@/styles/DgStyles';
 import { RouteProp, useRoute } from '@react-navigation/native'
 import { navigationTypes } from '@/core/types/navigationTypes'
@@ -24,10 +24,8 @@ const DgApplicationDetails = () => {
     const { appId: projectId } = useRoute<RouteProp<navigationTypes, "applicationDetails">>().params;
     const appId = parseInt(projectId as string || '0');
 
-    console.log('appId: ', appId);
-
     const user = useSelector((state: RootState) => state.auth.user);
-    const userId = user?.id || 0;
+    const userId = typeof user?.id === 'string' ? parseInt(user.id) : (user?.id || 0);
     const isClosed = useSelector((state: RootState) => state.discretionaryGrant.isProjectClosed);
 
     const { open, close } = useGlobalBottomSheet();
@@ -41,8 +39,9 @@ const DgApplicationDetails = () => {
 
     const [uploadProjectDocument] = useUploadProjectDocumentMutation();
 
-    // Validation mutation
+    // Validation and submission mutations
     const [validateProjectSubmission] = useValidateProjSubmissionMutation();
+    const [submitApplication] = useSubmitApplicationMutation();
 
     const [currentStep, setCurrentStep] = useState(1);
     const [expandDocs, setDocs] = useState(false);
@@ -232,16 +231,24 @@ const DgApplicationDetails = () => {
     );
 
     // Helper function to get document from RTK Query data
-    const getDocument = (query: any) => query.data?.result?.items?.[0]?.documents?.[0];
+    const getDocument = (query: any) => query.data?.result?.items?.[0]?.documents;
 
     // Debug: Log document queries
     useEffect(() => {
         console.log('=== DOCUMENT QUERIES STATUS ===');
         console.log('appId:', appId);
         console.log('Tax Query - entityId:', appId, 'Loading:', taxQuery.isLoading, 'Has data:', !!taxQuery.data);
-        if (taxQuery.data) console.log('Tax Query data:', JSON.stringify(taxQuery.data, null, 2));
+        if (taxQuery.data) {
+            console.log('Tax Query raw data:', JSON.stringify(taxQuery.data, null, 2));
+            console.log('Tax Query - getDocument result:', getDocument(taxQuery));
+            console.log('Tax Query - getDocument[0]:', getDocument(taxQuery)?.[0]);
+        }
         console.log('Company Query - entityId:', appId, 'Loading:', companyQuery.isLoading, 'Has data:', !!companyQuery.data);
-        if (companyQuery.data) console.log('Company Query data:', JSON.stringify(companyQuery.data, null, 2));
+        if (companyQuery.data) {
+            console.log('Company Query raw data:', JSON.stringify(companyQuery.data, null, 2));
+            console.log('Company Query - getDocument result:', getDocument(companyQuery));
+            console.log('Company Query - getDocument[0]:', getDocument(companyQuery)?.[0]);
+        }
         console.log('BEE Query - entityId:', appId, 'Loading:', beeQuery.isLoading, 'Has data:', !!beeQuery.data);
         if (beeQuery.data) console.log('BEE Query data:', JSON.stringify(beeQuery.data, null, 2));
         console.log('Bank Proof Query - entityId:', appId, 'Loading:', bankProofQuery.isLoading, 'Has data:', !!bankProofQuery.data);
@@ -385,13 +392,13 @@ const DgApplicationDetails = () => {
         intervention: getSelectedLabel(intervention, evalMethods)?.value,
         costPerLearner: costPerLearner ? parseFloat(costPerLearner) : 0,
         // Document upload status
-        taxCompliance: !!(taxComplience?.assets || getDocument(taxQuery)),
-        companyRegistration: !!(companyReg?.assets || getDocument(companyQuery)),
-        beeCertificate: !!(beeCert?.assets || getDocument(beeQuery)),
-        letterOfCommitment: !!(commitmentLetter?.assets || getDocument(commitQuery)),
-        proofOfAccreditation: !!(accredetation?.assets || getDocument(accredQuery)),
-        declarationOfInterest: !!(declarationInterest?.assets || getDocument(declarationQuery)),
-        proofOfBanking: !!(bankingDetailsProof?.assets || getDocument(bankProofQuery)),
+        taxCompliance: !!(taxComplience?.assets || getDocument(taxQuery)?.filename),
+        companyRegistration: !!(companyReg?.assets || getDocument(companyQuery)?.filename),
+        beeCertificate: !!(beeCert?.assets || getDocument(beeQuery)?.filename),
+        letterOfCommitment: !!(commitmentLetter?.assets || getDocument(commitQuery)?.filename),
+        proofOfAccreditation: !!(accredetation?.assets || getDocument(accredQuery)?.filename),
+        declarationOfInterest: !!(declarationInterest?.assets || getDocument(declarationQuery)?.filename),
+        proofOfBanking: !!(bankingDetailsProof?.assets || getDocument(bankProofQuery)?.filename),
         referenceNumber: `DG-${appId}`,
     });
 
@@ -405,7 +412,7 @@ const DgApplicationDetails = () => {
 
     // Check if document is uploaded (either newly or previously)
     const isDocumentUploaded = (doc: any) => {
-        return doc.file?.assets || getDocument(doc.query);
+        return doc.file?.assets || getDocument(doc.query)?.filename;
     };
 
     const missingDocuments = requiredDocuments.filter(doc => !isDocumentUploaded(doc));
@@ -665,18 +672,22 @@ const DgApplicationDetails = () => {
             // Validate project submission
             const validationResult = await validateProjectSubmission(appId).unwrap();
             console.log("Validation result:", validationResult);
+
             // Check if submission is valid
             if (!validationResult.success) {
                 open(<WindowClose close={close} color={colors.red[900]} title="Window Closed" substitle="Grant Window Closed" message={validationResult.message || "The discretionary project window for this application has closed. Please try other applications."} />, { snapPoints: ["40%"] });
                 return;
             }
 
-            // If validation passed, proceed with submission
-            showToast({ message: "Application submitted successfully", title: "Success", type: "success", position: "top" });
+            // If validation passed, proceed with actual submission
+            const submitResult = await submitApplication({ projId: appId, userId }).unwrap();
+            console.log("Submit result:", submitResult);
+
+            showToast({ message: submitResult.message || "Application submitted successfully", title: "Success", type: "success", position: "top" });
 
         } catch (error: any) {
-            console.error("Validation error:", error);
-            const errorMessage = error?.data?.error?.message || error?.message || "Failed to validate application";
+            console.error("Submission error:", error);
+            const errorMessage = error?.data?.error?.message || error?.message || "Failed to submit application";
             showToast({ message: errorMessage, title: "Error", type: "error", position: "top" });
         }
     };
@@ -918,49 +929,49 @@ const DgApplicationDetails = () => {
                                             <View>
                                                 <RUpload title='Tax Clearance' onPress={handleTaxUpload} />
                                                 {taxComplience && taxComplience.assets && <RUploadSuccess file={taxComplience} />}
-                                                {!taxComplience && getDocument(taxQuery) && <RUploadSuccessFile file={getDocument(taxQuery)?.filename} />}
+                                                {!taxComplience && getDocument(taxQuery)?.filename && <RUploadSuccessFile file={getDocument(taxQuery)?.filename} />}
                                             </View>
 
                                             <View>
                                                 <RUpload title='Company Registration' onPress={handleCompanyReg} />
                                                 {companyReg && companyReg.assets && <RUploadSuccess file={companyReg} />}
-                                                {!companyReg && getDocument(companyQuery) && <RUploadSuccessFile file={getDocument(companyQuery)?.filename} />}
+                                                {!companyReg && getDocument(companyQuery)?.filename && <RUploadSuccessFile file={getDocument(companyQuery)?.filename} />}
                                             </View>
 
                                             <View>
                                                 <RUpload title='BEE Certificate' onPress={handleBeeCert} />
                                                 {beeCert && beeCert.assets && <RUploadSuccess file={beeCert} />}
-                                                {!beeCert && getDocument(beeQuery) && <RUploadSuccessFile file={getDocument(beeQuery)?.filename} />}
+                                                {!beeCert && getDocument(beeQuery)?.filename && <RUploadSuccessFile file={getDocument(beeQuery)?.filename} />}
                                             </View>
 
                                             <View>
                                                 <RUpload title='Accreditation' onPress={handleProofAccredetation} />
                                                 {accredetation && accredetation.assets && <RUploadSuccess file={accredetation} />}
-                                                {!accredetation && getDocument(accredQuery) && <RUploadSuccessFile file={getDocument(accredQuery)?.filename} />}
+                                                {!accredetation && getDocument(accredQuery)?.filename && <RUploadSuccessFile file={getDocument(accredQuery)?.filename} />}
                                             </View>
 
                                             <View>
                                                 <RUpload title='Commitment' onPress={handleLetterCommitment} />
                                                 {commitmentLetter && commitmentLetter.assets && <RUploadSuccess file={commitmentLetter} />}
-                                                {!commitmentLetter && getDocument(commitQuery) && <RUploadSuccessFile file={getDocument(commitQuery)?.filename} />}
+                                                {!commitmentLetter && getDocument(commitQuery)?.filename && <RUploadSuccessFile file={getDocument(commitQuery)?.filename} />}
                                             </View>
 
                                             <View>
                                                 <RUpload title='Schedule' onPress={handleLearnerSchedule} />
                                                 {learnerSchedule && learnerSchedule.assets && <RUploadSuccess file={learnerSchedule} />}
-                                                {!learnerSchedule && getDocument(scheduleQuery) && <RUploadSuccessFile file={getDocument(scheduleQuery)?.filename} />}
+                                                {!learnerSchedule && getDocument(scheduleQuery)?.filename && <RUploadSuccessFile file={getDocument(scheduleQuery)?.filename} />}
                                             </View>
 
                                             <View>
                                                 <RUpload title='Declaration' onPress={handleOrgInterest} />
                                                 {declarationInterest && declarationInterest.assets && <RUploadSuccess file={declarationInterest} />}
-                                                {!declarationInterest && getDocument(declarationQuery) && <RUploadSuccessFile file={getDocument(declarationQuery)?.filename} />}
+                                                {!declarationInterest && getDocument(declarationQuery)?.filename && <RUploadSuccessFile file={getDocument(declarationQuery)?.filename} />}
                                             </View>
 
                                             <View>
                                                 <RUpload title='Bank Proof' onPress={handleBankDetails} />
                                                 {bankingDetailsProof && bankingDetailsProof.assets && <RUploadSuccess file={bankingDetailsProof} />}
-                                                {!bankingDetailsProof && getDocument(bankProofQuery) && <RUploadSuccessFile file={getDocument(bankProofQuery)?.filename} />}
+                                                {!bankingDetailsProof && getDocument(bankProofQuery)?.filename && <RUploadSuccessFile file={getDocument(bankProofQuery)?.filename} />}
                                             </View>
                                         </View>
                                     </Expandable>
@@ -980,7 +991,7 @@ const DgApplicationDetails = () => {
                                         />
                                         <RUpload title='Upload Signed Application' onPress={handleApplicationFormUpload} />
                                         {applicationForm && applicationForm.assets && <RUploadSuccess file={applicationForm} />}
-                                        {!applicationForm && getDocument(signedAppQuery) && <RUploadSuccessFile file={getDocument(signedAppQuery)?.filename} />}
+                                        {!applicationForm && getDocument(signedAppQuery)?.filename && <RUploadSuccessFile file={getDocument(signedAppQuery)?.filename} />}
                                     </View>
                                 </>
                             )}
