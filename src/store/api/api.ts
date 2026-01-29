@@ -646,6 +646,17 @@ export const api = createApi({
             }),
             invalidatesTags: ['Grant'],
         }),
+        submitApplication: builder.mutation({
+            query: ({ projId, userId }: { projId: number; userId: number }) => ({
+                url: `/api/services/app/DiscretionaryProject/SubmitApplication?ProjectId=${projId}&UserID=${userId}`,
+                method: 'POST',
+            }),
+            transformResponse: (response: any) => ({
+                message: response?.result,
+                success: response?.success,
+            }),
+            invalidatesTags: ['Grant'],
+        }),
     }),
 })
 
@@ -709,4 +720,5 @@ export const {
     useGetOrgSdfByOrgQuery,
     useLazyGetOrgSdfByOrgQuery,
     useValidateProjSubmissionMutation,
+    useSubmitApplicationMutation,
 } = api
