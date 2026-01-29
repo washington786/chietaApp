@@ -19,6 +19,7 @@ import { RootState } from '@/store/store'
 import { generateApplicationPdf } from '@/core/helpers/pdfGenerator';
 import { useGlobalBottomSheet } from '@/hooks/navigation/BottomSheet'
 import ProjectDetailsItem from '@/components/modules/application/grants/ProjectDetailsItem'
+import useGenerate from '@/hooks/main/useGenerate';
 
 const DgApplicationDetails = () => {
     const { appId: projectId } = useRoute<RouteProp<navigationTypes, "applicationDetails">>().params;
@@ -184,40 +185,48 @@ const DgApplicationDetails = () => {
     }, [dgProjectDetailsApp]);
 
     // Fetch documents using RTK Query
+    const bankProofQuery = useGetDocumentsByEntityQuery(
+        { entityId: appId, module: 'Projects', documentType: 'Bank Proof' },
+        { skip: !appId }
+    );
+    const beeQuery = useGetDocumentsByEntityQuery(
+        { entityId: appId, module: 'Projects', documentType: 'BEE Certificate' },
+        { skip: !appId }
+    );
+    const scheduleQuery = useGetDocumentsByEntityQuery(
+        { entityId: appId, module: 'Projects', documentType: 'Schedule' },
+        { skip: !appId }
+    );
+    const declarationQuery = useGetDocumentsByEntityQuery(
+        { entityId: appId, module: 'Projects', documentType: 'Declaration' },
+        { skip: !appId }
+    );
+    const workplaceQuery = useGetDocumentsByEntityQuery(
+        { entityId: appId, module: 'Projects', documentType: 'Workplace Approval' },
+        { skip: !appId }
+    );
+    const signedAppQuery = useGetDocumentsByEntityQuery(
+        { entityId: appId, module: 'Projects', documentType: 'Signed Application' },
+        { skip: !appId }
+    );
     const taxQuery = useGetDocumentsByEntityQuery(
-        { entityId: appId, module: 'Projects', documentType: 'Tax Compliance' },
+        { entityId: appId, module: 'Projects', documentType: 'Tax Clearance' },
+        { skip: !appId }
+    );
+    const accredQuery = useGetDocumentsByEntityQuery(
+        { entityId: appId, module: 'Projects', documentType: 'Accreditation' },
+        { skip: !appId }
+    );
+    const proposalQuery = useGetDocumentsByEntityQuery(
+        { entityId: appId, module: 'Projects', documentType: 'Proposal' },
         { skip: !appId }
     );
     const companyQuery = useGetDocumentsByEntityQuery(
         { entityId: appId, module: 'Projects', documentType: 'Company Registration' },
         { skip: !appId }
     );
-    const beeQuery = useGetDocumentsByEntityQuery(
-        { entityId: appId, module: 'Projects', documentType: 'BBBEE Certificate' },
-        { skip: !appId }
-    );
-    const accredQuery = useGetDocumentsByEntityQuery(
-        { entityId: appId, module: 'Projects', documentType: 'Proof of Accreditation' },
-        { skip: !appId }
-    );
     const commitQuery = useGetDocumentsByEntityQuery(
-        { entityId: appId, module: 'Projects', documentType: 'Letter of Commitment' },
-        { skip: !appId }
-    );
-    const learnerQuery = useGetDocumentsByEntityQuery(
-        { entityId: appId, module: 'Projects', documentType: 'Learner Schedule' },
-        { skip: !appId }
-    );
-    const orgQuery = useGetDocumentsByEntityQuery(
-        { entityId: appId, module: 'Projects', documentType: 'Organization Declaration of Interest' },
-        { skip: !appId }
-    );
-    const bankQuery = useGetDocumentsByEntityQuery(
-        { entityId: appId, module: 'Projects', documentType: 'Proof of Banking Details' },
-        { skip: !appId }
-    );
-    const appFormQuery = useGetDocumentsByEntityQuery(
-        { entityId: appId, module: 'Projects', documentType: 'Application Form' },
+        { entityId: appId, module: 'Projects', documentType: 'Commitment' },
         { skip: !appId }
     );
 
@@ -281,14 +290,14 @@ const DgApplicationDetails = () => {
                 // Upload to server
                 const uploadResult = await uploadProjectDocument({
                     file: result.assets[0],
-                    docType: 'Tax Compliance',
+                    docType: 'Tax Clearance',
                     userId,
                     appId
                 }).unwrap();
 
                 console.log("Tax upload response:", uploadResult);
                 setTaxComplience(result);
-                showToast({ message: "Tax Compliance uploaded successfully", title: "Success", type: "success", position: "top" });
+                showToast({ message: "Tax Clearance uploaded successfully", title: "Success", type: "success", position: "top" });
             }
         } catch (error: any) {
             console.error("Tax upload error details:", JSON.stringify(error, null, 2));
@@ -322,14 +331,14 @@ const DgApplicationDetails = () => {
             if (result && result.assets && result.assets[0]) {
                 const uploadResult = await uploadProjectDocument({
                     file: result.assets[0],
-                    docType: 'BBBEE Certificate',
+                    docType: 'BEE Certificate',
                     userId,
                     appId
                 }).unwrap();
 
                 console.log("BEE Cert upload response:", uploadResult);
                 setBeeCert(result);
-                showToast({ message: "BBBEE Certificate uploaded successfully", title: "Success", type: "success", position: "top" });
+                showToast({ message: "BEE Certificate uploaded successfully", title: "Success", type: "success", position: "top" });
             }
         } catch (error) {
             console.error("BEE Cert upload error:", error);
@@ -342,14 +351,14 @@ const DgApplicationDetails = () => {
             if (result && result.assets && result.assets[0]) {
                 const uploadResult = await uploadProjectDocument({
                     file: result.assets[0],
-                    docType: 'Proof of Accreditation',
+                    docType: 'Accreditation',
                     userId,
                     appId
                 }).unwrap();
 
                 console.log("Accreditation upload response:", uploadResult);
                 setAccredetation(result);
-                showToast({ message: "Proof of Accreditation uploaded successfully", title: "Success", type: "success", position: "top" });
+                showToast({ message: "Accreditation uploaded successfully", title: "Success", type: "success", position: "top" });
             }
         } catch (error) {
             console.error("Accreditation upload error:", error);
@@ -362,14 +371,14 @@ const DgApplicationDetails = () => {
             if (result && result.assets && result.assets[0]) {
                 const uploadResult = await uploadProjectDocument({
                     file: result.assets[0],
-                    docType: 'Letter of Commitment',
+                    docType: 'Commitment',
                     userId,
                     appId
                 }).unwrap();
 
-                console.log("Letter of Commitment upload response:", uploadResult);
+                console.log("Commitment upload response:", uploadResult);
                 setCommitmentLetter(result);
-                showToast({ message: "Letter of Commitment uploaded successfully", title: "Success", type: "success", position: "top" });
+                showToast({ message: "Commitment uploaded successfully", title: "Success", type: "success", position: "top" });
             }
         } catch (error) {
             console.error("Letter of Commitment upload error:", error);
@@ -383,14 +392,14 @@ const DgApplicationDetails = () => {
             if (result && result.assets && result.assets[0]) {
                 const uploadResult = await uploadProjectDocument({
                     file: result.assets[0],
-                    docType: 'Learner Schedule',
+                    docType: 'Schedule',
                     userId,
                     appId
                 }).unwrap();
 
-                console.log("Learner Schedule upload response:", uploadResult);
+                console.log("Schedule upload response:", uploadResult);
                 setLearnerSchedule(result);
-                showToast({ message: "Learner Schedule uploaded successfully", title: "Success", type: "success", position: "top" });
+                showToast({ message: "Schedule uploaded successfully", title: "Success", type: "success", position: "top" });
             }
         } catch (error) {
             console.error("Learner Schedule upload error:", error);
@@ -404,14 +413,14 @@ const DgApplicationDetails = () => {
             if (result && result.assets && result.assets[0]) {
                 const uploadResult = await uploadProjectDocument({
                     file: result.assets[0],
-                    docType: 'Organization Declaration of Interest',
+                    docType: 'Declaration',
                     userId,
                     appId
                 }).unwrap();
 
-                console.log("Organization Interest upload response:", uploadResult);
+                console.log("Declaration upload response:", uploadResult);
                 setDeclarationInterest(result);
-                showToast({ message: "Organization Declaration of Interest uploaded successfully", title: "Success", type: "success", position: "top" });
+                showToast({ message: "Declaration uploaded successfully", title: "Success", type: "success", position: "top" });
             }
         } catch (error) {
             console.error("Organization Interest upload error:", error);
@@ -425,14 +434,14 @@ const DgApplicationDetails = () => {
             if (result && result.assets && result.assets[0]) {
                 const uploadResult = await uploadProjectDocument({
                     file: result.assets[0],
-                    docType: 'Proof of Banking Details',
+                    docType: 'Bank Proof',
                     userId,
                     appId
                 }).unwrap();
 
-                console.log("Bank Details upload response:", uploadResult);
+                console.log("Bank Proof upload response:", uploadResult);
                 setBankDetails(result);
-                showToast({ message: "Proof of Banking Details uploaded successfully", title: "Success", type: "success", position: "top" });
+                showToast({ message: "Bank Proof uploaded successfully", title: "Success", type: "success", position: "top" });
             }
         } catch (error) {
             console.error("Bank Details upload error:", error);
@@ -446,12 +455,35 @@ const DgApplicationDetails = () => {
         return selected ? { key: selected.key, value: selected.value } : undefined;
     }
 
+    // Initialize useGenerate hook with document upload status
+    const { generate } = useGenerate({
+        appId,
+        orgId: 0, // Organization ID will be fetched via useGetOrganizationByProjectQuery in the hook
+        programmeType: getSelectedLabel(programmeType, projectTypes)?.value,
+        learningProgramme: getSelectedLabel(learningProgramme, focusAreas)?.value,
+        subCategory: getSelectedLabel(subCategory, adminCriteria)?.value,
+        intervention: getSelectedLabel(intervention, evalMethods)?.value,
+        province: selectedProvince,
+        municipality: selectedMunicipality,
+        costPerLearner: costPerLearner ? parseFloat(costPerLearner) : 0,
+        // Document upload status
+        taxCompliance: !!(taxComplience?.assets || getDocument(taxQuery)),
+        companyRegistration: !!(companyReg?.assets || getDocument(companyQuery)),
+        beeCertificate: !!(beeCert?.assets || getDocument(beeQuery)),
+        letterOfCommitment: !!(commitmentLetter?.assets || getDocument(commitQuery)),
+        proofOfAccreditation: !!(accredetation?.assets || getDocument(accredQuery)),
+        declarationOfInterest: !!(declarationInterest?.assets || getDocument(declarationQuery)),
+        proofOfBanking: !!(bankingDetailsProof?.assets || getDocument(bankProofQuery)),
+        workplaceApproval: false,
+        researchExportsQuestionnaire: false,
+    });
+
     const requiredDocuments = [
-        { name: 'Tax Compliance', file: taxComplience, query: taxQuery },
+        { name: 'Bank Proof', file: bankingDetailsProof, query: bankProofQuery },
         { name: 'Company Registration', file: companyReg, query: companyQuery },
-        { name: 'BBBEE Certificate/Affidavit', file: beeCert, query: beeQuery },
-        { name: 'Organization Declaration of Interest', file: declarationInterest, query: orgQuery },
-        { name: 'Proof of Banking Details', file: bankingDetailsProof, query: bankQuery }
+        { name: 'BEE Certificate', file: beeCert, query: beeQuery },
+        { name: 'Declaration', file: declarationInterest, query: declarationQuery },
+        { name: 'Tax Clearance', file: taxComplience, query: taxQuery }
     ];
 
     // Check if document is uploaded (either newly or previously)
@@ -708,14 +740,14 @@ const DgApplicationDetails = () => {
             if (result && result.assets && result.assets[0]) {
                 const uploadResult = await uploadProjectDocument({
                     file: result.assets[0],
-                    docType: 'Application Form',
+                    docType: 'Signed Application',
                     userId,
                     appId
                 }).unwrap();
 
-                console.log("Application Form upload response:", uploadResult);
+                console.log("Signed Application upload response:", uploadResult);
                 setApplicationForm(result);
-                showToast({ message: "Application Form uploaded successfully", title: "Success", type: "success", position: "top" });
+                showToast({ message: "Signed Application uploaded successfully", title: "Success", type: "success", position: "top" });
             }
         } catch (error) {
             console.error("Application Form upload error:", error);
@@ -724,7 +756,7 @@ const DgApplicationDetails = () => {
     }
 
     const handleSubmitApplication = async () => {
-        if (!applicationForm?.assets && !getDocument(appFormQuery)) {
+        if (!applicationForm?.assets && !getDocument(signedAppQuery)) {
             showToast({ message: "Please upload the signed application form", title: "Submission", type: "error", position: "top" });
             return;
         }
@@ -984,7 +1016,7 @@ const DgApplicationDetails = () => {
                                     <Expandable title='Supporting documents' isExpanded={expandDocs} onPress={() => setDocs(!expandDocs)}>
                                         <View style={{ gap: 12 }}>
                                             <View>
-                                                <RUpload title='Tax Compliance' onPress={handleTaxUpload} />
+                                                <RUpload title='Tax Clearance' onPress={handleTaxUpload} />
                                                 {taxComplience && taxComplience.assets && <RUploadSuccess file={taxComplience} />}
                                                 {!taxComplience && getDocument(taxQuery) && <RUploadSuccessFile file={getDocument(taxQuery).filename} />}
                                             </View>
@@ -996,39 +1028,39 @@ const DgApplicationDetails = () => {
                                             </View>
 
                                             <View>
-                                                <RUpload title='BBBEE Certificate/Affidavit' onPress={handleBeeCert} />
+                                                <RUpload title='BEE Certificate' onPress={handleBeeCert} />
                                                 {beeCert && beeCert.assets && <RUploadSuccess file={beeCert} />}
                                                 {!beeCert && getDocument(beeQuery) && <RUploadSuccessFile file={getDocument(beeQuery).filename} />}
                                             </View>
 
                                             <View>
-                                                <RUpload title='proof of accredetation' onPress={handleProofAccredetation} />
+                                                <RUpload title='Accreditation' onPress={handleProofAccredetation} />
                                                 {accredetation && accredetation.assets && <RUploadSuccess file={accredetation} />}
                                                 {!accredetation && getDocument(accredQuery) && <RUploadSuccessFile file={getDocument(accredQuery).filename} />}
                                             </View>
 
                                             <View>
-                                                <RUpload title='Letter of commitment' onPress={handleLetterCommitment} />
+                                                <RUpload title='Commitment' onPress={handleLetterCommitment} />
                                                 {commitmentLetter && commitmentLetter.assets && <RUploadSuccess file={commitmentLetter} />}
                                                 {!commitmentLetter && getDocument(commitQuery) && <RUploadSuccessFile file={getDocument(commitQuery).filename} />}
                                             </View>
 
                                             <View>
-                                                <RUpload title='learner schedule' onPress={handleLearnerSchedule} />
+                                                <RUpload title='Schedule' onPress={handleLearnerSchedule} />
                                                 {learnerSchedule && learnerSchedule.assets && <RUploadSuccess file={learnerSchedule} />}
-                                                {!learnerSchedule && getDocument(learnerQuery) && <RUploadSuccessFile file={getDocument(learnerQuery).filename} />}
+                                                {!learnerSchedule && getDocument(scheduleQuery) && <RUploadSuccessFile file={getDocument(scheduleQuery).filename} />}
                                             </View>
 
                                             <View>
-                                                <RUpload title='organization declaration of interest' onPress={handleOrgInterest} />
+                                                <RUpload title='Declaration' onPress={handleOrgInterest} />
                                                 {declarationInterest && declarationInterest.assets && <RUploadSuccess file={declarationInterest} />}
-                                                {!declarationInterest && getDocument(orgQuery) && <RUploadSuccessFile file={getDocument(orgQuery).filename} />}
+                                                {!declarationInterest && getDocument(declarationQuery) && <RUploadSuccessFile file={getDocument(declarationQuery).filename} />}
                                             </View>
 
                                             <View>
-                                                <RUpload title='Proof of banking details' onPress={handleBankDetails} />
+                                                <RUpload title='Bank Proof' onPress={handleBankDetails} />
                                                 {bankingDetailsProof && bankingDetailsProof.assets && <RUploadSuccess file={bankingDetailsProof} />}
-                                                {!bankingDetailsProof && getDocument(bankQuery) && <RUploadSuccessFile file={getDocument(bankQuery).filename} />}
+                                                {!bankingDetailsProof && getDocument(bankProofQuery) && <RUploadSuccessFile file={getDocument(bankProofQuery).filename} />}
                                             </View>
                                         </View>
                                     </Expandable>
@@ -1042,87 +1074,13 @@ const DgApplicationDetails = () => {
 
                                     <View style={styles.formSection}>
                                         <RButton
-                                            onPressButton={async () => {
-                                                try {
-
-                                                    // Generate PDF with template data
-                                                    const templateData = {
-                                                        reference: '[Reference Number]',
-                                                        projectType: '[Programme Type]',
-                                                        organisation: {
-                                                            organisationName: '[Your Organization Name]',
-                                                            tradingName: '[Trading Name]',
-                                                            coreBusiness: '[Core Business]',
-                                                            province: '[Province]',
-                                                            municipality: '[Municipality]',
-                                                            beeStatus: '[BEE Status]',
-                                                            phoneNumber: '[Phone Number]',
-                                                            faxNumber: '[Fax Number]',
-                                                            email: '[Email]',
-                                                        },
-                                                        ceo: {
-                                                            firstName: '[CEO First Name]',
-                                                            surname: '[CEO Surname]',
-                                                            email: '[CEO Email]',
-                                                            race: '[Race]',
-                                                            gender: '[Gender]',
-                                                        },
-                                                        cfo: {
-                                                            firstName: '[CFO First Name]',
-                                                            surname: '[CFO Surname]',
-                                                            email: '[CFO Email]',
-                                                            race: '[Race]',
-                                                            gender: '[Gender]',
-                                                        },
-                                                        sdf: {
-                                                            firstName: '[SDF First Name]',
-                                                            surname: '[SDF Surname]',
-                                                            role: '[Role]',
-                                                            race: '[Race]',
-                                                            gender: '[Gender]',
-                                                            phone: '[Phone]',
-                                                            mobile: '[Mobile]',
-                                                            email: '[Email]',
-                                                        },
-                                                        gms: {
-                                                            learningProgramme: '[Learning Programme]',
-                                                            subCategory: '[Sub Category]',
-                                                            intervention: '[Intervention]',
-                                                            cost: '[Cost]',
-                                                        },
-                                                        checklist: {
-                                                            csdOrSarsPin: '[ ]',
-                                                            companyRegistration: '[ ]',
-                                                            beeCertificate: '[ ]',
-                                                            letterOfCommitment: '[ ]',
-                                                            proofOfAccreditation: '[ ]',
-                                                            declarationOfInterest: '[ ]',
-                                                            proofOfBanking: '[ ]',
-                                                            workplaceApproval: '[ ]',
-                                                            researchExportsQuestionnaire: '[ ]',
-                                                        },
-                                                        signOff: {
-                                                            ceoName: '[CEO Name]',
-                                                            ceoDate: '[Date]',
-                                                            cfoName: '[CFO Name]',
-                                                            cfoDate: '[Date]',
-                                                        },
-                                                        generatedDate: new Date().toISOString(),
-                                                    };
-
-                                                    await generateApplicationPdf(templateData);
-                                                    showToast({ message: "Template downloaded successfully", title: "Success", type: "success", position: "top" });
-                                                } catch (error) {
-                                                    console.error("Download error:", error);
-                                                    showToast({ message: "Failed to download template", title: "Error", type: "error", position: "top" });
-                                                }
-                                            }}
+                                            onPressButton={generate}
                                             title='Download Application Form'
                                             styleBtn={styles.btnSecondary}
                                         />
-                                        <RUpload title='Upload Signed Application Form' onPress={handleApplicationFormUpload} />
+                                        <RUpload title='Upload Signed Application' onPress={handleApplicationFormUpload} />
                                         {applicationForm && applicationForm.assets && <RUploadSuccess file={applicationForm} />}
-                                        {!applicationForm && getDocument(appFormQuery) && <RUploadSuccessFile file={getDocument(appFormQuery).filename} />}
+                                        {!applicationForm && getDocument(signedAppQuery) && <RUploadSuccessFile file={getDocument(signedAppQuery).filename} />}
                                     </View>
                                 </>
                             )}
