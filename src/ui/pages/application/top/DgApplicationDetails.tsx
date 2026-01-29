@@ -458,13 +458,10 @@ const DgApplicationDetails = () => {
     // Initialize useGenerate hook with document upload status
     const { generate } = useGenerate({
         appId,
-        orgId: 0, // Organization ID will be fetched via useGetOrganizationByProjectQuery in the hook
         programmeType: getSelectedLabel(programmeType, projectTypes)?.value,
         learningProgramme: getSelectedLabel(learningProgramme, focusAreas)?.value,
         subCategory: getSelectedLabel(subCategory, adminCriteria)?.value,
         intervention: getSelectedLabel(intervention, evalMethods)?.value,
-        province: selectedProvince,
-        municipality: selectedMunicipality,
         costPerLearner: costPerLearner ? parseFloat(costPerLearner) : 0,
         // Document upload status
         taxCompliance: !!(taxComplience?.assets || getDocument(taxQuery)),
@@ -474,8 +471,7 @@ const DgApplicationDetails = () => {
         proofOfAccreditation: !!(accredetation?.assets || getDocument(accredQuery)),
         declarationOfInterest: !!(declarationInterest?.assets || getDocument(declarationQuery)),
         proofOfBanking: !!(bankingDetailsProof?.assets || getDocument(bankProofQuery)),
-        workplaceApproval: false,
-        researchExportsQuestionnaire: false,
+        referenceNumber: `DG-${appId}`,
     });
 
     const requiredDocuments = [

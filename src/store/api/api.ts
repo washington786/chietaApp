@@ -164,6 +164,11 @@ export const api = createApi({
                 `/api/services/app/Organisation/Get?id=${organisationId}`,
             providesTags: ['Organization'],
         }),
+        getOrganizationPhysicalAddress: builder.query({
+            query: (organisationId) =>
+                `/api/services/app/Organisation/GetOrganisationPhysAddress?organisationId=${organisationId}`,
+            providesTags: ['Organization'],
+        }),
 
         /**
          * Document Endpoints
@@ -679,6 +684,7 @@ export const {
     useGetPersonByIdQuery,
     useGetOrganizationByProjectQuery,
     useGetOrganizationByIdQuery,
+    useGetOrganizationPhysicalAddressQuery,
     useGetDocumentsByEntityQuery,
     useGetOrgSdfByOrgQuery,
     useLazyGetOrgSdfByOrgQuery,
