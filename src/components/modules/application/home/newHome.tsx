@@ -74,7 +74,7 @@ const NewHome = () => {
 
 
                         {/* active windows */}
-                        <DgActiveWindow />
+                       {/* <DgActiveWindow />* */}
 
                         {/* Stats */}
                         <AppStatsSection />

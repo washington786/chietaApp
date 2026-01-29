@@ -12,6 +12,7 @@ import { loginSchema, showToast } from '@/core'
 import UseAuth from '@/hooks/main/auth/UseAuth'
 import { useSelector, useDispatch } from 'react-redux'
 import { RootState } from '@/store/store'
+import { LinearGradient } from 'expo-linear-gradient'
 
 const formValues = {
     email: '',
@@ -45,8 +46,12 @@ const LoginScreen = () => {
     }, [error])
 
     return (
-        <
-            >
+        <LinearGradient
+            colors={['#fdf6fb', '#e6e0f8']} // soft appealing gradient
+            start={{ x: 0, y: 0 }}
+            end={{ x: 0, y: 1 }}
+            style={{ flex: 1 }}
+        >
             <Scroller style={{ flexGrow: 1, paddingBottom: 20 }}>
                 <AuthWrapper>
                     <SafeArea>
@@ -57,7 +62,7 @@ const LoginScreen = () => {
                                 Welcome Back
                             </Text>
                             <Text style={[styles.description]}>
-                                Sign in to continue to your account
+                                Sign in to access your account.
                             </Text>
 
                             <Formik initialValues={formValues} onSubmit={(values) => handleSubmit(values.email, values.password)} validationSchema={loginSchema}>
@@ -90,7 +95,6 @@ const LoginScreen = () => {
                                 )}
                             </Formik>
 
-
                             <Button
                                 textColor={colors.slate['600']}
                                 labelStyle={{ fontFamily: `${appFonts.medium}` }}
@@ -115,7 +119,7 @@ const LoginScreen = () => {
                     </SafeArea>
                 </AuthWrapper>
             </Scroller>
-        </>
+        </LinearGradient>
     )
 }
 
