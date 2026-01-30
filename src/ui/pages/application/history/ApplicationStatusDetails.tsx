@@ -198,10 +198,10 @@ const styles = StyleSheet.create({
     },
     referenceBox: {
         backgroundColor: colors.slate[50],
-        borderRadius: 16,
-        padding: 24,
+        borderRadius: 8,
+        padding: 18,
         marginBottom: 20,
-        gap: 12,
+        gap: 4,
         borderLeftWidth: 4,
         borderLeftColor: colors.primary[800],
         shadowColor: '#000',
@@ -240,7 +240,7 @@ const styles = StyleSheet.create({
         textTransform: 'uppercase',
     },
     detailValue: {
-        color: colors.primary[800],
+        color: colors.slate[800],
         fontWeight: 'black',
         flex: 1,
         textAlign: 'right',
