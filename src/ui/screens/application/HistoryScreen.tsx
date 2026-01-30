@@ -12,6 +12,9 @@ import RHeader from '@/components/common/RHeader'
 import { history_styles as styles } from '@/styles/HistoryStyles';
 import { Searchbar, Text } from 'react-native-paper'
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
+import { useGlobalBottomSheet } from '@/hooks/navigation/BottomSheet'
+import AntDesign from '@expo/vector-icons/AntDesign';
+
 const HistoryScreen = () => {
     const { historyItemDetails } = usePageTransition();
     const { user } = useSelector((state: RootState) => state.auth);
@@ -28,6 +31,8 @@ const HistoryScreen = () => {
 
     const [searchQuery, setSearchQuery] = useState('');
     const [show, setShow] = useState<boolean>(false);
+
+    const { open, close } = useGlobalBottomSheet();
 
     const organizations = useMemo(() => {
         if (orgsData) {
@@ -101,6 +106,13 @@ const HistoryScreen = () => {
         )
     }
 
+    function handleOrgFilter() {
+        open(<OrganizationBottomSheet close={close} organizations={organizations} selectedOrgId={selectedOrgId} onSelectOrg={(orgId) => {
+            setSelectedOrgId(orgId);
+            // Close is handled by the bottom sheet internally now
+        }} />, { snapPoints: ["60%"] });
+    }
+
 
     if (orgsLoading || timelineLoading) {
         return <RListLoading count={7} />
@@ -108,7 +120,7 @@ const HistoryScreen = () => {
 
     return (
         <SafeArea>
-            <RHeader name='Application Timelines' showBack={false} iconRight='search' hasRightIcon onPressRight={() => setShow(!show)} hasSecondIcon={true} iconSecond='building-circle-check' onPressSecond={() => { }} />
+            <RHeader name='Application Timelines' showBack={false} iconRight='search' hasRightIcon onPressRight={() => setShow(!show)} hasSecondIcon={true} iconSecond='building-circle-check' onPressSecond={handleOrgFilter} />
 
             {/* Status Filter Tabs */}
             <RCol style={{ paddingHorizontal: 12 }}>
@@ -135,20 +147,6 @@ const HistoryScreen = () => {
                     </TouchableOpacity>
                 </View>
             </RCol>
-
-            {/* Organizations Filter */}
-            {/* {organizations.length > 0 && (
-                <View style={styles.orgFilterContainer}>
-                    <FlatList
-                        data={organizations}
-                        keyExtractor={(item) => `${item.id}`}
-                        renderItem={renderOrgItem}
-                        horizontal
-                        showsHorizontalScrollIndicator={false}
-                        contentContainerStyle={styles.orgListContent}
-                    />
-                </View>
-            )} */}
 
             {
                 show && (
@@ -269,6 +267,120 @@ const ProgressDot = ({ completed, active }: { completed: boolean; active?: boole
 const ProgressLine = ({ completed }: { completed: boolean }) => {
     return <View style={[styles.progressLine, completed && styles.progressLineCompleted]} />;
 };
+
+
+function OrganizationBottomSheet({ organizations, selectedOrgId, onSelectOrg, close }: {
+    organizations: Array<{ id: number; organisationTradingName: string; organisationName: string; sdfId?: string }>;
+    selectedOrgId: number | undefined;
+    onSelectOrg: (orgId: number) => void;
+    close: () => void;
+}) {
+    const [searchQuery, setSearchQuery] = React.useState('');
+
+    const filteredOrgs = React.useMemo(() => {
+        if (!searchQuery.trim()) return organizations;
+
+        const query = searchQuery.toLowerCase();
+        return organizations.filter(org =>
+            (org.organisationTradingName?.toLowerCase() || '').includes(query) ||
+            (org.organisationName?.toLowerCase() || '').includes(query) ||
+            (org.sdfId?.toLowerCase() || '').includes(query)
+        );
+    }, [organizations, searchQuery]);
+
+    const handleSelectOrg = (orgId: number) => {
+        onSelectOrg(orgId);
+        // Use setTimeout to ensure the state is updated first
+        setTimeout(() => {
+            close();
+        }, 100);
+    };
+
+    return (
+        <RCol style={styles.organizationBottomSheet}>
+            {/* Header */}
+            <Text variant='headlineMedium' style={styles.orgBottomSheetTitle}>Switch Organization</Text>
+            <Text variant='bodySmall' style={{ fontSize: 12 }}>choose the entity for your application view.</Text>
+
+            <TouchableOpacity onPress={close} style={{ position: "absolute", top: 5, right: 8, backgroundColor: colors.red[100], borderRadius: 100, padding: 5 }}>
+                <AntDesign name="close" size={24} color={colors.gray[600]} />
+            </TouchableOpacity>
+
+            {/* Search Bar */}
+            <Searchbar
+                placeholder='Search for organization or SDL...'
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+                style={{ borderRadius: 10, backgroundColor: colors.white, borderWidth: 1, borderColor: colors.slate[200] }}
+            />
+
+            {/* Organization List */}
+            <FlatList
+                data={filteredOrgs}
+                keyExtractor={(item) => `${item.id}`}
+                renderItem={({ item }) => (
+                    <SwitchOrgItem
+                        item={item}
+                        isSelected={selectedOrgId === item.id}
+                        onPress={() => handleSelectOrg(item.id)}
+                    />
+                )}
+                scrollEnabled={true}
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={{ gap: 12 }}
+            />
+        </RCol>
+    );
+}
+
+/**
+ * Individual organization item for the switch organization bottom sheet
+ */
+const SwitchOrgItem = ({ item, isSelected, onPress }: { item: any; isSelected: boolean; onPress: () => void }) => {
+    return (
+        <TouchableOpacity
+            style={[
+                styles.orgItem,
+                isSelected && styles.orgItemSelected
+            ]}
+            onPress={onPress}
+        >
+            <View style={styles.orgItemLeft}>
+                <View style={[styles.orgItemIcon, isSelected && styles.orgItemIconSelected]}>
+                    <MaterialCommunityIcons
+                        name="office-building"
+                        size={24}
+                        color={isSelected ? colors.white : colors.primary[600]}
+                    />
+                </View>
+                <RCol style={styles.orgItemInfo}>
+                    <RRow style={{ alignItems: 'center', gap: 6 }}>
+                        <Text style={styles.orgItemName} numberOfLines={1}>
+                            {item.organisationTradingName || item.organisationName}
+                        </Text>
+                        <MaterialCommunityIcons
+                            name="check-decagram"
+                            size={14}
+                            color={colors.primary[600]}
+                        />
+                    </RRow>
+                    <Text style={styles.orgItemSdl} numberOfLines={1}>
+                        SDL: {item.sdfId || item.id}
+                    </Text>
+                </RCol>
+            </View>
+            {isSelected && (
+                <View style={styles.orgItemCheckmark}>
+                    <MaterialCommunityIcons
+                        name="check-circle"
+                        size={24}
+                        color={colors.primary[600]}
+                    />
+                </View>
+            )}
+        </TouchableOpacity>
+    );
+}
 
 
 export default HistoryScreen

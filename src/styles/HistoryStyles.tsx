@@ -250,4 +250,84 @@ export const history_styles = StyleSheet.create({
         color: colors.slate[500],
         fontStyle: 'italic',
     },
+    // Organization Bottom Sheet Styles
+    organizationBottomSheet: {
+        flex: 1,
+        backgroundColor: colors.white,
+        paddingHorizontal: 8,
+        paddingVertical: 24,
+        gap: 16,
+        position: "relative"
+    },
+    orgBottomSheetTitle: {
+        color: colors.slate[900],
+        fontWeight: '700',
+        fontSize: 24,
+    },
+    orgSearchBar: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: colors.slate[100],
+        borderRadius: 12,
+        paddingHorizontal: 14,
+        paddingVertical: 12,
+        gap: 8,
+        borderWidth: 1,
+        borderColor: colors.slate[200],
+    },
+    orgSearchInput: {
+        flex: 1,
+        fontSize: 14,
+        color: colors.slate[700],
+        fontWeight: '500',
+    },
+    orgItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        backgroundColor: colors.slate[50],
+        borderRadius: 12,
+        padding: 14,
+        borderWidth: 1,
+        borderColor: colors.slate[200],
+    },
+    orgItemSelected: {
+        backgroundColor: colors.primary[50],
+        borderColor: colors.primary[600],
+        borderWidth: 2,
+    },
+    orgItemLeft: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 12,
+        flex: 1,
+    },
+    orgItemIcon: {
+        width: 48,
+        height: 48,
+        borderRadius: 10,
+        backgroundColor: colors.primary[100],
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    orgItemIconSelected: {
+        backgroundColor: colors.primary[600],
+    },
+    orgItemInfo: {
+        flex: 1,
+        gap: 2,
+    },
+    orgItemName: {
+        fontSize: 14,
+        fontWeight: '700',
+        color: colors.slate[900],
+    },
+    orgItemSdl: {
+        fontSize: 12,
+        color: colors.primary[600],
+        fontWeight: '600',
+    },
+    orgItemCheckmark: {
+        marginLeft: 8,
+    }
 })
