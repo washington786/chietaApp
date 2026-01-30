@@ -58,7 +58,7 @@ const AccountScreen = () => {
     }
 
     function handleBsheet() {
-        open(<DeactivateAccount onPress={handleCloseSheet} isLoading={isLoading} />, { "snapPoints": ["60%"] });
+        open(<DeactivateAccount onCancel={close} onPress={handleCloseSheet} isLoading={isLoading} />, { "snapPoints": ["60%"] });
     }
 
     return (
