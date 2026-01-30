@@ -255,27 +255,7 @@ const useDg = ({ projectId, appId, userId }: UseDgParams) => {
         [manucipality]
     );
 
-    // ========== Document Logging ==========
-    useEffect(() => {
-        console.log('=== DOCUMENT QUERIES STATUS ===');
-        console.log('appId:', appId);
-        console.log('Tax Query - entityId:', appId, 'Loading:', taxQuery.isLoading, 'Has data:', !!taxQuery.data);
-        if (taxQuery.data) {
-            console.log('Tax Query raw data:', JSON.stringify(taxQuery.data, null, 2));
-            console.log('Tax Query - getDocument result:', getDocument(taxQuery));
-            console.log('Tax Query - getDocument[0]:', getDocument(taxQuery)?.[0]);
-        }
-        console.log('Company Query - entityId:', appId, 'Loading:', companyQuery.isLoading, 'Has data:', !!companyQuery.data);
-        if (companyQuery.data) {
-            console.log('Company Query raw data:', JSON.stringify(companyQuery.data, null, 2));
-            console.log('Company Query - getDocument result:', getDocument(companyQuery));
-            console.log('Company Query - getDocument[0]:', getDocument(companyQuery)?.[0]);
-        }
-        console.log('BEE Query - entityId:', appId, 'Loading:', beeQuery.isLoading, 'Has data:', !!beeQuery.data);
-        if (beeQuery.data) console.log('BEE Query data:', JSON.stringify(beeQuery.data, null, 2));
-        console.log('Bank Proof Query - entityId:', appId, 'Loading:', bankProofQuery.isLoading, 'Has data:', !!bankProofQuery.data);
-        if (bankProofQuery.data) console.log('Bank Proof Query data:', JSON.stringify(bankProofQuery.data, null, 2));
-    }, [appId, taxQuery.data, companyQuery.data, beeQuery.data, bankProofQuery.data]);
+
 
     // ========== Document Upload Handlers ==========
     const handleDocumentUpload = async (
@@ -285,28 +265,18 @@ const useDg = ({ projectId, appId, userId }: UseDgParams) => {
         queryToRefetch: any
     ) => {
         try {
-            console.log(`=== ${fileName} UPLOAD START ===`);
-            console.log('userId:', userId);
-            console.log('appId:', appId);
-
             const result = await pickDocument();
             if (result && result.assets && result.assets[0]) {
-                console.log("Picked file:", result.assets[0]);
-
-                const uploadResult = await uploadProjectDocument({
+                await uploadProjectDocument({
                     file: result.assets[0],
                     docType,
                     userId,
                     appId,
                 }).unwrap();
 
-                console.log(`${fileName} upload response:`, uploadResult);
-
                 setDocumentState(result);
 
-                console.log(`Refetching ${docType} documents...`);
-                const refetchResult = await queryToRefetch.refetch();
-                console.log(`Refetch result for ${docType}:`, JSON.stringify(refetchResult, null, 2));
+                await queryToRefetch.refetch();
 
                 showToast({
                     message: `${fileName} uploaded successfully`,
@@ -316,9 +286,6 @@ const useDg = ({ projectId, appId, userId }: UseDgParams) => {
                 });
             }
         } catch (error: any) {
-            console.error(`=== ${fileName} UPLOAD ERROR ===`);
-            console.error("Error:", error);
-
             const errorMessage =
                 error?.data?.message ||
                 error?.data?.error?.message ||

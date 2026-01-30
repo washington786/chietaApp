@@ -611,12 +611,9 @@ export const api = createApi({
         getDocumentsByEntity: builder.query({
             query: ({ entityId, module, documentType }) => {
                 const url = `/api/services/app/Documents/GetDocumentsByEntity?entityid=${entityId}&module=${module}&documenttype=${encodeURIComponent(documentType)}`;
-                console.log('getDocumentsByEntity - URL:', url);
-                console.log('getDocumentsByEntity - Params:', { entityId, module, documentType });
                 return url;
             },
             transformResponse: (response: any) => {
-                console.log('getDocumentsByEntity - Response:', JSON.stringify(response, null, 2));
                 return response;
             },
             providesTags: ['Document'],
