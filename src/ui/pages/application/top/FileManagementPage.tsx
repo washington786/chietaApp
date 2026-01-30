@@ -6,17 +6,19 @@ import { navigationTypes } from '@/core/types/navigationTypes'
 import { DocumentDto } from '@/core/models/MandatoryDto'
 import { showToast } from '@/core'
 import { useGetDocumentsByEntityQuery } from '@/store/api/api'
-import { Expandable } from '@/components/modules/application'
+import { Expandable, GrantDetails } from '@/components/modules/application'
 import RDownload from '@/components/common/RDownload'
 import { useSelector } from 'react-redux'
 import { RootState } from '@/store/store'
+import { Text } from 'react-native-paper'
 
 const FileManagementPage = () => {
     const { appId } = useRoute<RouteProp<navigationTypes, "applicationDetails">>().params;
     const { selectedProject } = useSelector((state: RootState) => state.discretionaryGrant);
     const projType = selectedProject?.projType;
 
-    const [showDocs, setShowDocs] = useState<boolean>(true);
+    const [showDocs, setShowDocs] = useState<boolean>(false);
+    const [showGrant, setShowGrant] = useState<boolean>(true);
 
     // Define required documents by project type (using actual DB names)
     const documentsByProjectType: Record<string, string[]> = {
@@ -157,6 +159,10 @@ const FileManagementPage = () => {
                     </RCol>
                 </Expandable>
             )}
+
+            <Expandable title='Grant Management' isExpanded={showGrant} onPress={() => setShowGrant(!showGrant)}>
+                <GrantDetails />
+            </Expandable>
         </Scroller>
     )
 }
