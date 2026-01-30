@@ -1,9 +1,10 @@
-import { StyleSheet, View } from 'react-native'
+import { StyleSheet, TouchableOpacity, View } from 'react-native'
 import React from 'react'
-import { RCol, RDivider, RRow } from '@/components/common'
+import { RCol, RDivider, RRow, RUpload } from '@/components/common'
 import { Expandable } from './Expandable'
-import { Text } from 'react-native-paper'
+import { Button, Text } from 'react-native-paper'
 import colors from '@/config/colors'
+import FontAwesome from '@expo/vector-icons/FontAwesome';
 
 const GrantDetails = () => {
     const [showDetails, setShowDetails] = React.useState<boolean>(true);
@@ -34,9 +35,26 @@ const GrantDetails = () => {
                     </RRow>
                     <RDivider />
                     <Text variant='bodySmall' style={{ color: colors.primary[800] }}>Memorandum of Agreement (MOA) - (Trench 1a)</Text>
+
+                    <RCol style={{ marginTop: 5 }}>
+                        <Text variant='labelSmall' style={{ color: colors.zinc[800] }}>Download Files</Text>
+                        <DownloadTemp fileName='Download Evaluation Outcome' />
+                        <DownloadTemp fileName='Download MOA upload' />
+                    </RCol>
+
                 </RCol>
             </Expandable>
         </RCol>
+    )
+}
+
+
+function DownloadTemp({ fileName, onPress }: { fileName: string, onPress?: () => void }) {
+    return (
+        <TouchableOpacity activeOpacity={0.8} onPress={onPress} style={{ flexDirection: 'row', alignItems: 'center', gap: 5, marginVertical: 5, borderWidth: 0.4, borderColor: colors.blue[300], padding: 8, borderRadius: 20, width: "auto" }}>
+            <FontAwesome name="cloud-download" size={24} color={colors.blue[400]} />
+            <Text variant='bodySmall' style={{ color: colors.gray[500] }}>{fileName}</Text>
+        </TouchableOpacity>
     )
 }
 
