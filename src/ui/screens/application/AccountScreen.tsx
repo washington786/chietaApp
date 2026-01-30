@@ -58,7 +58,7 @@ const AccountScreen = () => {
     }
 
     function handleBsheet() {
-        open(<DeactivateAccount onPress={handleCloseSheet} isLoading={isLoading} />, { "snapPoints": ["60%"] });
+        open(<DeactivateAccount onCancel={close} onPress={handleCloseSheet} isLoading={isLoading} />, { "snapPoints": ["60%"] });
     }
 
     return (
@@ -83,10 +83,10 @@ const AccountScreen = () => {
                 </Animated.View>
                 <Animated.View entering={FadeInDown.delay(200).duration(600).springify()}>
                     <RCol style={{ marginVertical: 10 }}>
-                        <Text variant='titleSmall'>Application Section</Text>
+                        <Text variant='titleSmall'>Danger Section</Text>
                         <RDivider />
                         <AccWrapper icon='exit-outline' title='sign out' onPress={handleDialog} />
-                        <AccWrapper icon='remove-circle-sharp' title='deactivate account' onPress={handleBsheet} />
+                        <AccWrapper icon='remove-circle-sharp' title='deactivate account' onPress={handleBsheet} dangerStyle={{ backgroundColor: colors.red[600] }} isDanger dangerTextStyle={{ color: colors.red[600] }} />
 
                         {isLoading && <RLoaderAnimation />}
 

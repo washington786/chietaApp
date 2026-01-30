@@ -13,7 +13,7 @@ interface RDialogProps {
 const RDialog: FC<RDialogProps> = ({ hideDialog, visible, onContinue, message, title }) => {
     return (
         <Portal>
-            <Dialog visible={visible} onDismiss={hideDialog} style={{ backgroundColor: colors.slate[50] }}>
+            <Dialog visible={visible} onDismiss={hideDialog} style={{ backgroundColor: colors.slate[50], borderRadius: 10 }}>
                 <Dialog.Title>{title}</Dialog.Title>
                 <Dialog.Content>
                     <Text variant="bodyMedium">{message}</Text>
