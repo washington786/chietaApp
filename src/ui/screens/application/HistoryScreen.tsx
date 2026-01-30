@@ -1,6 +1,6 @@
-import { FlatList, StyleSheet, View, TouchableOpacity, Text as NativeText } from 'react-native'
+import { FlatList, View, TouchableOpacity, Text as NativeText } from 'react-native'
 import React, { useEffect, useMemo, useState } from 'react'
-import { RCol, REmpty, RListLoading, SafeArea } from '@/components/common'
+import { RCol, REmpty, RListLoading, SafeArea, RRow } from '@/components/common'
 import colors from '@/config/colors'
 import usePageTransition from '@/hooks/navigation/usePageTransition'
 import { useSelector } from 'react-redux'
@@ -10,14 +10,15 @@ import { useGetOrganizationsBySdfIdQuery, useGetProjectTimelineQuery } from '@/s
 import { ProjectTimeline } from '@/core/models/DiscretionaryDto'
 import RHeader from '@/components/common/RHeader'
 import { history_styles as styles } from '@/styles/HistoryStyles';
-import { Searchbar } from 'react-native-paper'
-
+import { Searchbar, Text } from 'react-native-paper'
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
 const HistoryScreen = () => {
     const { historyItemDetails } = usePageTransition();
     const { user } = useSelector((state: RootState) => state.auth);
 
     // State for selected organization
     const [selectedOrgId, setSelectedOrgId] = useState<number | undefined>(undefined);
+    const [statusFilter, setStatusFilter] = useState<'all' | 'started' | 'submitted' | 'rsa review'>('all');
 
     const sdfId = user?.sdfId;
 
@@ -48,24 +49,35 @@ const HistoryScreen = () => {
         { skip: !selectedOrgId }
     );
 
+
     const timelineItems = useMemo(() => {
         return data?.items || [];
     }, [data]);
 
     const filteredTimelineItems = useMemo(() => {
+        let filtered = timelineItems;
+
+        // Apply status filter
+        if (statusFilter === 'started') {
+            filtered = filtered.filter(item => item.applicationStarted && !item.applicationSubmitted);
+        } else if (statusFilter === 'submitted') {
+            filtered = filtered.filter(item => item.applicationSubmitted);
+        }
+
+        // Apply search query
         if (!searchQuery.trim()) {
-            return timelineItems;
+            return filtered;
         }
 
         const query = searchQuery.toLowerCase().trim();
-        return timelineItems.filter(item =>
+        return filtered.filter(item =>
             item.projectName.toLowerCase().includes(query) ||
             item.windowTitle.toLowerCase().includes(query) ||
             item.organisationName.toLowerCase().includes(query) ||
             item.status.toLowerCase().includes(query) ||
             item.sdlNo.toLowerCase().includes(query)
         );
-    }, [timelineItems, searchQuery]);
+    }, [timelineItems, searchQuery, statusFilter]);
 
     useEffect(() => {
         if (orgsError) {
@@ -81,7 +93,7 @@ const HistoryScreen = () => {
         }
     }, [timelineError]);
 
-    const renderList = ({ index, item }: { index: number, item: ProjectTimeline }) => {
+    const renderList = ({ item }: { index: number, item: ProjectTimeline }) => {
         return (
             <View key={`proj-${item.projectId}`}>
                 <ProjectTimelineItem item={item} onPress={() => historyItemDetails({ appId: item.projectId, item })} />
@@ -89,25 +101,6 @@ const HistoryScreen = () => {
         )
     }
 
-    const renderOrgItem = ({ item }: { item: any }) => {
-        const isSelected = selectedOrgId === item.id;
-        return (
-            <TouchableOpacity
-                onPress={() => setSelectedOrgId(item.id)}
-                style={[
-                    styles.orgChip,
-                    isSelected && styles.orgChipSelected
-                ]}
-            >
-                <NativeText style={[
-                    styles.orgChipText,
-                    isSelected && styles.orgChipTextSelected
-                ]} numberOfLines={1}>
-                    {item.organisationTradingName || item.organisationName || 'Unknown'}
-                </NativeText>
-            </TouchableOpacity>
-        );
-    };
 
     if (orgsLoading || timelineLoading) {
         return <RListLoading count={7} />
@@ -115,10 +108,36 @@ const HistoryScreen = () => {
 
     return (
         <SafeArea>
-            <RHeader name='Application Timelines' showBack={false} iconRight='search' hasRightIcon onPressRight={() => setShow(!show)} />
+            <RHeader name='Application Timelines' showBack={false} iconRight='search' hasRightIcon onPressRight={() => setShow(!show)} hasSecondIcon={true} iconSecond='building-circle-check' onPressSecond={() => { }} />
+
+            {/* Status Filter Tabs */}
+            <RCol style={{ paddingHorizontal: 12 }}>
+                <Text style={{ fontWeight: 'thin', fontSize: 10, color: colors.gray[400] }}>Filter by Status:</Text>
+
+                <View style={styles.filterTabsContainer}>
+                    <TouchableOpacity
+                        style={[styles.filterTab, statusFilter === 'all' && styles.filterTabActive]}
+                        onPress={() => setStatusFilter('all')}
+                    >
+                        <Text style={[styles.filterTabText, statusFilter === 'all' && styles.filterTabTextActive]}>All Statuses</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        style={[styles.filterTab, statusFilter === 'started' && styles.filterTabActive]}
+                        onPress={() => setStatusFilter('started')}
+                    >
+                        <Text style={[styles.filterTabText, statusFilter === 'started' && styles.filterTabTextActive]}>Started</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        style={[styles.filterTab, statusFilter === 'submitted' && styles.filterTabActive]}
+                        onPress={() => setStatusFilter('submitted')}
+                    >
+                        <Text style={[styles.filterTabText, statusFilter === 'submitted' && styles.filterTabTextActive]}>Submitted</Text>
+                    </TouchableOpacity>
+                </View>
+            </RCol>
 
             {/* Organizations Filter */}
-            {organizations.length > 0 && (
+            {/* {organizations.length > 0 && (
                 <View style={styles.orgFilterContainer}>
                     <FlatList
                         data={organizations}
@@ -129,7 +148,7 @@ const HistoryScreen = () => {
                         contentContainerStyle={styles.orgListContent}
                     />
                 </View>
-            )}
+            )} */}
 
             {
                 show && (
@@ -152,9 +171,10 @@ const HistoryScreen = () => {
             <FlatList data={filteredTimelineItems}
                 keyExtractor={(item) => `${item.projectId}`}
                 style={{ paddingHorizontal: 12, paddingVertical: 5, flex: 1, flexGrow: 1 }}
+                contentContainerStyle={{ paddingBottom: 24 }}
                 renderItem={renderList}
                 showsVerticalScrollIndicator={false}
-                ItemSeparatorComponent={() => <View style={{ height: 5 }} />}
+                ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
                 removeClippedSubviews={false}
                 initialNumToRender={10}
                 maxToRenderPerBatch={10}
@@ -171,72 +191,84 @@ const HistoryScreen = () => {
 const ProjectTimelineItem = ({ item, onPress }: { item: ProjectTimeline, onPress: (item: ProjectTimeline) => void }) => {
     const getStageColor = (currentStage: string) => {
         const stage = currentStage.toLowerCase().trim();
-        if (stage.includes('submitted')) return { bg: '#fef3c7', text: '#92400e' };
-        if (stage.includes('rsa review') || stage.includes('review completed')) return { bg: '#dbeafe', text: '#1e40af' };
-        if (stage.includes('started') || stage.includes('application started')) return { bg: '#f3f4f6', text: '#4b5563' };
-        if (stage.includes('grants committee')) return { bg: '#e0f2fe', text: '#0369a1' };
-        if (stage.includes('evaluation')) return { bg: '#e9d5ff', text: '#6b21a8' };
-        if (stage.includes('final')) return { bg: '#d1fae5', text: '#065f46' };
-        return { bg: '#f3f4f6', text: '#4b5563' };
+        if (stage.includes('submitted')) return { bg: '#e0f2fe', text: '#0369a1', border: colors.primary[500] };
+        if (stage.includes('rsa review') || stage.includes('review completed')) return { bg: '#dcfce7', text: '#15803d', border: colors.emerald[500] };
+        if (stage.includes('started') || stage.includes('application started')) return { bg: '#f3f4f6', text: '#4b5563', border: colors.slate[400] };
+        if (stage.includes('grants committee')) return { bg: '#f3e8ff', text: '#6b21a8', border: colors.purple[500] };
+        if (stage.includes('evaluation')) return { bg: '#fef3c7', text: '#92400e', border: colors.yellow[500] };
+        if (stage.includes('final')) return { bg: '#d1fae5', text: '#065f46', border: colors.emerald[600] };
+        return { bg: '#f3f4f6', text: '#4b5563', border: colors.slate[400] };
     };
 
     const stageColors = getStageColor(item.currentStage);
 
     return (
-        <TouchableOpacity style={[styles.card, { borderLeftColor: stageColors.text, borderLeftWidth: 4 }]} activeOpacity={0.7} onPress={() => onPress(item)}>
-            {/* Header Row */}
-            <View style={styles.headerRow}>
-                <NativeText style={styles.projectName} numberOfLines={2}>{item.projectName}</NativeText>
+        <TouchableOpacity style={[styles.card, { borderLeftColor: stageColors.border, borderLeftWidth: 5 }]} activeOpacity={0.7} onPress={() => onPress(item)}>
+            {/* Header with Title and Badge */}
+            <View style={styles.cardHeader}>
+                <View style={{ flex: 1 }}>
+                    <Text variant='titleMedium' style={styles.projectTitle}>{item.projectName}</Text>
+                    <Text variant='bodySmall' style={styles.projectSubtitle}>{item.windowTitle}</Text>
+                </View>
                 <View style={[styles.stageBadge, { backgroundColor: stageColors.bg }]}>
                     <NativeText style={[styles.stageBadgeText, { color: stageColors.text }]}>
-                        {item.currentStage}
+                        {item.currentStage.toUpperCase()}
                     </NativeText>
                 </View>
             </View>
 
-            {/* Details Row */}
-            <View style={styles.detailsRow}>
-                <View style={styles.detailItem}>
-                    <NativeText style={styles.detailLabel}>Window</NativeText>
-                    <NativeText style={styles.detailValue} numberOfLines={1}>{item.windowTitle}</NativeText>
-                </View>
-                <View style={styles.detailItem}>
-                    <NativeText style={styles.detailLabel}>Status</NativeText>
-                    <NativeText style={styles.detailValue} numberOfLines={1}>{item.status}</NativeText>
-                </View>
+            {/* Timeline/Progress Indicator */}
+            <View style={styles.progressIndicator}>
+                <ProgressDot completed={item.applicationStarted} />
+                <ProgressLine completed={item.applicationStarted && item.applicationSubmitted} />
+                <ProgressDot completed={item.applicationSubmitted} />
+                <ProgressLine completed={item.applicationSubmitted && item.rsaReviewCompleted} />
+                <ProgressDot completed={item.rsaReviewCompleted} active={!item.rsaReviewCompleted && item.applicationSubmitted} />
+                <ProgressLine completed={item.rsaReviewCompleted && item.grantsCommitteeReview} />
+                <ProgressDot completed={item.grantsCommitteeReview} />
+                <ProgressLine completed={item.grantsCommitteeReview && item.evaluationCompleted} />
+                <ProgressDot completed={item.evaluationCompleted} />
             </View>
 
-            {/* Checklist Row */}
-            <View style={styles.checklistRow}>
-                <ChecklistItem label="Application Started" completed={item.applicationStarted} />
-                <ChecklistItem label="Submitted" completed={item.applicationSubmitted} />
-                <ChecklistItem label="RSA Review" completed={item.rsaReviewCompleted} />
-                <ChecklistItem label="Grants Committee" completed={item.grantsCommitteeReview} />
-                <ChecklistItem label="Evaluation" completed={item.evaluationCompleted} />
-            </View>
-
-            {/* Date Row */}
-            <View style={styles.dateRow}>
-                <NativeText style={styles.dateLabel}>
-                    Last Updated: {new Date(item.statusChangedDate).toLocaleDateString()}
-                </NativeText>
+            {/* Status Info */}
+            <View style={styles.statusSection}>
+                <NativeText style={styles.statusLabel}>STATUS</NativeText>
+                <RRow style={{ justifyContent: 'space-between', alignItems: 'center' }}>
+                    <NativeText style={styles.statusValue}>{item.status}</NativeText>
+                    <NativeText style={styles.statusDate}>Last Updated: {new Date(item.statusChangedDate).toLocaleDateString()}</NativeText>
+                </RRow>
             </View>
         </TouchableOpacity>
     );
 };
 
 /**
- * Component to display individual checklist item
+ * Progress indicator dot component
  */
-const ChecklistItem = ({ label, completed }: { label: string; completed: boolean }) => {
-    return (
-        <View style={styles.checkItem}>
-            <View style={[styles.checkCircle, { backgroundColor: completed ? colors.emerald[500] : colors.slate[200] }]}>
-                <NativeText style={[styles.checkmark, { opacity: completed ? 1 : 0 }]}>✓</NativeText>
+const ProgressDot = ({ completed, active }: { completed: boolean; active?: boolean }) => {
+    if (completed) {
+        return (
+            <View style={[styles.progressDot, styles.progressDotCompleted]}>
+                <MaterialCommunityIcons name="check" size={12} color="white" />
             </View>
-            <NativeText style={[styles.checkLabel, { opacity: completed ? 1 : 0.6 }]}>{label}</NativeText>
-        </View>
-    );
+        );
+    }
+    if (active) {
+        return (
+            <View style={[styles.progressDot, styles.progressDotActive]}>
+                <View style={styles.progressDotActivePulse} />
+            </View>
+        );
+    }
+    return <View style={[styles.progressDot, styles.progressDotPending]} />;
 };
+
+/**
+ * Progress indicator line component
+ */
+const ProgressLine = ({ completed }: { completed: boolean }) => {
+    return <View style={[styles.progressLine, completed && styles.progressLineCompleted]} />;
+};
+
 
 export default HistoryScreen
