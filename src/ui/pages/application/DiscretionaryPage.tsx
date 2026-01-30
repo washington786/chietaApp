@@ -1,4 +1,4 @@
-import { FlatList, StyleSheet, View } from 'react-native'
+import { FlatList, StyleSheet, View, ScrollView, TouchableOpacity } from 'react-native'
 import React, { useEffect, useMemo, useState } from 'react'
 import { RCol, REmpty, RListLoading, SafeArea } from '@/components/common'
 import RHeader from '@/components/common/RHeader'
@@ -12,7 +12,7 @@ import { dgProject } from '@/core/models/DiscretionaryDto'
 import { RouteProp, useRoute } from '@react-navigation/native'
 import { navigationTypes } from '@/core/types/navigationTypes'
 import { useGetDGOrgApplicationsQuery } from '@/store/api/api'
-
+import { Text } from "react-native-paper";
 const DiscretionaryPage = () => {
     const { newDgApplication } = usePageTransition();
 
@@ -21,6 +21,8 @@ const DiscretionaryPage = () => {
     const [showSearch, setShowSearch] = useState<boolean>(false);
 
     const [searchQuery, setSearchQuery] = useState<string>('');
+
+    const [selectedFilter, setSelectedFilter] = useState<string>('all');
 
     const router = useRoute<RouteProp<navigationTypes, "discretionary">>();
 
@@ -57,12 +59,21 @@ const DiscretionaryPage = () => {
         'projectStatus'
     ] as const;
 
+    const statusFilters = [
+        { label: 'All', value: 'all' },
+        { label: 'Registered', value: 'registered' },
+        { label: 'Submitted', value: 'submitted' },
+        { label: 'RSA Review', value: 'rsa review' },
+        { label: 'Evaluation', value: 'evaluation' }
+    ];
+
     const filteredProjects = useMemo(() => {
         let projects = allApplications;
 
+        // Filter by search query
         if (searchQuery?.trim()) {
             const query = searchQuery.trim().toLowerCase();
-            projects = allApplications.filter(({ discretionaryProject }) => {
+            projects = projects.filter(({ discretionaryProject }) => {
                 return fieldsToSearch.some((field) => {
                     const value = discretionaryProject[field];
                     return typeof value === 'string' && value.toLowerCase().includes(query);
@@ -70,9 +81,17 @@ const DiscretionaryPage = () => {
             });
         }
 
+        // Filter by status
+        if (selectedFilter !== 'all') {
+            projects = projects.filter(({ discretionaryProject }) => {
+                const status = discretionaryProject.projectStatus?.toLowerCase() || '';
+                return status.includes(selectedFilter.toLowerCase());
+            });
+        }
+
         // Sort by ID in descending order (most recent first)
         return projects.sort((a, b) => b.discretionaryProject.id - a.discretionaryProject.id);
-    }, [allApplications, searchQuery]);
+    }, [allApplications, searchQuery, selectedFilter]);
 
     const renderList = ({ index, item }: { index: number, item: { discretionaryProject: dgProject } }) => {
         return (
@@ -106,16 +125,55 @@ const DiscretionaryPage = () => {
 
             <FlatList
                 data={filteredProjects}
-                style={{ paddingHorizontal: 12, paddingVertical: 6, flex: 1, flexGrow: 1 }}
+                style={{ paddingHorizontal: 12, flex: 1, flexGrow: 1 }}
                 renderItem={renderList}
-                ListHeaderComponent={<>{!showSearch && < InformationBanner title='list of Discretionary grants applied for.You can only submit during open grant window.' />}</>}
+                ListHeaderComponent={
+                    <>
+                        {/* Status Filter */}
+                        <FlatList
+                            data={statusFilters}
+                            horizontal
+                            scrollEnabled
+                            showsHorizontalScrollIndicator={false}
+                            style={{ marginVertical: 10 }}
+                            contentContainerStyle={{ gap: 8 }}
+                            keyExtractor={(item) => item.value}
+                            renderItem={({ item: filter }) => (
+                                <TouchableOpacity
+                                    onPress={() => setSelectedFilter(filter.value)}
+                                    style={[
+                                        styles.filterButton,
+                                        selectedFilter === filter.value && styles.filterButtonActive
+                                    ]}
+                                >
+                                    <Text
+                                        style={[
+                                            styles.filterText,
+                                            selectedFilter === filter.value && styles.filterTextActive
+                                        ]}
+                                    >{filter.label}</Text>
+                                </TouchableOpacity>
+                            )}
+                            scrollEventThrottle={16}
+                            nestedScrollEnabled={true}
+                        />
+                        {/* {!showSearch && <InformationBanner title='list of Discretionary grants applied for.You can only submit during open grant window.' />} */}
+                    </>
+                }
                 showsVerticalScrollIndicator={false}
                 ItemSeparatorComponent={() => <View style={{ height: 5 }} />}
                 removeClippedSubviews={false}
                 initialNumToRender={10}
                 maxToRenderPerBatch={10}
                 windowSize={21}
-                ListEmptyComponent={<REmpty title='No Applications Found' subtitle={`when you have applications, they'll appear here`} />}
+                ListEmptyComponent={
+                    filteredProjects.length === 0 ? (
+                        <REmpty
+                            title={searchQuery ? 'No applications match your search.' : 'No discretionary grant applications found.'}
+                            subtitle="When you have applications, they'll appear here"
+                        />
+                    ) : null
+                }
             />
             <FAB
                 mode='flat'
@@ -138,5 +196,28 @@ const styles = StyleSheet.create({
         bottom: 0,
         borderRadius: 100,
         backgroundColor: colors.primary[900],
+    },
+    filterButton: {
+        paddingHorizontal: 14,
+        paddingVertical: 12,
+        borderRadius: 50,
+        borderWidth: 1.5,
+        borderColor: colors.zinc[300],
+        backgroundColor: 'transparent',
+        minHeight: 44,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    filterButtonActive: {
+        borderColor: colors.primary[800],
+        backgroundColor: colors.primary[800],
+    },
+    filterText: {
+        fontSize: 13,
+        color: colors.zinc[400],
+        fontWeight: '500',
+    },
+    filterTextActive: {
+        color: 'white',
     },
 })
