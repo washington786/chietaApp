@@ -2,7 +2,7 @@ import { FlatList, View } from 'react-native'
 import React, { useEffect } from 'react'
 import colors from '@/config/colors'
 import { Text, IconButton, Tooltip } from 'react-native-paper'
-import { Expandable, RUploadSuccess, DgEntryList, RUploadSuccessFile, MessageWrapper, WindowClose } from '@/components/modules/application'
+import { Expandable, RUploadSuccess, DgEntryList, RUploadSuccessFile, MessageWrapper } from '@/components/modules/application'
 import { RButton, RInput, RUpload } from '@/components/common'
 import { SelectList } from 'react-native-dropdown-select-list'
 import { dg_styles as styles } from '@/styles/DgStyles';
@@ -37,8 +37,6 @@ const DgApplicationDetails = () => {
         selectedProvince,
         selectedDistrict,
         selectedMunicipality,
-        district,
-        manucipality,
         programmeType,
         learningProgramme,
         subCategory,
@@ -63,8 +61,6 @@ const DgApplicationDetails = () => {
         declarationInterest,
         bankingDetailsProof,
 
-        // Setters
-        setCurrentStep,
         setDocs,
         setProv,
         setProg,
@@ -201,6 +197,7 @@ const DgApplicationDetails = () => {
                                             defaultOption={getSelectedLabel(programmeType, projectTypes)}
                                             boxStyles={styles.boxStyle}
                                             dropdownStyles={styles.dropdown}
+
                                         />
                                         <SelectList
                                             setSelected={(val: any) => {
@@ -214,6 +211,7 @@ const DgApplicationDetails = () => {
                                             defaultOption={getSelectedLabel(learningProgramme, focusAreas)}
                                             boxStyles={styles.boxStyle}
                                             dropdownStyles={styles.dropdown}
+
                                         />
                                         <SelectList
                                             setSelected={(val: any) => {
