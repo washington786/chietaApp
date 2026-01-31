@@ -1,5 +1,5 @@
 import { FlatList, View } from 'react-native'
-import React from 'react'
+import React, { useEffect } from 'react'
 import colors from '@/config/colors'
 import { Text, IconButton, Tooltip } from 'react-native-paper'
 import { Expandable, RUploadSuccess, DgEntryList, RUploadSuccessFile, MessageWrapper, WindowClose } from '@/components/modules/application'
@@ -21,6 +21,8 @@ const DgApplicationDetails = () => {
 
     const user = useSelector((state: RootState) => state.auth.user);
     const userId = typeof user?.id === 'string' ? parseInt(user.id) : (user?.id || 0);
+
+    const { selectedProject } = useSelector((state: RootState) => state.discretionaryGrant);
 
     const { open, close } = useGlobalBottomSheet();
 
@@ -122,6 +124,24 @@ const DgApplicationDetails = () => {
         getSelectedLabel,
         generate,
     } = useDg({ projectId: projectIdStr, appId, userId });
+
+    // Auto-populate programme type and learning programme from selectedProject
+    useEffect(() => {
+        if (selectedProject?.projType && projectTypes?.length > 0) {
+            // Find the project type ID that matches the projType description
+            const matchingType = projectTypes.find((pt: any) => pt.value === selectedProject.projType);
+            if (matchingType) {
+                setProgrammeType(matchingType.key);
+            }
+        }
+        if (selectedProject?.focusArea && focusAreas?.length > 0) {
+            // Find the focus area ID that matches the focusArea description
+            const matchingArea = focusAreas.find((fa: any) => fa.value === selectedProject.focusArea);
+            if (matchingArea) {
+                setLearningProgramme(matchingArea.key);
+            }
+        }
+    }, [selectedProject?.projType, selectedProject?.focusArea, projectTypes, focusAreas, setProgrammeType, setLearningProgramme]);
 
     // Display read-only view if project is closed or not editable
     if (projectClosureStatus.isClosed || !projectClosureStatus.isEditable) {
