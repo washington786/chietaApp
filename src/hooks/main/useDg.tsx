@@ -303,6 +303,7 @@ const useDg = ({ projectId, appId, userId }: UseDgParams) => {
     const handleLearnerSchedule = () => handleDocumentUpload('Schedule', 'Schedule', setLearnerSchedule, scheduleQuery);
     const handleOrgInterest = () => handleDocumentUpload('Declaration', 'Declaration', setDeclarationInterest, declarationQuery);
     const handleBankDetails = () => handleDocumentUpload('Bank Proof', 'Bank Proof', setBankDetails, bankProofQuery);
+    const handleApplicationFormUpload = () => handleDocumentUpload('Signed Application', 'Signed Application', setApplicationForm, signedAppQuery);
 
     // ========== Entry Management ==========
     // Populate entries from API response
@@ -337,6 +338,16 @@ const useDg = ({ projectId, appId, userId }: UseDgParams) => {
             setEntries(mappedEntries);
         }
     }, [dgProjectDetailsApp]);
+
+    // Auto-set focusCritEvalId when subCategory is selected
+    useEffect(() => {
+        if (subCategory && adminCriteria.length > 0) {
+            const selectedCrit = adminCriteria.find(ac => ac.key === subCategory);
+            if (selectedCrit?.focusCritEvalId) {
+                setFocusCritEvalId(selectedCrit.focusCritEvalId.toString());
+            }
+        }
+    }, [subCategory, adminCriteria]);
 
     // Handle edit mode flow - set programme details in correct order
     useEffect(() => {
@@ -523,6 +534,15 @@ const useDg = ({ projectId, appId, userId }: UseDgParams) => {
             });
             return;
         }
+        if (!subCategory || !focusCritEvalId) {
+            showToast({
+                message: "Please select SubCategory (it will auto-populate Evaluation Criteria)",
+                title: "Incomplete",
+                type: "error",
+                position: "top",
+            });
+            return;
+        }
         if (!selectedProvince || !selectedDistrict || !selectedMunicipality) {
             showToast({
                 message: "Please select Province, District, and Municipality",
@@ -564,7 +584,7 @@ const useDg = ({ projectId, appId, userId }: UseDgParams) => {
                 focusAreaId: parseInt(learningProgramme),
                 subCategoryId: parseInt(subCategory),
                 interventionId: parseInt(intervention),
-                focusCritEvalId: parseInt(focusCritEvalId),
+                focusCritEvalId: focusCritEvalId ? parseInt(focusCritEvalId) : parseInt(subCategory),
                 otherIntervention: "",
                 number_Continuing: parseInt(noContinuing),
                 number_New: parseInt(noNew),
@@ -611,7 +631,7 @@ const useDg = ({ projectId, appId, userId }: UseDgParams) => {
                 learningProgrammeId: parseInt(learningProgramme),
                 subCategoryId: parseInt(subCategory),
                 interventionId: parseInt(intervention),
-                focusCritEvalId: parseInt(focusCritEvalId),
+                focusCritEvalId: focusCritEvalId ? parseInt(focusCritEvalId) : parseInt(subCategory),
                 programType: programTypeLabel,
                 learningProgramme: learningProgrammeLabel,
                 subCategory: subCategoryLabel,
@@ -637,9 +657,6 @@ const useDg = ({ projectId, appId, userId }: UseDgParams) => {
             }
 
             resetFormFields();
-            setProg(true);
-            setLoc(true);
-            setProv(true);
 
             showToast({
                 message: editingEntryId ? "Application entry updated successfully" : "Application entry saved successfully",
@@ -799,6 +816,7 @@ const useDg = ({ projectId, appId, userId }: UseDgParams) => {
         handleLearnerSchedule,
         handleOrgInterest,
         handleBankDetails,
+        handleApplicationFormUpload,
         handleEditEntry,
         handleDeleteEntry,
         handleNext,
