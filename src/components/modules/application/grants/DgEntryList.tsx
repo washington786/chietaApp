@@ -46,13 +46,14 @@ const DgEntryList: React.FC<DgEntryListProps> = ({
                 data={data}
                 renderItem={renderItem}
                 keyExtractor={keyExtractor}
+
                 horizontal
                 scrollEnabled={data.length > 0}
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={{
                     flexGrow: 1
                 }}
-                style={{ flexGrow: 1 }}
+                style={{ flexGrow: 1, paddingVertical: 8 }}
                 ListEmptyComponent={emptyComponent}
                 nestedScrollEnabled
             />

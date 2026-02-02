@@ -1,9 +1,9 @@
-import { FlatList, View } from 'react-native'
+import { FlatList, TouchableOpacity, View } from 'react-native'
 import React, { useEffect } from 'react'
 import colors from '@/config/colors'
 import { Text, IconButton, Tooltip } from 'react-native-paper'
 import { Expandable, RUploadSuccess, DgEntryList, RUploadSuccessFile, MessageWrapper } from '@/components/modules/application'
-import { RButton, RInput, RUpload } from '@/components/common'
+import { RButton, RCol, RInput, RRow, RUpload } from '@/components/common'
 import { SelectList } from 'react-native-dropdown-select-list'
 import { dg_styles as styles } from '@/styles/DgStyles';
 import { RouteProp, useRoute } from '@react-navigation/native'
@@ -13,6 +13,7 @@ import { RootState } from '@/store/store'
 import { useGlobalBottomSheet } from '@/hooks/navigation/BottomSheet'
 import ProjectDetailsItem from '@/components/modules/application/grants/ProjectDetailsItem'
 import useDg from '@/hooks/main/useDg'
+import { EvilIcons } from '@expo/vector-icons';
 
 const DgApplicationDetails = () => {
     const { appId: projectId } = useRoute<RouteProp<navigationTypes, "applicationDetails">>().params;
@@ -70,6 +71,15 @@ const DgApplicationDetails = () => {
         setSubCategory,
         setIntervention,
 
+        setNoContinuing,
+        setNoNew,
+        setNoFemale,
+        setNoHDI,
+        setNoYouth,
+        setNoDisabled,
+        setNoRural,
+        setCostPerLearner,
+
         // Queries
         projectTypes,
         focusAreas,
@@ -108,6 +118,7 @@ const DgApplicationDetails = () => {
         handleLearnerSchedule,
         handleOrgInterest,
         handleBankDetails,
+        handleApplicationFormUpload,
         handleEditEntry,
         handleDeleteEntry,
         handleNext,
@@ -139,8 +150,8 @@ const DgApplicationDetails = () => {
         }
     }, [selectedProject?.projType, selectedProject?.focusArea, projectTypes, focusAreas, setProgrammeType, setLearningProgramme]);
 
-    // Display read-only view if project is closed or not editable
-    if (projectClosureStatus.isClosed || !projectClosureStatus.isEditable) {
+    // Display read-only view only if project is closed/not editable AND user is not actively adding entries
+    if ((projectClosureStatus.isClosed || !projectClosureStatus.isEditable) && entries.length === 0 && currentStep === 1) {
         return (
             <ProjectDetailsItem projectId={appId} />
         )
@@ -241,14 +252,14 @@ const DgApplicationDetails = () => {
                                     </Expandable>
 
                                     <Expandable title='Learner Details' isExpanded={expandProv} onPress={() => setProv(!expandProv)}>
-                                        <RInput placeholder='#Continuing' keyboardType='number-pad' value={noContinuing} onChangeText={() => { }} />
-                                        <RInput placeholder='#New' keyboardType='number-pad' value={noNew} onChangeText={() => { }} />
-                                        <RInput placeholder='#Female' keyboardType='number-pad' value={noFemale} onChangeText={() => { }} />
-                                        <RInput placeholder='#HDI' keyboardType='number-pad' value={noHDI} onChangeText={() => { }} />
-                                        <RInput placeholder='#Youth' keyboardType='number-pad' value={noYouth} onChangeText={() => { }} />
-                                        <RInput placeholder='#Disabled' keyboardType='number-pad' value={noDisabled} onChangeText={() => { }} />
-                                        <RInput placeholder='#Rural' keyboardType='number-pad' value={noRural} onChangeText={() => { }} />
-                                        <RInput placeholder='#Cost Per learner' keyboardType='numeric' value={costPerLearner} onChangeText={() => { }} />
+                                        <RInput placeholder='#Continuing' keyboardType='number-pad' value={noContinuing} onChangeText={(val) => { setNoContinuing(val); }} />
+                                        <RInput placeholder='#New' keyboardType='number-pad' value={noNew} onChangeText={(val) => { setNoNew(val); }} />
+                                        <RInput placeholder='#Female' keyboardType='number-pad' value={noFemale} onChangeText={(val) => { setNoFemale(val); }} />
+                                        <RInput placeholder='#HDI' keyboardType='number-pad' value={noHDI} onChangeText={(val) => { setNoHDI(val); }} />
+                                        <RInput placeholder='#Youth' keyboardType='number-pad' value={noYouth} onChangeText={(val) => { setNoYouth(val); }} />
+                                        <RInput placeholder='#Disabled' keyboardType='number-pad' value={noDisabled} onChangeText={(val) => { setNoDisabled(val); }} />
+                                        <RInput placeholder='#Rural' keyboardType='number-pad' value={noRural} onChangeText={(val) => { setNoRural(val); }} />
+                                        <RInput placeholder='#Cost Per learner' keyboardType='numeric' value={costPerLearner} onChangeText={(val) => { setCostPerLearner(val); }} />
                                     </Expandable>
 
                                     <Expandable title='Project Location' isExpanded={expandLoc} onPress={() => setLoc(!expandLoc)}>
@@ -374,14 +385,14 @@ const DgApplicationDetails = () => {
                             {/* Step 3: Application Form */}
                             {currentStep === 3 && (
                                 <>
-                                    <MessageWrapper text="Ensure all uploaded documents are accurate and complete before submission." />
+                                    {/* <MessageWrapper text="Ensure all uploaded documents are accurate and complete before submission." /> */}
                                     <View style={styles.formSection}>
                                         <RButton
                                             onPressButton={generate}
                                             title='Download Application Form'
                                             styleBtn={styles.btnSecondary}
                                         />
-                                        <RUpload title='Upload Signed Application' onPress={() => handleTaxUpload()} />
+                                        <RUpload title='Upload Signed Application' onPress={handleApplicationFormUpload} />
                                         {applicationForm && applicationForm.assets && <RUploadSuccess file={applicationForm} />}
                                         {!applicationForm && getDocument(signedAppQuery)?.filename && <RUploadSuccessFile file={getDocument(signedAppQuery)?.filename} />}
                                     </View>
@@ -408,7 +419,7 @@ const DgApplicationDetails = () => {
                             icon={"check"}
                             iconColor={colors.green[600]}
                             size={32}
-                            onPress={handleSubmitApplication}
+                            onPress={() => open(<SubmitSheet close={close} submit={() => { handleSubmitApplication(); close(); }} />, { snapPoints: ["40%"] })}
                         />
                     </Tooltip>
                 ) : (
@@ -422,6 +433,40 @@ const DgApplicationDetails = () => {
             </View>
         </View>
     )
+}
+
+function SubmitSheet({ close, submit }: { close: () => void, submit: () => void }) {
+    return (
+        <View style={{ flex: 1, backgroundColor: "white", padding: 16 }}>
+            <RRow
+                style={{
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    marginBottom: 24,
+                }}
+            >
+                <View style={{ flexDirection: "row", alignItems: "center", gap: 4 }}>
+                    <Text variant="titleMedium">Application Submit</Text>
+                </View>
+
+                <TouchableOpacity onPress={close} activeOpacity={0.8}>
+                    <EvilIcons name="close" size={32} color="black" />
+                </TouchableOpacity>
+            </RRow>
+
+            <RCol style={{ alignItems: "center", gap: 16 }}>
+                <Text
+                    variant="bodyMedium"
+                    style={{ textAlign: "center", color: "#666", lineHeight: 24 }}
+                >
+                    By submitting this application, you confirm that all information provided is accurate and complete to the best of your knowledge. You understand that any false information may lead to disqualification from the application process.
+                </Text>
+                <TouchableOpacity style={{ padding: 10, backgroundColor: colors.green[600], borderRadius: 5, width: "100%", alignItems: "center", paddingVertical: 12 }} activeOpacity={0.8} onPress={submit}>
+                    <Text style={{ color: "white", fontWeight: "bold" }}>Submit Application</Text>
+                </TouchableOpacity>
+            </RCol>
+        </View>
+    );
 }
 
 export default DgApplicationDetails;
