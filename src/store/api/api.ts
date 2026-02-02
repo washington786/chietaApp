@@ -509,6 +509,13 @@ export const api = createApi({
             providesTags: ['Grant'],
         }),
 
+        // Get grant details view by ID
+        getGrantDetailsView: builder.query({
+            query: (id) =>
+                `/api/services/app/DiscretionaryProjectApproval/GetProjectDetailsView?id=${id}`,
+            providesTags: ['Grant'],
+        }),
+
         /**
          * Mandatory Grants Endpoints
          */
@@ -702,6 +709,7 @@ export const {
     useGetProjectDetailsQuery,
     useGetDGProjectDetailsAppQuery,
     useGetDGOrgApplicationsQuery,
+    useGetGrantDetailsViewQuery,
     useGetOrgApplicationsQuery,
     useGetMandatoryGrantPaymentsQuery,
     useGetApplicationBiosQuery,

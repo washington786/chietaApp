@@ -5,12 +5,11 @@ import { useRoute, RouteProp } from '@react-navigation/native'
 import { navigationTypes } from '@/core/types/navigationTypes'
 import { DocumentDto } from '@/core/models/MandatoryDto'
 import { showToast } from '@/core'
-import { useGetDocumentsByEntityQuery } from '@/store/api/api'
+import { useGetDocumentsByEntityQuery, useGetGrantDetailsViewQuery } from '@/store/api/api'
 import { Expandable, GrantDetails } from '@/components/modules/application'
 import RDownload from '@/components/common/RDownload'
 import { useSelector } from 'react-redux'
 import { RootState } from '@/store/store'
-import { Text } from 'react-native-paper'
 
 const FileManagementPage = () => {
     const { appId } = useRoute<RouteProp<navigationTypes, "applicationDetails">>().params;
@@ -110,6 +109,10 @@ const FileManagementPage = () => {
         ),
     };
 
+    const { data: grantDetails } = useGetGrantDetailsViewQuery(appId, { skip: !appId });
+
+    console.log(grantDetails);
+
     // Helper function to get document from RTK Query data
     const getDocument = (query: any) => query.data?.result?.items?.[0]?.documents;
 
@@ -161,7 +164,7 @@ const FileManagementPage = () => {
             )}
 
             <Expandable title='Grant Management' isExpanded={showGrant} onPress={() => setShowGrant(!showGrant)}>
-                <GrantDetails />
+                <GrantDetails data={grantDetails?.result} />
             </Expandable>
         </Scroller>
     )
