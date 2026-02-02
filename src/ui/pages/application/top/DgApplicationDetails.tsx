@@ -150,8 +150,9 @@ const DgApplicationDetails = () => {
         }
     }, [selectedProject?.projType, selectedProject?.focusArea, projectTypes, focusAreas, setProgrammeType, setLearningProgramme]);
 
-    // Display read-only view only if project is closed/not editable AND user is not actively adding entries
-    if ((projectClosureStatus.isClosed || !projectClosureStatus.isEditable) && entries.length === 0 && currentStep === 1) {
+    // Display read-only view if:
+    // 1. Project is not editable (status is not 'Registered' OR date expired)
+    if (!projectClosureStatus.isEditable) {
         return (
             <ProjectDetailsItem projectId={appId} />
         )
