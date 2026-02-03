@@ -1,16 +1,13 @@
 import { Image, StyleSheet, TouchableOpacity, View } from 'react-native'
 import React, { FC } from 'react'
-import { RCol, RDivider, RRow, RUpload } from '@/components/common'
+import { RCol, RDivider, RRow } from '@/components/common'
 import { Expandable } from './Expandable'
-import { Button, Text } from 'react-native-paper'
+import { Text } from 'react-native-paper'
 import colors from '@/config/colors'
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { ApplicationEntry } from './DgApplicationEntryItem'
 import { EvilIcons } from '@expo/vector-icons'
 import { errorBox } from '@/components/loadAssets'
 import { useGlobalBottomSheet } from '@/hooks/navigation/BottomSheet'
-import { useSelector } from 'react-redux'
-import { RootState } from '@/store/store'
 import useGrants from '@/hooks/main/useGrants'
 
 export interface GrantDetailsData {
