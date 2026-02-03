@@ -1,4 +1,4 @@
-import { StyleSheet, TouchableOpacity, View } from 'react-native'
+import { Image, StyleSheet, TouchableOpacity, View } from 'react-native'
 import React, { FC } from 'react'
 import { RCol, RDivider, RRow, RUpload } from '@/components/common'
 import { Expandable } from './Expandable'
@@ -6,6 +6,12 @@ import { Button, Text } from 'react-native-paper'
 import colors from '@/config/colors'
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { ApplicationEntry } from './DgApplicationEntryItem'
+import { EvilIcons } from '@expo/vector-icons'
+import { errorBox } from '@/components/loadAssets'
+import { useGlobalBottomSheet } from '@/hooks/navigation/BottomSheet'
+import { useSelector } from 'react-redux'
+import { RootState } from '@/store/store'
+import useGrants from '@/hooks/main/useGrants'
 
 export interface GrantDetailsData {
     id: number;
@@ -39,13 +45,18 @@ export interface GrantDetailsData {
 
 interface GrantDetailsProps {
     data?: GrantDetailsData;
+    appId: number;
 }
 
-const GrantDetails: FC<GrantDetailsProps> = ({ data }) => {
+const GrantDetails: FC<GrantDetailsProps> = ({ data, appId }) => {
     const [showDetails, setShowDetails] = React.useState<boolean>(true);
+
+    const { generateApprovedGrantsReport, generateRejectedGrantsReport } = useGrants({ appId });
 
     // Use data prop if provided, otherwise fall back to entry prop
     const displayData = data ?? null;
+
+    const { close, open } = useGlobalBottomSheet();
 
     if (!displayData) {
         return (
@@ -61,6 +72,24 @@ const GrantDetails: FC<GrantDetailsProps> = ({ data }) => {
     const approvedLearners = data?.gC_New || data?.number_New || 0;
     const costPerLearner = data?.gC_CostPerLearner || data?.costPerLearner || 0;
     const contractNo = data?.contract_Number || 'N/A';
+
+    async function handleEvaluationDownload() {
+        if (data?.status === 'Rejected') {
+            await generateRejectedGrantsReport();
+            return;
+        }
+
+        if (data?.status !== 'Approved' && data?.status !== 'Rejected') {
+            open(<DownloadError close={close} file='evaluation outcome ' />, { snapPoints: ['40%'] });
+        }
+
+        await generateApprovedGrantsReport();
+    }
+    async function handleMOADownload() {
+        if (data?.status !== 'Approved' && data?.status !== 'Rejected') {
+            open(<DownloadError close={close} file="MOA " />, { snapPoints: ['40%'] });
+        }
+    }
 
     return (
         <RCol style={styles.moduleContainer}>
@@ -109,8 +138,9 @@ const GrantDetails: FC<GrantDetailsProps> = ({ data }) => {
 
                     <RCol style={{ marginTop: 5 }}>
                         <Text variant='labelSmall' style={{ color: colors.zinc[800] }}>Download Files</Text>
-                        <DownloadTemp fileName='Download Evaluation Outcome' />
-                        <DownloadTemp fileName='Download MOA' />
+                        <DownloadTemp fileName='Download Evaluation Outcome' onPress={handleEvaluationDownload} />
+
+                        <DownloadTemp fileName='Download MOA' onPress={handleMOADownload} />
                     </RCol>
 
                 </RCol>
@@ -125,6 +155,44 @@ function DownloadTemp({ fileName, onPress }: { fileName: string, onPress?: () =>
             <FontAwesome name="cloud-download" size={24} color={colors.blue[400]} />
             <Text variant='bodySmall' style={{ color: colors.gray[500] }}>{fileName}</Text>
         </TouchableOpacity>
+    )
+}
+
+
+function DownloadError({ close, file }: { close: () => void, file: string }) {
+    return (
+        <View style={{ flex: 1, backgroundColor: "white", padding: 16 }}>
+            <RRow
+                style={{
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    marginBottom: 24,
+                }}
+            >
+                <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
+                    <Text variant="titleMedium">Download Error</Text>
+                </View>
+
+                <TouchableOpacity onPress={close}>
+                    <EvilIcons name="close" size={32} color="black" />
+                </TouchableOpacity>
+            </RRow>
+
+            <RCol style={{ alignItems: "center", gap: 16 }}>
+                <Image source={errorBox} style={{ width: 64, height: 64 }} />
+                <Text variant="headlineMedium" style={{ fontWeight: "bold", textAlign: "center" }}>
+                    File Not Available
+                </Text>
+
+                <Text
+                    variant="bodyMedium"
+                    style={{ textAlign: "center", color: "#666", lineHeight: 24 }}
+                >
+                    An error occurred while trying to download the {file}
+                    file. File not available for this application grant.
+                </Text>
+            </RCol>
+        </View>
     )
 }
 

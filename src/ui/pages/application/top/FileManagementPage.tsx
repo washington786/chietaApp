@@ -111,8 +111,6 @@ const FileManagementPage = () => {
 
     const { data: grantDetails } = useGetGrantDetailsViewQuery(appId, { skip: !appId });
 
-    console.log(grantDetails);
-
     // Helper function to get document from RTK Query data
     const getDocument = (query: any) => query.data?.result?.items?.[0]?.documents;
 
@@ -164,7 +162,7 @@ const FileManagementPage = () => {
             )}
 
             <Expandable title='Grant Management' isExpanded={showGrant} onPress={() => setShowGrant(!showGrant)}>
-                <GrantDetails data={grantDetails?.result} />
+                <GrantDetails data={grantDetails?.result} appId={Number(appId)} />
             </Expandable>
         </Scroller>
     )
