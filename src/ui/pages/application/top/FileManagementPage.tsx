@@ -5,11 +5,12 @@ import { useRoute, RouteProp } from '@react-navigation/native'
 import { navigationTypes } from '@/core/types/navigationTypes'
 import { DocumentDto } from '@/core/models/MandatoryDto'
 import { showToast } from '@/core'
-import { useGetDocumentsByEntityQuery, useGetGrantDetailsViewQuery } from '@/store/api/api'
+import { useGetDocumentsByEntityQuery, useGetGrantDetailsViewQuery, useGetProjectDetailsListViewQuery } from '@/store/api/api'
 import { Expandable, GrantDetails } from '@/components/modules/application'
 import RDownload from '@/components/common/RDownload'
 import { useSelector } from 'react-redux'
 import { RootState } from '@/store/store'
+import { FlatList } from 'react-native'
 
 const FileManagementPage = () => {
     const { appId } = useRoute<RouteProp<navigationTypes, "applicationDetails">>().params;
@@ -111,8 +112,13 @@ const FileManagementPage = () => {
 
     const { data: grantDetails } = useGetGrantDetailsViewQuery(appId, { skip: !appId });
 
+    const { data: grants, isLoading: grantsLoading, error } = useGetProjectDetailsListViewQuery(Number(appId), { skip: !appId });
+
+    console.log('Project Details List View Data:', grants);
+
     // Helper function to get document from RTK Query data
     const getDocument = (query: any) => query.data?.result?.items?.[0]?.documents;
+
 
     // Check if any documents exist
     const hasDocuments = useMemo(() => {
@@ -135,36 +141,52 @@ const FileManagementPage = () => {
     };
 
     return (
-        <Scroller style={styles.list}>
-            {isLoading ? (
-                <RLoaderAnimation />
-            ) : !hasDocuments ? (
-                <REmpty title='No Documents' subtitle='No documents have been uploaded for this application yet.' />
-            ) : (
-                <Expandable title='Manage Uploaded Documents' isExpanded={showDocs} onPress={() => setShowDocs(!showDocs)}>
-                    <RCol style={styles.docs}>
-                        {requiredDocuments.map((docType) => {
-                            const query = allDocuments[docType];
-                            const doc = getDocument(query);
-                            return (
-                                doc && query.isSuccess && (
-                                    <RDownload
-                                        key={docType}
-                                        title={doc.documenttype}
-                                        fileName={doc.filename}
-                                        onPress={() => { handleDownload(doc) }}
-                                    />
-                                )
-                            );
-                        })}
-                    </RCol>
-                </Expandable>
-            )}
+        <>
+            <FlatList
+                data={[]}
+                renderItem={() => null}
+                style={styles.list}
+                showsHorizontalScrollIndicator={false}
+                ListFooterComponent={
+                    <>
+                        {isLoading ? (
+                            <RLoaderAnimation />
+                        ) : !hasDocuments ? (
+                            <REmpty title='No Documents' subtitle='No documents have been uploaded for this application yet.' />
+                        ) : (
+                            <Expandable title='Manage Uploaded Documents' isExpanded={showDocs} onPress={() => setShowDocs(!showDocs)}>
+                                <RCol style={styles.docs}>
+                                    {requiredDocuments.map((docType) => {
+                                        const query = allDocuments[docType];
+                                        const doc = getDocument(query);
+                                        return (
+                                            doc && query.isSuccess && (
+                                                <RDownload
+                                                    key={docType}
+                                                    title={doc.documenttype}
+                                                    fileName={doc.filename}
+                                                    onPress={() => { handleDownload(doc) }}
+                                                />
+                                            )
+                                        );
+                                    })}
+                                </RCol>
+                            </Expandable>
+                        )}
 
-            <Expandable title='Grant Management' isExpanded={showGrant} onPress={() => setShowGrant(!showGrant)}>
-                <GrantDetails data={grantDetails?.result} appId={Number(appId)} />
-            </Expandable>
-        </Scroller>
+                        <Expandable title='Grant Management' isExpanded={showGrant} onPress={() => setShowGrant(!showGrant)}>
+                            <FlatList
+                                data={grants}
+                                keyExtractor={(item) => String(item.id)}
+                                renderItem={({ item }) => (
+                                    <GrantDetails data={item} appId={Number(appId)} />
+                                )}
+                            />
+                        </Expandable>
+                    </>
+                }
+            />
+        </>
     )
 }
 

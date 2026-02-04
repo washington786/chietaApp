@@ -71,20 +71,21 @@ const GrantDetails: FC<GrantDetailsProps> = ({ data, appId }) => {
     const contractNo = data?.contract_Number || 'N/A';
 
     async function handleEvaluationDownload() {
-        if (data?.status === 'Rejected') {
+        if (data?.contract_Number === null) {
             await generateRejectedGrantsReport();
             return;
         }
 
-        if (data?.status !== 'Approved' && data?.status !== 'Rejected') {
-            open(<DownloadError close={close} file='evaluation outcome ' />, { snapPoints: ['40%'] });
+        if (data?.contract_Number !== null) {
+            await generateApprovedGrantsReport();
         }
 
-        await generateApprovedGrantsReport();
     }
     async function handleMOADownload() {
-        if (data?.status !== 'Approved' && data?.status !== 'Rejected') {
+        if (data?.contract_Number !== null) {
             open(<DownloadError close={close} file="MOA " />, { snapPoints: ['40%'] });
+        } else {
+            open(<DownloadError close={close} file='MOA ' />, { snapPoints: ['40%'] });
         }
     }
 
