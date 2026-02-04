@@ -65,6 +65,8 @@ const DetailsPage = () => {
 
     const person = sdfData?.result?.person;
 
+    console.log(organization);
+
     return (
         <FlatList data={[]}
             style={{ paddingHorizontal: 12, paddingVertical: 6, flex: 1, flexGrow: 1 }}

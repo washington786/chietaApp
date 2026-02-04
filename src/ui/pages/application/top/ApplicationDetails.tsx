@@ -1,4 +1,4 @@
-import { FlatList, StyleSheet } from 'react-native'
+import { FlatList, StyleSheet, TouchableOpacity } from 'react-native'
 import React, { useState } from 'react'
 import { useSelector } from 'react-redux';
 import { Expandable, RUploadSuccessFile } from '@/components/modules/application'
@@ -9,17 +9,28 @@ import colors from '@/config/colors';
 import { showToast } from '@/core';
 import { MandatoryGrantBiodataDto } from '@/core/models/MandatoryDto';
 import { RouteProp, useRoute } from '@react-navigation/native';
-import { useGetApplicationBiosQuery, useGetDocumentsByEntityQuery, useDownloadDocumentMutation } from '@/store/api/api';
+import { useGetApplicationBiosQuery, useGetDocumentsByEntityQuery, useDownloadDocumentMutation, useGetPersonByUserIdQuery, useGetOrganizationByProjectQuery } from '@/store/api/api';
 import { navigationTypes } from '@/core/types/navigationTypes';
 import RDownload from '@/components/common/RDownload';
 import { RootState } from '@/store/store';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { generateMgApprovalPdf } from '@/core/helpers/pdfGenerator';
+import { GrantsMgApprovalTemplateParams } from '@/core/helpers/grantsTemplate';
 
 const ApplicationDetails = () => {
 
     const { appId } = useRoute<RouteProp<navigationTypes, "applicationDetails">>().params;
     const user = useSelector((state: RootState) => state.auth.user);
 
+    const { selectedApplication } = useSelector((state: RootState) => state.mandatoryGrant);
+
+    const year = selectedApplication?.referenceNo?.substring(2, selectedApplication.referenceNo.length);
+
+    const period = year ? (parseInt(year) - 1).toString() + '/' + year : '';
+
     const { data, isLoading: loading, error } = useGetApplicationBiosQuery(appId, { skip: !appId });
+
+    const { data: OrgData, isLoading: dgOrgLoading, error: dgOrgError } = useGetOrganizationByProjectQuery(appId, { skip: !appId });
 
     const biodata = data?.items || [];
 
@@ -27,6 +38,9 @@ const ApplicationDetails = () => {
     const [expandDocs, setDocs] = useState(false);
     const [expandRace, setRace] = useState(false);
     const [expandGender, setGender] = useState(false);
+
+    const { data: sdfData, isLoading: sdfLoading, error: sdfError } = useGetPersonByUserIdQuery(user?.id, { skip: !user?.id });
+
 
     const [downloadDocument, { isLoading: isDownloading }] = useDownloadDocumentMutation();
 
@@ -85,6 +99,25 @@ const ApplicationDetails = () => {
         };
         return typeMap[documentType.toLowerCase()] || documentType;
     };
+
+    const handleApprovalDownload = async () => {
+        try {
+            const sdf: string = sdfData?.result?.person.title + ' ' + sdfData?.result?.person.first_Name + ' ' + sdfData?.result?.person.last_Name;
+
+            const temp: GrantsMgApprovalTemplateParams = {
+                orgTradeName: OrgData.result?.organisation.organisation_Trading_Name || 'N/A',
+                orgName: OrgData.result?.organisation.organisation_Name || 'N/A',
+                date: new Date().toLocaleDateString('en-za', { month: '2-digit', day: '2-digit', year: 'numeric' }),
+                date_code: period,
+                sdfName: sdf || 'N/A',
+                sdlNo: OrgData.result?.organisation.sdL_No || 'N/A',
+            }
+            await generateMgApprovalPdf(temp);
+        } catch (error) {
+            console.error("Error generating approval PDF:", error);
+            showToast({ message: `Failed to generate Approval Letter`, title: "Error", type: "error", position: "top" });
+        }
+    }
 
     const handleDownload = async (doc: any, docTitle: string, documentType: string) => {
         if (!doc) {
@@ -207,10 +240,23 @@ const ApplicationDetails = () => {
                             )}
 
                         </Expandable>
+
+                        <Text variant='titleMedium' style={styles.title}>Download Approval Letter</Text>
+                        <DownloadTemp fileName='Approval Letter Document' onPress={handleApprovalDownload} />
+
                     </>
                 )
             }}
         />
+    )
+}
+
+function DownloadTemp({ fileName, onPress }: { fileName: string, onPress?: () => void }) {
+    return (
+        <TouchableOpacity activeOpacity={0.8} onPress={onPress} style={{ flexDirection: 'row', alignItems: 'center', gap: 5, marginVertical: 5, borderWidth: 0.4, borderColor: colors.blue[300], padding: 8, borderRadius: 20, width: "auto" }}>
+            <FontAwesome name="cloud-download" size={24} color={colors.blue[400]} />
+            <Text variant='bodySmall' style={{ color: colors.gray[500] }}>{fileName}</Text>
+        </TouchableOpacity>
     )
 }
 
@@ -220,7 +266,7 @@ const styles = StyleSheet.create({
     con: { paddingHorizontal: 12, paddingVertical: 6, flex: 1, flexGrow: 1, backgroundColor: "white" },
     title: {
         fontSize: 16,
-        color: colors.primary[950],
+        color: colors.gray[600],
         marginVertical: 10
     }
 })

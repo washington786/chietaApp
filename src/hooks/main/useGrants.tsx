@@ -1,4 +1,4 @@
-import { generateApplicationPdf, generateEvaluationApprovalPdf, generateEvaluationRejectPdf } from "@/core/helpers/pdfGenerator";
+import { generateEvaluationApprovalPdf, generateEvaluationRejectPdf } from "@/core/helpers/pdfGenerator";
 import { useGetGrantDetailsViewQuery } from "@/store/api/api";
 import { RootState } from "@/store/store";
 import { useSelector } from "react-redux";

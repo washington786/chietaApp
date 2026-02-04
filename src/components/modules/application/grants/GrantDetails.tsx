@@ -112,24 +112,7 @@ const GrantDetails: FC<GrantDetailsProps> = ({ data, appId }) => {
                         <Text variant='titleSmall'>Contract No</Text>
                         <Text variant='bodySmall' style={[styles.value]} lineBreakMode='tail' numberOfLines={2}>{contractNo}</Text>
                     </RRow>
-                    {data?.organisation_Trade_Name && (
-                        <RRow style={styles.row}>
-                            <Text variant='titleSmall'>Organisation</Text>
-                            <Text variant='bodySmall' style={styles.value} lineBreakMode='tail' numberOfLines={2}>{data.organisation_Trade_Name}</Text>
-                        </RRow>
-                    )}
-                    {data?.province && (
-                        <RRow style={styles.row}>
-                            <Text variant='titleSmall'>Province</Text>
-                            <Text variant='bodySmall' style={styles.value} lineBreakMode='tail' numberOfLines={2}>{data.province}</Text>
-                        </RRow>
-                    )}
-                    {data?.municipality && (
-                        <RRow style={styles.row}>
-                            <Text variant='titleSmall'>Municipality</Text>
-                            <Text variant='bodySmall' style={styles.value} lineBreakMode='tail' numberOfLines={2}>{data.municipality}</Text>
-                        </RRow>
-                    )}
+
                     <RDivider />
                     <Text variant='bodySmall' style={{ color: colors.primary[800] }}>Memorandum of Agreement (MOA)</Text>
 

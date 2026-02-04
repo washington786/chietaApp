@@ -9,6 +9,9 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import colors from '@/config/colors';
 import usePageTransition from '@/hooks/navigation/usePageTransition';
 import { MandatoryApplicationDto } from '@/core/models/MandatoryDto';
+import { useDispatch } from 'react-redux';
+import { AppDispatch } from '@/store/store';
+import { setSelectedMandatoryApplication } from '@/store/slice/MandatorySlice';
 
 interface Props {
     item: MandatoryApplicationDto;
@@ -16,6 +19,7 @@ interface Props {
 
 const ApplicationItem: FC<Props> = ({ item }) => {
     const { applicationDetails } = usePageTransition();
+    const dispatch = useDispatch<AppDispatch>();
     const { description, referenceNo, submissionDte, grantStatus, organisationId, id } = item;
 
     // Format date nicely (South Africa style)
@@ -50,14 +54,19 @@ const ApplicationItem: FC<Props> = ({ item }) => {
 
     const statusStyle = getStatusStyle(grantStatus);
 
+    const handlePress = () => {
+        dispatch(setSelectedMandatoryApplication(item));
+        applicationDetails({
+            appId: String(id),
+            orgId: String(organisationId),
+            type: "mg-app"
+        });
+    };
+
     return (
         <TouchableOpacity
             activeOpacity={0.9}
-            onPress={() => applicationDetails({
-                appId: String(id),
-                orgId: String(organisationId),
-                type: "mg-app"
-            })}
+            onPress={handlePress}
             style={styles.card}
         >
             {/* Header with icon + title */}
