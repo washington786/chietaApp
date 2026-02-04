@@ -147,6 +147,7 @@ const FileManagementPage = () => {
                 renderItem={() => null}
                 style={styles.list}
                 showsHorizontalScrollIndicator={false}
+                showsVerticalScrollIndicator={false}
                 ListFooterComponent={
                     <>
                         {isLoading ? (
@@ -181,6 +182,7 @@ const FileManagementPage = () => {
                                 renderItem={({ item }) => (
                                     <GrantDetails data={item} appId={Number(appId)} />
                                 )}
+                                showsVerticalScrollIndicator={false}
                             />
                         </Expandable>
                     </>
