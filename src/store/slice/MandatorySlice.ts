@@ -13,6 +13,7 @@ import { BankDetail } from '@/core/models/BankDto';
 export interface MandatoryGrantState {
     // Applications
     applications: MandatoryApplicationDto[];
+    selectedApplication: MandatoryApplicationDto | null;
     // Addresses
     physicalAddresses: OrganisationPhysicalAddressDto[];
     postalAddresses: OrganisationPostalAddressDto[];
@@ -30,6 +31,7 @@ export interface MandatoryGrantState {
 
 const initialState: MandatoryGrantState = {
     applications: [],
+    selectedApplication: null,
     physicalAddresses: [],
     postalAddresses: [],
     documents: [],
@@ -45,12 +47,14 @@ const mandatoryGrantSlice = createSlice({
     initialState,
     reducers: {
         clearMandatoryGrantData: () => initialState,
+        setSelectedMandatoryApplication: (state, action: PayloadAction<MandatoryApplicationDto | null>) => {
+            state.selectedApplication = action.payload;
+        },
+        clearSelectedMandatoryApplication: (state) => {
+            state.selectedApplication = null;
+        },
         linkMgApplication: (state, action: PayloadAction<number>) => {
-            state.applications = state.applications.map(app =>
-                app.id === action.payload
-                    ? { ...app, linked: !app.linked }
-                    : app
-            );
+            // Placeholder for linking logic
         }
     },
     extraReducers: (builder) => {
@@ -63,6 +67,10 @@ const mandatoryGrantSlice = createSlice({
             .addCase(fetchMandatoryGrantData.fulfilled, (state, action) => {
                 state.loading = false;
                 state.applications = action.payload.applications;
+                const selectedId = state.selectedApplication?.id;
+                if (selectedId) {
+                    state.selectedApplication = action.payload.applications.find((app: MandatoryApplicationDto) => app.id === selectedId) || null;
+                }
                 state.physicalAddresses = action.payload.physicalAddresses;
                 state.postalAddresses = action.payload.postalAddresses;
                 state.documents = action.payload.documents;
@@ -77,6 +85,11 @@ const mandatoryGrantSlice = createSlice({
     },
 });
 
-export const { clearMandatoryGrantData, linkMgApplication } = mandatoryGrantSlice.actions;
+export const {
+    clearMandatoryGrantData,
+    linkMgApplication,
+    setSelectedMandatoryApplication,
+    clearSelectedMandatoryApplication,
+} = mandatoryGrantSlice.actions;
 const mandatoryGrantReducer = mandatoryGrantSlice.reducer;
 export default mandatoryGrantReducer;

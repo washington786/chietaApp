@@ -6,12 +6,14 @@ import { showToast } from '@/core';
 import { REmpty, RListLoading } from '@/components/common';
 import { useRoute } from '@react-navigation/native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
-import { MandatoryGrantPaymentDto } from '@/core/models/MandatoryDto';
+import { MandatoryApplicationDto, MandatoryGrantPaymentDto } from '@/core/models/MandatoryDto';
 import { getMonth } from '@/core/utils/dayTime';
 import usePageTransition from '@/hooks/navigation/usePageTransition';
 import { useGetMandatoryGrantPaymentsQuery, useGetOrgApplicationsQuery } from '@/store/api/api';
 import colors from '@/config/colors';
 import { Searchbar } from 'react-native-paper';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/store/store';
 
 interface PageTypes {
     appId: string,
@@ -22,12 +24,19 @@ interface PageTypes {
 const BankDetailsPage = () => {
     const { pdfViewer } = usePageTransition();
     const { appId, orgId, type } = useRoute().params as PageTypes;
+    const { selectedApplication } = useSelector((state: RootState) => state.mandatoryGrant);
 
     const [searchQuery, setSearchQuery] = useState('');
 
+    const normalizedAppId = Number(appId);
+    const selectedForScreen = !Number.isNaN(normalizedAppId) && selectedApplication?.id === normalizedAppId
+        ? selectedApplication
+        : null;
+
     // Fetch applications to get the one with matching appId to extract SDL
     const { data: applicationsData } = useGetOrgApplicationsQuery(orgId, { skip: !orgId });
-    const application = applicationsData?.items?.find((app: any) => app.id == appId);
+    const applicationFromQuery = applicationsData?.items?.find((app: MandatoryApplicationDto) => app.id === normalizedAppId);
+    const application = selectedForScreen || applicationFromQuery;
     const sdl = application?.organisationSDL || '';
 
     const { data, isLoading: loading, error } = useGetMandatoryGrantPaymentsQuery(sdl, { skip: !sdl });

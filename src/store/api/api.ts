@@ -515,6 +515,20 @@ export const api = createApi({
                 `/api/services/app/DiscretionaryProjectApproval/GetProjectDetailsView?id=${id}`,
             providesTags: ['Grant'],
         }),
+        getProjectDetailsListView: builder.query({
+            query: (projectId: number | string) =>
+                `/api/services/app/DiscretionaryProjectApproval/GetProjectDetailsListView?projectId=${projectId}`,
+            transformResponse: (response: any) => {
+                if (Array.isArray(response?.result)) {
+                    return response.result;
+                }
+                if (response?.result?.items) {
+                    return response.result.items;
+                }
+                return response?.result || response;
+            },
+            providesTags: ['Grant'],
+        }),
 
         /**
          * Mandatory Grants Endpoints
@@ -710,6 +724,7 @@ export const {
     useGetDGProjectDetailsAppQuery,
     useGetDGOrgApplicationsQuery,
     useGetGrantDetailsViewQuery,
+    useGetProjectDetailsListViewQuery,
     useGetOrgApplicationsQuery,
     useGetMandatoryGrantPaymentsQuery,
     useGetApplicationBiosQuery,
