@@ -82,7 +82,7 @@ const MandatoryPage = () => {
     }
     return (
         <SafeArea>
-            <RHeader name='Mandatory Grant Applications' hasRightIcon iconRight='search' onPressRight={() => setShow(!show)} />
+            <RHeader name='Mandatory Applications' hasRightIcon iconRight='search' onPressRight={() => setShow(!show)} />
             {
                 show &&
                 <RCol style={{
