@@ -373,12 +373,12 @@ export const api = createApi({
             },
         }),
         registerPushToken: builder.mutation<any, { userId: number; token: string }>({
-            query: (payload) => ({
-                url: '/api/services/app/User/RegisterPushToken',
+            query: ({ userId, token }) => ({
+                url: '/api/services/app/Notification/CreateUserNotificationToken',
                 method: 'POST',
                 body: {
-                    userId: payload.userId,
-                    pushToken: payload.token,
+                    userId,
+                    token,
                 },
                 headers: {
                     'Content-Type': 'application/json',
