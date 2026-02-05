@@ -22,25 +22,24 @@ import colors from "@/config/colors";
 import { chatSquare, errorInspect } from "@/components/loadAssets";
 
 const { width } = Dimensions.get("window");
-const cardWidth = width < 350 ? width - 40 : 140; // smaller cards for mobile
+// 2 cards per row with gap
+const cardWidth = width < 360 ? width - 32 : (width - 48) / 2; 
+// 48 = 16px padding left + 16px padding right + 16px gap between cards
 
 export default function LandingScreen() {
   const { login } = usePageTransition();
   const { open, close } = useGlobalBottomSheet();
 
-  // Animated values
   const messageOpacity = useRef(new Animated.Value(0)).current;
   const exploreTranslateY = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    // Fade in attention message
     Animated.timing(messageOpacity, {
       toValue: 1,
       duration: 800,
       useNativeDriver: true,
     }).start();
 
-    // Bounce animation for explore icon
     Animated.loop(
       Animated.sequence([
         Animated.timing(exploreTranslateY, {
@@ -79,22 +78,23 @@ export default function LandingScreen() {
           resizeMode="contain"
         />
 
-        {/* Wrapped Heading */}
-        <Text style={styles.title}>
-          Welcome to{"\n"}CHIETA Portal
-        </Text>
+        <Text style={styles.title}>Welcome To{"\n"}CHIETA Portal</Text>
 
-        {/* One-line attention message */}
-        <Animated.Text style={[styles.attentionMessage, { opacity: messageOpacity }]}>
+        <Animated.Text
+          style={[styles.attentionMessage, { opacity: messageOpacity }]}
+        >
           Discover Jobs, Grants & Skills – All in One App!
         </Animated.Text>
 
-        {/* Smaller animated "Explore" Icon */}
         <Animated.View style={{ transform: [{ translateY: exploreTranslateY }] }}>
-          <Icon name="chevron-down" size={24} color={colors.primary[700] || "#6d28d9"} />
+          <Icon
+            name="chevron-down"
+            size={24}
+            color={colors.primary[700] || "#6d28d9"}
+          />
         </Animated.View>
 
-        {/* Cards */}
+        {/* 2 cards per row */}
         <View style={styles.grid}>
           <Card
             icon="briefcase"
@@ -105,6 +105,7 @@ export default function LandingScreen() {
               Linking.openURL("https://chieta.org.za/careers/vacancies/")
             }
             color={colors.primary[700] || "#6d28d9"}
+            style={{ marginRight: 8 }}
           />
           <Card
             icon="bulb"
@@ -115,6 +116,7 @@ export default function LandingScreen() {
               Linking.openURL("https://glittery-pony-b3e00d.netlify.app/")
             }
             color={colors.primary[700] || "#6d28d9"}
+            style={{ marginLeft: 8 }}
           />
           <Card
             icon="business"
@@ -123,6 +125,7 @@ export default function LandingScreen() {
             desc="Grants Applications"
             onPress={login}
             color={colors.primary[700] || "#6d28d9"}
+            style={{ marginRight: 8 }}
           />
           <Card
             icon="school"
@@ -131,6 +134,7 @@ export default function LandingScreen() {
             desc="Learner Opportunities"
             disabled
             color="#9ca3af"
+            style={{ marginLeft: 8 }}
           />
         </View>
       </ScrollView>
@@ -150,7 +154,7 @@ export default function LandingScreen() {
   );
 }
 
-// Reusable Card component
+// ================= CARD =================
 function Card({
   icon,
   title,
@@ -159,45 +163,51 @@ function Card({
   onPress,
   disabled = false,
   color,
-}: {
-  icon: keyof typeof Icon.glyphMap;
-  title: string;
-  badge: string;
-  desc: string;
-  onPress?: () => void;
-  disabled?: boolean;
-  color: string;
-}) {
+  style,
+}: any) {
   return (
     <Pressable
-      style={[styles.card, { width: cardWidth }, disabled && styles.cardDisabled]}
+      style={({ pressed }) => [
+        styles.card,
+        { width: cardWidth },
+        disabled && styles.cardDisabled,
+        pressed && !disabled && { transform: [{ scale: 0.97 }] },
+        style,
+      ]}
       onPress={!disabled ? onPress : undefined}
     >
-      <Icon
-        name={icon}
-        size={26}
-        color={disabled ? "#9ca3af" : color}
-        style={styles.icon}
-      />
+      <LinearGradient
+        colors={disabled ? ["#e5e7eb", "#d1d5db"] : [`${color}22`, `${color}10`]}
+        style={styles.iconWrapper}
+      >
+        <Icon name={icon} size={26} color={disabled ? "#9ca3af" : color} />
+      </LinearGradient>
+
       <Text style={[styles.cardTitle, disabled && styles.cardTitleDisabled]}>
         {title}
       </Text>
-      <View
-        style={[
-          styles.badge,
-          { backgroundColor: disabled ? "#d1d5db" : `${color}22` },
-        ]}
-      >
-        <Text style={styles.badgeText}>{badge}</Text>
-      </View>
+
       <Text style={[styles.cardDesc, disabled && styles.cardDescDisabled]}>
         {desc}
       </Text>
+
+      <View
+        style={[
+          styles.badge,
+          { backgroundColor: disabled ? "#e5e7eb" : `${color}18` },
+        ]}
+      >
+        <Text
+          style={[styles.badgeText, { color: disabled ? "#9ca3af" : color }]}
+        >
+          {badge}
+        </Text>
+      </View>
     </Pressable>
   );
 }
 
-// ChatBot bottom sheet
+// ================= CHATBOT =================
 function ChatBot({ close }: { close: () => void }) {
   return (
     <View style={{ flex: 1, backgroundColor: "white", padding: 16 }}>
@@ -235,22 +245,16 @@ function ChatBot({ close }: { close: () => void }) {
   );
 }
 
-// Styles
+// ================= STYLES =================
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
+  container: { flex: 1 },
   scrollContent: {
     alignItems: "center",
     paddingTop: 40,
     paddingHorizontal: 16,
     paddingBottom: 20,
   },
-  logo: {
-    width: 220,
-    height: 120, // slightly smaller
-    marginBottom: 16,
-  },
+  logo: { width: 220, height: 120, marginBottom: 16 },
   title: {
     fontSize: 28,
     fontWeight: "800",
@@ -261,74 +265,14 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
   },
   attentionMessage: {
-    fontSize: 14, // smaller message text
+    fontSize: 14,
     fontWeight: "600",
     color: colors.secondary[700] || "#f97316",
     textAlign: "center",
     marginBottom: 6,
     lineHeight: 20,
   },
-  grid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "center",
-    gap: 10,
-    marginTop: 16,
-  },
-  card: {
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    padding: 10,
-    marginBottom: 12,
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
-    elevation: 4,
-  },
-  cardDisabled: {
-    opacity: 0.6,
-  },
-  icon: {
-    marginBottom: 6,
-  },
-  cardTitle: {
-    fontSize: 13,
-    fontWeight: "600",
-    marginBottom: 4,
-    textAlign: "center",
-    color: "#111827",
-  },
-  cardTitleDisabled: {
-    color: "#9ca3af",
-  },
-  badge: {
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 8,
-    marginBottom: 4,
-  },
-  badgeText: {
-    fontSize: 10,
-    color: "#111827",
-  },
-  cardDesc: {
-    fontSize: 11,
-    textAlign: "center",
-    color: "#6b7280",
-  },
-  cardDescDisabled: {
-    color: "#9ca3af",
-  },
-  footerContainer: {
-    paddingVertical: 16,
-    alignItems: "center",
-  },
-  footer: {
-    fontSize: 12,
-    color: "#9ca3af",
-    textAlign: "center",
-  },
+  grid: { flexDirection: "row", flexWrap: "wrap", justifyContent: "center", marginTop: 16 },
   fab: {
     position: "absolute",
     bottom: 20,
@@ -344,4 +288,47 @@ const styles = StyleSheet.create({
     shadowRadius: 5,
     elevation: 5,
   },
+  card: {
+    backgroundColor: "#fff",
+    borderRadius: 18,
+    paddingVertical: 18,
+    paddingHorizontal: 14,
+    alignItems: "center",
+    marginBottom: 14,
+    shadowColor: "#000",
+    shadowOpacity: 0.08,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 4,
+    borderWidth: 1,
+    borderColor: "#f1f2f6",
+  },
+  cardDisabled: { opacity: 0.6 },
+  iconWrapper: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 8,
+  },
+  cardTitle: {
+    fontSize: 14,
+    fontWeight: "700",
+    marginBottom: 2,
+    textAlign: "center",
+    color: "#111827",
+  },
+  cardTitleDisabled: { color: "#9ca3af" },
+  cardDesc: {
+    fontSize: 11,
+    textAlign: "center",
+    color: "#6b7280",
+    marginBottom: 6,
+  },
+  cardDescDisabled: { color: "#9ca3af" },
+  badge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 10 },
+  badgeText: { fontSize: 10, fontWeight: "600" },
+  footerContainer: { paddingVertical: 16, alignItems: "center" },
+  footer: { fontSize: 12, color: "#9ca3af", textAlign: "center" },
 });
