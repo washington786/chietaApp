@@ -1,5 +1,8 @@
 import { useEffect, useState } from 'react';
 import { requestNotificationPermission, getPushNotificationToken } from '@/core/utils/notifications';
+import { useRegisterPushTokenMutation } from '@/store/api/api';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/store/store';
 
 interface UsePushNotificationsReturn {
     pushToken: string | null;
@@ -17,6 +20,8 @@ export function usePushNotifications(): UsePushNotificationsReturn {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<Error | null>(null);
     const [hasPermission, setHasPermission] = useState(false);
+    const user = useSelector((state: RootState) => state.auth.user);
+    const [registerPushToken] = useRegisterPushTokenMutation();
 
     useEffect(() => {
         const initializeNotifications = async () => {
@@ -33,6 +38,13 @@ export function usePushNotifications(): UsePushNotificationsReturn {
                     if (token) {
                         setPushToken(token);
                         console.log('Push token retrieved:', token);
+                        if (user?.id) {
+                            try {
+                                await registerPushToken({ userId: Number(user.id), token }).unwrap();
+                            } catch (err) {
+                                console.warn('Failed to register push token', err);
+                            }
+                        }
                     }
                 }
             } catch (err) {
