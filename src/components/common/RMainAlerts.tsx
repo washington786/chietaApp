@@ -56,17 +56,17 @@ const RMainAlerts: FC<RMainAlertsProps> = ({
                     <Text style={styles.title}>{title}</Text>
                     <Text style={styles.description}>{description}</Text>
 
-                    {actionText && (
+                    {/* {actionText && (
                         <TouchableOpacity
                             style={styles.actionBtn}
                             onPress={onAction}
                         >
                             <Text style={styles.actionBtnText}>{actionText}</Text>
                         </TouchableOpacity>
-                    )}
+                    )} */}
 
-                    <TouchableOpacity onPress={onDismiss}>
-                        <Text style={styles.dismissText}>Dismiss</Text>
+                    <TouchableOpacity onPress={onDismiss} style={styles.actionBtn}>
+                        <Text style={styles.actionBtnText}>Dismiss</Text>
                     </TouchableOpacity>
                 </View>
             </LinearGradient>
