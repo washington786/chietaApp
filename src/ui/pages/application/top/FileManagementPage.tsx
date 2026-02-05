@@ -11,6 +11,8 @@ import RDownload from '@/components/common/RDownload'
 import { useSelector } from 'react-redux'
 import { RootState } from '@/store/store'
 import { FlatList } from 'react-native'
+import { Text } from 'react-native-paper'
+import colors from '@/config/colors'
 
 const FileManagementPage = () => {
     const { appId } = useRoute<RouteProp<navigationTypes, "applicationDetails">>().params;
@@ -183,6 +185,9 @@ const FileManagementPage = () => {
                                     <GrantDetails data={item} appId={Number(appId)} />
                                 )}
                                 showsVerticalScrollIndicator={false}
+                                ListEmptyComponent={<RCol>
+                                    <Text variant='bodySmall' style={{ color: colors.gray[500] }}>No grant details available</Text>
+                                </RCol>}
                             />
                         </Expandable>
                     </>
