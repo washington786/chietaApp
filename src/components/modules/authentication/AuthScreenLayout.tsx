@@ -1,10 +1,11 @@
 import React, { ReactNode } from 'react';
-import { StyleProp, StyleSheet, Text, View, ViewStyle } from 'react-native';
+import { Animated, StyleProp, StyleSheet, Text, View, ViewStyle } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import colors from '@/config/colors';
 import appFonts from '@/config/fonts';
 import { SafeArea, Scroller, RLogo } from '@/components/common';
 import { BackBtn } from '@/components/modules/authentication';
+import usePageEnterAnimation from '@/hooks/animations/usePageEnterAnimation';
 
 interface AuthScreenLayoutProps {
     title: string;
@@ -25,6 +26,8 @@ const AuthScreenLayout = ({
     logoSize = 40,
     cardStyle,
 }: AuthScreenLayoutProps) => {
+    const { animatedStyle } = usePageEnterAnimation();
+
     return (
         <LinearGradient colors={[`${colors.primary[900]}FF`, `${colors.primary[700]}F8`, `${colors.primary[600]}F0`]} style={styles.screen}>
             <View style={styles.gradientStack} pointerEvents='none'>
@@ -41,20 +44,22 @@ const AuthScreenLayout = ({
                     )}
                     <Scroller style={styles.scrollerContent}>
                         <View style={styles.cardWrapper}>
-                            <LinearGradient
-                                colors={['rgba(21,9,38,0.92)', 'rgba(46,20,86,0.78)', 'rgba(33,15,63,0.9)']}
-                                start={{ x: 0, y: 0 }}
-                                end={{ x: 1, y: 1 }}
-                                style={[styles.heroCard, cardStyle]}
-                            >
-                                <LinearGradient colors={['rgba(255,255,255,1)', 'rgba(255,255,255,1)']} style={styles.logoBadge} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}>
-                                    <RLogo stylesLogo={{ width: logoSize, height: logoSize }} />
+                            <Animated.View style={[styles.animatedCard, animatedStyle]}>
+                                <LinearGradient
+                                    colors={['rgba(21,9,38,0.92)', 'rgba(46,20,86,0.78)', 'rgba(33,15,63,0.9)']}
+                                    start={{ x: 0, y: 0 }}
+                                    end={{ x: 1, y: 1 }}
+                                    style={[styles.heroCard, cardStyle]}
+                                >
+                                    <LinearGradient colors={['rgba(255,255,255,1)', 'rgba(255,255,255,1)']} style={styles.logoBadge} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}>
+                                        <RLogo stylesLogo={{ width: logoSize, height: logoSize }} />
+                                    </LinearGradient>
+                                    <Text style={styles.heading}>{title}</Text>
+                                    {subtitle && <Text style={styles.subHeading}>{subtitle}</Text>}
+                                    {children}
+                                    {footer}
                                 </LinearGradient>
-                                <Text style={styles.heading}>{title}</Text>
-                                {subtitle && <Text style={styles.subHeading}>{subtitle}</Text>}
-                                {children}
-                                {footer}
-                            </LinearGradient>
+                            </Animated.View>
                         </View>
                     </Scroller>
                 </View>
@@ -154,6 +159,10 @@ const styles = StyleSheet.create({
         width: '100%',
         alignItems: 'center',
         justifyContent: 'center',
+    },
+    animatedCard: {
+        width: '100%',
+        maxWidth: 480,
     },
     heroCard: {
         borderRadius: 36,
