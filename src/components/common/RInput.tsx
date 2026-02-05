@@ -8,13 +8,13 @@ interface props extends TextInputProps {
   icon?: any;
   customStyle?: StyleProp<ViewStyle>
 }
-const RInput: FC<props> = (props) => {
+const RInput: FC<props> = ({ icon, customStyle, style, ...rest }) => {
   return (
-    <View style={[styles.inputCon, props.customStyle]}>
-      {props.icon && (
-        <Feather size={20} name={props.icon} color={colors.gray[400]} />
+    <View style={[styles.inputCon, customStyle]}>
+      {icon && (
+        <Feather size={20} name={icon} color={colors.gray[400]} />
       )}
-      <TextInput {...props} style={styles.input} autoCapitalize="none" />
+      <TextInput {...rest} style={[styles.input, style]} autoCapitalize="none" />
     </View>
   );
 };

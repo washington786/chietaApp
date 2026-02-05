@@ -1,17 +1,19 @@
-import React, { useState } from 'react'
-import { AuthWrapper, SuccessWrapper } from '@/components/modules/authentication'
-import { RButton, RErrorMessage, RInput, RKeyboardView, RLogo, SafeArea, Scroller } from '@/components/common'
-import { Authstyles as styles } from '@/styles/AuthStyles';
-import appFonts from '@/config/fonts';
-import usePageTransition from '@/hooks/navigation/usePageTransition';
-import { Text } from 'react-native-paper';
-import { View } from 'react-native';
-import { Formik } from 'formik';
-import { newPasswordSchema, showToast } from '@/core';
-import UseAuth from '@/hooks/main/auth/UseAuth';
-import { useSelector, useDispatch } from 'react-redux';
-import { RootState, AppDispatch } from '@/store/store';
-import { clearResetState } from '@/store/slice/PasswordResetSlice';
+import React, { useEffect, useState } from 'react'
+import { View, StyleSheet } from 'react-native'
+import { Formik } from 'formik'
+import { useSelector, useDispatch } from 'react-redux'
+
+import { SuccessWrapper } from '@/components/modules/authentication'
+import AuthScreenLayout, { authScreenStyles } from '@/components/modules/authentication/AuthScreenLayout'
+import AuthGradientButton from '@/components/modules/authentication/AuthGradientButton'
+import { RErrorMessage, RInput, RKeyboardView, RLoaderAnimation } from '@/components/common'
+import usePageTransition from '@/hooks/navigation/usePageTransition'
+import UseAuth from '@/hooks/main/auth/UseAuth'
+import { newPasswordSchema, showToast } from '@/core'
+import colors from '@/config/colors'
+import { RootState, AppDispatch } from '@/store/store'
+import { clearResetState } from '@/store/slice/PasswordResetSlice'
+import { clearError } from '@/store/slice/AuthSlice'
 
 interface NewPasswordFormValues {
     password: string
@@ -24,81 +26,64 @@ const initialValues: NewPasswordFormValues = {
 }
 
 const NewPasswordScreen = () => {
-    const { login } = usePageTransition();
-    const dispatch = useDispatch<AppDispatch>();
-
-    // Get email and otp from Redux state instead of route params
-    const {
-        email,
-        otp,
-    } = useSelector((state: RootState) => state.passwordReset);
-
-    const { verifyOtp } = UseAuth();
-    const { isLoading, error } = useSelector(
-        (state: RootState) => state.auth
-    );
-
-    const [success, setSuccess] = useState<boolean>(false);
+    const { login } = usePageTransition()
+    const dispatch = useDispatch<AppDispatch>()
+    const { email, otp } = useSelector((state: RootState) => state.passwordReset)
+    const { verifyOtp } = UseAuth()
+    const { isLoading, error } = useSelector((state: RootState) => state.auth)
+    const [success, setSuccess] = useState(false)
 
     const handleSubmit = async (values: NewPasswordFormValues) => {
-        const { password } = values;
+        const { password } = values
 
         if (!email || !otp) {
             showToast({
-                message: "Missing email or OTP. Please go through the reset password flow again.",
-                type: "error",
-                title: "Error",
-                position: "top",
-            });
-            return;
+                message: 'Missing email or OTP. Please go through the reset password flow again.',
+                type: 'error',
+                title: 'Error',
+                position: 'top'
+            })
+            return
         }
 
         const result = await verifyOtp({
             email,
             otp,
             newPassword: password
-        });
+        })
 
         if (result.type === 'auth/verifyOtp/fulfilled') {
-            // Clear the password reset state after successful reset
-            dispatch(clearResetState());
-
-            setSuccess(true);
+            dispatch(clearResetState())
+            setSuccess(true)
             showToast({
-                message: "Password reset successfully",
-                type: "success",
-                title: "Success",
-                position: "top",
-            });
+                message: 'Password reset successfully',
+                type: 'success',
+                title: 'Success',
+                position: 'top'
+            })
         }
-    };
-
-    if (error) {
-        showToast({
-            message: error.message,
-            type: "error",
-            title: "Error",
-            position: "top",
-        });
     }
 
-    // Show error if email or otp is missing
+    useEffect(() => {
+        if (error) {
+            showToast({
+                message: error.message,
+                type: 'error',
+                title: 'Error',
+                position: 'top'
+            })
+            dispatch(clearError())
+        }
+    }, [error, dispatch])
+
     if (!email || !otp) {
         return (
-            <Scroller>
-                <AuthWrapper>
-                    <SafeArea>
-                        <RLogo stylesLogo={{ alignContent: "center", marginTop: 40, marginBottom: 20, width: "auto" }} />
-                        <View style={styles.content}>
-                            <Text style={[styles.title, { fontFamily: `${appFonts.bold}`, fontWeight: "500", textTransform: "capitalize" }]}>
-                                Error
-                            </Text>
-                            <RErrorMessage error="Email or OTP not found. Please start the reset process again." />
-                        </View>
-                    </SafeArea>
-                </AuthWrapper>
-            </Scroller>
-        );
+            <AuthScreenLayout title='Error' subtitle='Email or OTP not found. Please start the reset process again.'>
+                <View>
+                    <RErrorMessage error='Email or OTP not found. Please start the reset process again.' />
+                </View>
+            </AuthScreenLayout>
+        )
     }
 
     if (success) {
@@ -113,65 +98,55 @@ const NewPasswordScreen = () => {
     }
 
     return (
-        <Scroller>
-            <AuthWrapper>
-                <SafeArea>
-                    <RLogo stylesLogo={{ alignContent: "center", marginTop: 40, marginBottom: 20, width: "auto" }} />
-                    <View style={styles.content}>
-                        <Text style={[styles.title, { fontFamily: `${appFonts.bold}`, fontWeight: "bold", textTransform: "capitalize" }]}>
-                            New Password
-                        </Text>
-                        <Text style={[styles.description]}>
-                            Enter your new password to complete the reset.
-                        </Text>
+        <AuthScreenLayout title='New Password' subtitle='Enter your new password to complete the reset.'>
+            <Formik
+                initialValues={initialValues}
+                validationSchema={newPasswordSchema}
+                onSubmit={handleSubmit}
+            >
+                {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
+                    <RKeyboardView style={authScreenStyles.formWrapper}>
+                        <RInput
+                            placeholder='New Password'
+                            icon='lock'
+                            secureTextEntry
+                            onBlur={handleBlur('password')}
+                            onChangeText={handleChange('password')}
+                            value={values.password}
+                            placeholderTextColor={colors.slate[200]}
+                            customStyle={authScreenStyles.inputField}
+                            style={styles.inputText}
+                        />
+                        {errors.password && touched.password && <RErrorMessage error={errors.password} />}
 
-                        <Formik
-                            initialValues={initialValues}
-                            onSubmit={(values) => handleSubmit(values)}
-                            validationSchema={newPasswordSchema}
-                        >
-                            {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
-                                <RKeyboardView style={{ gap: 8 }}>
-                                    <RInput
-                                        placeholder='New Password'
-                                        icon='lock'
-                                        secureTextEntry
-                                        onBlur={handleBlur('password')}
-                                        onChangeText={handleChange('password')}
-                                        value={values.password}
-                                    />
+                        <RInput
+                            placeholder='Confirm Password'
+                            icon='lock'
+                            secureTextEntry
+                            value={values.confirmPassword}
+                            onBlur={handleBlur('confirmPassword')}
+                            onChangeText={handleChange('confirmPassword')}
+                            placeholderTextColor={colors.slate[200]}
+                            customStyle={authScreenStyles.inputField}
+                            style={styles.inputText}
+                        />
+                        {errors.confirmPassword && touched.confirmPassword && (
+                            <RErrorMessage error={errors.confirmPassword} />
+                        )}
 
-                                    {
-                                        errors.password && touched.password && <RErrorMessage error={errors.password} />
-                                    }
-
-                                    <RInput
-                                        placeholder='Confirm Password'
-                                        icon='lock'
-                                        secureTextEntry
-                                        value={values.confirmPassword}
-                                        onBlur={handleBlur('confirmPassword')}
-                                        onChangeText={handleChange('confirmPassword')}
-                                    />
-                                    {
-                                        errors.confirmPassword && touched.confirmPassword && <RErrorMessage error={errors.confirmPassword} />
-                                    }
-
-                                    <RButton
-                                        title='Reset Password'
-                                        onPressButton={handleSubmit}
-                                        styleBtn={styles.button}
-                                        isSubmitting={isLoading}
-                                    />
-                                </RKeyboardView>
-                            )}
-                        </Formik>
-
-                    </View>
-                </SafeArea>
-            </AuthWrapper>
-        </Scroller>
+                        <AuthGradientButton title='Reset Password' onPress={handleSubmit} loading={isLoading} />
+                        {isLoading && <RLoaderAnimation />}
+                    </RKeyboardView>
+                )}
+            </Formik>
+        </AuthScreenLayout>
     )
 }
 
 export default NewPasswordScreen
+
+const styles = StyleSheet.create({
+    inputText: {
+        color: '#fff'
+    }
+})
