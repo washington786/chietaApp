@@ -7,7 +7,6 @@ import {
   Image,
   TouchableOpacity,
   ScrollView,
-  Dimensions,
   StyleSheet,
   Animated,
 } from "react-native";
@@ -19,12 +18,14 @@ import EvilIcons from "@expo/vector-icons/EvilIcons";
 import { Text as RnText } from "react-native-paper";
 import { RCol, RRow } from "@/components/common";
 import colors from "@/config/colors";
-import { chatSquare, errorInspect } from "@/components/loadAssets";
+import { chatBot, chatSquare, landingBg } from "@/components/loadAssets";
+import { ImageBackground } from "react-native";
 
-const { width } = Dimensions.get("window");
-// 2 cards per row with gap
-const cardWidth = width < 360 ? width - 32 : (width - 48) / 2; 
-// 48 = 16px padding left + 16px padding right + 16px gap between cards
+const overlayGradient = [
+  `${colors.primary[900]}CC`,
+  `${colors.primary[800]}B3`,
+  `${colors.primary[600]}99`,
+];
 
 export default function LandingScreen() {
   const { login } = usePageTransition();
@@ -61,118 +62,119 @@ export default function LandingScreen() {
   }
 
   return (
-    <LinearGradient
-      colors={["#ffffff", "#f7f5fc", "#e6e0f8"]}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 0, y: 1 }}
-      style={styles.container}
+    <ImageBackground
+      source={landingBg}
+      style={[styles.container]}
+      imageStyle={styles.backgroundImage}
     >
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
+      <LinearGradient
+        colors={overlayGradient as any}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.gradient}
       >
-        {/* Logo */}
-        <Image
-          source={require("../../../../assets/logov2.png")}
-          style={styles.logo}
-          resizeMode="contain"
-        />
-
-        <Text style={styles.title}>Welcome To{"\n"}CHIETA Portal</Text>
-
-        <Animated.Text
-          style={[styles.attentionMessage, { opacity: messageOpacity }]}
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
         >
-          Discover Jobs, Grants & Skills – All in One App!
-        </Animated.Text>
+          {/* Logo */}
+          <Image
+            source={require("../../../../assets/logov2.png")}
+            style={styles.logo}
+            resizeMode="contain"
+          />
 
-        <Animated.View style={{ transform: [{ translateY: exploreTranslateY }] }}>
-          <Icon
-            name="chevron-down"
-            size={24}
-            color={colors.primary[700] || "#6d28d9"}
-          />
-        </Animated.View>
+          <Text style={styles.title}>Welcome To{"\n"}CHIETA Portal</Text>
 
-        {/* 2 cards per row */}
-        <View style={styles.grid}>
-          <Card
-            icon="briefcase"
-            title="Careers"
-            badge="Visit Website"
-            desc="Jobs & Opportunities"
-            onPress={() =>
-              Linking.openURL("https://chieta.org.za/careers/vacancies/")
-            }
-            color={colors.primary[700] || "#6d28d9"}
-            style={{ marginRight: 8 }}
-          />
-          <Card
-            icon="bulb"
-            title="SSC"
-            badge="Visit Website"
-            desc="Smart Skills Centres"
-            onPress={() =>
-              Linking.openURL("https://glittery-pony-b3e00d.netlify.app/")
-            }
-            color={colors.primary[700] || "#6d28d9"}
-            style={{ marginLeft: 8 }}
-          />
-          <Card
-            icon="business"
-            title="IMS"
-            badge="Login to IMS Portal"
-            desc="Grants Applications"
-            onPress={login}
-            color={colors.primary[700] || "#6d28d9"}
-            style={{ marginRight: 8 }}
-          />
-          <Card
-            icon="school"
-            title="SSDD"
-            badge="Coming Soon"
-            desc="Learner Opportunities"
-            disabled
-            color="#9ca3af"
-            style={{ marginLeft: 8 }}
-          />
+          <Animated.Text
+            style={[styles.attentionMessage, { opacity: messageOpacity }]}
+          >
+            Discover Jobs, Grants & Skills – All in One App!
+          </Animated.Text>
+
+          <Animated.View style={{ transform: [{ translateY: exploreTranslateY }] }}>
+            <Icon
+              name="chevron-down"
+              size={24}
+              color={colors.secondary[400] || "#6d28d9"}
+            />
+          </Animated.View>
+
+          {/* 2 cards per row */}
+          <View style={styles.grid}>
+            <Card
+              icon="briefcase"
+              title="Careers"
+              badge="Visit Website"
+              desc="Jobs & Opportunities"
+              onPress={() =>
+                Linking.openURL("https://chieta.org.za/careers/vacancies/")
+              }
+              color={colors.primary[700] || "#6d28d9"}
+            />
+            <Card
+              icon="bulb"
+              title="SSC"
+              badge="Visit Website"
+              desc="Smart Skills Centres"
+              onPress={() =>
+                Linking.openURL("https://glittery-pony-b3e00d.netlify.app/")
+              }
+              color={colors.primary[700] || "#6d28d9"}
+            />
+            <Card
+              icon="business"
+              title="IMS"
+              badge="Login to IMS Portal"
+              desc="Grants Applications"
+              onPress={login}
+              color={colors.primary[700] || "#6d28d9"}
+            />
+            <Card
+              icon="school"
+              title="SSDD"
+              badge="Coming Soon"
+              desc="Learner Opportunities"
+              disabled
+              color="#9ca3af"
+            />
+          </View>
+        </ScrollView>
+
+        {/* Footer */}
+        <View style={styles.footerContainer}>
+          <Text style={styles.footer}>
+            &copy; {new Date().getFullYear()} CHIETA. All rights reserved.
+          </Text>
         </View>
-      </ScrollView>
 
-      {/* Footer */}
-      <View style={styles.footerContainer}>
-        <Text style={styles.footer}>
-          &copy; {new Date().getFullYear()} CHIETA. All rights reserved.
-        </Text>
-      </View>
-
-      {/* Floating action button */}
-      <TouchableOpacity style={styles.fab} onPress={openInfoSheet}>
-        <Icon name="chatbubble-ellipses" size={26} color="white" />
-      </TouchableOpacity>
-    </LinearGradient>
+        {/* Floating action button */}
+        <TouchableOpacity style={styles.fab} onPress={openInfoSheet}>
+          <Icon name="chatbubble-ellipses" size={26} color="white" />
+        </TouchableOpacity>
+      </LinearGradient>
+    </ImageBackground>
   );
 }
 
 // ================= CARD =================
-function Card({
-  icon,
-  title,
-  badge,
-  desc,
-  onPress,
-  disabled = false,
-  color,
-  style,
-}: any) {
+interface CardProps {
+  icon: string;
+  title: string;
+  badge: string;
+  desc: string;
+  onPress?: () => void;
+  disabled?: boolean;
+  color: string;
+}
+
+function Card({ icon, title, badge, desc, onPress, disabled = false, color }: CardProps) {
   return (
     <Pressable
       style={({ pressed }) => [
         styles.card,
-        { width: cardWidth },
         disabled && styles.cardDisabled,
         pressed && !disabled && { transform: [{ scale: 0.97 }] },
-        style,
       ]}
       onPress={!disabled ? onPress : undefined}
     >
@@ -180,7 +182,7 @@ function Card({
         colors={disabled ? ["#e5e7eb", "#d1d5db"] : [`${color}22`, `${color}10`]}
         style={styles.iconWrapper}
       >
-        <Icon name={icon} size={26} color={disabled ? "#9ca3af" : color} />
+        <Icon name={icon as any} size={26} color={disabled ? "#9ca3af" : color} />
       </LinearGradient>
 
       <Text style={[styles.cardTitle, disabled && styles.cardTitleDisabled]}>
@@ -229,7 +231,7 @@ function ChatBot({ close }: { close: () => void }) {
       </RRow>
 
       <RCol style={{ alignItems: "center", gap: 16 }}>
-        <Image source={errorInspect} style={{ width: 64, height: 64 }} />
+        <Image source={chatBot} style={{ width: 64, height: 64 }} />
         <RnText variant="headlineMedium" style={{ fontWeight: "bold" }}>
           Coming Soon
         </RnText>
@@ -247,19 +249,29 @@ function ChatBot({ close }: { close: () => void }) {
 
 // ================= STYLES =================
 const styles = StyleSheet.create({
-  container: { flex: 1 },
+  container: {
+    flex: 1,
+  },
+  backgroundImage: {
+    opacity: 0.45,
+    resizeMode: 'cover',
+  },
+  gradient: {
+    flex: 1,
+    paddingHorizontal: 20,
+  },
   scrollContent: {
-    alignItems: "center",
+    alignItems: 'center',
     paddingTop: 40,
     paddingHorizontal: 16,
-    paddingBottom: 20,
+    paddingBottom: 40,
   },
   logo: { width: 220, height: 120, marginBottom: 16 },
   title: {
     fontSize: 28,
     fontWeight: "800",
     textAlign: "center",
-    color: colors.primary[700] || "#6d28d9",
+    color: colors.white || "#6d28d9",
     lineHeight: 34,
     marginBottom: 8,
     letterSpacing: 1,
@@ -267,12 +279,20 @@ const styles = StyleSheet.create({
   attentionMessage: {
     fontSize: 14,
     fontWeight: "600",
-    color: colors.secondary[700] || "#f97316",
+    color: colors.secondary[400] || "#f97316",
     textAlign: "center",
     marginBottom: 6,
     lineHeight: 20,
   },
-  grid: { flexDirection: "row", flexWrap: "wrap", justifyContent: "center", marginTop: 16 },
+  grid: {
+    width: '100%',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    columnGap: 12,
+    rowGap: 16,
+    marginTop: 16,
+  },
   fab: {
     position: "absolute",
     bottom: 20,
@@ -289,19 +309,21 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   card: {
-    backgroundColor: "#fff",
-    borderRadius: 18,
-    paddingVertical: 18,
-    paddingHorizontal: 14,
-    alignItems: "center",
-    marginBottom: 14,
-    shadowColor: "#000",
-    shadowOpacity: 0.08,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 4,
+    flexBasis: '48%',
+    maxWidth: 320,
+    minWidth: 150,
+    backgroundColor: 'rgba(255,255,255,0.92)',
+    borderRadius: 22,
+    paddingVertical: 22,
+    paddingHorizontal: 18,
+    alignItems: 'center',
+    shadowColor: '#2d1b4a',
+    shadowOpacity: 0.12,
+    shadowRadius: 14,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 5,
     borderWidth: 1,
-    borderColor: "#f1f2f6",
+    borderColor: 'rgba(255,255,255,0.4)',
   },
   cardDisabled: { opacity: 0.6 },
   iconWrapper: {
@@ -321,14 +343,15 @@ const styles = StyleSheet.create({
   },
   cardTitleDisabled: { color: "#9ca3af" },
   cardDesc: {
-    fontSize: 11,
-    textAlign: "center",
-    color: "#6b7280",
-    marginBottom: 6,
+    fontSize: 12,
+    textAlign: 'center',
+    color: '#6b7280',
+    marginBottom: 8,
+    lineHeight: 16,
   },
   cardDescDisabled: { color: "#9ca3af" },
   badge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 10 },
-  badgeText: { fontSize: 10, fontWeight: "600" },
+  badgeText: { fontSize: 10, fontWeight: '600' },
   footerContainer: { paddingVertical: 16, alignItems: "center" },
-  footer: { fontSize: 12, color: "#9ca3af", textAlign: "center" },
+  footer: { fontSize: 12, color: colors.gray[100], textAlign: "center", marginTop: -30 },
 });
