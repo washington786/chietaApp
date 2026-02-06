@@ -295,6 +295,20 @@ export const api = createApi({
             query: () => '/api/services/app/DiscretionaryWindow/GetActiveWindowsParams',
             providesTags: ['Grant'],
         }),
+        getUpcomingEvents: builder.query({
+            query: () => '/api/services/app/DiscretionaryWindow/GetUpcomingEvents',
+            transformResponse: (response: any) => {
+                if (response?.result?.items) {
+                    const items = response.result.items.map((item: any) => item.discretionaryWindow || item);
+                    return {
+                        totalCount: response.result.totalCount ?? items.length,
+                        items,
+                    };
+                }
+                return response?.result || response;
+            },
+            providesTags: ['Grant'],
+        }),
         createEditApplication: builder.mutation<any, activeWindowBodyRequest>({
             query: (payload) => ({
                 url: '/api/services/app/DiscretionaryProject/CreateEditApplication',
@@ -439,6 +453,21 @@ export const api = createApi({
                     return { items: response.result.items };
                 }
                 return { items: [] };
+            },
+            providesTags: ['Grant'],
+        }),
+        getUserPendingTasks: builder.query({
+            query: (userId: number) =>
+                `/api/services/app/DiscretionaryProject/GetUserPendingTask?userId=${userId}`,
+            transformResponse: (response: any) => {
+                if (response?.result?.items) {
+                    const items = response.result.items.map((item: any) => item.discretionaryProject || item);
+                    return {
+                        totalCount: response.result.totalCount ?? items.length,
+                        items,
+                    };
+                }
+                return response?.result || response;
             },
             providesTags: ['Grant'],
         }),
@@ -701,6 +730,7 @@ export const {
     useGetEquityQuery,
     useGetActiveWindowsQuery,
     useGetActiveWindowsParamsQuery,
+    useGetUpcomingEventsQuery,
     useCreateEditApplicationMutation,
     useDeleteApplicationMutation,
     useCreateEditApplicationDetailsMutation,
@@ -719,6 +749,7 @@ export const {
     useGetAdminCritQuery,
     useGetProjectTimelineQuery,
     useGetEvalMethodsQuery,
+    useGetUserPendingTasksQuery,
     useGetDGProjectDetByIdQuery,
     useGetProjectDetailsQuery,
     useGetDGProjectDetailsAppQuery,
