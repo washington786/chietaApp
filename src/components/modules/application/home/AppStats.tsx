@@ -134,8 +134,6 @@ const WorkflowCard = ({
 const AppStats = () => {
   const { data: apiData, isLoading } = useGetActiveWindowsQuery(undefined);
 
-  console.log("API Data:", apiData?.result?.items?.length);
-
   const { user } = useSelector((state: RootState) => state.auth);
 
   const { activeWindows, upcomingWindows } = useMemo(() => {
