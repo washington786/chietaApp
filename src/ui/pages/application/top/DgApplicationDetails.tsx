@@ -2,7 +2,7 @@ import { FlatList, TouchableOpacity, View } from 'react-native'
 import React, { useEffect } from 'react'
 import colors from '@/config/colors'
 import { Text, IconButton, Tooltip } from 'react-native-paper'
-import { Expandable, RUploadSuccess, DgEntryList, RUploadSuccessFile, MessageWrapper } from '@/components/modules/application'
+import { Expandable, RUploadSuccess, DgEntryList, RUploadSuccessFile } from '@/components/modules/application'
 import { RButton, RCol, RInput, RRow, RUpload } from '@/components/common'
 import { SelectList } from 'react-native-dropdown-select-list'
 import { dg_styles as styles } from '@/styles/DgStyles';
