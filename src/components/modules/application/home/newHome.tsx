@@ -11,7 +11,6 @@ import usePageTransition from '@/hooks/navigation/usePageTransition';
 import { getTimeOfDay } from '@/core';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store/store';
-import DgActiveWindow from '../grants/ActiveWindow';
 import HomeHeader from './HomeHeader';
 import AppStatsSection from './AppStats';
 import { home_styles as styles } from '@/styles/HomeStyles';
@@ -26,8 +25,6 @@ const NewHome = () => {
 
     //sdf
     const { data: sdfData, isLoading: sdfLoading, error: sdfError } = useGetPersonByUserIdQuery(user?.id, { skip: !user?.id });
-
-    console.log(sdfData?.result?.person.firstname, ' ', sdfData?.result?.person.lastname);
 
     // Fetch notifications
     const userId: number = user?.id ? parseInt(String(user.id), 10) : 0;

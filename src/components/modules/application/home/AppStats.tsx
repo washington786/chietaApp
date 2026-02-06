@@ -3,8 +3,12 @@ import { View, Text, ScrollView, StyleSheet, Dimensions, TouchableOpacity } from
 import { LinearGradient } from "expo-linear-gradient";
 import Animated, { useSharedValue, withSpring, useAnimatedStyle } from "react-native-reanimated";
 import { FadeInDown } from "react-native-reanimated";
-import { useGetActiveWindowsQuery } from "@/store/api/api";
+import { useGetActiveWindowsQuery, useGetUpcomingEventsQuery, useGetUserPendingTasksQuery } from "@/store/api/api";
 import colors from "@/config/colors";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store/store";
+import { showToast } from "@/core";
+import { RLoaderAnimation } from "@/components/common";
 
 const { width } = Dimensions.get("window");
 const cardWidth = width < 350 ? width - 40 : 140;
@@ -130,6 +134,10 @@ const WorkflowCard = ({
 const AppStats = () => {
   const { data: apiData, isLoading } = useGetActiveWindowsQuery(undefined);
 
+  console.log("API Data:", apiData?.result?.items?.length);
+
+  const { user } = useSelector((state: RootState) => state.auth);
+
   const { activeWindows, upcomingWindows } = useMemo(() => {
     if (!apiData?.result?.items) return { activeWindows: [], upcomingWindows: [] };
 
@@ -151,6 +159,19 @@ const AppStats = () => {
 
     return { activeWindows, upcomingWindows };
   }, [apiData]);
+
+  //pending tasks:
+
+  const { data: pendingTasksData, isLoading: pendingTasksLoading, error: pendingTasksError } = useGetUserPendingTasksQuery(Number(user?.id), { skip: !user?.id });
+
+  // upcoming events
+  const { data: upcomingEventsData, isLoading: upcomingEventsLoading, error: upcomingEventsError } = useGetUpcomingEventsQuery(undefined);
+
+  if (upcomingEventsError || pendingTasksError) {
+    showToast({ message: 'Failed to load some dashboard data', title: "Dashboard Error", type: "error", position: "top" });
+    return;
+  }
+
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer} showsVerticalScrollIndicator={false}>
@@ -174,7 +195,13 @@ const AppStats = () => {
         )}
 
         <Text style={[styles.subtitle, { marginTop: 16 }]}>Upcoming Windows</Text>
-        {upcomingWindows.length ? (
+        {
+          upcomingEventsLoading && <RLoaderAnimation customStyle={styles.loader} />
+        }
+        {
+          !upcomingEventsLoading && <Text style={{ color: colors.white }}>{upcomingEventsData?.items?.length > 0 ? `${upcomingEventsData?.items?.length} upcoming windows` : `No upcoming windows`}</Text>
+        }
+        {/* {upcomingWindows.length ? (
           upcomingWindows.map((w: DiscretionaryWindow) => (
             <WorkflowCard
               key={w.id}
@@ -185,21 +212,33 @@ const AppStats = () => {
           ))
         ) : (
           <Text style={{ color: "#fff" }}>No upcoming windows</Text>
-        )}
+        )} */}
       </LinearGradient>
 
       <View style={styles.quickStatsContainer}>
         <View style={[styles.quickStatCard, { backgroundColor: "#27ae60" }]}>
           <Text style={styles.statTitle}>Active Grants</Text>
-          <Text style={styles.statValue}>{activeWindows.length}</Text>
+          {isLoading && <RLoaderAnimation customStyle={styles.loader} />}
+          {
+            !isLoading &&
+            <Text style={styles.statValue}>{activeWindows.length}</Text>
+          }
         </View>
         <View style={[styles.quickStatCard, { backgroundColor: "#e74c3c" }]}>
           <Text style={styles.statTitle}>Pending Tasks</Text>
-          <Text style={styles.statValue}>8</Text>
+          {pendingTasksLoading && <RLoaderAnimation customStyle={styles.loader} />}
+          {
+            !pendingTasksLoading &&
+            <Text style={styles.statValue}>{pendingTasksData?.items?.length || 0}</Text>
+          }
         </View>
         <View style={[styles.quickStatCard, { backgroundColor: "#3498db" }]}>
           <Text style={styles.statTitle}>Upcoming Events</Text>
-          <Text style={styles.statValue}>{upcomingWindows.length}</Text>
+          {upcomingEventsLoading && <RLoaderAnimation customStyle={styles.loader} />}
+          {
+            !upcomingEventsLoading && <Text style={styles.statValue}>{upcomingEventsData?.items?.length || 0}</Text>
+          }
+
         </View>
       </View>
     </ScrollView>
@@ -236,6 +275,7 @@ const styles = StyleSheet.create({
   quickStatCard: { flex: 1, marginHorizontal: 4, borderRadius: 16, paddingVertical: 12, alignItems: "center" },
   statTitle: { fontSize: 12, color: "#fff", fontWeight: "600", marginBottom: 4 },
   statValue: { fontSize: 18, fontWeight: "700", color: "#fff" },
+  loader: { backgroundColor: 'white', width: 4, height: 4 },
 });
 
 export default AppStats;

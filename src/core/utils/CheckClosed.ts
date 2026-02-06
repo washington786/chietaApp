@@ -21,9 +21,14 @@ export const checkProjectClosed = (
     let isClosed = false;
 
     const normalizedStatus = (projectStatus || '').trim().toLowerCase();
-    const nonEditableStatuses = ['submitted', 'approved', 'rejected', 'closed', 'completed'];
+    const nonEditableExact = ['submitted', 'approved', 'rejected', 'closed', 'completed'];
+    const nonEditableKeywords = ['submitted', 'review', 'approval', 'approved', 'rejected', 'closed', 'completed', 'signed'];
+    const shouldLockStatus = normalizedStatus.length > 0 && (
+        nonEditableExact.includes(normalizedStatus) ||
+        nonEditableKeywords.some((keyword) => normalizedStatus.includes(keyword))
+    );
 
-    if (nonEditableStatuses.includes(normalizedStatus)) {
+    if (shouldLockStatus) {
         isEditable = false;
         isClosed = true;
     }

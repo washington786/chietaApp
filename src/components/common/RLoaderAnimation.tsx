@@ -1,5 +1,6 @@
 import colors from '@/config/colors';
 import React, { useEffect } from 'react';
+import { ViewStyle } from 'react-native';
 import { View, StyleSheet } from 'react-native';
 import Animated, {
     useSharedValue,
@@ -13,7 +14,7 @@ import Animated, {
 const SQUARE_SIZE = 12;
 const DURATION = 800;
 
-const Square = ({ delay = 0 }: { delay?: number }) => {
+const Square = ({ delay = 0, customStyle }: { delay?: number, customStyle?: ViewStyle }) => {
     const opacity = useSharedValue(0.3);
 
     const animatedStyle = useAnimatedStyle(() => {
@@ -39,17 +40,18 @@ const Square = ({ delay = 0 }: { delay?: number }) => {
                 styles.square,
                 animatedStyle,
                 { marginLeft: delay > 0 ? 6 : 0 },
+                customStyle,
             ]}
         />
     );
 };
 
-const RLoaderAnimation = () => {
+const RLoaderAnimation = ({ customStyle }: { customStyle?: ViewStyle }) => {
     return (
         <View style={styles.container}>
-            <Square />
-            <Square delay={100} />
-            <Square delay={200} />
+            <Square customStyle={customStyle} />
+            <Square delay={100} customStyle={customStyle} />
+            <Square delay={200} customStyle={customStyle} />
         </View>
     );
 };
