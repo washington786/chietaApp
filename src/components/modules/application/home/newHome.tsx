@@ -11,11 +11,10 @@ import usePageTransition from '@/hooks/navigation/usePageTransition';
 import { getTimeOfDay } from '@/core';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store/store';
-import DgActiveWindow from '../grants/ActiveWindow';
 import HomeHeader from './HomeHeader';
 import AppStatsSection from './AppStats';
 import { home_styles as styles } from '@/styles/HomeStyles';
-import { useGetNotificationsByUserQuery } from '@/store/api/api';
+import { useGetNotificationsByUserQuery, useGetPersonByUserIdQuery } from '@/store/api/api';
 import { AppNotification } from '@/core/types/notifications';
 
 const NewHome = () => {
@@ -23,6 +22,9 @@ const NewHome = () => {
     const { newOrg, notifications, linkedOrganizations } = usePageTransition();
 
     const { user } = useSelector((state: RootState) => state.auth);
+
+    //sdf
+    const { data: sdfData, isLoading: sdfLoading, error: sdfError } = useGetPersonByUserIdQuery(user?.id, { skip: !user?.id });
 
     // Fetch notifications
     const userId: number = user?.id ? parseInt(String(user.id), 10) : 0;
@@ -40,13 +42,14 @@ const NewHome = () => {
 
     if (user && user.firstName && user.lastName) {
         fullname = `${user.firstName} ${user.lastName}`;
-    } else if (user && user.username) {
-        fullname = user.username;
-    } else {
-        const name = user?.email.split('@')[0] || '';
-
-        fullname = name.split('.').map(part => part.charAt(0).toUpperCase() + part.slice(1)).join(' ');
+    } else if (sdfData?.result?.person) {
+        fullname = `${sdfData?.result?.person.firstname} ${sdfData?.result?.person.lastname}`;
     }
+    // } else {
+    //     const name = user?.email.split('@')[0] || '';
+
+    //     fullname = name.split('.').map(part => part.charAt(0).toUpperCase() + part.slice(1)).join(' ');
+    // }
 
     function handleLinkNewOrg() {
         setAdd(!addLinking);
@@ -74,7 +77,7 @@ const NewHome = () => {
 
 
                         {/* active windows */}
-                       {/* <DgActiveWindow />* */}
+                        {/* <DgActiveWindow />* */}
 
                         {/* Stats */}
                         <AppStatsSection />

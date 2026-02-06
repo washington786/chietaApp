@@ -82,6 +82,7 @@ const useDg = ({ projectId, appId, userId }: UseDgParams) => {
     // Entry management state
     const [entries, setEntries] = useState<any[]>([]);
     const [editingEntryId, setEditingEntryId] = useState<string | null>(null);
+    const [hasSubmitted, setHasSubmitted] = useState(false);
 
     // Document state
     const [applicationForm, setApplicationForm] = useState<DocumentPickerResult>();
@@ -95,7 +96,7 @@ const useDg = ({ projectId, appId, userId }: UseDgParams) => {
     const [bankingDetailsProof, setBankDetails] = useState<DocumentPickerResult>();
 
     // ========== API Queries & Mutations ==========
-    const { data: dgProjectDetailsApp } = useGetDGProjectDetailsAppQuery(projectId, { skip: !projectId });
+    const { data: dgProjectDetailsApp, refetch: refetchProjectDetails } = useGetDGProjectDetailsAppQuery(projectId, { skip: !projectId });
 
     const { data: projectTypesData } = useGetProjectTypeQuery(undefined);
     const projectTypes = useMemo(() =>
@@ -510,6 +511,14 @@ const useDg = ({ projectId, appId, userId }: UseDgParams) => {
                 position: "top",
             });
 
+            setHasSubmitted(true);
+
+            try {
+                await refetchProjectDetails();
+            } catch (refetchError) {
+                console.log("Failed to refetch project details after submission", refetchError);
+            }
+
             return { success: true, message: submitResult.message };
         } catch (error: any) {
             console.error("Submission error:", error);
@@ -737,6 +746,7 @@ const useDg = ({ projectId, appId, userId }: UseDgParams) => {
         learnerSchedule,
         declarationInterest,
         bankingDetailsProof,
+        hasSubmitted,
 
         // Setters
         setCurrentStep,

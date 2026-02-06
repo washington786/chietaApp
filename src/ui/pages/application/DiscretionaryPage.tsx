@@ -106,7 +106,7 @@ const DiscretionaryPage = () => {
     }
     return (
         <SafeArea>
-            <RHeader name='Discretionary Grant Applications' hasRightIcon iconRight='search' onPressRight={() => setShowSearch(!showSearch)} />
+            <RHeader name='Discretionary Applications' hasRightIcon iconRight='search' onPressRight={() => setShowSearch(!showSearch)} />
 
             {
                 showSearch &&

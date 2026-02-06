@@ -18,6 +18,7 @@ import RPickerContainer from "./RPickerContainer";
 import RRNButton from "./RRNButton";
 import RRow from "./RRow";
 import RRPicker from "./RRPicker";
+import RSelected from "./RSelected";
 import RServerError from "./RServerError";
 import RSplash from "./RSplash";
 import RSwitch from "./RSwitch";
@@ -31,8 +32,8 @@ import SafeArea from "./SafeArea";
 import Scroller from "./Scroller";
 import SkeletonLoader from "./SkeletonLoader";
 
-
 export {
+  RSelected,
   SafeArea,
   RVersion,
   RButton,

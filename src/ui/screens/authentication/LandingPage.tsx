@@ -20,6 +20,7 @@ import { RCol, RRow } from "@/components/common";
 import colors from "@/config/colors";
 import { chatBot, chatSquare, landingBg } from "@/components/loadAssets";
 import { ImageBackground } from "react-native";
+import usePageEnterAnimation from '@/hooks/animations/usePageEnterAnimation';
 
 const overlayGradient = [
   `${colors.primary[900]}CC`,
@@ -30,6 +31,7 @@ const overlayGradient = [
 export default function LandingScreen() {
   const { login } = usePageTransition();
   const { open, close } = useGlobalBottomSheet();
+  const { animatedStyle } = usePageEnterAnimation({ initialOffset: 28 });
 
   const messageOpacity = useRef(new Animated.Value(0)).current;
   const exploreTranslateY = useRef(new Animated.Value(0)).current;
@@ -73,73 +75,75 @@ export default function LandingScreen() {
         end={{ x: 1, y: 1 }}
         style={styles.gradient}
       >
-        <ScrollView
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-        >
-          {/* Logo */}
-          <Image
-            source={require("../../../../assets/logov2.png")}
-            style={styles.logo}
-            resizeMode="contain"
-          />
-
-          <Text style={styles.title}>Welcome To{"\n"}CHIETA Portal</Text>
-
-          <Animated.Text
-            style={[styles.attentionMessage, { opacity: messageOpacity }]}
+        <Animated.View style={[styles.scrollWrapper, animatedStyle]}>
+          <ScrollView
+            contentContainerStyle={styles.scrollContent}
+            showsVerticalScrollIndicator={false}
           >
-            Discover Jobs, Grants & Skills – All in One App!
-          </Animated.Text>
+            {/* Logo */}
+            <Image
+              source={require("../../../../assets/logov2.png")}
+              style={styles.logo}
+              resizeMode="contain"
+            />
 
-          <Animated.View style={{ transform: [{ translateY: exploreTranslateY }] }}>
-            <Icon
-              name="chevron-down"
-              size={24}
-              color={colors.secondary[400] || "#6d28d9"}
-            />
-          </Animated.View>
+            <Text style={styles.title}>Welcome To{"\n"}CHIETA Portal</Text>
 
-          {/* 2 cards per row */}
-          <View style={styles.grid}>
-            <Card
-              icon="briefcase"
-              title="Careers"
-              badge="Visit Website"
-              desc="Jobs & Opportunities"
-              onPress={() =>
-                Linking.openURL("https://chieta.org.za/careers/vacancies/")
-              }
-              color={colors.primary[700] || "#6d28d9"}
-            />
-            <Card
-              icon="bulb"
-              title="SSC"
-              badge="Visit Website"
-              desc="Smart Skills Centres"
-              onPress={() =>
-                Linking.openURL("https://glittery-pony-b3e00d.netlify.app/")
-              }
-              color={colors.primary[700] || "#6d28d9"}
-            />
-            <Card
-              icon="business"
-              title="IMS"
-              badge="Login to IMS Portal"
-              desc="Grants Applications"
-              onPress={login}
-              color={colors.primary[700] || "#6d28d9"}
-            />
-            <Card
-              icon="school"
-              title="SSDD"
-              badge="Coming Soon"
-              desc="Learner Opportunities"
-              disabled
-              color="#9ca3af"
-            />
-          </View>
-        </ScrollView>
+            <Animated.Text
+              style={[styles.attentionMessage, { opacity: messageOpacity }]}
+            >
+              Discover Jobs, Grants & Skills – All in One App!
+            </Animated.Text>
+
+            <Animated.View style={{ transform: [{ translateY: exploreTranslateY }] }}>
+              <Icon
+                name="chevron-down"
+                size={24}
+                color={colors.secondary[400] || "#6d28d9"}
+              />
+            </Animated.View>
+
+            {/* 2 cards per row */}
+            <View style={styles.grid}>
+              <Card
+                icon="briefcase"
+                title="Careers"
+                badge="Visit Website"
+                desc="Jobs & Opportunities"
+                onPress={() =>
+                  Linking.openURL("https://chieta.org.za/careers/vacancies/")
+                }
+                color={colors.primary[700] || "#6d28d9"}
+              />
+              <Card
+                icon="bulb"
+                title="SSC"
+                badge="Visit Website"
+                desc="Smart Skills Centres"
+                onPress={() =>
+                  Linking.openURL("https://glittery-pony-b3e00d.netlify.app/")
+                }
+                color={colors.primary[700] || "#6d28d9"}
+              />
+              <Card
+                icon="business"
+                title="IMS"
+                badge="Login to IMS Portal"
+                desc="Grants Applications"
+                onPress={login}
+                color={colors.primary[700] || "#6d28d9"}
+              />
+              <Card
+                icon="school"
+                title="SSDD"
+                badge="Coming Soon"
+                desc="Learner Opportunities"
+                disabled
+                color="#9ca3af"
+              />
+            </View>
+          </ScrollView>
+        </Animated.View>
 
         {/* Footer */}
         <View style={styles.footerContainer}>
@@ -265,6 +269,9 @@ const styles = StyleSheet.create({
     paddingTop: 40,
     paddingHorizontal: 16,
     paddingBottom: 40,
+  },
+  scrollWrapper: {
+    width: '100%',
   },
   logo: { width: 220, height: 120, marginBottom: 16 },
   title: {

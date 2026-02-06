@@ -2,7 +2,6 @@ import {
     Platform,
     StyleSheet,
     TouchableOpacity,
-    TouchableWithoutFeedback,
     View,
 } from "react-native";
 import React, { FC } from "react";
@@ -30,40 +29,41 @@ const RHeader: FC<prop> = ({ name, hasRightIcon = false, onPressRight, iconRight
     const { onBack } = usePageTransition();
     return (
         <RRow style={styles.con}>
-            {showBack &&
-                <TouchableWithoutFeedback onPress={onBack}>
-                    <Feather
-                        name={Platform.OS === "ios" ? "chevron-left" : "arrow-left"}
-                        size={24}
-                    />
-                </TouchableWithoutFeedback>}
-            <View
-                style={[
-                    Platform.OS === "ios" && styles.ios,
-                    Platform.OS === "android" && styles.gap,
-                ]}
-            >
+            {showBack && (
+                <View style={styles.leftSlot}>
+                    <TouchableOpacity style={styles.backBtn} onPress={onBack}>
+                        <Feather
+                            name={Platform.OS === "ios" ? "chevron-left" : "arrow-left"}
+                            size={24}
+                        />
+                    </TouchableOpacity>
+                </View>
+            )}
+
+            <View style={styles.titleSlot}>
                 <Text
                     variant="titleLarge"
-                    style={Platform.OS === "android" && styles.android}
+                    style={styles.title}
+                    numberOfLines={1}
                 >
                     {name}
                 </Text>
             </View>
-            {
-                hasRightIcon && (<View style={{ alignItems: "center", gap: 4, flexDirection: 'row', marginHorizontal: 5 }}>
-                    <TouchableOpacity style={{ alignSelf: "flex-end", alignItems: "flex-end", justifyContent: "flex-end", paddingRight: 12 }} onPress={onPressRight}>
-                        <Ionicons name={iconRight} size={28} color={colors.gray[600]} />
-                    </TouchableOpacity>
-                    {
-                        hasSecondIcon && (<TouchableOpacity style={{ alignSelf: "flex-end", alignItems: "flex-end", justifyContent: "flex-end", paddingRight: 6, backgroundColor: colors.primary[400], borderRadius: 10, padding: 4 }} onPress={onPressSecond}>
-                            <FontAwesome6 name={iconSecond as any} size={24} color={colors.zinc[200]} />
+
+            <View style={styles.rightSlot}>
+                {hasRightIcon && (
+                    <View style={styles.actions}>
+                        <TouchableOpacity style={styles.iconBtn} onPress={onPressRight}>
+                            <Ionicons name={(iconRight ?? 'search') as any} size={24} color={colors.gray[600]} />
                         </TouchableOpacity>
-                        )
-                    }
-                </View>
-                )
-            }
+                        {hasSecondIcon && (
+                            <TouchableOpacity style={[styles.iconBtn, styles.secondaryIcon]} onPress={onPressSecond}>
+                                <FontAwesome6 name={iconSecond as any} size={20} color={colors.zinc[200]} />
+                            </TouchableOpacity>
+                        )}
+                    </View>
+                )}
+            </View>
         </RRow>
     );
 };
@@ -75,18 +75,45 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         alignItems: "center",
         paddingVertical: 13,
-        gap: 9,
-        paddingLeft: 6,
+        paddingHorizontal: 12,
     },
-    ios: {
-        textAlign: "center",
+    leftSlot: {
+        minWidth: 56,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'flex-start',
+        flexShrink: 0,
+    },
+    rightSlot: {
+        minWidth: 56,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'flex-end',
+        flexShrink: 0,
+    },
+    backBtn: {
+        padding: 6,
+        borderRadius: 999,
+    },
+    titleSlot: {
         flex: 1,
+        paddingHorizontal: 8,
     },
-    android: {
-        textAlign: "left",
-        flex: 1
+    title: {
+        fontWeight: '700',
+        textAlign: 'left',
+        alignSelf: 'stretch',
     },
-    gap: {
-        gap: 10,
+    actions: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+    },
+    iconBtn: {
+        padding: 6,
+        borderRadius: 12,
+    },
+    secondaryIcon: {
+        backgroundColor: colors.primary[400],
     },
 });

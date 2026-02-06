@@ -112,11 +112,7 @@ const FileManagementPage = () => {
         ),
     };
 
-    const { data: grantDetails } = useGetGrantDetailsViewQuery(appId, { skip: !appId });
-
     const { data: grants, isLoading: grantsLoading, error } = useGetProjectDetailsListViewQuery(Number(appId), { skip: !appId });
-
-    console.log('Project Details List View Data:', grants);
 
     // Helper function to get document from RTK Query data
     const getDocument = (query: any) => query.data?.result?.items?.[0]?.documents;

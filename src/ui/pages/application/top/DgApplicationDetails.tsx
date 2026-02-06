@@ -2,8 +2,8 @@ import { FlatList, TouchableOpacity, View } from 'react-native'
 import React, { useEffect } from 'react'
 import colors from '@/config/colors'
 import { Text, IconButton, Tooltip } from 'react-native-paper'
-import { Expandable, RUploadSuccess, DgEntryList, RUploadSuccessFile, MessageWrapper } from '@/components/modules/application'
-import { RButton, RCol, RInput, RRow, RUpload } from '@/components/common'
+import { Expandable, RUploadSuccess, DgEntryList, RUploadSuccessFile } from '@/components/modules/application'
+import { RButton, RCol, RInput, RRow, RSelected, RUpload } from '@/components/common'
 import { SelectList } from 'react-native-dropdown-select-list'
 import { dg_styles as styles } from '@/styles/DgStyles';
 import { RouteProp, useRoute } from '@react-navigation/native'
@@ -61,6 +61,7 @@ const DgApplicationDetails = () => {
         learnerSchedule,
         declarationInterest,
         bankingDetailsProof,
+        hasSubmitted,
 
         setDocs,
         setProv,
@@ -123,6 +124,7 @@ const DgApplicationDetails = () => {
         handleDeleteEntry,
         handleNext,
         handlePrev,
+
         handleSubmitApplication,
         handleSaveApplication,
 
@@ -132,6 +134,8 @@ const DgApplicationDetails = () => {
         generate,
     } = useDg({ projectId: projectIdStr, appId, userId });
 
+    //validation
+    let total = parseInt(noContinuing) + parseInt(noNew);
     // Auto-populate programme type and learning programme from selectedProject
     useEffect(() => {
         if (selectedProject?.projType && projectTypes?.length > 0) {
@@ -150,12 +154,18 @@ const DgApplicationDetails = () => {
         }
     }, [selectedProject?.projType, selectedProject?.focusArea, projectTypes, focusAreas, setProgrammeType, setLearningProgramme]);
 
-    // Display read-only view if:
-    // 1. Project is not editable (status is not 'Registered' OR date expired)
-    if (!projectClosureStatus.isEditable) {
-        return (
-            <ProjectDetailsItem projectId={appId} />
-        )
+    const programmeLabel = getSelectedLabel(programmeType, projectTypes)?.value ?? '';
+    const focusAreaLabel = getSelectedLabel(learningProgramme, focusAreas)?.value ?? '';
+
+
+    const shouldShowReadOnly = hasSubmitted || projectClosureStatus.isClosed;
+
+    console.log("Project:", selectedProject);
+    console.log("Project Closure Status:", projectClosureStatus);
+    console.log("Project submitted:", hasSubmitted);
+
+    if (shouldShowReadOnly) {
+        return <ProjectDetailsItem projectId={appId} />
     }
 
     return (
@@ -196,7 +206,7 @@ const DgApplicationDetails = () => {
                                 <>
                                     <Text variant='titleMedium' style={styles.title}>Program & Application details</Text>
                                     <Expandable title='Programme Details' isExpanded={expandProg} onPress={() => setProg(!expandProg)}>
-                                        <SelectList
+                                        {/* <SelectList
                                             setSelected={(val: any) => {
                                                 setProgrammeType(val);
                                                 setLearningProgramme("");
@@ -210,8 +220,8 @@ const DgApplicationDetails = () => {
                                             boxStyles={styles.boxStyle}
                                             dropdownStyles={styles.dropdown}
 
-                                        />
-                                        <SelectList
+                                        /> */}
+                                        {/* <SelectList
                                             setSelected={(val: any) => {
                                                 setLearningProgramme(val);
                                                 setSubCategory("");
@@ -224,7 +234,10 @@ const DgApplicationDetails = () => {
                                             boxStyles={styles.boxStyle}
                                             dropdownStyles={styles.dropdown}
 
-                                        />
+                                        /> */}
+                                        <RSelected label='Programme Type' value={programmeLabel} placeholder='No option selected' helperText='Selection locked' />
+
+                                        <RSelected label='Learning Programme' value={focusAreaLabel} placeholder='No option selected' helperText='Selection locked' />
                                         <SelectList
                                             setSelected={(val: any) => {
                                                 setSubCategory(val);
@@ -256,11 +269,26 @@ const DgApplicationDetails = () => {
                                         <RInput placeholder='#Continuing' keyboardType='number-pad' value={noContinuing} onChangeText={(val) => { setNoContinuing(val); }} />
                                         <RInput placeholder='#New' keyboardType='number-pad' value={noNew} onChangeText={(val) => { setNoNew(val); }} />
                                         <RInput placeholder='#Female' keyboardType='number-pad' value={noFemale} onChangeText={(val) => { setNoFemale(val); }} />
+                                        {
+                                            parseInt(noFemale) > total && <Text style={{ color: colors.red[600], marginBottom: 1 }}>Number of female learners cannot exceed total number of learners</Text>
+                                        }
                                         <RInput placeholder='#HDI' keyboardType='number-pad' value={noHDI} onChangeText={(val) => { setNoHDI(val); }} />
+                                        {
+                                            parseInt(noHDI) > total && <Text style={{ color: colors.red[600], marginBottom: 1 }}>Number of HDI learners cannot exceed total number of learners</Text>
+                                        }
                                         <RInput placeholder='#Youth' keyboardType='number-pad' value={noYouth} onChangeText={(val) => { setNoYouth(val); }} />
+                                        {
+                                            parseInt(noYouth) > total && <Text style={{ color: colors.red[600], marginBottom: 1 }}>Number of youth learners cannot exceed total number of learners</Text>
+                                        }
                                         <RInput placeholder='#Disabled' keyboardType='number-pad' value={noDisabled} onChangeText={(val) => { setNoDisabled(val); }} />
+                                        {
+                                            parseInt(noDisabled) > total && <Text style={{ color: colors.red[600], marginBottom: 1, fontSize: 8 }}>Number of disabled learners cannot exceed total number of learners</Text>
+                                        }
                                         <RInput placeholder='#Rural' keyboardType='number-pad' value={noRural} onChangeText={(val) => { setNoRural(val); }} />
-                                        <RInput placeholder='#Cost Per learner' keyboardType='numeric' value={costPerLearner} onChangeText={(val) => { setCostPerLearner(val); }} />
+                                        {
+                                            parseInt(noRural) > total && <Text style={{ color: colors.red[600], marginBottom: 1, fontSize: 8 }}>Number of rural learners cannot exceed total number of learners</Text>
+                                        }
+                                        <RInput placeholder='#Cost Per learner' keyboardType='decimal-pad' value={costPerLearner} onChangeText={(val) => { setCostPerLearner(val); }} />
                                     </Expandable>
 
                                     <Expandable title='Project Location' isExpanded={expandLoc} onPress={() => setLoc(!expandLoc)}>
@@ -349,32 +377,32 @@ const DgApplicationDetails = () => {
                                                 {!companyReg && getDocument(companyQuery)?.filename && <RUploadSuccessFile file={getDocument(companyQuery)?.filename} />}
                                             </View>
                                             <View>
-                                                <RUpload title='BEE Certificate' onPress={handleBeeCert} />
+                                                <RUpload title='BBBEE Certificate/Affidavit' onPress={handleBeeCert} />
                                                 {beeCert && beeCert.assets && <RUploadSuccess file={beeCert} />}
                                                 {!beeCert && getDocument(beeQuery)?.filename && <RUploadSuccessFile file={getDocument(beeQuery)?.filename} />}
                                             </View>
                                             <View>
-                                                <RUpload title='Accreditation' onPress={handleProofAccredetation} />
+                                                <RUpload title='Proof of Accreditation' onPress={handleProofAccredetation} />
                                                 {accredetation && accredetation.assets && <RUploadSuccess file={accredetation} />}
                                                 {!accredetation && getDocument(accredQuery)?.filename && <RUploadSuccessFile file={getDocument(accredQuery)?.filename} />}
                                             </View>
                                             <View>
-                                                <RUpload title='Commitment' onPress={handleLetterCommitment} />
+                                                <RUpload title='Letter  of Commitment' onPress={handleLetterCommitment} />
                                                 {commitmentLetter && commitmentLetter.assets && <RUploadSuccess file={commitmentLetter} />}
                                                 {!commitmentLetter && getDocument(commitQuery)?.filename && <RUploadSuccessFile file={getDocument(commitQuery)?.filename} />}
                                             </View>
                                             <View>
-                                                <RUpload title='Schedule' onPress={handleLearnerSchedule} />
+                                                <RUpload title='Learner Schedule' onPress={handleLearnerSchedule} />
                                                 {learnerSchedule && learnerSchedule.assets && <RUploadSuccess file={learnerSchedule} />}
                                                 {!learnerSchedule && getDocument(scheduleQuery)?.filename && <RUploadSuccessFile file={getDocument(scheduleQuery)?.filename} />}
                                             </View>
                                             <View>
-                                                <RUpload title='Declaration' onPress={handleOrgInterest} />
+                                                <RUpload title='Organization Declaration' onPress={handleOrgInterest} />
                                                 {declarationInterest && declarationInterest.assets && <RUploadSuccess file={declarationInterest} />}
                                                 {!declarationInterest && getDocument(declarationQuery)?.filename && <RUploadSuccessFile file={getDocument(declarationQuery)?.filename} />}
                                             </View>
                                             <View>
-                                                <RUpload title='Bank Proof' onPress={handleBankDetails} />
+                                                <RUpload title='Banking Details Proof' onPress={handleBankDetails} />
                                                 {bankingDetailsProof && bankingDetailsProof.assets && <RUploadSuccess file={bankingDetailsProof} />}
                                                 {!bankingDetailsProof && getDocument(bankProofQuery)?.filename && <RUploadSuccessFile file={getDocument(bankProofQuery)?.filename} />}
                                             </View>
@@ -447,11 +475,11 @@ function SubmitSheet({ close, submit }: { close: () => void, submit: () => void 
                 }}
             >
                 <View style={{ flexDirection: "row", alignItems: "center", gap: 4 }}>
-                    <Text variant="titleMedium">Application Submit</Text>
+                    <Text variant="titleMedium">Application Submission</Text>
                 </View>
 
-                <TouchableOpacity onPress={close} activeOpacity={0.8}>
-                    <EvilIcons name="close" size={32} color="black" />
+                <TouchableOpacity onPress={close} activeOpacity={0.8} style={{ backgroundColor: colors.red[100], borderRadius: 100, padding: 8 }}>
+                    <EvilIcons name="close" size={32} color="gray" />
                 </TouchableOpacity>
             </RRow>
 

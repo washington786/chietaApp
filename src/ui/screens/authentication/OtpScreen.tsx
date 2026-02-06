@@ -1,4 +1,4 @@
-import { Text, View } from 'react-native'
+import { Animated, Text, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { AuthWrapper } from '@/components/modules/authentication';
 import { RButton, RErrorMessage, RKeyboardView, RLogo, SafeArea, Scroller } from '@/components/common';
@@ -20,6 +20,7 @@ import {
     verifyOtpBackend,
     resendOtpCode,
 } from '@/store/slice/PasswordResetSlice';
+import usePageEnterAnimation from '@/hooks/animations/usePageEnterAnimation';
 
 interface OtpFormValues {
     otp: string
@@ -32,6 +33,7 @@ const initialValues: OtpFormValues = {
 const OtpScreen = () => {
     const { newPassword } = usePageTransition();
     const dispatch = useDispatch<AppDispatch>();
+    const { animatedStyle } = usePageEnterAnimation({ initialOffset: 24 });
 
     // Get email and reset state from Redux
     const {
@@ -210,12 +212,12 @@ const OtpScreen = () => {
                 <AuthWrapper>
                     <SafeArea>
                         <RLogo stylesLogo={{ alignContent: "center", marginTop: 40, marginBottom: 20, width: "auto" }} />
-                        <View style={styles.content}>
+                        <Animated.View style={[styles.content, animatedStyle]}>
                             <Text style={[styles.title, { fontFamily: `${appFonts.bold}`, fontWeight: "500", textTransform: "capitalize" }]}>
                                 Error
                             </Text>
                             <RErrorMessage error="Email not found. Please start the reset process again." />
-                        </View>
+                        </Animated.View>
                     </SafeArea>
                 </AuthWrapper>
             </Scroller>
@@ -229,14 +231,14 @@ const OtpScreen = () => {
                 <AuthWrapper>
                     <SafeArea>
                         <RLogo stylesLogo={{ alignContent: "center", marginTop: 40, marginBottom: 20, width: "auto" }} />
-                        <View style={styles.content}>
+                        <Animated.View style={[styles.content, animatedStyle]}>
                             <Text style={[styles.title, { fontFamily: `${appFonts.bold}`, fontWeight: "500", textTransform: "capitalize", color: colors.red[600] }]}>
                                 Account Locked
                             </Text>
                             <Text style={[styles.description]}>
                                 Too many failed attempts. Please wait {lockoutTimeRemaining} seconds before trying again.
                             </Text>
-                        </View>
+                        </Animated.View>
                     </SafeArea>
                 </AuthWrapper>
             </Scroller>
@@ -248,7 +250,7 @@ const OtpScreen = () => {
             <AuthWrapper>
                 <SafeArea>
                     <RLogo stylesLogo={{ alignContent: "center", marginTop: 40, marginBottom: 20, width: "auto" }} />
-                    <View style={styles.content}>
+                    <Animated.View style={[styles.content, animatedStyle]}>
                         <Text style={[styles.title, { fontFamily: `${appFonts.bold}`, fontWeight: "bold", textTransform: "capitalize" }]}>
                             verify one time password
                         </Text>
@@ -352,7 +354,7 @@ const OtpScreen = () => {
                             </Button>
                         </View>
 
-                    </View>
+                    </Animated.View>
                 </SafeArea>
             </AuthWrapper >
         </Scroller >
