@@ -8,16 +8,6 @@ interface ProjectCheckResult {
 }
 
 /**
- * Pads a number with leading zeros
- * @param str - The string/number to pad
- * @returns Padded string
- */
-const pad = (str: string | number): string => {
-    const strValue = str.toString();
-    return "00".substring(0, 2 - strValue.length) + strValue;
-};
-
-/**
  * Checks if a project is closed based on status and end date
  * @param projectStatus - The status of the project (e.g., 'Registered')
  * @param projectEndDate - The end date of the project
@@ -30,26 +20,32 @@ export const checkProjectClosed = (
     let isEditable = true;
     let isClosed = false;
 
-    // Check if project status is not 'Registered'
-    if (projectStatus !== "Registered") {
-        isEditable = false;
-    }
+    const normalizedStatus = (projectStatus || '').trim().toLowerCase();
+    const nonEditableStatuses = ['submitted', 'approved', 'rejected', 'closed', 'completed'];
 
-    // Get current date in UTC
-    const d = new Date();
-    const dteNow = new Date(
-        `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate() + 1)}`
-    );
-
-    // Parse end date
-    const endDate = new Date(projectEndDate);
-
-    // Check if end date has passed
-    if (endDate <= d) {
+    if (nonEditableStatuses.includes(normalizedStatus)) {
         isEditable = false;
         isClosed = true;
-    } else {
-        isClosed = false;
+    }
+
+    const parseDate = (value: string | Date | undefined) => {
+        if (!value) return null;
+        const parsed = new Date(value);
+        return Number.isNaN(parsed.getTime()) ? null : parsed;
+    };
+
+    const endDate = parseDate(projectEndDate);
+    if (endDate) {
+        const normalizedEnd = new Date(endDate);
+        normalizedEnd.setHours(23, 59, 59, 999);
+
+        const now = new Date();
+        now.setHours(0, 0, 0, 0);
+
+        if (normalizedEnd < now) {
+            isEditable = false;
+            isClosed = true;
+        }
     }
 
     return { isClosed, isEditable };
