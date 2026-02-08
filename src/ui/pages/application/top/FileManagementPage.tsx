@@ -132,8 +132,8 @@ const FileManagementPage = () => {
     const handleDownload = (doc: DocumentDto) => {
         showToast({
             title: "Download",
-            message: `Preparing ${doc.filename}...`,
-            type: "success",
+            message: `${doc.filename} is not available for download in the mobile app. Please access the desktop version to download this document.`,
+            type: "info",
             position: "top"
         });
     };
