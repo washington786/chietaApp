@@ -1,13 +1,18 @@
 {
   "name": "chietaapp",
   "license": "0BSD",
-  "version": "1.0.0",
+  "version": "1.0.0-preview.1",
   "main": "index.ts",
   "scripts": {
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "build:android": "eas build --platform android --profile preview",
+    "build:ios": "eas build --platform ios --profile preview",
+    "build:all": "eas build --platform all --profile preview",
+    "build:status": "eas build:list",
+    "prebuild:clean": "expo prebuild --clean"
   },
   "dependencies": {
     "@expo-google-fonts/inter": "^0.4.2",
