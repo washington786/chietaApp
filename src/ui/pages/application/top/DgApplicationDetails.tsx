@@ -160,9 +160,9 @@ const DgApplicationDetails = () => {
 
     const shouldShowReadOnly = hasSubmitted || projectClosureStatus.isClosed;
 
-    console.log("Project:", selectedProject);
-    console.log("Project Closure Status:", projectClosureStatus);
-    console.log("Project submitted:", hasSubmitted);
+    // console.log("Project:", selectedProject);
+    // console.log("Project Closure Status:", projectClosureStatus);
+    // console.log("Project submitted:", hasSubmitted);
 
     if (shouldShowReadOnly) {
         return <ProjectDetailsItem projectId={appId} />

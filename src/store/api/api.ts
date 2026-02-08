@@ -183,10 +183,6 @@ export const api = createApi({
         }),
         uploadProjectDocument: builder.mutation({
             query: ({ file, docType, userId, appId }) => {
-                console.log('=== API UPLOAD MUTATION CALLED ===');
-                console.log('Params received:', { docType, userId, appId });
-                console.log('File object:', { name: file.name, mimeType: file.mimeType, uri: file.uri, size: file.size });
-
                 // Extract file metadata
                 const lastModifiedDate = new Date().toISOString();
                 const type = file.mimeType || 'application/pdf';
@@ -205,9 +201,6 @@ export const api = createApi({
                 };
 
                 const url = '/api/services/app/Documents/FileUpload';
-
-                console.log('Upload URL:', url);
-                console.log('Upload body:', body);
 
                 return {
                     url,
