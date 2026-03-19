@@ -6,14 +6,18 @@ export const home_styles = StyleSheet.create({
         flex: 1,
     },
     contentContainer: {
-        paddingBottom: 48,
+        paddingBottom: 16,
+    },
+    footerSpacing: {
+        paddingHorizontal: 8,
+        paddingBottom: 0,
     },
 
     /* Header */
     header: {
-        paddingHorizontal: 18,
-        paddingTop: 16,
-        paddingBottom: 20,
+        paddingHorizontal: 16,
+        paddingTop: 12,
+        paddingBottom: 14,
         flexDirection: 'row',
         justifyContent: 'space-between',
         position: "relative"
@@ -60,13 +64,13 @@ export const home_styles = StyleSheet.create({
         flexDirection: 'row',
         flexWrap: 'wrap',
         justifyContent: 'space-between',
-        paddingHorizontal: 15,
-        marginBottom: 32,
+        paddingHorizontal: 12,
+        marginBottom: 20,
     },
 
     statWrapper: {
-        width: '49%',
-        marginBottom: 10,
+        width: '48%',
+        marginBottom: 12,
         position: "relative"
     },
 
@@ -76,8 +80,8 @@ export const home_styles = StyleSheet.create({
     },
 
     statContent: {
-        paddingVertical: 22,
-        paddingHorizontal: 16,
+        paddingVertical: 18,
+        paddingHorizontal: 14,
         alignItems: 'center',
         justifyContent: 'center',
     },
@@ -101,9 +105,9 @@ export const home_styles = StyleSheet.create({
 
     /* Sections */
     section: {
-        paddingHorizontal: 15,
-        marginBottom: 32,
-        paddingVertical: 10,
+        paddingHorizontal: 12,
+        marginBottom: 18,
+        paddingVertical: 8,
         backgroundColor: colors.slate[100],
         elevation: 1,
     },
@@ -111,7 +115,7 @@ export const home_styles = StyleSheet.create({
         fontSize: 20,
         fontWeight: 'bold',
         color: '#111827',
-        marginBottom: 10,
+        marginBottom: 6,
     },
 
     /* Timeline */
@@ -166,10 +170,10 @@ export const home_styles = StyleSheet.create({
 
     /* Orgs */
     sectionHeader: {
-        paddingHorizontal: 15,
+        paddingHorizontal: 12,
         flexDirection: 'row',
         justifyContent: 'space-between',
-        marginTop: 15
+        marginTop: 10
     },
     viewAllText: {
         color: colors.blue[700],

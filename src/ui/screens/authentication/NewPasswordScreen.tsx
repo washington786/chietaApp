@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { View, StyleSheet } from 'react-native'
+import { Platform, StyleSheet, View } from 'react-native'
 import { Formik } from 'formik'
 import { useSelector, useDispatch } from 'react-redux'
 
@@ -24,6 +24,8 @@ const initialValues: NewPasswordFormValues = {
     password: '',
     confirmPassword: ''
 }
+
+const KEYBOARD_OFFSET = Platform.select({ ios: 120, android: 32 }) ?? 0
 
 const NewPasswordScreen = () => {
     const { login } = usePageTransition()
@@ -105,7 +107,10 @@ const NewPasswordScreen = () => {
                 onSubmit={handleSubmit}
             >
                 {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
-                    <RKeyboardView style={authScreenStyles.formWrapper}>
+                    <RKeyboardView
+                        contentContainerStyle={authScreenStyles.formWrapper}
+                        keyboardVerticalOffset={KEYBOARD_OFFSET}
+                    >
                         <RInput
                             placeholder='New Password'
                             icon='lock'
@@ -134,7 +139,12 @@ const NewPasswordScreen = () => {
                             <RErrorMessage error={errors.confirmPassword} />
                         )}
 
-                        <AuthGradientButton title='Reset Password' onPress={handleSubmit} loading={isLoading} />
+                        <AuthGradientButton
+                            title='Reset Password'
+                            onPress={handleSubmit}
+                            loading={isLoading}
+                            disabled={isLoading}
+                        />
                         {isLoading && <RLoaderAnimation />}
                     </RKeyboardView>
                 )}

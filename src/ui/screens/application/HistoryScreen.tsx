@@ -12,7 +12,7 @@ import RHeader from '@/components/common/RHeader'
 import { history_styles as styles } from '@/styles/HistoryStyles';
 import { Searchbar, Text } from 'react-native-paper'
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
-import { useGlobalBottomSheet } from '@/hooks/navigation/BottomSheet'
+import { useGlobalBottomSheet, BottomSheetFlatList } from '@/hooks/navigation/BottomSheet'
 import AntDesign from '@expo/vector-icons/AntDesign';
 
 const HistoryScreen = () => {
@@ -110,7 +110,7 @@ const HistoryScreen = () => {
         open(<OrganizationBottomSheet close={close} organizations={organizations} selectedOrgId={selectedOrgId} onSelectOrg={(orgId) => {
             setSelectedOrgId(orgId);
             // Close is handled by the bottom sheet internally now
-        }} />, { snapPoints: ["60%"] });
+        }} />, { snapPoints: ["80%"] });
     }
 
 
@@ -297,7 +297,7 @@ function OrganizationBottomSheet({ organizations, selectedOrgId, onSelectOrg, cl
     };
 
     return (
-        <RCol style={styles.organizationBottomSheet}>
+        <View style={styles.organizationBottomSheet}>
             {/* Header */}
             <Text variant='headlineMedium' style={styles.orgBottomSheetTitle}>Switch Organization</Text>
             <Text variant='bodySmall' style={{ fontSize: 12 }}>choose the entity for your application view.</Text>
@@ -314,8 +314,8 @@ function OrganizationBottomSheet({ organizations, selectedOrgId, onSelectOrg, cl
                 style={{ borderRadius: 10, backgroundColor: colors.white, borderWidth: 1, borderColor: colors.slate[200] }}
             />
 
-            {/* Organization List */}
-            <FlatList
+            {/* Organization List — BottomSheetFlatList is required for FlatList inside a bottomsheet */}
+            <BottomSheetFlatList
                 data={filteredOrgs}
                 keyExtractor={(item) => `${item.id}`}
                 renderItem={({ item }) => (
@@ -325,11 +325,12 @@ function OrganizationBottomSheet({ organizations, selectedOrgId, onSelectOrg, cl
                         onPress={() => handleSelectOrg(item.id)}
                     />
                 )}
-                scrollEnabled={true}
+                keyboardShouldPersistTaps="handled"
                 showsVerticalScrollIndicator={false}
-                contentContainerStyle={{ gap: 12 }}
+                contentContainerStyle={{ gap: 12, paddingBottom: 36 }}
+                ListFooterComponent={<View style={{ height: 8 }} />}
             />
-        </RCol>
+        </View>
     );
 }
 

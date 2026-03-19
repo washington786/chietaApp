@@ -1,11 +1,12 @@
-import { StyleSheet, Text, View, ScrollView } from 'react-native'
+import { StyleSheet, Text, View } from 'react-native'
 import React, { useCallback } from 'react'
 import { Button, IconButton, Surface, Divider } from 'react-native-paper'
-import { useGlobalBottomSheet } from '@/hooks/navigation/BottomSheet'
+import { useGlobalBottomSheet, BottomSheetScrollView } from '@/hooks/navigation/BottomSheet'
 import colors from '@/config/colors'
-import { RCol, RRow, SafeArea } from '@/components/common'
+import { RCol, RRow } from '@/components/common'
 import DocumentsList from './DocumentsList'
 import { useGetDocumentsByEntityQuery } from '@/store/api/api'
+import { Expandable } from './Expandable'
 
 export interface ApplicationEntry {
     id: string;
@@ -76,93 +77,16 @@ const DgApplicationEntryItem: React.FC<DgApplicationEntryItemProps> = ({
             .flatMap(item => item.documents || []);
 
         openBottomSheet(
-            <SafeArea>
-                <ScrollView
-                    scrollEnabled={true}
-                    nestedScrollEnabled={true}
-                    contentContainerStyle={{ paddingBottom: 80 }}
-                    showsVerticalScrollIndicator={true}
-                >
-                    <View style={styles.bottomSheetHeader}>
-                        <Text style={styles.bottomSheetTitle}>Application Details</Text>
-                        <IconButton
-                            icon="close"
-                            size={24}
-                            iconColor={colors.gray[600]}
-                            onPress={closeBottomSheet}
-                            style={styles.closeButton}
-                        />
-                    </View>
-                    <Surface style={styles.detailSection}>
-                        <Text style={styles.sectionTitle}>Programme Information</Text>
-                        <DetailRow label="Programme Type" value={data.programType} />
-                        <DetailRow label="Learning Programme" value={data.learningProgramme} />
-                        <DetailRow label="Sub Category" value={data.subCategory} />
-                        <DetailRow label="Intervention" value={data.intervention} />
-                    </Surface>
-
-                    <Surface style={styles.detailSection}>
-                        <Text style={styles.sectionTitle}>Learner Distribution</Text>
-                        <DetailRow label="Continuing Students" value={data.noContinuing.toString()} />
-                        <DetailRow label="New Students" value={data.noNew.toString()} />
-                        <DetailRow label="Total Learners" value={totalLearners.toString()} highlighted />
-                        <DetailRow label="Female" value={data.noFemale.toString()} />
-                        <DetailRow label="Historically Disadvantaged" value={data.noHistoricallyDisadvantaged.toString()} />
-                        <DetailRow label="Youth" value={data.noYouth.toString()} />
-                        <DetailRow label="Disabled" value={data.noDisabled.toString()} />
-                        <DetailRow label="Rural" value={data.noRural.toString()} />
-                    </Surface>
-
-                    <Surface style={styles.detailSection}>
-                        <Text style={styles.sectionTitle}>Costs & Location</Text>
-                        <DetailRow label="Cost Per Learner" value={`R ${data.costPerLearner.toLocaleString()}`} />
-                        <DetailRow label="Total Cost" value={`R ${totalCost.toLocaleString()}`} highlighted />
-                        <DetailRow label="Province" value={data.province} />
-                        <DetailRow label="District" value={data.district} />
-                        <DetailRow label="Municipality" value={data.municipality} />
-                    </Surface>
-
-                    {allDocuments.length > 0 && (
-                        <Surface style={styles.detailSection}>
-                            <Text style={styles.sectionTitle}>Uploaded Documents ({allDocuments.length})</Text>
-                            <DocumentsList documents={allDocuments} />
-                        </Surface>
-                    )}
-
-                    <View style={styles.actionButtons}>
-                        {onEdit && (
-                            <Button
-                                mode="contained"
-                                onPress={() => {
-                                    closeBottomSheet();
-                                    onEdit(data);
-                                }}
-                                style={styles.editButton}
-                                labelStyle={styles.buttonText}
-                                icon="pencil"
-                            >
-                                Edit
-                            </Button>
-                        )}
-                        {onDelete && (
-                            <Button
-                                mode="contained"
-                                onPress={() => {
-                                    closeBottomSheet();
-                                    onDelete(data.id);
-                                }}
-                                style={styles.deleteButton}
-                                labelStyle={styles.buttonText}
-                                icon="trash-can"
-                            >
-                                Delete
-                            </Button>
-                        )}
-                    </View>
-                    <View style={{ height: 40 }} />
-                </ScrollView>
-            </SafeArea>,
-            { snapPoints: ['90%'] }
+            <EntryDetailsSheet
+                data={data}
+                allDocuments={allDocuments}
+                totalLearners={totalLearners}
+                totalCost={totalCost}
+                onClose={closeBottomSheet}
+                onEdit={onEdit}
+                onDelete={onDelete}
+            />,
+            { snapPoints: ['60%', '90%'] }
         );
     }, [data, onEdit, onDelete, openBottomSheet, closeBottomSheet, documentQueries]);
 
@@ -223,6 +147,134 @@ const DetailRow = ({
         <Text style={[styles.value, highlighted && styles.highlightedValue]}>{value}</Text>
     </View>
 );
+
+const EntryDetailsSheet = ({
+    data,
+    allDocuments,
+    totalLearners,
+    totalCost,
+    onClose,
+    onEdit,
+    onDelete,
+}: {
+    data: ApplicationEntry;
+    allDocuments: any[];
+    totalLearners: number;
+    totalCost: number;
+    onClose: () => void;
+    onEdit?: (data: ApplicationEntry) => void;
+    onDelete?: (id: string) => void;
+}) => {
+    const [showProgrammeInfo, setShowProgrammeInfo] = React.useState(true);
+    const [showLearnerDistribution, setShowLearnerDistribution] = React.useState(false);
+    const [showCostInformation, setShowCostInformation] = React.useState(false);
+
+    return (
+        <View style={{ flex: 1 }}>
+            <View style={styles.bottomSheetHeader}>
+                <Text style={styles.bottomSheetTitle}>Application Details</Text>
+                <IconButton
+                    icon="close"
+                    size={24}
+                    iconColor={colors.gray[600]}
+                    onPress={onClose}
+                    style={styles.closeButton}
+                />
+            </View>
+            <BottomSheetScrollView
+                keyboardShouldPersistTaps="handled"
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={styles.bottomSheetContentContainer}
+                enableFooterMarginAdjustment={true}
+            >
+                <Expandable
+                    title="Programme Information"
+                    isExpanded={showProgrammeInfo}
+                    onPress={() => setShowProgrammeInfo(!showProgrammeInfo)}
+                >
+                    {/* <Surface style={styles.detailSection}> */}
+                    <Text style={styles.sectionTitle}>Programme Information</Text>
+                    <DetailRow label="Programme Type" value={data.programType} />
+                    <DetailRow label="Learning Programme" value={data.learningProgramme} />
+                    <DetailRow label="Sub Category" value={data.subCategory} />
+                    <DetailRow label="Intervention" value={data.intervention} />
+                    {/* </Surface> */}
+                </Expandable>
+
+                <Expandable
+                    title="Learner Distribution"
+                    isExpanded={showLearnerDistribution}
+                    onPress={() => setShowLearnerDistribution(!showLearnerDistribution)}
+                >
+                    {/* <Surface style={styles.detailSection}> */}
+                    <Text style={styles.sectionTitle}>Learner Distribution</Text>
+                    <DetailRow label="Continuing Students" value={data.noContinuing.toString()} />
+                    <DetailRow label="New Students" value={data.noNew.toString()} />
+                    <DetailRow label="Total Learners" value={totalLearners.toString()} highlighted />
+                    <DetailRow label="Female" value={data.noFemale.toString()} />
+                    <DetailRow label="Historically Disadvantaged" value={data.noHistoricallyDisadvantaged.toString()} />
+                    <DetailRow label="Youth" value={data.noYouth.toString()} />
+                    <DetailRow label="Disabled" value={data.noDisabled.toString()} />
+                    <DetailRow label="Rural" value={data.noRural.toString()} />
+                    {/* </Surface> */}
+                </Expandable>
+
+                <Expandable
+                    title="Costs & Location"
+                    isExpanded={showCostInformation}
+                    onPress={() => setShowCostInformation(!showCostInformation)}
+                >
+                    {/* <Surface style={styles.detailSection}> */}
+                    <Text style={styles.sectionTitle}>Costs & Location</Text>
+                    <DetailRow label="Cost Per Learner" value={`R ${data.costPerLearner.toLocaleString()}`} />
+                    <DetailRow label="Total Cost" value={`R ${totalCost.toLocaleString()}`} highlighted />
+                    <DetailRow label="Province" value={data.province} />
+                    <DetailRow label="District" value={data.district} />
+                    <DetailRow label="Municipality" value={data.municipality} />
+                    {/* </Surface> */}
+                </Expandable>
+
+                {allDocuments.length > 0 && (
+                    <Surface style={styles.detailSection}>
+                        <Text style={styles.sectionTitle}>Uploaded Documents ({allDocuments.length})</Text>
+                        <DocumentsList documents={allDocuments} />
+                    </Surface>
+                )}
+
+                <View style={styles.actionButtons}>
+                    {onEdit && (
+                        <Button
+                            mode="contained"
+                            onPress={() => {
+                                onClose();
+                                onEdit(data);
+                            }}
+                            style={styles.editButton}
+                            labelStyle={styles.buttonText}
+                            icon="pencil"
+                        >
+                            Edit
+                        </Button>
+                    )}
+                    {onDelete && (
+                        <Button
+                            mode="contained"
+                            onPress={() => {
+                                onClose();
+                                onDelete(data.id);
+                            }}
+                            style={styles.deleteButton}
+                            labelStyle={styles.buttonText}
+                            icon="trash-can"
+                        >
+                            Delete
+                        </Button>
+                    )}
+                </View>
+            </BottomSheetScrollView>
+        </View>
+    );
+};
 
 export default DgApplicationEntryItem
 
@@ -288,6 +340,7 @@ const styles = StyleSheet.create({
         paddingBottom: 12,
         borderBottomWidth: 1,
         borderBottomColor: colors.gray[200],
+        paddingHorizontal:12
     },
     bottomSheetTitle: {
         fontSize: 20,
@@ -317,7 +370,7 @@ const styles = StyleSheet.create({
     detailRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        alignItems: 'center',
+        alignItems: 'flex-start',
         paddingVertical: 10,
         borderBottomWidth: 1,
         borderBottomColor: colors.gray[100],
@@ -332,7 +385,9 @@ const styles = StyleSheet.create({
     label: {
         fontSize: 14,
         color: colors.gray[600],
-        flex: 1,
+        width: '38%',
+        minWidth: 96,
+        marginRight: 10,
     },
     highlightedLabel: {
         fontWeight: '600',
@@ -342,6 +397,7 @@ const styles = StyleSheet.create({
         fontSize: 14,
         fontWeight: '500',
         color: colors.slate[900],
+        flex: 1,
         textAlign: 'right',
     },
     highlightedValue: {
@@ -367,5 +423,8 @@ const styles = StyleSheet.create({
     buttonText: {
         color: colors.white,
         fontWeight: '600',
+    },
+    bottomSheetContentContainer: {
+        paddingHorizontal: 12
     },
 })

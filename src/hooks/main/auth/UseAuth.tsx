@@ -6,7 +6,7 @@ import {
     changePassword as changePasswordThunk,
     updateProfile as updateProfileThunk,
     deleteAccount as deleteAccountThunk,
-    logout as logoutAction,
+    logout as logoutThunk,
     restoreSession,
 } from '@/store/slice/AuthSlice'
 import { fetchPersonBySdfId } from '@/store/slice/thunks/OrganizationThunks'
@@ -105,8 +105,8 @@ const UseAuth = () => {
      * Logout user and clear authentication state
      * Clears user, token, and auth state
      */
-    const logout = () => {
-        dispatch(logoutAction())
+    const logout = async () => {
+        await dispatch(logoutThunk()).unwrap()
     }
 
     /**

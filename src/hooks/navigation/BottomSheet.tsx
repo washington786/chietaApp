@@ -1,7 +1,10 @@
 import React, { createContext, useContext, useRef, useState, useEffect, useCallback } from 'react';
-import { BottomSheetModal, BottomSheetView, useBottomSheetInternal } from '@gorhom/bottom-sheet';
-import { Dimensions } from 'react-native';
+import { BottomSheetModal, BottomSheetView, BottomSheetScrollView, BottomSheetFlatList, useBottomSheetInternal } from '@gorhom/bottom-sheet';
+import { Dimensions, StyleSheet } from 'react-native';
 import Animated, { useAnimatedStyle, interpolate, Extrapolate } from 'react-native-reanimated';
+
+// Re-export gorhom scroll-aware components so callers don't need to import gorhom directly
+export { BottomSheetScrollView, BottomSheetFlatList };
 
 type OpenOptions = {
     snapPoints?: (string | number)[];
@@ -20,7 +23,7 @@ const GlobalBottomSheetContext = createContext<GlobalBottomSheetContextType>({
 export const useGlobalBottomSheet = () => useContext(GlobalBottomSheetContext);
 
 const CustomBackdrop = ({ onPress }: { onPress: () => void }) => {
-    const { animatedIndex, animatedPosition } = useBottomSheetInternal();
+    const { animatedIndex } = useBottomSheetInternal();
 
     const animatedStyle = useAnimatedStyle(() => {
         const opacity = interpolate(
@@ -103,15 +106,23 @@ export const GlobalBottomSheet = ({ children }: { children: React.ReactNode }) =
                 ref={bottomSheetRef}
                 snapPoints={snapPoints}
                 index={0}
+                enableContentPanningGesture={false}
                 enablePanDownToClose={true}
                 onDismiss={() => setContent(null)}
                 backgroundStyle={{ backgroundColor: '#fff' }}
                 backdropComponent={() => <CustomBackdrop onPress={close} />}
             >
-                <BottomSheetView style={{ flex: 1, padding: 16, minHeight: 300 }}>
+                <BottomSheetView style={styles.sheetContent}>
                     {content}
                 </BottomSheetView>
             </BottomSheetModal>
         </GlobalBottomSheetContext.Provider>
     );
 };
+
+const styles = StyleSheet.create({
+    sheetContent: {
+        paddingTop: 12,
+        paddingBottom: 16
+    },
+});

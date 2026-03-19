@@ -3,6 +3,7 @@ import { RootState } from '../store'
 import { refreshTokenThunk, logout } from '../slice/AuthSlice'
 import { activeWindowBodyRequest, ProjectTimeline } from '@/core/models/DiscretionaryDto'
 import { notificationPayload } from '@/core/types/notifications'
+import { logger } from '@/utils/logger'
 
 const baseQuery = fetchBaseQuery({
     baseUrl: 'https://ims.chieta.org.za:22743',
@@ -22,23 +23,65 @@ const baseQuery = fetchBaseQuery({
 /**
  * Base query with automatic token refresh on 401
  */
-const baseQueryWithReauth = async (args: any, api: any, extraOptions: any) => {
-    let result = await baseQuery(args, api, extraOptions)
+const MAX_RETRIES = 2
+const RETRYABLE_STATUSES = [408, 429, 500, 502, 503, 504]
 
-    if (result.error && (result.error as FetchBaseQueryError).status === 401) {
-        // Token expired, try to refresh
-        const refreshResult = await api.dispatch(refreshTokenThunk())
-
-        if (refreshResult.type === refreshTokenThunk.fulfilled.type) {
-            // Retry original request with new token
-            result = await baseQuery(args, api, extraOptions)
-        } else {
-            // Refresh failed, logout user
-            api.dispatch(logout())
-        }
+const shouldRetryRequest = (error: FetchBaseQueryError) => {
+    if (error.status === 'FETCH_ERROR' || error.status === 'PARSING_ERROR') {
+        return true
     }
 
-    return result
+    if (typeof error.status === 'number') {
+        return RETRYABLE_STATUSES.includes(error.status)
+    }
+
+    return false
+}
+
+const baseQueryWithReauth = async (args: any, api: any, extraOptions: any) => {
+    const execute = async () => {
+        let result = await baseQuery(args, api, extraOptions)
+
+        if (result.error && (result.error as FetchBaseQueryError).status === 401) {
+            const refreshResult = await api.dispatch(refreshTokenThunk())
+
+            if (refreshResult.type === refreshTokenThunk.fulfilled.type) {
+                result = await baseQuery(args, api, extraOptions)
+            } else {
+                api.dispatch(logout())
+            }
+        }
+
+        return result
+    }
+
+    let attempt = 0
+    let lastResult = await execute()
+
+    while (lastResult.error && attempt < MAX_RETRIES) {
+        const error = lastResult.error as FetchBaseQueryError
+        if (!shouldRetryRequest(error)) {
+            break
+        }
+
+        attempt += 1
+        const backoff = Math.min(500 * 2 ** attempt, 3000)
+        logger.warn('Retrying API request after failure', {
+            attempt,
+            backoff,
+        })
+        await new Promise((resolve) => setTimeout(resolve, backoff))
+        lastResult = await execute()
+    }
+
+    if (lastResult.error) {
+        logger.error('API request failed', lastResult.error, {
+            url: typeof args === 'string' ? args : args?.url,
+            error: lastResult.error,
+        })
+    }
+
+    return lastResult
 }
 
 export const api = createApi({
@@ -346,17 +389,33 @@ export const api = createApi({
                 `/api/services/app/Notification/GetByUser?userId=${userId}`,
             transformResponse: (response: any) => {
                 if (response?.result) {
-                    return {
-                        items: response.result.map((item: any) => ({
-                            id: String(item.id),
+                    const items = response.result.map((item: any) => {
+                        let parsedData: Record<string, any> = {};
+                        if (typeof item.data === 'string' && item.data.trim().length) {
+                            try {
+                                parsedData = JSON.parse(item.data);
+                            } catch (error) {
+                                console.warn('Failed to parse notification data payload', error);
+                            }
+                        } else if (item.data && typeof item.data === 'object') {
+                            parsedData = item.data;
+                        }
+
+                        const createdAt = item.createdAt || item.creationTime || item.timestamp || item.dateCreated;
+                        const timestamp = createdAt ? new Date(createdAt).getTime() : Date.now();
+
+                        return {
+                            id: String(item.id ?? parsedData?.reminderId ?? Date.now()),
                             title: item.title,
-                            body: item.message, // Backend returns 'message' not 'body'
-                            data: {},
-                            timestamp: new Date(item.createdAt).getTime(), // Backend uses 'createdAt'
-                            read: item.isRead, // Backend returns 'isRead' not 'read'
-                            source: item.source || 'system', // Default to 'system' if not provided
-                        })),
-                    };
+                            body: item.message ?? item.body ?? '',
+                            data: parsedData,
+                            timestamp,
+                            read: Boolean(item.isRead ?? item.read),
+                            source: item.source || parsedData?.source || 'system',
+                        };
+                    });
+
+                    return { items };
                 }
                 return { items: [] };
             },

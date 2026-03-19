@@ -40,10 +40,15 @@ const AccountScreen = () => {
         setVisible(!visible);
     };
 
-    function handleContinue() {
+    async function handleContinue() {
         setVisible(false);
-        logout();
-        showToast({ message: "Successfully logout of your account.", type: "success", title: "Sign out", position: "top" })
+        try {
+            await logout();
+            showToast({ message: "Successfully logout of your account.", type: "success", title: "Sign out", position: "top" })
+        } catch (error) {
+            console.error('Failed to logout:', error)
+            showToast({ message: "Failed to logout. Please try again.", type: "error", title: "Error", position: "top" })
+        }
     }
 
     async function handleCloseSheet() {
@@ -69,7 +74,7 @@ const AccountScreen = () => {
                 </RCol>
             </Animated.View>
 
-            <Scroller style={{ marginTop: 20, paddingHorizontal: 12 }}>
+            <Scroller contentContainerStyle={{ marginTop: 20, paddingHorizontal: 12 }}>
                 <Animated.View entering={FadeInDown.delay(100).duration(600).springify()}>
                     <RCol style={{ borderRadius: 10, backgroundColor: colors.primary[50] }}>
                         <Text variant='titleSmall' style={{ paddingVertical: 5 }}>Profile Section</Text>

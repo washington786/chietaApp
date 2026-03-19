@@ -15,7 +15,21 @@
         "preview2": {
             "distribution": "internal"
         },
-        "production": {},
+        "production": {
+            "channel": "production",
+            "distribution": "store",
+            "developmentClient": false,
+            "autoIncrement": "version",
+            "env": {
+                "APP_ENV": "production"
+            },
+            "android": {
+                "buildType": "app-bundle"
+            },
+            "ios": {
+                "simulator": false
+            }
+        },
         "development": {
             "ios": {
                 "simulator": true
@@ -23,6 +37,15 @@
         }
     },
     "submit": {
-        "production": {}
+        "production": {
+            "android": {
+                "track": "internal",
+                "releaseStatus": "completed"
+            },
+            "ios": {
+                "appName": "Chieta",
+                "ascAppIdentifier": "com.danielkarabo.Chieta"
+            }
+        }
     }
 }

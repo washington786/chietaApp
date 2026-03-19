@@ -1,4 +1,4 @@
-import { Animated, Text, View } from 'react-native'
+import { Animated, Platform, Text, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { AuthWrapper } from '@/components/modules/authentication';
 import { RButton, RErrorMessage, RKeyboardView, RLogo, SafeArea, Scroller } from '@/components/common';
@@ -29,6 +29,8 @@ interface OtpFormValues {
 const initialValues: OtpFormValues = {
     otp: ''
 }
+
+const KEYBOARD_OFFSET = Platform.select({ ios: 120, android: 32 }) ?? 0
 
 const OtpScreen = () => {
     const { newPassword } = usePageTransition();
@@ -138,6 +140,7 @@ const OtpScreen = () => {
         }));
 
         if (result.type === 'passwordReset/verifyOtp/fulfilled') {
+            dispatch(setOtp(values.otp))
             showToast({
                 message: "OTP verified successfully. Please enter your new password.",
                 type: "success",
@@ -270,7 +273,10 @@ const OtpScreen = () => {
                             validationSchema={otpSchema}
                         >
                             {({ setFieldValue, handleBlur, handleSubmit, errors, touched }) => (
-                                <RKeyboardView style={{ gap: 8 }}>
+                                <RKeyboardView
+                                    contentContainerStyle={{ gap: 8 }}
+                                    keyboardVerticalOffset={KEYBOARD_OFFSET}
+                                >
                                     <OtpInput
                                         numberOfDigits={6}
                                         onTextChange={(text) => setFieldValue('otp', text)}
@@ -325,7 +331,7 @@ const OtpScreen = () => {
                                         onPressButton={handleSubmit}
                                         styleBtn={styles.button}
                                         isSubmitting={isLoading}
-                                        disabled={isLoading || timeRemaining === 0}
+                                        disable={isLoading || timeRemaining === 0}
                                     />
                                 </RKeyboardView>
                             )}

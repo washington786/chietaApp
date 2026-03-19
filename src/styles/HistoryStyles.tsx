@@ -252,10 +252,8 @@ export const history_styles = StyleSheet.create({
     },
     // Organization Bottom Sheet Styles
     organizationBottomSheet: {
-        flex: 1,
+        padding: 16,
         backgroundColor: colors.white,
-        paddingHorizontal: 8,
-        paddingVertical: 24,
         gap: 16,
         position: "relative"
     },

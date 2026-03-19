@@ -58,6 +58,11 @@ cp .env.example .env
 
 # Edit .env with your actual API endpoints
 # (Update EXPO_PUBLIC_API_URL, etc.)
+
+# Configure telemetry (optional but recommended)
+EXPO_PUBLIC_SENTRY_DSN=your_sentry_dsn
+EXPO_PUBLIC_SENTRY_ENV=preview
+EXPO_PUBLIC_SENTRY_TRACES=0.2
 ```
 
 ### Step 2: Fill in Release Notes
@@ -84,6 +89,25 @@ That's it! You'll get a shareable link for testers.
 
 ---
 
+## 🤖 Automated Store Deployments
+
+- Workflow: `.github/workflows/store-deploy.yml`
+- Trigger: pushes to `main` / `release/*` touching app files, or manual **Run workflow**.
+- Actions: run tests, `eas build --profile production`, then `eas submit --latest` to Google Play Internal Testing and App Store Connect.
+
+### Configure once
+
+1. Generate an Expo token (`eas token:create`) and add GitHub secret `EXPO_TOKEN`.
+2. Create a Google Play service account JSON and store it as `GOOGLE_SERVICE_ACCOUNT_JSON`.
+3. Create an App Store Connect API key and store:
+   - `APP_STORE_CONNECT_API_KEY` (contents of the `.p8` file)
+   - `APP_STORE_CONNECT_KEY_ID`
+   - `APP_STORE_CONNECT_KEY_ISSUER_ID`
+
+After secrets exist, every qualifying push deploys automatically. Use the optional `build-profile` input on manual runs to deploy `preview` builds without editing YAML.
+
+---
+
 ## 📋 Before You Build - Final Checklist
 
 - [ ] Read [PREVIEW_RELEASE.md](PREVIEW_RELEASE.md) completely
@@ -94,6 +118,8 @@ That's it! You'll get a shareable link for testers.
 - [ ] Commit changes: `git add . && git commit -m "chore: prepare v1.0.0-preview.1"`
 - [ ] Have EAS CLI installed: `npm install -g eas-cli`
 - [ ] Logged into Expo: `eas login`
+- [ ] Log collector endpoint configured (or confirm telemetry is intentionally disabled)
+- [ ] Review [RELIABILITY_GUIDE.md](RELIABILITY_GUIDE.md) for the latest regression steps
 
 ---
 

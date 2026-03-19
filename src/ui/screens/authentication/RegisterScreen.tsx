@@ -1,4 +1,4 @@
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import React, { useEffect } from "react";
 import usePageTransition from "@/hooks/navigation/usePageTransition";
 import { RErrorMessage, RInput, RKeyboardView, RLoaderAnimation } from "@/components/common";
@@ -21,6 +21,8 @@ const initialValues = {
     lastName: "",
     username: "",
 };
+
+const KEYBOARD_OFFSET = Platform.select({ ios: 120, android: 32 }) ?? 0;
 
 const RegisterScreen = () => {
     const { login, onAuth } = usePageTransition();
@@ -93,7 +95,10 @@ const RegisterScreen = () => {
                     touched,
                     values,
                 }) => (
-                    <RKeyboardView style={authScreenStyles.formWrapper}>
+                    <RKeyboardView
+                        contentContainerStyle={authScreenStyles.formWrapper}
+                        keyboardVerticalOffset={KEYBOARD_OFFSET}
+                    >
                         <RInput
                             placeholder="First name"
                             icon={"user"}
@@ -185,6 +190,7 @@ const RegisterScreen = () => {
                             title="Sign Up"
                             onPress={handleSubmit}
                             loading={isLoading}
+                            disabled={isLoading}
                         />
                         {isLoading && <RLoaderAnimation />}
                     </RKeyboardView>

@@ -1,8 +1,6 @@
 import { StyleSheet, Animated, Dimensions } from "react-native";
 import React, { useEffect, useRef } from "react";
-
-import Constants from 'expo-constants';
-
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text, useTheme } from "react-native-paper";
 import * as Network from 'expo-network';
 
@@ -11,6 +9,7 @@ const { width } = Dimensions.get('window');
 const RNetworkAlert = () => {
   const [isConnected, setIsConnected] = React.useState<boolean>(true);
   const theme = useTheme();
+  const insets = useSafeAreaInsets();
 
   React.useEffect(() => {
     // Initial check
@@ -45,15 +44,14 @@ const RNetworkAlert = () => {
 
   if (!isOffline) return null;
 
-  const statusBarHeight = Constants.statusBarHeight || 0;
-
   return (
     <Animated.View
       style={[
         styles.container,
         {
           transform: [{ translateY: animatedValue }],
-          top: statusBarHeight,
+          top: -insets.top,
+          paddingTop: insets.top + 8,
           backgroundColor: theme.colors.error,
         },
       ]}

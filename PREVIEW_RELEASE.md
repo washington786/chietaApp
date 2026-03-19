@@ -143,6 +143,61 @@ eas build --platform android --profile preview
 # Upload to Google Play Console > Internal Testing
 ```
 
+## Automated Store Deployment (CI/CD)
+
+GitHub Actions now handles store submissions via `.github/workflows/store-deploy.yml`. Pushes to `main` or `release/*` that touch app files automatically run tests, build with the `production` EAS profile, and submit the artifacts to Google Play Internal Testing and App Store Connect.
+
+### Required GitHub Action secrets
+
+1. `EXPO_TOKEN` – Expo account token (`eas token:create`) with access to this project.
+2. `GOOGLE_SERVICE_ACCOUNT_JSON` – The raw JSON from your Google Play service account (Internal track).
+3. `APP_STORE_CONNECT_API_KEY` – Contents of the App Store Connect `.p8` key.
+4. `APP_STORE_CONNECT_KEY_ID` – Key ID for the `.p8`.
+5. `APP_STORE_CONNECT_KEY_ISSUER_ID` – Issuer ID tied to the key.
+
+Secrets are materialized as temporary files during the workflow and removed before the job finishes.
+
+### Workflow stages
+
+1. Install dependencies and run `npm run test`.
+2. Authenticate to Expo/EAS using `EXPO_TOKEN`.
+3. For each platform: `eas build --profile production --wait`.
+4. Immediately `eas submit --latest` to the appropriate store (`internal` track on Google Play, App Store Connect via API key).
+
+### Manual triggers / overrides
+
+- Navigate to **Actions → Deploy mobile apps → Run workflow** to deploy on demand.
+- Optional input `build-profile` lets you reuse the same workflow for preview/internal builds.
+- Monitor the workflow logs to grab the submission URLs produced by EAS.
+
+### Failure recovery
+
+- Fix the offending step and re-run only that job, or click **Retry all jobs**.
+- Use `eas build:list` / `eas submit --latest` locally if the CI environment is unavailable.
+- Keep Expo credentials up to date (`eas credentials`) so the pipeline can remain fully non-interactive.
+
+---
+
+## Reliability & QA Playbook
+
+See [RELIABILITY_GUIDE.md](RELIABILITY_GUIDE.md) for the full stability audit, telemetry configuration, offline queue behaviour, and regression scripts.
+
+### Telemetry
+- Populate `EXPO_PUBLIC_LOG_ENDPOINT` before building so runtime logs flow to the organisation’s on-prem collector.
+- The logger always prints locally and posts JSON payloads to the server; failures to reach the collector never block the UI.
+
+### Offline queue
+- Network mutations that fail automatically serialize into AsyncStorage and replay when connectivity returns.
+- Register additional executors in `src/core/services/reliability.ts` for any new queue types.
+
+### Regression checklist (per release)
+1. `npm run test`
+2. Execute the smoke script on low-end Android + current iOS hardware (see Reliability Guide).
+3. Toggle Airplane Mode, trigger a notification, reconnect, confirm it syncs server-side.
+4. Run the **Deploy mobile apps** workflow and ensure both store submissions succeed.
+
+Log any deviations before tagging.
+
 ---
 
 ## Pre-Release Steps
@@ -299,7 +354,7 @@ eas credentials
 ### Monitor Feedback
 
 - [ ] Create feedback form/channel
-- [ ] Set up crash reporting (Sentry, etc.)
+- [ ] Confirm log collector endpoint reachable (or document intentional disablement)
 - [ ] Monitor app performance metrics
 
 ### Issue Tracking

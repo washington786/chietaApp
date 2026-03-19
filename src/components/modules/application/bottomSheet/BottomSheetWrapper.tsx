@@ -8,7 +8,9 @@ interface props {
 }
 const BottomSheetWrapper: FC<props> = ({ children }) => {
     return (
-        <GestureHandlerRootView style={{ flex: 1 }}>
+        <GestureHandlerRootView style={{
+            flexGrow: 1
+        }}>
             <BottomSheetModalProvider>
                 <GlobalBottomSheet>
                     {children}

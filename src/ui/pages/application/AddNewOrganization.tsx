@@ -26,6 +26,7 @@ const AddNewOrganization = () => {
     const [showSearch, setSearchVisible] = useState(false);
     const [pageIndex, setPageIndex] = useState(0);
     const [isLoadingMore, setIsLoadingMore] = useState(false);
+    const [hasMore, setHasMore] = useState(true);
 
     const { onBack } = usePageTransition();
     const dispatch = useDispatch<AppDispatch>();
@@ -42,7 +43,15 @@ const AddNewOrganization = () => {
 
     // Initial load
     useEffect(() => {
-        dispatch(loadAllOrganizations({ first: 0, rows: pageSize }));
+        dispatch(loadAllOrganizations({ first: 0, rows: pageSize }))
+            .unwrap()
+            .then((items) => {
+                setHasMore(items.length >= pageSize);
+                setPageIndex(0);
+            })
+            .catch(() => {
+                setHasMore(false);
+            });
     }, [dispatch]);
 
     function handleLinkOrganization(item: OrganisationDto) {
@@ -94,19 +103,30 @@ const AddNewOrganization = () => {
     };
 
     const handleLoadMore = () => {
-        if (!isLoadingMore && !loading && filteredOrganizations.length > 0) {
-            setIsLoadingMore(true);
-            const nextPage = pageIndex + 1;
-            dispatch(loadAllOrganizations({ first: nextPage * pageSize, rows: pageSize }))
-                .then(() => {
-                    setPageIndex(nextPage);
-                    setIsLoadingMore(false);
-                })
-                .catch(() => {
-                    setIsLoadingMore(false);
-                });
+        if (searchQuery.trim() || !hasMore || isLoadingMore || loading || filteredOrganizations.length === 0) {
+            return;
         }
+
+        setIsLoadingMore(true);
+        const nextPage = pageIndex + 1;
+        dispatch(loadAllOrganizations({ first: nextPage * pageSize, rows: pageSize }))
+            .unwrap()
+            .then((items) => {
+                setPageIndex(nextPage);
+                setHasMore(items.length >= pageSize);
+                setIsLoadingMore(false);
+            })
+            .catch(() => {
+                setIsLoadingMore(false);
+                setHasMore(false);
+            });
     };
+
+    const showInitialLoader = loading && filteredOrganizations.length === 0 && pageIndex === 0;
+
+    if (showInitialLoader) {
+        return (<RListLoading count={7} />);
+    }
 
     const renderList = ({ index, item }: { index: number, item: OrganisationDto }) => {
         return (
@@ -122,10 +142,6 @@ const AddNewOrganization = () => {
             </View>
         );
     };
-
-    if (loading) {
-        return (<RListLoading count={7} />);
-    }
 
     return (
         <SafeArea>
@@ -144,7 +160,7 @@ const AddNewOrganization = () => {
             <FlatList data={filteredOrganizations}
                 style={{ paddingHorizontal: 12, paddingVertical: 6, flex: 1, flexGrow: 1 }}
                 renderItem={renderList}
-                keyExtractor={(item, index) => `organization-${item.id}-${index}`}
+                keyExtractor={(item) => `organization-${item.id}`}
                 showsVerticalScrollIndicator={false}
                 ItemSeparatorComponent={() => <View style={{ height: 5 }} />}
                 removeClippedSubviews={true}
@@ -154,7 +170,7 @@ const AddNewOrganization = () => {
                 onEndReached={handleLoadMore}
                 onEndReachedThreshold={0.3}
                 ListFooterComponent={renderFooter}
-                ListEmptyComponent={loading ? null : <REmpty title='No Organizations' subtitle='Sorry, no organizations are available to link. Please add an organization on web platform.' icon='briefcase' />}
+                ListEmptyComponent={<REmpty title='No Organizations' subtitle='Sorry, no organizations are available to link. Please add an organization on web platform.' icon='briefcase' />}
             />
         </SafeArea>
     )

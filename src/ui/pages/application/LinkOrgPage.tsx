@@ -17,10 +17,10 @@ import { navigationTypes } from '@/core/types/navigationTypes'
 import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch, RootState } from '@/store/store'
 import { removeLinkedOrganizationAsync, updateAppointmentLetterStatus, updateApprovalStatus } from '@/store/slice/thunks/OrganizationThunks';
-import { saveNotification } from '@/store/slice/NotificationSlice';
 import { Step } from '@/core/types/steps'
 import { Feather } from '@expo/vector-icons'
 import { useGetSDFByUserQuery, useLinkOrganizationMutation, useUploadProjectDocumentMutation } from '@/store/api/api'
+import { autoSaveNotification } from '@/core/services/notifications';
 
 const steps: Step[] = [
     {
@@ -100,15 +100,22 @@ const LinkOrgPage = () => {
             // Show toast
             showToast({ message: "Successfully submitted your appointment.", title: "Submitted", type: "success", position: "bottom" });
 
-            // Add notification
-            dispatch(saveNotification({
-                id: `link-org-${orgId}-${Date.now()}`,
-                title: "Organization Linked",
-                body: `${foundOrg?.organisationTradingName || 'Organization'} has been successfully linked to your profile.`,
-                timestamp: Date.now(),
-                read: false,
-                source: 'local',
-            }));
+            await autoSaveNotification(
+                "Organization Linked",
+                `${foundOrg?.organisationTradingName || 'Organization'} has been successfully linked to your profile.`,
+                {
+                    type: 'organization',
+                    action: 'linked',
+                    organisationId: Number(orgId),
+                },
+                {
+                    id: `link-org-${orgId}-${Date.now()}`,
+                    timestamp: Date.now(),
+                    read: false,
+                    source: 'local',
+                    userId: user ? Number(user.id) : undefined,
+                },
+            );
         } catch (error: any) {
             console.error("Error linking organization:", error);
             showToast({
@@ -122,19 +129,26 @@ const LinkOrgPage = () => {
 
     function handleCancel() {
         try {
-            dispatch(updateApprovalStatus({ status: 'cancelled', orgId: Number(orgId) })).unwrap().then(() => {
+            dispatch(updateApprovalStatus({ status: 'cancelled', orgId: Number(orgId) })).unwrap().then(async () => {
                 setCancelVisible(false);
                 showToast({ message: "Successfully cancelled your appointment letter.", title: "Cancelled", type: "success", position: "bottom" });
 
-                // Add notification
-                dispatch(saveNotification({
-                    id: `cancel-org-${orgId}-${Date.now()}`,
-                    title: "Organization Linking Cancelled",
-                    body: `${foundOrg?.organisationTradingName || 'Organization'} linking has been cancelled.`,
-                    timestamp: Date.now(),
-                    read: false,
-                    source: 'local',
-                }));
+                await autoSaveNotification(
+                    "Organization Linking Cancelled",
+                    `${foundOrg?.organisationTradingName || 'Organization'} linking has been cancelled.`,
+                    {
+                        type: 'organization',
+                        action: 'cancelled',
+                        organisationId: Number(orgId),
+                    },
+                    {
+                        id: `cancel-org-${orgId}-${Date.now()}`,
+                        timestamp: Date.now(),
+                        read: false,
+                        source: 'local',
+                        userId: user ? Number(user.id) : undefined,
+                    },
+                );
             }).catch((error) => {
                 console.log(error);
                 setCancelVisible(false);

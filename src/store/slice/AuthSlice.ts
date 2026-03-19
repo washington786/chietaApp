@@ -36,6 +36,16 @@ const initialState: AuthState = {
     isAuthenticated: false,
 }
 
+const resetAuthState = (state: AuthState) => {
+    state.user = null
+    state.token = null
+    state.refreshToken = null
+    state.expiresIn = null
+    state.isAuthenticated = false
+    state.error = null
+    state.isLoading = false
+}
+
 const API_BASE_URL = 'https://ims.chieta.org.za:22743'
 
 /**
@@ -509,6 +519,8 @@ const deleteAccount = createAsyncThunk<
                 })
             }
 
+            await clearCredentialsFromSecureStore()
+
             return { message: 'Account deleted successfully' }
         } catch (error) {
             return rejectWithValue({
@@ -516,6 +528,16 @@ const deleteAccount = createAsyncThunk<
                 message: error instanceof Error ? error.message : 'Network error occurred',
             })
         }
+    }
+)
+
+/**
+ * Logout current user and clear secure storage
+ */
+const logout = createAsyncThunk<void, void>(
+    'auth/logout',
+    async () => {
+        await clearCredentialsFromSecureStore()
     }
 )
 
@@ -659,16 +681,6 @@ const authSlice = createSlice({
         clearError: (state) => {
             state.error = null
         },
-        logout: (state) => {
-            state.user = null
-            state.token = null
-            state.refreshToken = null
-            state.expiresIn = null
-            state.isAuthenticated = false
-            state.error = null
-            // Clear from secure storage
-            clearCredentialsFromSecureStore()
-        },
     },
     extraReducers: (builder) => {
         // Login
@@ -810,8 +822,6 @@ const authSlice = createSlice({
                 state.refreshToken = null
                 state.isAuthenticated = false
                 state.error = null
-                // Clear secure storage
-                clearCredentialsFromSecureStore()
             })
             .addCase(deleteAccount.rejected, (state, action) => {
                 state.isLoading = false
@@ -819,6 +829,18 @@ const authSlice = createSlice({
                     code: 'DELETE_ACCOUNT_ERROR',
                     message: 'Account deletion failed',
                 }
+            })
+
+        // Logout
+        builder
+            .addCase(logout.pending, (state) => {
+                state.isLoading = true
+            })
+            .addCase(logout.fulfilled, (state) => {
+                resetAuthState(state)
+            })
+            .addCase(logout.rejected, (state) => {
+                resetAuthState(state)
             })
 
         // Restore Session
@@ -877,7 +899,7 @@ const authSlice = createSlice({
     },
 })
 
-export const { setCredentials, clearError, logout } = authSlice.actions
+export const { setCredentials, clearError } = authSlice.actions
 
 const AuthReducer = authSlice.reducer
 
@@ -894,6 +916,7 @@ export {
     refreshTokenThunk,
     restoreSession,
     deleteAccount,
+    logout,
 }
 
 /**
@@ -930,19 +953,23 @@ function saveCredentialsToSecureStore(
 /**
  * Clear credentials from secure storage
  */
-function clearCredentialsFromSecureStore() {
-    SecureStore.deleteItemAsync('user').catch((error) =>
-        console.error('Failed to delete user from secure store:', error)
+async function clearCredentialsFromSecureStore() {
+    const keys: Array<'user' | 'accessToken' | 'refreshToken' | 'expiresIn'> = [
+        'user',
+        'accessToken',
+        'refreshToken',
+        'expiresIn',
+    ]
+
+    const results = await Promise.allSettled(
+        keys.map((key) => SecureStore.deleteItemAsync(key))
     )
-    SecureStore.deleteItemAsync('accessToken').catch((error) =>
-        console.error('Failed to delete token from secure store:', error)
-    )
-    SecureStore.deleteItemAsync('refreshToken').catch((error) =>
-        console.error('Failed to delete refresh token from secure store:', error)
-    )
-    SecureStore.deleteItemAsync('expiresIn').catch((error) =>
-        console.error('Failed to delete expiresIn from secure store:', error)
-    )
+
+    results.forEach((result, index) => {
+        if (result.status === 'rejected') {
+            console.error(`Failed to delete ${keys[index]} from secure store:`, result.reason)
+        }
+    })
 }
 
 /**

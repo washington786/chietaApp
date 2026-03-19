@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native'
+import { Platform, StyleSheet } from 'react-native'
 import React, { useEffect } from 'react'
 import usePageTransition from '@/hooks/navigation/usePageTransition';
 import { RErrorMessage, RInput, RKeyboardView, RLoaderAnimation } from '@/components/common';
@@ -17,6 +17,8 @@ import { clearError } from '@/store/slice/AuthSlice';
 const initialValues = {
     email: ''
 }
+
+const KEYBOARD_OFFSET = Platform.select({ ios: 120, android: 32 }) ?? 0;
 
 const ForgotPasswordScreen = () => {
     const { otp } = usePageTransition();
@@ -68,7 +70,10 @@ const ForgotPasswordScreen = () => {
         >
             <Formik initialValues={initialValues} onSubmit={(values) => handleSubmit(values)} validationSchema={resetPasswordSchema}>
                 {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
-                    <RKeyboardView style={authScreenStyles.formWrapper}>
+                    <RKeyboardView
+                        contentContainerStyle={authScreenStyles.formWrapper}
+                        keyboardVerticalOffset={KEYBOARD_OFFSET}
+                    >
                         <RInput
                             placeholder='Email'
                             icon={'mail'}
@@ -82,7 +87,12 @@ const ForgotPasswordScreen = () => {
 
                         {errors.email && touched.email && <RErrorMessage error={errors.email} />}
 
-                        <AuthGradientButton title='Reset Password' onPress={handleSubmit} loading={isLoading} />
+                        <AuthGradientButton
+                            title='Reset Password'
+                            onPress={handleSubmit}
+                            loading={isLoading}
+                            disabled={isLoading}
+                        />
                         {isLoading && <RLoaderAnimation />}
                     </RKeyboardView>
                 )}

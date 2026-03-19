@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { useNavigation, NavigationProp } from '@react-navigation/native'
 import { ForgotPasswordScreen, LandingScreen, LoginScreen, NewPasswordScreen, NotificationsPage, OtpScreen, RegisterScreen } from '@/ui/screens'
@@ -51,6 +51,7 @@ const PROTECTED_SCREENS = [
 const RootStackNavigator = () => {
     const navigation = useNavigation<NavigationProp<navigationTypes>>()
     const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated)
+    const previousAuthState = useRef(isAuthenticated)
 
     // Navigate to login when user logs out
     /* useEffect(() => {
@@ -64,15 +65,24 @@ const RootStackNavigator = () => {
  */
 
     useEffect(() => {
-        const currentRoute = navigation.getState()?.routes?.[0]?.name;
+        const state = navigation.getState()
+        const routes = state?.routes ?? []
+        const activeIndex = state?.index ?? routes.length - 1
+        const safeIndex = activeIndex >= 0 ? activeIndex : 0
+        const currentRoute = routes[safeIndex]?.name
+        const wasAuthenticated = previousAuthState.current
+        const becameUnauthenticated = wasAuthenticated && !isAuthenticated
+        const onProtectedRoute = currentRoute ? PROTECTED_SCREENS.includes(currentRoute) : false
 
-        if (!isAuthenticated && currentRoute !== 'landing') {
+        previousAuthState.current = isAuthenticated
+
+        if (!isAuthenticated && currentRoute !== 'login' && (becameUnauthenticated || onProtectedRoute)) {
             navigation.reset({
                 index: 0,
-                routes: [{ name: 'landing' }]
-            });
+                routes: [{ name: 'login' }]
+            })
         }
-    }, [isAuthenticated, navigation]);
+    }, [isAuthenticated, navigation])
 
     // Set up navigation listener to enforce authentication on protected routes
     useEffect(() => {
