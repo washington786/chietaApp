@@ -1,7 +1,7 @@
-import { Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import colors from '@/config/colors'
-import { RErrorMessage, RInput, RKeyboardView, RLoaderAnimation } from '@/components/common'
+import { RErrorMessage, RInput, RLoaderAnimation } from '@/components/common'
 import usePageTransition from '@/hooks/navigation/usePageTransition'
 import { Formik } from 'formik'
 import { loginSchema, showToast } from '@/core'
@@ -17,8 +17,6 @@ const formValues = {
     email: '',
     password: ''
 }
-
-const KEYBOARD_OFFSET = Platform.select({ ios: 120, android: 32 }) ?? 0
 
 const LoginScreen = () => {
     const { register, resetPassword, onAuth } = usePageTransition();
@@ -58,10 +56,7 @@ const LoginScreen = () => {
         <AuthScreenLayout title='Welcome Back' subtitle='Sign in to access your IMS portal.' footer={footer}>
             <Formik initialValues={formValues} onSubmit={(values) => handleSubmit(values.email, values.password)} validationSchema={loginSchema}>
                 {({ handleSubmit, handleBlur, handleChange, touched, errors, values }) => (
-                    <RKeyboardView
-                        contentContainerStyle={authScreenStyles.formWrapper}
-                        keyboardVerticalOffset={KEYBOARD_OFFSET}
-                    >
+                    <View style={authScreenStyles.formWrapper}>
                         <RInput
                             placeholder='Email or Username'
                             icon={'mail'}
@@ -100,7 +95,7 @@ const LoginScreen = () => {
 
                         <AuthGradientButton title='Sign In' onPress={handleSubmit} loading={isLoading} />
                         {isLoading && <RLoaderAnimation />}
-                    </RKeyboardView>
+                    </View>
                 )}
             </Formik>
         </AuthScreenLayout>

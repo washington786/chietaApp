@@ -269,15 +269,17 @@ const ProgressLine = ({ completed }: { completed: boolean }) => {
 };
 
 
+type OrgItem = { id: number; organisationTradingName: string; organisationName: string; sdfId?: string };
+
 function OrganizationBottomSheet({ organizations, selectedOrgId, onSelectOrg, close }: {
-    organizations: Array<{ id: number; organisationTradingName: string; organisationName: string; sdfId?: string }>;
+    organizations: OrgItem[];
     selectedOrgId: number | undefined;
     onSelectOrg: (orgId: number) => void;
     close: () => void;
 }) {
     const [searchQuery, setSearchQuery] = React.useState('');
 
-    const filteredOrgs = React.useMemo(() => {
+    const filteredOrgs = React.useMemo((): OrgItem[] => {
         if (!searchQuery.trim()) return organizations;
 
         const query = searchQuery.toLowerCase();
@@ -297,7 +299,7 @@ function OrganizationBottomSheet({ organizations, selectedOrgId, onSelectOrg, cl
     };
 
     return (
-        <View style={styles.organizationBottomSheet}>
+        <View style={{ flex: 1, paddingHorizontal: 16, paddingTop: 12 }}>
             {/* Header */}
             <Text variant='headlineMedium' style={styles.orgBottomSheetTitle}>Switch Organization</Text>
             <Text variant='bodySmall' style={{ fontSize: 12 }}>choose the entity for your application view.</Text>
@@ -315,10 +317,10 @@ function OrganizationBottomSheet({ organizations, selectedOrgId, onSelectOrg, cl
             />
 
             {/* Organization List — BottomSheetFlatList is required for FlatList inside a bottomsheet */}
-            <BottomSheetFlatList
+            <BottomSheetFlatList<OrgItem>
                 data={filteredOrgs}
-                keyExtractor={(item) => `${item.id}`}
-                renderItem={({ item }) => (
+                keyExtractor={(item: OrgItem) => `${item.id}`}
+                renderItem={({ item }: { item: OrgItem }) => (
                     <SwitchOrgItem
                         item={item}
                         isSelected={selectedOrgId === item.id}
@@ -329,6 +331,8 @@ function OrganizationBottomSheet({ organizations, selectedOrgId, onSelectOrg, cl
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={{ gap: 12, paddingBottom: 36 }}
                 ListFooterComponent={<View style={{ height: 8 }} />}
+                bounces={false}
+                overScrollMode="never"
             />
         </View>
     );
@@ -337,7 +341,7 @@ function OrganizationBottomSheet({ organizations, selectedOrgId, onSelectOrg, cl
 /**
  * Individual organization item for the switch organization bottom sheet
  */
-const SwitchOrgItem = ({ item, isSelected, onPress }: { item: any; isSelected: boolean; onPress: () => void }) => {
+const SwitchOrgItem = ({ item, isSelected, onPress }: { item: OrgItem; isSelected: boolean; onPress: () => void }) => {
     return (
         <TouchableOpacity
             style={[

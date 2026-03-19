@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { StatusBar, View, StyleSheet } from 'react-native'
+import { View, StyleSheet } from 'react-native'
 import * as SplashScreen from 'expo-splash-screen'
+import { StatusBar } from 'expo-status-bar'
 
 import { CrashFallback, RMainAlerts, RNetworkAlert, RSplash } from '@/components/common'
 import ProviderWraper from '@/components/common/ProviderWraper'
@@ -129,7 +130,7 @@ const AppContent = () => {
   const isLoading = !loadedApplicationFonts || !appIsReady;
 
   return (
-    <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
+    <View style={{ flex: 1, backgroundColor: colors.primary[950] }} onLayout={onLayoutRootView}>
       <RMainAlerts
         visible={showAlert && activeWindowCount > 0}
         title='Discretionary Grants Open'
@@ -142,7 +143,7 @@ const AppContent = () => {
       <RNetworkAlert />
       <MainNavigation />
       <Toast />
-      <StatusBar backgroundColor={colors.primary[950]} barStyle={'light-content'} networkActivityIndicatorVisible animated />
+      <StatusBar style="dark" backgroundColor={colors.primary[950]} translucent={false} animated />
       {isLoading && (
         <View style={StyleSheet.absoluteFill}>
           <RSplash />

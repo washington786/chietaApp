@@ -49,14 +49,22 @@ export function useCombinedNotifications(userId?: number) {
 
         lastErrorKey.current = key;
 
-        showToast({
-            message: formatApiErrorMessage(parsedError),
-            title: 'Notifications',
-            type: 'error',
-            position: 'top',
-        });
+        // 500 is a server-side problem — log silently, don't surface to the user
+        const isServerError =
+            typeof parsedError.status === 'number' && parsedError.status >= 500;
 
-        logger.error('Failed to load remote notifications', error, {
+        if (!isServerError) {
+            showToast({
+                message: formatApiErrorMessage(parsedError),
+                title: 'Notifications',
+                type: 'error',
+                position: 'top',
+            });
+        }
+
+        logger.warn('Failed to load remote notifications', {
+            status: parsedError.status,
+            message: parsedError.message,
             userId: numericUserId,
         });
     }, [error, numericUserId, parsedError]);

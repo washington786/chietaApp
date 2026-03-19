@@ -387,6 +387,10 @@ export const api = createApi({
         getNotificationsByUser: builder.query<any, number>({
             query: (userId) =>
                 `/api/services/app/Notification/GetByUser?userId=${userId}`,
+            transformErrorResponse: (response) => {
+                // Treat server errors as non-fatal — return structured error
+                return { status: response.status, message: 'Notifications unavailable' };
+            },
             transformResponse: (response: any) => {
                 if (response?.result) {
                     const items = response.result.map((item: any) => {
@@ -419,6 +423,8 @@ export const api = createApi({
                 }
                 return { items: [] };
             },
+            // Never retry the notifications endpoint - a 500 here is non-critical
+            extraOptions: { maxRetries: 0 },
             providesTags: ['Notification'],
         }),
         markNotificationAsRead: builder.mutation<any, number>({

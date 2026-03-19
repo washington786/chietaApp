@@ -158,11 +158,10 @@ const DgApplicationDetails = () => {
     const focusAreaLabel = getSelectedLabel(learningProgramme, focusAreas)?.value ?? '';
 
 
-    const shouldShowReadOnly = hasSubmitted || projectClosureStatus.isClosed;
-
-    // console.log("Project:", selectedProject);
-    // console.log("Project Closure Status:", projectClosureStatus);
-    // console.log("Project submitted:", hasSubmitted);
+    const shouldShowReadOnly =
+        hasSubmitted ||
+        projectClosureStatus.isClosed ||
+        projectClosureStatus.isExpiredApplication;
 
     if (shouldShowReadOnly) {
         return <ProjectDetailsItem projectId={appId} />

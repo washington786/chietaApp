@@ -1,7 +1,7 @@
-import { Animated, Platform, Text, View } from 'react-native'
+import { Animated, KeyboardAvoidingView, Platform, Text, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { AuthWrapper } from '@/components/modules/authentication';
-import { RButton, RErrorMessage, RKeyboardView, RLogo, SafeArea, Scroller } from '@/components/common';
+import { RButton, RErrorMessage, RLogo, SafeArea, Scroller } from '@/components/common';
 
 import usePageTransition from '@/hooks/navigation/usePageTransition';
 import { Authstyles as styles } from '@/styles/AuthStyles';
@@ -29,8 +29,6 @@ interface OtpFormValues {
 const initialValues: OtpFormValues = {
     otp: ''
 }
-
-const KEYBOARD_OFFSET = Platform.select({ ios: 120, android: 32 }) ?? 0
 
 const OtpScreen = () => {
     const { newPassword } = usePageTransition();
@@ -248,122 +246,119 @@ const OtpScreen = () => {
         );
     }
 
-    return (
-        <Scroller>
-            <AuthWrapper>
-                <SafeArea>
-                    <RLogo stylesLogo={{ alignContent: "center", marginTop: 40, marginBottom: 20, width: "auto" }} />
-                    <Animated.View style={[styles.content, animatedStyle]}>
-                        <Text style={[styles.title, { fontFamily: `${appFonts.bold}`, fontWeight: "bold", textTransform: "capitalize" }]}>
-                            verify one time password
-                        </Text>
-                        <Text style={[styles.description]}>
-                            enter the 6-digit code sent to {email}
-                        </Text>
+    return (<KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>        <Scroller>
+        <AuthWrapper>
+            <SafeArea>
+                <RLogo stylesLogo={{ alignContent: "center", marginTop: 40, marginBottom: 20, width: "auto" }} />
+                <Animated.View style={[styles.content, animatedStyle]}>
+                    <Text style={[styles.title, { fontFamily: `${appFonts.bold}`, fontWeight: "bold", textTransform: "capitalize" }]}>
+                        verify one time password
+                    </Text>
+                    <Text style={[styles.description]}>
+                        enter the 6-digit code sent to {email}
+                    </Text>
 
-                        {resetError && (
-                            <View style={{ marginBottom: 12 }}>
-                                <RErrorMessage error={resetError} />
+                    {resetError && (
+                        <View style={{ marginBottom: 12 }}>
+                            <RErrorMessage error={resetError} />
+                        </View>
+                    )}
+
+                    <Formik
+                        initialValues={initialValues}
+                        onSubmit={(values) => handleSubmit(values)}
+                        validationSchema={otpSchema}
+                    >
+                        {({ setFieldValue, handleBlur, handleSubmit, errors, touched }) => (
+                            <View style={{ gap: 8 }}>
+                                <OtpInput
+                                    numberOfDigits={6}
+                                    onTextChange={(text) => setFieldValue('otp', text)}
+                                    onBlur={() => handleBlur('otp')}
+                                    focusColor={colors.primary[600]}
+                                    type='numeric'
+                                    disabled={isLoading}
+                                />
+                                {errors.otp && touched.otp && <RErrorMessage error={errors.otp} />}
+
+                                {/* Attempts remaining */}
+                                {failedAttempts > 0 && failedAttempts < maxAttempts && (
+                                    <View style={{ marginVertical: 8 }}>
+                                        <Text style={{
+                                            fontSize: 12,
+                                            color: colors.yellow['600'],
+                                            fontFamily: `${appFonts.medium}`,
+                                        }}>
+                                            {maxAttempts - failedAttempts} attempt{maxAttempts - failedAttempts !== 1 ? 's' : ''} remaining
+                                        </Text>
+                                    </View>
+                                )}
+
+                                {/* OTP expiry warning */}
+                                {timeRemaining !== null && timeRemaining < 60 && timeRemaining > 0 && (
+                                    <View style={{ marginVertical: 8 }}>
+                                        <Text style={{
+                                            fontSize: 12,
+                                            color: colors.yellow['600'],
+                                            fontFamily: `${appFonts.medium}`,
+                                        }}>
+                                            Code expires in {Math.floor(timeRemaining / 60)}:{String(timeRemaining % 60).padStart(2, '0')}
+                                        </Text>
+                                    </View>
+                                )}
+
+                                {/* OTP expired */}
+                                {timeRemaining === 0 && (
+                                    <View style={{ marginVertical: 8 }}>
+                                        <Text style={{
+                                            fontSize: 12,
+                                            color: colors.red['600'],
+                                            fontFamily: `${appFonts.medium}`,
+                                        }}>
+                                            Code has expired. Please request a new one.
+                                        </Text>
+                                    </View>
+                                )}
+
+                                <RButton
+                                    title='verify pin'
+                                    onPressButton={handleSubmit}
+                                    styleBtn={styles.button}
+                                    isSubmitting={isLoading}
+                                    disable={isLoading || timeRemaining === 0}
+                                />
                             </View>
                         )}
+                    </Formik>
 
-                        <Formik
-                            initialValues={initialValues}
-                            onSubmit={(values) => handleSubmit(values)}
-                            validationSchema={otpSchema}
+                    {/* Resend button with rate limiting */}
+                    <View style={{ marginTop: 16 }}>
+                        <Button
+                            onPress={handleResendOtp}
+                            disabled={!canResendNow || isLoading || resendAttempts >= maxResendAttempts}
+                            textColor={canResendNow && resendAttempts < maxResendAttempts ? colors.primary['900'] : colors.slate['400']}
+                            labelStyle={{ fontFamily: `${appFonts.medium}` }}
+                            style={styles.textButton}
                         >
-                            {({ setFieldValue, handleBlur, handleSubmit, errors, touched }) => (
-                                <RKeyboardView
-                                    contentContainerStyle={{ gap: 8 }}
-                                    keyboardVerticalOffset={KEYBOARD_OFFSET}
-                                >
-                                    <OtpInput
-                                        numberOfDigits={6}
-                                        onTextChange={(text) => setFieldValue('otp', text)}
-                                        onBlur={() => handleBlur('otp')}
-                                        focusColor={colors.primary[600]}
-                                        type='numeric'
-                                        disabled={isLoading}
-                                    />
-                                    {errors.otp && touched.otp && <RErrorMessage error={errors.otp} />}
+                            <Text style={{
+                                color: canResendNow && resendAttempts < maxResendAttempts ? colors.primary['900'] : colors.slate['400'],
+                                fontFamily: `${appFonts.semiBold}`
+                            }}>
+                                {resendAttempts >= maxResendAttempts
+                                    ? 'Max resends reached'
+                                    : canResendNow
+                                        ? 'Resend Code'
+                                        : `Resend in ${resendCooldownSeconds - Math.floor((Date.now() - (lastResendAt || 0)) / 1000)}s`
+                                }
+                            </Text>
+                        </Button>
+                    </View>
 
-                                    {/* Attempts remaining */}
-                                    {failedAttempts > 0 && failedAttempts < maxAttempts && (
-                                        <View style={{ marginVertical: 8 }}>
-                                            <Text style={{
-                                                fontSize: 12,
-                                                color: colors.yellow['600'],
-                                                fontFamily: `${appFonts.medium}`,
-                                            }}>
-                                                {maxAttempts - failedAttempts} attempt{maxAttempts - failedAttempts !== 1 ? 's' : ''} remaining
-                                            </Text>
-                                        </View>
-                                    )}
-
-                                    {/* OTP expiry warning */}
-                                    {timeRemaining !== null && timeRemaining < 60 && timeRemaining > 0 && (
-                                        <View style={{ marginVertical: 8 }}>
-                                            <Text style={{
-                                                fontSize: 12,
-                                                color: colors.yellow['600'],
-                                                fontFamily: `${appFonts.medium}`,
-                                            }}>
-                                                Code expires in {Math.floor(timeRemaining / 60)}:{String(timeRemaining % 60).padStart(2, '0')}
-                                            </Text>
-                                        </View>
-                                    )}
-
-                                    {/* OTP expired */}
-                                    {timeRemaining === 0 && (
-                                        <View style={{ marginVertical: 8 }}>
-                                            <Text style={{
-                                                fontSize: 12,
-                                                color: colors.red['600'],
-                                                fontFamily: `${appFonts.medium}`,
-                                            }}>
-                                                Code has expired. Please request a new one.
-                                            </Text>
-                                        </View>
-                                    )}
-
-                                    <RButton
-                                        title='verify pin'
-                                        onPressButton={handleSubmit}
-                                        styleBtn={styles.button}
-                                        isSubmitting={isLoading}
-                                        disable={isLoading || timeRemaining === 0}
-                                    />
-                                </RKeyboardView>
-                            )}
-                        </Formik>
-
-                        {/* Resend button with rate limiting */}
-                        <View style={{ marginTop: 16 }}>
-                            <Button
-                                onPress={handleResendOtp}
-                                disabled={!canResendNow || isLoading || resendAttempts >= maxResendAttempts}
-                                textColor={canResendNow && resendAttempts < maxResendAttempts ? colors.primary['900'] : colors.slate['400']}
-                                labelStyle={{ fontFamily: `${appFonts.medium}` }}
-                                style={styles.textButton}
-                            >
-                                <Text style={{
-                                    color: canResendNow && resendAttempts < maxResendAttempts ? colors.primary['900'] : colors.slate['400'],
-                                    fontFamily: `${appFonts.semiBold}`
-                                }}>
-                                    {resendAttempts >= maxResendAttempts
-                                        ? 'Max resends reached'
-                                        : canResendNow
-                                            ? 'Resend Code'
-                                            : `Resend in ${resendCooldownSeconds - Math.floor((Date.now() - (lastResendAt || 0)) / 1000)}s`
-                                    }
-                                </Text>
-                            </Button>
-                        </View>
-
-                    </Animated.View>
-                </SafeArea>
-            </AuthWrapper >
-        </Scroller >
+                </Animated.View>
+            </SafeArea>
+        </AuthWrapper >
+    </Scroller>
+    </KeyboardAvoidingView>
     )
 }
 

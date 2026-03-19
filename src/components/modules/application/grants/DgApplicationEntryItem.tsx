@@ -54,14 +54,15 @@ const DgApplicationEntryItem: React.FC<DgApplicationEntryItemProps> = ({
     ];
 
     // Fetch all documents for this entry
+    const entityId = parseInt(data.id, 10);
     const documentQueries = documentTypes.map(docType =>
         useGetDocumentsByEntityQuery(
             {
-                entityId: parseInt(data.id),
+                entityId,
                 module: 'Projects',
                 documentType: docType
             },
-            { skip: !data.id }
+            { skip: !data.id || isNaN(entityId) }
         )
     );
 
@@ -170,7 +171,15 @@ const EntryDetailsSheet = ({
     const [showCostInformation, setShowCostInformation] = React.useState(false);
 
     return (
-        <View style={{ flex: 1 }}>
+        <BottomSheetScrollView
+            style={{ flex: 1 }}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.bottomSheetContentContainer}
+            enableFooterMarginAdjustment={true}
+            bounces={false}
+            overScrollMode="never"
+        >
             <View style={styles.bottomSheetHeader}>
                 <Text style={styles.bottomSheetTitle}>Application Details</Text>
                 <IconButton
@@ -181,98 +190,91 @@ const EntryDetailsSheet = ({
                     style={styles.closeButton}
                 />
             </View>
-            <BottomSheetScrollView
-                keyboardShouldPersistTaps="handled"
-                showsVerticalScrollIndicator={false}
-                contentContainerStyle={styles.bottomSheetContentContainer}
-                enableFooterMarginAdjustment={true}
+            <Expandable
+                title="Programme Information"
+                isExpanded={showProgrammeInfo}
+                onPress={() => setShowProgrammeInfo(!showProgrammeInfo)}
             >
-                <Expandable
-                    title="Programme Information"
-                    isExpanded={showProgrammeInfo}
-                    onPress={() => setShowProgrammeInfo(!showProgrammeInfo)}
-                >
-                    {/* <Surface style={styles.detailSection}> */}
-                    <Text style={styles.sectionTitle}>Programme Information</Text>
-                    <DetailRow label="Programme Type" value={data.programType} />
-                    <DetailRow label="Learning Programme" value={data.learningProgramme} />
-                    <DetailRow label="Sub Category" value={data.subCategory} />
-                    <DetailRow label="Intervention" value={data.intervention} />
-                    {/* </Surface> */}
-                </Expandable>
+                {/* <Surface style={styles.detailSection}> */}
+                <Text style={styles.sectionTitle}>Programme Information</Text>
+                <DetailRow label="Programme Type" value={data.programType} />
+                <DetailRow label="Learning Programme" value={data.learningProgramme} />
+                <DetailRow label="Sub Category" value={data.subCategory} />
+                <DetailRow label="Intervention" value={data.intervention} />
+                {/* </Surface> */}
+            </Expandable>
 
-                <Expandable
-                    title="Learner Distribution"
-                    isExpanded={showLearnerDistribution}
-                    onPress={() => setShowLearnerDistribution(!showLearnerDistribution)}
-                >
-                    {/* <Surface style={styles.detailSection}> */}
-                    <Text style={styles.sectionTitle}>Learner Distribution</Text>
-                    <DetailRow label="Continuing Students" value={data.noContinuing.toString()} />
-                    <DetailRow label="New Students" value={data.noNew.toString()} />
-                    <DetailRow label="Total Learners" value={totalLearners.toString()} highlighted />
-                    <DetailRow label="Female" value={data.noFemale.toString()} />
-                    <DetailRow label="Historically Disadvantaged" value={data.noHistoricallyDisadvantaged.toString()} />
-                    <DetailRow label="Youth" value={data.noYouth.toString()} />
-                    <DetailRow label="Disabled" value={data.noDisabled.toString()} />
-                    <DetailRow label="Rural" value={data.noRural.toString()} />
-                    {/* </Surface> */}
-                </Expandable>
+            <Expandable
+                title="Learner Distribution"
+                isExpanded={showLearnerDistribution}
+                onPress={() => setShowLearnerDistribution(!showLearnerDistribution)}
+            >
+                {/* <Surface style={styles.detailSection}> */}
+                <Text style={styles.sectionTitle}>Learner Distribution</Text>
+                <DetailRow label="Continuing Students" value={data.noContinuing.toString()} />
+                <DetailRow label="New Students" value={data.noNew.toString()} />
+                <DetailRow label="Total Learners" value={totalLearners.toString()} highlighted />
+                <DetailRow label="Female" value={data.noFemale.toString()} />
+                <DetailRow label="Historically Disadvantaged" value={data.noHistoricallyDisadvantaged.toString()} />
+                <DetailRow label="Youth" value={data.noYouth.toString()} />
+                <DetailRow label="Disabled" value={data.noDisabled.toString()} />
+                <DetailRow label="Rural" value={data.noRural.toString()} />
+                {/* </Surface> */}
+            </Expandable>
 
-                <Expandable
-                    title="Costs & Location"
-                    isExpanded={showCostInformation}
-                    onPress={() => setShowCostInformation(!showCostInformation)}
-                >
-                    {/* <Surface style={styles.detailSection}> */}
-                    <Text style={styles.sectionTitle}>Costs & Location</Text>
-                    <DetailRow label="Cost Per Learner" value={`R ${data.costPerLearner.toLocaleString()}`} />
-                    <DetailRow label="Total Cost" value={`R ${totalCost.toLocaleString()}`} highlighted />
-                    <DetailRow label="Province" value={data.province} />
-                    <DetailRow label="District" value={data.district} />
-                    <DetailRow label="Municipality" value={data.municipality} />
-                    {/* </Surface> */}
-                </Expandable>
+            <Expandable
+                title="Costs & Location"
+                isExpanded={showCostInformation}
+                onPress={() => setShowCostInformation(!showCostInformation)}
+            >
+                {/* <Surface style={styles.detailSection}> */}
+                <Text style={styles.sectionTitle}>Costs & Location</Text>
+                <DetailRow label="Cost Per Learner" value={`R ${data.costPerLearner.toLocaleString()}`} />
+                <DetailRow label="Total Cost" value={`R ${totalCost.toLocaleString()}`} highlighted />
+                <DetailRow label="Province" value={data.province} />
+                <DetailRow label="District" value={data.district} />
+                <DetailRow label="Municipality" value={data.municipality} />
+                {/* </Surface> */}
+            </Expandable>
 
-                {allDocuments.length > 0 && (
-                    <Surface style={styles.detailSection}>
-                        <Text style={styles.sectionTitle}>Uploaded Documents ({allDocuments.length})</Text>
-                        <DocumentsList documents={allDocuments} />
-                    </Surface>
+            {allDocuments.length > 0 && (
+                <Surface style={styles.detailSection}>
+                    <Text style={styles.sectionTitle}>Uploaded Documents ({allDocuments.length})</Text>
+                    <DocumentsList documents={allDocuments} />
+                </Surface>
+            )}
+
+            <View style={styles.actionButtons}>
+                {onEdit && (
+                    <Button
+                        mode="contained"
+                        onPress={() => {
+                            onClose();
+                            onEdit(data);
+                        }}
+                        style={styles.editButton}
+                        labelStyle={styles.buttonText}
+                        icon="pencil"
+                    >
+                        Edit
+                    </Button>
                 )}
-
-                <View style={styles.actionButtons}>
-                    {onEdit && (
-                        <Button
-                            mode="contained"
-                            onPress={() => {
-                                onClose();
-                                onEdit(data);
-                            }}
-                            style={styles.editButton}
-                            labelStyle={styles.buttonText}
-                            icon="pencil"
-                        >
-                            Edit
-                        </Button>
-                    )}
-                    {onDelete && (
-                        <Button
-                            mode="contained"
-                            onPress={() => {
-                                onClose();
-                                onDelete(data.id);
-                            }}
-                            style={styles.deleteButton}
-                            labelStyle={styles.buttonText}
-                            icon="trash-can"
-                        >
-                            Delete
-                        </Button>
-                    )}
-                </View>
-            </BottomSheetScrollView>
-        </View>
+                {onDelete && (
+                    <Button
+                        mode="contained"
+                        onPress={() => {
+                            onClose();
+                            onDelete(data.id);
+                        }}
+                        style={styles.deleteButton}
+                        labelStyle={styles.buttonText}
+                        icon="trash-can"
+                    >
+                        Delete
+                    </Button>
+                )}
+            </View>
+        </BottomSheetScrollView>
     );
 };
 
@@ -340,7 +342,7 @@ const styles = StyleSheet.create({
         paddingBottom: 12,
         borderBottomWidth: 1,
         borderBottomColor: colors.gray[200],
-        paddingHorizontal:12
+        paddingHorizontal: 12
     },
     bottomSheetTitle: {
         fontSize: 20,
@@ -425,6 +427,7 @@ const styles = StyleSheet.create({
         fontWeight: '600',
     },
     bottomSheetContentContainer: {
-        paddingHorizontal: 12
+        paddingHorizontal: 12,
+        paddingBottom: 48,
     },
 })

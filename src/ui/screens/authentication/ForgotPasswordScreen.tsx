@@ -1,7 +1,7 @@
-import { Platform, StyleSheet } from 'react-native'
+import { StyleSheet, View } from 'react-native'
 import React, { useEffect } from 'react'
 import usePageTransition from '@/hooks/navigation/usePageTransition';
-import { RErrorMessage, RInput, RKeyboardView, RLoaderAnimation } from '@/components/common';
+import { RErrorMessage, RInput, RLoaderAnimation } from '@/components/common';
 import colors from '@/config/colors';
 import { Formik } from 'formik';
 import { resetPasswordSchema, showToast } from '@/core';
@@ -17,8 +17,6 @@ import { clearError } from '@/store/slice/AuthSlice';
 const initialValues = {
     email: ''
 }
-
-const KEYBOARD_OFFSET = Platform.select({ ios: 120, android: 32 }) ?? 0;
 
 const ForgotPasswordScreen = () => {
     const { otp } = usePageTransition();
@@ -70,10 +68,7 @@ const ForgotPasswordScreen = () => {
         >
             <Formik initialValues={initialValues} onSubmit={(values) => handleSubmit(values)} validationSchema={resetPasswordSchema}>
                 {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
-                    <RKeyboardView
-                        contentContainerStyle={authScreenStyles.formWrapper}
-                        keyboardVerticalOffset={KEYBOARD_OFFSET}
-                    >
+                    <View style={authScreenStyles.formWrapper}>
                         <RInput
                             placeholder='Email'
                             icon={'mail'}
@@ -94,7 +89,7 @@ const ForgotPasswordScreen = () => {
                             disabled={isLoading}
                         />
                         {isLoading && <RLoaderAnimation />}
-                    </RKeyboardView>
+                    </View>
                 )}
             </Formik>
         </AuthScreenLayout>

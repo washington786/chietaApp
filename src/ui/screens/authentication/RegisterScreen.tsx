@@ -1,7 +1,7 @@
-import { Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import React, { useEffect } from "react";
 import usePageTransition from "@/hooks/navigation/usePageTransition";
-import { RErrorMessage, RInput, RKeyboardView, RLoaderAnimation } from "@/components/common";
+import { RErrorMessage, RInput, RLoaderAnimation } from "@/components/common";
 import colors from "@/config/colors";
 import { Formik } from "formik";
 import { registerSchema, showToast } from "@/core";
@@ -21,8 +21,6 @@ const initialValues = {
     lastName: "",
     username: "",
 };
-
-const KEYBOARD_OFFSET = Platform.select({ ios: 120, android: 32 }) ?? 0;
 
 const RegisterScreen = () => {
     const { login, onAuth } = usePageTransition();
@@ -95,10 +93,7 @@ const RegisterScreen = () => {
                     touched,
                     values,
                 }) => (
-                    <RKeyboardView
-                        contentContainerStyle={authScreenStyles.formWrapper}
-                        keyboardVerticalOffset={KEYBOARD_OFFSET}
-                    >
+                    <View style={authScreenStyles.formWrapper}>
                         <RInput
                             placeholder="First name"
                             icon={"user"}
@@ -193,7 +188,7 @@ const RegisterScreen = () => {
                             disabled={isLoading}
                         />
                         {isLoading && <RLoaderAnimation />}
-                    </RKeyboardView>
+                    </View>
                 )}
             </Formik>
         </AuthScreenLayout>

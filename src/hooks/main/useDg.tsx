@@ -1,7 +1,9 @@
 
 import { useState, useMemo, useEffect } from 'react';
+import { useSelector } from 'react-redux';
 import { DocumentPickerResult } from 'expo-document-picker';
 import { Province } from '@/core/types/provTypes';
+import { RootState } from '@/store/store';
 import { main_manicipalities, mainDistricts, provinces } from '@/core/helpers/data';
 import { showToast } from '@/core';
 import { checkProjectClosed } from '@/core/utils/CheckClosed';
@@ -48,6 +50,8 @@ interface ApplicationEntry {
 }
 
 const useDg = ({ projectId, appId, userId }: UseDgParams) => {
+    const { selectedProject } = useSelector((state: RootState) => state.discretionaryGrant);
+
     // ========== Form State ==========
     const [currentStep, setCurrentStep] = useState(1);
     const [expandDocs, setDocs] = useState(false);
@@ -198,13 +202,29 @@ const useDg = ({ projectId, appId, userId }: UseDgParams) => {
         if (dgProjectDetailsApp?.result?.items?.[0]?.projectDetails) {
             const details = dgProjectDetailsApp.result.items[0].projectDetails;
             const projectStatus = details.status || 'Registered';
-            const projectEndDate = dgProjectDetailsApp.result.items[0]?.projectEndDate || new Date().toISOString();
+            const projectEndDate = selectedProject?.projectEndDate || new Date().toISOString();
 
             const closureCheck = checkProjectClosed(projectStatus, projectEndDate);
-            return closureCheck;
+
+            // Additional check: status is 'registered' and end date is past today
+            const normalizedStatus = (projectStatus || '').trim().toLowerCase();
+            const isApplicationStatus = normalizedStatus.includes('registered');
+            let isExpiredApplication = false;
+            if (isApplicationStatus) {
+                const endDate = projectEndDate ? new Date(projectEndDate) : null;
+                if (endDate && !Number.isNaN(endDate.getTime())) {
+                    const normalizedEnd = new Date(endDate);
+                    normalizedEnd.setHours(23, 59, 59, 999);
+                    const now = new Date();
+                    now.setHours(0, 0, 0, 0);
+                    isExpiredApplication = normalizedEnd < now;
+                }
+            }
+
+            return { ...closureCheck, isExpiredApplication };
         }
         // Default to open and editable while loading, don't use stale Redux value
-        return { isClosed: false, isEditable: true };
+        return { isClosed: false, isEditable: true, isExpiredApplication: false };
     }, [dgProjectDetailsApp]);
 
     // ========== Document Picker ==========

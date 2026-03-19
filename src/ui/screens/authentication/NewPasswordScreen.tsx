@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react'
-import { Platform, StyleSheet, View } from 'react-native'
+import { StyleSheet, View } from 'react-native'
 import { Formik } from 'formik'
 import { useSelector, useDispatch } from 'react-redux'
 
 import { SuccessWrapper } from '@/components/modules/authentication'
 import AuthScreenLayout, { authScreenStyles } from '@/components/modules/authentication/AuthScreenLayout'
 import AuthGradientButton from '@/components/modules/authentication/AuthGradientButton'
-import { RErrorMessage, RInput, RKeyboardView, RLoaderAnimation } from '@/components/common'
+import { RErrorMessage, RInput, RLoaderAnimation } from '@/components/common'
 import usePageTransition from '@/hooks/navigation/usePageTransition'
 import UseAuth from '@/hooks/main/auth/UseAuth'
 import { newPasswordSchema, showToast } from '@/core'
@@ -24,8 +24,6 @@ const initialValues: NewPasswordFormValues = {
     password: '',
     confirmPassword: ''
 }
-
-const KEYBOARD_OFFSET = Platform.select({ ios: 120, android: 32 }) ?? 0
 
 const NewPasswordScreen = () => {
     const { login } = usePageTransition()
@@ -107,10 +105,7 @@ const NewPasswordScreen = () => {
                 onSubmit={handleSubmit}
             >
                 {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
-                    <RKeyboardView
-                        contentContainerStyle={authScreenStyles.formWrapper}
-                        keyboardVerticalOffset={KEYBOARD_OFFSET}
-                    >
+                    <View style={authScreenStyles.formWrapper}>
                         <RInput
                             placeholder='New Password'
                             icon='lock'
@@ -146,7 +141,7 @@ const NewPasswordScreen = () => {
                             disabled={isLoading}
                         />
                         {isLoading && <RLoaderAnimation />}
-                    </RKeyboardView>
+                    </View>
                 )}
             </Formik>
         </AuthScreenLayout>
