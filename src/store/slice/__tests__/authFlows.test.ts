@@ -5,6 +5,9 @@ import authReducer, {
     register,
     resetPassword,
     verifyOtp,
+    changePassword,
+    deleteAccount,
+    setCredentials,
 } from '@/store/slice/AuthSlice'
 
 const secureStoreMocks = vi.hoisted(() => ({
@@ -287,6 +290,139 @@ describe('authentication thunks', () => {
 
             expect(action.meta.requestStatus).toBe('rejected')
             expect(store.getState().auth.error?.code).toBe('OTP_VERIFICATION_ERROR')
+        })
+    })
+
+    describe('account management', () => {
+        const seedAuthenticatedUser = (store: ReturnType<typeof buildStore>) => {
+            store.dispatch(
+                setCredentials({
+                    user: {
+                        id: 'user-123',
+                        email: 'user@example.com',
+                        firstName: 'Test',
+                        lastName: 'User',
+                        username: 'tester',
+                        isActive: true,
+                        isEmailConfirmed: true,
+                    },
+                    token: 'token-abc',
+                    refreshToken: 'refresh-xyz',
+                    expiresIn: 3600,
+                })
+            )
+        }
+
+        it('changes password when authenticated', async () => {
+            const store = buildStore()
+            seedAuthenticatedUser(store)
+
+            fetchMock.mockResolvedValueOnce(
+                mockResponse({
+                    result: { message: 'Password changed successfully' },
+                })
+            )
+
+            const action = await store.dispatch(
+                changePassword({
+                    oldPassword: 'old-pass',
+                    password: 'new-pass',
+                    confirmPassword: 'new-pass',
+                })
+            )
+
+            expect(action.meta.requestStatus).toBe('fulfilled')
+            const [, request] = fetchMock.mock.calls[0]
+            expect((request?.headers as Record<string, string>)?.Authorization).toBe('Bearer token-abc')
+            expect(store.getState().auth.error).toBeNull()
+        })
+
+        it('surfaces errors when change password fails', async () => {
+            const store = buildStore()
+            seedAuthenticatedUser(store)
+
+            fetchMock.mockResolvedValueOnce(
+                mockResponse(
+                    {
+                        message: 'Password change failed',
+                    },
+                    { ok: false, status: 400 }
+                )
+            )
+
+            const action = await store.dispatch(
+                changePassword({
+                    oldPassword: 'old-pass',
+                    password: 'new-pass',
+                    confirmPassword: 'new-pass',
+                })
+            )
+
+            expect(action.meta.requestStatus).toBe('rejected')
+            expect(store.getState().auth.error?.code).toBe('CHANGE_PASSWORD_ERROR')
+        })
+
+        it('blocks password change when token is missing', async () => {
+            const store = buildStore()
+
+            const action = await store.dispatch(
+                changePassword({
+                    oldPassword: 'old-pass',
+                    password: 'new-pass',
+                    confirmPassword: 'new-pass',
+                })
+            )
+
+            expect(action.meta.requestStatus).toBe('rejected')
+            expect(action.payload).toMatchObject({ code: 'UNAUTHORIZED' })
+            expect(fetchMock).not.toHaveBeenCalled()
+        })
+
+        it('deletes account and clears secure storage', async () => {
+            const store = buildStore()
+            seedAuthenticatedUser(store)
+            fetchMock.mockResolvedValueOnce(mockResponse({}))
+
+            const action = await store.dispatch(deleteAccount())
+
+            expect(action.meta.requestStatus).toBe('fulfilled')
+            const [, request] = fetchMock.mock.calls[0]
+            expect((request?.headers as Record<string, string>)?.Authorization).toBe('Bearer token-abc')
+            expect(secureStoreMocks.deleteItemAsyncMock).toHaveBeenCalledTimes(4)
+            const state = store.getState().auth
+            expect(state.user).toBeNull()
+            expect(state.token).toBeNull()
+            expect(state.isAuthenticated).toBe(false)
+        })
+
+        it('reports backend failures when deleting account', async () => {
+            const store = buildStore()
+            seedAuthenticatedUser(store)
+            fetchMock.mockResolvedValueOnce(
+                mockResponse(
+                    {
+                        message: 'Account deletion failed',
+                    },
+                    { ok: false, status: 500 }
+                )
+            )
+
+            const action = await store.dispatch(deleteAccount())
+
+            expect(action.meta.requestStatus).toBe('rejected')
+            expect(store.getState().auth.error?.code).toBe('DELETE_ACCOUNT_ERROR')
+            expect(store.getState().auth.user).not.toBeNull()
+            expect(secureStoreMocks.deleteItemAsyncMock).not.toHaveBeenCalled()
+        })
+
+        it('refuses to delete account when unauthenticated', async () => {
+            const store = buildStore()
+
+            const action = await store.dispatch(deleteAccount())
+
+            expect(action.meta.requestStatus).toBe('rejected')
+            expect(action.payload).toMatchObject({ code: 'UNAUTHORIZED' })
+            expect(fetchMock).not.toHaveBeenCalled()
         })
     })
 })

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { StyleSheet, View } from 'react-native'
+import { StyleSheet, Text, View } from 'react-native'
 import { Formik } from 'formik'
 import { useSelector, useDispatch } from 'react-redux'
 
@@ -14,6 +14,7 @@ import colors from '@/config/colors'
 import { RootState, AppDispatch } from '@/store/store'
 import { clearResetState } from '@/store/slice/PasswordResetSlice'
 import { clearError } from '@/store/slice/AuthSlice'
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
 
 interface NewPasswordFormValues {
     password: string
@@ -24,6 +25,109 @@ const initialValues: NewPasswordFormValues = {
     password: '',
     confirmPassword: ''
 }
+
+// ── Step flow ───────────────────────────────────────────────────────────────────
+const STEPS = [{ n: 1, label: 'Email' }, { n: 2, label: 'OTP' }, { n: 3, label: 'Reset' }];
+function StepFlow({ current }: { current: number }) {
+    return (
+        <View style={sfStyles.row}>
+            {STEPS.map((step, i) => (
+                <React.Fragment key={step.n}>
+                    <View style={sfStyles.step}>
+                        <View style={[sfStyles.circle, step.n <= current && sfStyles.circleActive]}>
+                            {step.n < current
+                                ? <MaterialCommunityIcons name='check' size={12} color='#fff' />
+                                : <Text style={[sfStyles.num, step.n === current && sfStyles.numActive]}>{step.n}</Text>
+                            }
+                        </View>
+                        <Text style={[sfStyles.label, step.n === current && sfStyles.labelActive]}>{step.label}</Text>
+                    </View>
+                    {i < STEPS.length - 1 && (
+                        <View style={[sfStyles.connector, step.n < current && sfStyles.connectorDone]} />
+                    )}
+                </React.Fragment>
+            ))}
+        </View>
+    );
+}
+const sfStyles = StyleSheet.create({
+    row: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'center' },
+    step: { alignItems: 'center', gap: 6, width: 56 },
+    circle: { width: 30, height: 30, borderRadius: 15, backgroundColor: 'rgba(255,255,255,0.12)', borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.25)', justifyContent: 'center', alignItems: 'center' },
+    circleActive: { backgroundColor: 'rgba(255,255,255,0.9)', borderColor: '#fff' },
+    num: { fontSize: 12, fontWeight: '700', color: 'rgba(255,255,255,0.55)' },
+    numActive: { color: colors.primary[800] },
+    label: { fontSize: 10, fontWeight: '600', color: 'rgba(255,255,255,0.45)', textTransform: 'uppercase', letterSpacing: 0.4 },
+    labelActive: { color: 'rgba(255,255,255,0.9)' },
+    connector: { flex: 1, height: 1.5, backgroundColor: 'rgba(255,255,255,0.15)', marginTop: 14 },
+    connectorDone: { backgroundColor: 'rgba(255,255,255,0.7)' },
+});
+
+// ── Password strength + hints ───────────────────────────────────────────────────
+function getStrength(pw: string) {
+    let s = 0;
+    if (pw.length >= 8) s++;
+    if (/[A-Z]/.test(pw)) s++;
+    if (/[0-9]/.test(pw)) s++;
+    if (/[^A-Za-z0-9]/.test(pw)) s++;
+    if (pw.length >= 12) s++;
+    const levels = [
+        { label: 'Too short', color: '#ef4444' },
+        { label: 'Weak', color: '#f97316' },
+        { label: 'Fair', color: '#eab308' },
+        { label: 'Good', color: '#22c55e' },
+        { label: 'Strong', color: '#16a34a' },
+    ];
+    return { score: s, ...levels[Math.min(s, 4)] };
+}
+
+const PASSWORD_REQUIREMENTS = [
+    { label: 'At least 8 characters', test: (pw: string) => pw.length >= 8 },
+    { label: 'One uppercase letter (A–Z)', test: (pw: string) => /[A-Z]/.test(pw) },
+    { label: 'One number (0–9)', test: (pw: string) => /[0-9]/.test(pw) },
+];
+
+function PasswordHints({ password }: { password: string }) {
+    if (!password) return null;
+    const { score, label, color } = getStrength(password);
+    return (
+        <View style={phStyles.wrap}>
+            <View style={phStyles.barsRow}>
+                <View style={phStyles.bars}>
+                    {[0, 1, 2, 3, 4].map(i => (
+                        <View key={i} style={[phStyles.bar, { backgroundColor: i <= score ? color : 'rgba(255,255,255,0.12)' }]} />
+                    ))}
+                </View>
+                <Text style={[phStyles.strengthLabel, { color }]}>{label}</Text>
+            </View>
+            <View style={phStyles.reqs}>
+                {PASSWORD_REQUIREMENTS.map((req) => {
+                    const met = req.test(password);
+                    return (
+                        <View key={req.label} style={phStyles.reqRow}>
+                            <MaterialCommunityIcons
+                                name={met ? 'check-circle-outline' : 'circle-outline'}
+                                size={13}
+                                color={met ? '#22c55e' : 'rgba(255,255,255,0.35)'}
+                            />
+                            <Text style={[phStyles.reqText, { color: met ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.4)' }]}>{req.label}</Text>
+                        </View>
+                    );
+                })}
+            </View>
+        </View>
+    );
+}
+const phStyles = StyleSheet.create({
+    wrap: { marginTop: 8, gap: 6 },
+    barsRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+    bars: { flexDirection: 'row', gap: 4, flex: 1 },
+    bar: { flex: 1, height: 3, borderRadius: 3 },
+    strengthLabel: { fontSize: 11, fontWeight: '700', minWidth: 52, textAlign: 'right' },
+    reqs: { gap: 5 },
+    reqRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+    reqText: { fontSize: 11, fontWeight: '500' },
+});
 
 const NewPasswordScreen = () => {
     const { login } = usePageTransition()
@@ -98,7 +202,8 @@ const NewPasswordScreen = () => {
     }
 
     return (
-        <AuthScreenLayout title='New Password' subtitle='Enter your new password to complete the reset.'>
+        <AuthScreenLayout title='New Password' subtitle='Create a strong password to secure your account.'>
+            <StepFlow current={3} />
             <Formik
                 initialValues={initialValues}
                 validationSchema={newPasswordSchema}
@@ -106,36 +211,53 @@ const NewPasswordScreen = () => {
             >
                 {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
                     <View style={authScreenStyles.formWrapper}>
-                        <RInput
-                            placeholder='New Password'
-                            icon='lock'
-                            secureTextEntry
-                            onBlur={handleBlur('password')}
-                            onChangeText={handleChange('password')}
-                            value={values.password}
-                            placeholderTextColor={colors.slate[200]}
-                            customStyle={authScreenStyles.inputField}
-                            style={styles.inputText}
-                        />
+                        <View>
+                            <RInput
+                                placeholder='New Password'
+                                icon='lock'
+                                secureTextEntry
+                                onBlur={handleBlur('password')}
+                                onChangeText={handleChange('password')}
+                                value={values.password}
+                                placeholderTextColor='rgba(255,255,255,0.32)'
+                                customStyle={authScreenStyles.inputField}
+                                style={styles.inputText}
+                            />
+                            <PasswordHints password={values.password} />
+                        </View>
                         {errors.password && touched.password && <RErrorMessage error={errors.password} />}
 
-                        <RInput
-                            placeholder='Confirm Password'
-                            icon='lock'
-                            secureTextEntry
-                            value={values.confirmPassword}
-                            onBlur={handleBlur('confirmPassword')}
-                            onChangeText={handleChange('confirmPassword')}
-                            placeholderTextColor={colors.slate[200]}
-                            customStyle={authScreenStyles.inputField}
-                            style={styles.inputText}
-                        />
+                        <View>
+                            <RInput
+                                placeholder='Confirm Password'
+                                icon='lock'
+                                secureTextEntry
+                                value={values.confirmPassword}
+                                onBlur={handleBlur('confirmPassword')}
+                                onChangeText={handleChange('confirmPassword')}
+                                placeholderTextColor='rgba(255,255,255,0.32)'
+                                customStyle={authScreenStyles.inputField}
+                                style={styles.inputText}
+                            />
+                            {values.confirmPassword.length > 0 && (
+                                <View style={styles.matchRow}>
+                                    <MaterialCommunityIcons
+                                        name={values.password === values.confirmPassword ? 'check-circle-outline' : 'close-circle-outline'}
+                                        size={13}
+                                        color={values.password === values.confirmPassword ? '#22c55e' : '#ef4444'}
+                                    />
+                                    <Text style={[styles.matchText, { color: values.password === values.confirmPassword ? '#22c55e' : '#ef4444' }]}>
+                                        {values.password === values.confirmPassword ? 'Passwords match' : 'Passwords do not match'}
+                                    </Text>
+                                </View>
+                            )}
+                        </View>
                         {errors.confirmPassword && touched.confirmPassword && (
                             <RErrorMessage error={errors.confirmPassword} />
                         )}
 
                         <AuthGradientButton
-                            title='Reset Password'
+                            title='Set New Password'
                             onPress={handleSubmit}
                             loading={isLoading}
                             disabled={isLoading}
@@ -151,7 +273,7 @@ const NewPasswordScreen = () => {
 export default NewPasswordScreen
 
 const styles = StyleSheet.create({
-    inputText: {
-        color: '#fff'
-    }
+    inputText: { color: '#fff' },
+    matchRow: { flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 6, marginHorizontal: 2 },
+    matchText: { fontSize: 11, fontWeight: '600' },
 })

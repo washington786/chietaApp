@@ -1,11 +1,11 @@
-import { StyleSheet } from "react-native";
+import { StyleSheet, ViewStyle } from "react-native";
 import React from "react";
 import { Divider } from "react-native-paper";
 import colors from "../../config/colors";
 
 
-const RDivider = () => {
-  return <Divider style={styles.div} />;
+const RDivider = ({ style }: { style?: ViewStyle }) => {
+  return <Divider style={[styles.div, style]} />;
 };
 
 export default RDivider;

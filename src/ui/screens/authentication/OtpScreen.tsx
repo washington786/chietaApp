@@ -1,4 +1,4 @@
-import { Animated, KeyboardAvoidingView, Platform, Text, View } from 'react-native'
+import { Animated, KeyboardAvoidingView, Platform, StyleSheet, Text, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { AuthWrapper } from '@/components/modules/authentication';
 import { RButton, RErrorMessage, RLogo, SafeArea, Scroller } from '@/components/common';
@@ -21,6 +21,7 @@ import {
     resendOtpCode,
 } from '@/store/slice/PasswordResetSlice';
 import usePageEnterAnimation from '@/hooks/animations/usePageEnterAnimation';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 
 interface OtpFormValues {
     otp: string
@@ -29,6 +30,43 @@ interface OtpFormValues {
 const initialValues: OtpFormValues = {
     otp: ''
 }
+
+// ── Step flow ───────────────────────────────────────────────────────────────────
+const STEPS = [{ n: 1, label: 'Email' }, { n: 2, label: 'OTP' }, { n: 3, label: 'Reset' }];
+function StepFlow({ current }: { current: number }) {
+    return (
+        <View style={sfStyles.row}>
+            {STEPS.map((step, i) => (
+                <React.Fragment key={step.n}>
+                    <View style={sfStyles.step}>
+                        <View style={[sfStyles.circle, step.n <= current && sfStyles.circleActive]}>
+                            {step.n < current
+                                ? <MaterialCommunityIcons name='check' size={12} color='#fff' />
+                                : <Text style={[sfStyles.num, step.n === current && sfStyles.numActive]}>{step.n}</Text>
+                            }
+                        </View>
+                        <Text style={[sfStyles.label, step.n === current && sfStyles.labelActive]}>{step.label}</Text>
+                    </View>
+                    {i < STEPS.length - 1 && (
+                        <View style={[sfStyles.connector, step.n < current && sfStyles.connectorDone]} />
+                    )}
+                </React.Fragment>
+            ))}
+        </View>
+    );
+}
+const sfStyles = StyleSheet.create({
+    row: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'center', marginVertical: 8 },
+    step: { alignItems: 'center', gap: 6, width: 56 },
+    circle: { width: 30, height: 30, borderRadius: 15, backgroundColor: 'rgba(255,255,255,0.12)', borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.25)', justifyContent: 'center', alignItems: 'center' },
+    circleActive: { backgroundColor: colors.primary[600], borderColor: colors.primary[500] },
+    num: { fontSize: 12, fontWeight: '700', color: 'rgba(255,255,255,0.55)' },
+    numActive: { color: '#fff' },
+    label: { fontSize: 10, fontWeight: '600', color: 'rgba(255,255,255,0.45)', textTransform: 'uppercase', letterSpacing: 0.4 },
+    labelActive: { color: 'rgba(255,255,255,0.9)' },
+    connector: { flex: 1, height: 1.5, backgroundColor: 'rgba(255,255,255,0.15)', marginTop: 14 },
+    connectorDone: { backgroundColor: colors.primary[500] },
+});
 
 const OtpScreen = () => {
     const { newPassword } = usePageTransition();
@@ -251,11 +289,12 @@ const OtpScreen = () => {
             <SafeArea>
                 <RLogo stylesLogo={{ alignContent: "center", marginTop: 40, marginBottom: 20, width: "auto" }} />
                 <Animated.View style={[styles.content, animatedStyle]}>
+                    <StepFlow current={2} />
                     <Text style={[styles.title, { fontFamily: `${appFonts.bold}`, fontWeight: "bold", textTransform: "capitalize" }]}>
-                        verify one time password
+                        Verify One-Time Password
                     </Text>
                     <Text style={[styles.description]}>
-                        enter the 6-digit code sent to {email}
+                        Enter the 6-digit code sent to {email}
                     </Text>
 
                     {resetError && (
@@ -275,9 +314,30 @@ const OtpScreen = () => {
                                     numberOfDigits={6}
                                     onTextChange={(text) => setFieldValue('otp', text)}
                                     onBlur={() => handleBlur('otp')}
-                                    focusColor={colors.primary[600]}
+                                    focusColor={colors.primary[400]}
                                     type='numeric'
                                     disabled={isLoading}
+                                    theme={{
+                                        containerStyle: { marginVertical: 4 },
+                                        inputsContainerStyle: { gap: 8 },
+                                        pinCodeContainerStyle: {
+                                            backgroundColor: 'rgba(255,255,255,0.08)',
+                                            borderRadius: 14,
+                                            borderWidth: 1.5,
+                                            borderColor: 'rgba(255,255,255,0.22)',
+                                            height: 54,
+                                            width: 44,
+                                        },
+                                        pinCodeTextStyle: {
+                                            color: '#fff',
+                                            fontSize: 22,
+                                            fontWeight: '700',
+                                        },
+                                        focusedPinCodeContainerStyle: {
+                                            borderColor: colors.primary[400],
+                                            backgroundColor: 'rgba(255,255,255,0.12)',
+                                        },
+                                    }}
                                 />
                                 {errors.otp && touched.otp && <RErrorMessage error={errors.otp} />}
 

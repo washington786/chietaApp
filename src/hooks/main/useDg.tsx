@@ -9,6 +9,7 @@ import { showToast } from '@/core';
 import { checkProjectClosed } from '@/core/utils/CheckClosed';
 import useDocumentPicker from '@/hooks/main/UseDocumentPicker';
 import useGenerate from '@/hooks/main/useGenerate';
+import { createProjectSubmissionHandler } from './helpers/projectSubmissionHandler';
 import {
     useGetProjectTypeQuery,
     useGetFocusAreaQuery,
@@ -502,52 +503,30 @@ const useDg = ({ projectId, appId, userId }: UseDgParams) => {
     };
 
     // ========== Application Submission ==========
-    const handleSubmitApplication = async () => {
-        if (!applicationForm?.assets && !getDocument(signedAppQuery)?.filename) {
-            showToast({
-                message: "Please upload the signed application form",
-                title: "Submission",
-                type: "error",
-                position: "top",
-            });
-            return;
-        }
-
-        try {
-            const validationResult = await validateProjectSubmission(appId).unwrap();
-            console.log("Validation result:", validationResult);
-
-            if (!validationResult.success) {
-                return { success: false, message: validationResult.message };
-            }
-
-            const submitResult = await submitApplication({ projId: appId, userId }).unwrap();
-            console.log("Submit result:", submitResult);
-
-            showToast({
-                message: submitResult.message || "The application has been submitted successfully.",
-                title: "Success",
-                type: "success",
-                position: "top",
-            });
-
-            setHasSubmitted(true);
-
-            try {
-                await refetchProjectDetails();
-            } catch (refetchError) {
-                console.log("Failed to refetch project details after submission", refetchError);
-            }
-
-            return { success: true, message: submitResult.message };
-        } catch (error: any) {
-            console.error("Submission error:", error);
-            const errorMessage =
-                error?.data?.error?.message || error?.message || "Failed to submit application";
-            showToast({ message: errorMessage, title: "Error", type: "error", position: "top" });
-            return { success: false, message: errorMessage };
-        }
-    };
+    const handleSubmitApplication = useMemo(
+        () =>
+            createProjectSubmissionHandler({
+                hasSignedApplication: () =>
+                    Boolean(applicationForm?.assets) ||
+                    Boolean(signedAppQuery?.data?.result?.items?.[0]?.documents?.filename),
+                validateProjectSubmission: () => validateProjectSubmission(appId).unwrap(),
+                submitApplication: () => submitApplication({ projId: appId, userId }).unwrap(),
+                refetchProjectDetails,
+                setHasSubmitted,
+                showToast,
+            }),
+        [
+            applicationForm,
+            appId,
+            refetchProjectDetails,
+            setHasSubmitted,
+            showToast,
+            signedAppQuery?.data,
+            submitApplication,
+            userId,
+            validateProjectSubmission,
+        ],
+    );
 
     const handleSaveApplication = async () => {
         setProg(!expandProg);

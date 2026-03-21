@@ -1,6 +1,6 @@
-import { StyleSheet } from 'react-native'
+import { StyleSheet, View, TouchableOpacity } from 'react-native'
 import React, { ReactNode, useEffect, useRef } from 'react'
-import { RButton, RCol, RErrorMessage, RInput, RListLoading, RRow, Scroller } from '@/components/common'
+import { RButton, RErrorMessage, RInput, RListLoading, RRow, Scroller } from '@/components/common'
 import RHeader from '@/components/common/RHeader'
 import colors from '@/config/colors'
 import { Text } from 'react-native-paper'
@@ -8,20 +8,19 @@ import Animated, { FadeInDown } from 'react-native-reanimated'
 import { useSelector } from 'react-redux'
 import { RootState } from '@/store/store'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { Formik } from 'formik'
 import UseAuth from '@/hooks/main/auth/UseAuth'
 import { showToast } from '@/core'
 import { UpdateProfileRequest } from '@/core/models/UserDto'
 import * as Yup from 'yup'
 import { useGetPersonByUserIdQuery } from '@/store/api/api'
-import { TextWrap } from '@/components/modules/application'
 import { getDesignation } from '@/core/utils/designation'
 
 const validationSchema = Yup.object().shape({
     name: Yup.string().required('First name is required'),
     surname: Yup.string().required('Last name is required'),
     userName: Yup.string().required('Username is required'),
-    emailAddress: Yup.string().email('Invalid email').required('Email is required'),
 });
 
 const AccountSettingsPage = () => {
@@ -37,6 +36,13 @@ const AccountSettingsPage = () => {
 
     const prevErrorRef = useRef<typeof error | typeof sdfError>(null);
 
+    const initials = (
+        `${person?.firstname?.[0] ?? user?.firstName?.[0] ?? ''}${person?.lastname?.[0] ?? user?.lastName?.[0] ?? ''}`
+    ).toUpperCase() || '?';
+    const fullName = person
+        ? `${person.firstname ?? ''} ${person.lastname ?? ''}`.trim()
+        : user ? `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim() : '';
+
     const initialValues = {
         name: user?.firstName || '',
         surname: user?.lastName || '',
@@ -46,20 +52,10 @@ const AccountSettingsPage = () => {
 
     useEffect(() => {
         if (error && !prevErrorRef.current) {
-            showToast({
-                message: error.message,
-                type: "error",
-                title: "Update Failed",
-                position: "top",
-            })
+            showToast({ message: error.message, type: "error", title: "Update Failed", position: "top" })
         }
         if (sdfError && !prevErrorRef.current) {
-            showToast({
-                message: sdfError.toString(),
-                type: "error",
-                title: "Fetching Failed",
-                position: "top",
-            })
+            showToast({ message: sdfError.toString(), type: "error", title: "Fetching Failed", position: "top" })
         }
         prevErrorRef.current = error || sdfError;
     }, [error, sdfError])
@@ -73,186 +69,425 @@ const AccountSettingsPage = () => {
         });
 
         if (result.type === 'auth/updateProfile/fulfilled') {
-            showToast({
-                message: "Profile updated successfully",
-                type: "success",
-                title: "Success",
-                position: "top",
-            });
+            showToast({ message: "Profile updated successfully", type: "success", title: "Success", position: "top" });
+            setShowForm(false);
         }
     }
 
     if (sdfLoading) {
-        return (<RListLoading count={4} />);
+        return <RListLoading count={4} />;
     }
 
     return (
         <>
             <RHeader name='Account Settings' />
-            <Scroller style={styles.con}>
-                <InfoCard title='Personal Identification' icon='person'>
-                    <TextWrap desc='Title' title={person?.title || 'N/A'} />
-                    <TextWrap desc='First Name' title={person?.firstname || 'N/A'} />
-                    <TextWrap desc='Last Name' title={person?.lastname || 'N/A'} />
-                    <TextWrap desc='Middle Names' title={person?.middlenames || 'N/A'} />
-                    <TextWrap desc='Gender' title={person?.gender ? (person.gender === "M" ? "Male" : "Female") : 'N/A'} />
-                    <TextWrap desc='DOB' title={person?.dob ? new Date(person.dob).toLocaleString('en-za', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A'} />
-                    <TextWrap desc='said number' title={person?.saidnumber || 'N/A'} />
-                </InfoCard>
 
-                <InfoCard title='Nationality & Citizenship' icon='public'>
-                    <TextWrap desc='Citizenship' title={person?.citizenship || 'N/A'} />
-                    <TextWrap desc='Nationality' title={person?.nationality || 'N/A'} />
-                    <TextWrap desc='Language' title={person?.language || 'N/A'} />
-                </InfoCard>
+            {/* Profile mini-banner */}
+            <Animated.View entering={FadeInDown.duration(400).springify()} style={styles.heroBanner}>
+                <View style={styles.heroAvatar}>
+                    <Text style={styles.heroInitials}>{initials}</Text>
+                </View>
+                <View style={styles.heroInfo}>
+                    <Text style={styles.heroName}>{fullName || 'My Account'}</Text>
+                    <Text style={styles.heroEmail}>{user?.email ?? ''}</Text>
+                    {user?.isEmailConfirmed !== undefined && (
+                        <View style={[styles.verifiedBadge, !user.isEmailConfirmed && styles.unverifiedBadge]}>
+                            <MaterialIcons
+                                name={user.isEmailConfirmed ? 'verified' : 'cancel'}
+                                size={12}
+                                color={user.isEmailConfirmed ? colors.emerald[600] : colors.red[500]}
+                            />
+                            <Text style={[styles.verifiedText, !user.isEmailConfirmed && styles.unverifiedText]}>
+                                {user.isEmailConfirmed ? 'Email Verified' : 'Email Unverified'}
+                            </Text>
+                        </View>
+                    )}
+                </View>
+            </Animated.View>
 
-                <InfoCard title='Contact Information' icon='contacts'>
-                    <TextWrap desc='Email' title={person?.email || 'N/A'} />
-                    <TextWrap desc='Cellphone' title={person?.cellphone || 'N/A'} />
-                    <TextWrap desc='Phone' title={person?.phone || 'N/A'} />
-                </InfoCard>
+            <Scroller contentContainerStyle={styles.scrollContent}>
 
-                <InfoCard title='Professional / Organizational Attributes' icon='work'>
-                    <TextWrap desc='Designation' title={person?.designation ? getDesignation(person.designation) : 'N/A'} />
-                    <TextWrap desc='Equity' title={person?.equity || 'N/A'} />
-                </InfoCard>
+                {!showForm && (
+                    <>
+                        <InfoCard title='Personal Identification' icon='person' delay={0}>
+                            <FieldRow label='Title' value={person?.title} />
+                            <FieldRow label='First Name' value={person?.firstname} />
+                            <FieldRow label='Last Name' value={person?.lastname} />
+                            <FieldRow label='Middle Names' value={person?.middlenames} />
+                            <FieldRow label='Gender' value={person?.gender ? (person.gender === 'M' ? 'Male' : 'Female') : undefined} />
+                            <FieldRow label='Date of Birth' value={person?.dob ? new Date(person.dob).toLocaleString('en-za', { day: '2-digit', month: 'short', year: 'numeric' }) : undefined} />
+                            <FieldRow label='ID Number' value={person?.saidnumber} last />
+                        </InfoCard>
 
-                {
-                    showForm &&
-                    <Animated.View entering={FadeInDown.duration(600)} style={styles.anim}>
+                        <InfoCard title='Nationality & Citizenship' icon='public' delay={60}>
+                            <FieldRow label='Citizenship' value={person?.citizenship} />
+                            <FieldRow label='Nationality' value={person?.nationality} />
+                            <FieldRow label='Language' value={person?.language} last />
+                        </InfoCard>
+
+                        <InfoCard title='Contact Information' icon='contacts' delay={120}>
+                            <FieldRow label='Email' value={person?.email} />
+                            <FieldRow label='Cellphone' value={person?.cellphone} />
+                            <FieldRow label='Phone' value={person?.phone} last />
+                        </InfoCard>
+
+                        <InfoCard title='Professional Details' icon='work' delay={180}>
+                            <FieldRow label='Designation' value={person?.designation ? getDesignation(person.designation) : undefined} />
+                            <FieldRow label='Equity' value={person?.equity} last />
+                        </InfoCard>
+                    </>
+                )}
+
+                {/* Edit profile toggle */}
+                <Animated.View entering={FadeInDown.delay(220).duration(400).springify()} style={showForm ? styles.editToggleOverlay : undefined}>
+                    <TouchableOpacity style={styles.editToggleBtn} onPress={() => setShowForm(v => !v)} activeOpacity={0.75}>
+                        <MaterialCommunityIcons
+                            name={showForm ? 'chevron-up' : 'pencil-outline'}
+                            size={18}
+                            color={colors.primary[600]}
+                        />
+                        <Text style={styles.editToggleText}>
+                            {showForm ? 'Cancel Editing' : 'Edit Login Details'}
+                        </Text>
+                    </TouchableOpacity>
+                </Animated.View>
+
+                {showForm && (
+                    <Animated.View entering={FadeInDown.duration(400).springify()} style={styles.formSection}>
+                        <Text style={styles.formSectionTitle}>Update Login Details</Text>
                         <Formik<UpdateProfileRequest>
                             initialValues={initialValues}
                             validationSchema={validationSchema}
                             onSubmit={handleSubmit}
                         >
-                            {({ values, errors, touched, handleChange, handleBlur, handleSubmit }) => (
-                                <>
-                                    <RInput
-                                        placeholder='First Name'
-                                        value={values.name}
-                                        onChangeText={handleChange('name')}
-                                        onBlur={handleBlur('name')}
-                                    />
-                                    {errors.name && touched.name && <RErrorMessage error={errors.name} />}
+                            {({ values, errors, touched, handleChange, handleBlur, handleSubmit: formSubmit }) => (
+                                <View style={styles.formFields}>
+                                    <View>
+                                        <Text style={styles.fieldLabel}>First Name</Text>
+                                        <RInput
+                                            placeholder='First Name'
+                                            value={values.name}
+                                            onChangeText={handleChange('name')}
+                                            onBlur={handleBlur('name')}
+                                        />
+                                        {errors.name && touched.name && <RErrorMessage error={errors.name} />}
+                                    </View>
 
-                                    <RInput
-                                        placeholder='Last Name'
-                                        value={values.surname}
-                                        onChangeText={handleChange('surname')}
-                                        onBlur={handleBlur('surname')}
-                                    />
-                                    {errors.surname && touched.surname && <RErrorMessage error={errors.surname} />}
+                                    <View>
+                                        <Text style={styles.fieldLabel}>Last Name</Text>
+                                        <RInput
+                                            placeholder='Last Name'
+                                            value={values.surname}
+                                            onChangeText={handleChange('surname')}
+                                            onBlur={handleBlur('surname')}
+                                        />
+                                        {errors.surname && touched.surname && <RErrorMessage error={errors.surname} />}
+                                    </View>
 
-                                    <RInput
-                                        placeholder='Username'
-                                        value={values.userName}
-                                        onChangeText={handleChange('userName')}
-                                        onBlur={handleBlur('userName')}
-                                    />
-                                    {errors.userName && touched.userName && <RErrorMessage error={errors.userName} />}
+                                    <View>
+                                        <Text style={styles.fieldLabel}>Username</Text>
+                                        <RInput
+                                            placeholder='Username'
+                                            value={values.userName}
+                                            onChangeText={handleChange('userName')}
+                                            onBlur={handleBlur('userName')}
+                                        />
+                                        {errors.userName && touched.userName && <RErrorMessage error={errors.userName} />}
+                                    </View>
 
-                                    <VerificationContent
-                                        state={user && user.isEmailConfirmed ? true : false}
-                                        title=''
-                                        textState='verified'
-                                        textState2='unverified'
-                                    />
-
-                                    <RInput
-                                        placeholder={user?.email || 'Email address'}
-                                        value={values.emailAddress}
-                                        onChangeText={handleChange('emailAddress')}
-                                        onBlur={handleBlur('emailAddress')}
-                                    />
-                                    {errors.emailAddress && touched.emailAddress && <RErrorMessage error={errors.emailAddress} />}
+                                    <View>
+                                        <RRow style={styles.emailLabelRow}>
+                                            <Text style={styles.fieldLabel}>Email Address</Text>
+                                            <View style={[styles.verifiedBadge, !user?.isEmailConfirmed && styles.unverifiedBadge]}>
+                                                <MaterialIcons
+                                                    name={user?.isEmailConfirmed ? 'verified' : 'cancel'}
+                                                    size={11}
+                                                    color={user?.isEmailConfirmed ? colors.emerald[600] : colors.red[500]}
+                                                />
+                                                <Text style={[styles.verifiedText, !user?.isEmailConfirmed && styles.unverifiedText]}>
+                                                    {user?.isEmailConfirmed ? 'Verified' : 'Unverified'}
+                                                </Text>
+                                            </View>
+                                        </RRow>
+                                        <RInput
+                                            placeholder={user?.email || 'Email address'}
+                                            value={values.emailAddress}
+                                            editable={false}
+                                            customStyle={styles.disabledInput}
+                                        />
+                                        <Text style={styles.disabledHint}>Email cannot be changed here. Contact support.</Text>
+                                    </View>
 
                                     <RButton
-                                        title='Update profile'
-                                        onPressButton={handleSubmit}
-                                        styleBtn={styles.btn}
+                                        title='Save Changes'
+                                        onPressButton={formSubmit}
+                                        styleBtn={styles.saveBtn}
                                         isSubmitting={isLoading}
                                     />
-                                </>
+                                </View>
                             )}
                         </Formik>
                     </Animated.View>
-                }
+                )}
             </Scroller>
         </>
     )
 }
 
-interface props {
-    textState?: string;
-    textState2?: string;
-    state: boolean;
-    title: string;
-}
-function VerificationContent({ state, textState, textState2 }: props) {
-    return (
-        <RCol>
-            <RRow style={styles.verification}>
-                <MaterialIcons name="verified" size={24} color={state ? colors.green[500] : colors.red[500]} />
-                <Text>{state ? `${textState}` : `${textState2}`}</Text>
-            </RRow>
-        </RCol>
-    )
-}
-
-interface InfoCardProps {
-    children?: ReactNode;
-    title?: string;
-    icon?: string;
-}
-function InfoCard({ children, title, icon }: InfoCardProps) {
+// ─── Field row ───────────────────────────────────────────────────────────────
+interface FieldRowProps { label: string; value?: string | null; last?: boolean }
+function FieldRow({ label, value, last }: FieldRowProps) {
     return (
         <>
-            {title &&
-                <RRow style={{ alignItems: 'center', gap: 8, marginVertical: 5 }}>
-                    {icon && <MaterialIcons name={icon as any} size={20} color={colors.slate[500]} />}
-                    <Text variant='titleMedium'>{title}</Text>
-                </RRow>
-            }
-            <RCol style={styles.card}>
-                {children}
-            </RCol>
+            <View style={fieldRowStyles.row}>
+                <Text style={fieldRowStyles.label}>{label}</Text>
+                <Text style={fieldRowStyles.value} numberOfLines={1}>{value || 'N/A'}</Text>
+            </View>
+            {!last && <View style={fieldRowStyles.divider} />}
         </>
     )
 }
+const fieldRowStyles = StyleSheet.create({
+    row: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingVertical: 11,
+        paddingHorizontal: 16,
+        gap: 12,
+    },
+    label: {
+        fontSize: 13,
+        color: colors.slate[500],
+        fontWeight: '500',
+        flex: 1,
+    },
+    value: {
+        fontSize: 13,
+        color: colors.slate[900],
+        fontWeight: '600',
+        flex: 1,
+        textAlign: 'right',
+        textTransform: 'capitalize',
+    },
+    divider: {
+        height: 1,
+        backgroundColor: colors.slate[100],
+        marginLeft: 16,
+    },
+})
+
+// ─── Info card ────────────────────────────────────────────────────────────────
+interface InfoCardProps { children?: ReactNode; title?: string; icon?: string; delay?: number }
+function InfoCard({ children, title, icon, delay = 0 }: InfoCardProps) {
+    return (
+        <Animated.View entering={FadeInDown.delay(delay).duration(400).springify()} style={infoCardStyles.card}>
+            {title && (
+                <View style={infoCardStyles.header}>
+                    {icon && (
+                        <View style={infoCardStyles.iconWrap}>
+                            <MaterialIcons name={icon as any} size={16} color={colors.primary[600]} />
+                        </View>
+                    )}
+                    <Text style={infoCardStyles.title}>{title}</Text>
+                </View>
+            )}
+            {children}
+        </Animated.View>
+    )
+}
+const infoCardStyles = StyleSheet.create({
+    card: {
+        backgroundColor: colors.white,
+        borderRadius: 14,
+        borderWidth: 1,
+        borderColor: colors.slate[100],
+        overflow: 'hidden',
+        shadowColor: colors.slate[900],
+        shadowOpacity: 0.04,
+        shadowRadius: 8,
+        shadowOffset: { width: 0, height: 2 },
+        elevation: 2,
+    },
+    header: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 10,
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+        borderBottomWidth: 1,
+        borderBottomColor: colors.slate[100],
+        backgroundColor: colors.slate[50],
+    },
+    iconWrap: {
+        width: 30,
+        height: 30,
+        borderRadius: 8,
+        backgroundColor: colors.primary[100],
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    title: {
+        fontSize: 14,
+        fontWeight: '700',
+        color: colors.slate[800],
+    },
+})
 
 export default AccountSettingsPage
 
 const styles = StyleSheet.create({
-    con: {
-        paddingHorizontal: 12,
-        gap: 8,
-        marginTop: 10
-    },
-    card: {
-        padding: 12,
-        backgroundColor: colors.zinc[50],
-        borderRadius: 8,
-        borderWidth: 0.4,
-        borderColor: colors.zinc[300],
-    },
-    btn: {
-        backgroundColor: colors.primary[900],
-        borderRadius: 5,
-        marginTop: 30
-    },
-    col: {
-        marginVertical: 10
-    },
-    anim: {
-        gap: 8
-    },
-    verification: {
+    // Hero banner
+    heroBanner: {
+        flexDirection: 'row',
         alignItems: 'center',
-        gap: 6,
+        gap: 14,
+        paddingHorizontal: 16,
+        paddingVertical: 16,
+        backgroundColor: colors.white,
+        borderBottomWidth: 1,
+        borderBottomColor: colors.slate[100],
     },
-    errorText: {
-        color: colors.red[500],
+    heroAvatar: {
+        width: 52,
+        height: 52,
+        borderRadius: 26,
+        backgroundColor: colors.primary[600],
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderWidth: 2,
+        borderColor: colors.primary[300],
+    },
+    heroInitials: {
+        fontSize: 18,
+        fontWeight: '700',
+        color: colors.white,
+        letterSpacing: 1,
+    },
+    heroInfo: {
+        flex: 1,
+        gap: 3,
+    },
+    heroName: {
+        fontSize: 16,
+        fontWeight: '700',
+        color: colors.slate[900],
+    },
+    heroEmail: {
         fontSize: 12,
-        marginTop: -6,
-    }
+        color: colors.slate[500],
+        fontWeight: '500',
+    },
+    verifiedBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+        alignSelf: 'flex-start',
+        backgroundColor: colors.emerald[50],
+        borderWidth: 1,
+        borderColor: colors.emerald[200],
+        borderRadius: 20,
+        paddingHorizontal: 7,
+        paddingVertical: 2,
+        marginTop: 4,
+    },
+    unverifiedBadge: {
+        backgroundColor: colors.red[50],
+        borderColor: colors.red[200],
+    },
+    verifiedText: {
+        fontSize: 10,
+        fontWeight: '700',
+        color: colors.emerald[600],
+        textTransform: 'uppercase',
+        letterSpacing: 0.3,
+    },
+    unverifiedText: {
+        color: colors.red[500],
+    },
+    // Scroll
+    scrollContent: {
+        paddingHorizontal: 16,
+        paddingTop: 16,
+        paddingBottom: 40,
+        gap: 12,
+    },
+    // Edit toggle button
+    editToggleOverlay: {
+        marginTop: 16,
+        shadowColor: colors.slate[900],
+        shadowOpacity: 0.1,
+        shadowRadius: 12,
+        shadowOffset: { width: 0, height: -4 },
+        elevation: 6,
+    },
+    editToggleBtn: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 8,
+        paddingVertical: 14,
+        borderRadius: 12,
+        borderWidth: 1.5,
+        borderColor: colors.primary[300],
+        borderStyle: 'dashed',
+        backgroundColor: colors.primary[50],
+    },
+    editToggleText: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: colors.primary[600],
+    },
+    disabledInput: {
+        backgroundColor: colors.slate[100],
+        borderColor: colors.slate[200],
+        opacity: 0.7,
+    },
+    disabledHint: {
+        fontSize: 11,
+        color: colors.slate[400],
+        marginTop: 4,
+        fontStyle: 'italic',
+    },
+    // Form section
+    formSection: {
+        backgroundColor: colors.white,
+        borderRadius: 14,
+        borderWidth: 1,
+        borderColor: colors.slate[100],
+        overflow: 'hidden',
+        shadowColor: colors.slate[900],
+        shadowOpacity: 0.04,
+        shadowRadius: 8,
+        shadowOffset: { width: 0, height: 2 },
+        elevation: 2,
+        padding: 16,
+    },
+    formSectionTitle: {
+        fontSize: 14,
+        fontWeight: '700',
+        color: colors.slate[800],
+        marginBottom: 16,
+    },
+    formFields: {
+        gap: 12,
+    },
+    fieldLabel: {
+        fontSize: 12,
+        fontWeight: '600',
+        color: colors.slate[500],
+        marginBottom: 6,
+        textTransform: 'uppercase',
+        letterSpacing: 0.4,
+    },
+    emailLabelRow: {
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 6,
+    },
+    saveBtn: {
+        backgroundColor: colors.primary[600],
+        borderRadius: 10,
+        marginTop: 8,
+    },
 })

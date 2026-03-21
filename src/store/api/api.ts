@@ -39,6 +39,9 @@ const shouldRetryRequest = (error: FetchBaseQueryError) => {
 }
 
 const baseQueryWithReauth = async (args: any, api: any, extraOptions: any) => {
+    // Respect per-endpoint maxRetries override (0 = no retries)
+    const maxRetries = extraOptions?.maxRetries !== undefined ? extraOptions.maxRetries : MAX_RETRIES
+
     const execute = async () => {
         let result = await baseQuery(args, api, extraOptions)
 
@@ -58,7 +61,7 @@ const baseQueryWithReauth = async (args: any, api: any, extraOptions: any) => {
     let attempt = 0
     let lastResult = await execute()
 
-    while (lastResult.error && attempt < MAX_RETRIES) {
+    while (lastResult.error && attempt < maxRetries) {
         const error = lastResult.error as FetchBaseQueryError
         if (!shouldRetryRequest(error)) {
             break
@@ -75,10 +78,15 @@ const baseQueryWithReauth = async (args: any, api: any, extraOptions: any) => {
     }
 
     if (lastResult.error) {
-        logger.error('API request failed', lastResult.error, {
-            url: typeof args === 'string' ? args : args?.url,
-            error: lastResult.error,
-        })
+        // Skip noisy error logging for non-critical endpoints that set maxRetries: 0
+        // (e.g. the notification polling endpoint which returns 500 intermittently)
+        const isSilent = extraOptions?.maxRetries === 0
+        if (!isSilent) {
+            logger.error('API request failed', lastResult.error, {
+                url: typeof args === 'string' ? args : args?.url,
+                error: lastResult.error,
+            })
+        }
     }
 
     return lastResult
@@ -87,6 +95,12 @@ const baseQueryWithReauth = async (args: any, api: any, extraOptions: any) => {
 export const api = createApi({
     reducerPath: 'api',
     baseQuery: baseQueryWithReauth,
+    // Automatically refetch queries that have `refetchOnFocus: true` when
+    // the device comes back online (handled via store.ts AppState bridge).
+    refetchOnReconnect: true,
+    // Keep unused cache data for 5 minutes so navigating between screens is
+    // instant while still expiring data that hasn't been viewed recently.
+    keepUnusedDataFor: 300,
     tagTypes: ['Grant', 'Document', 'Organization', 'User', 'Auth', 'Notification'],
 
     endpoints: (builder) => ({
@@ -205,11 +219,91 @@ export const api = createApi({
         getOrganizationById: builder.query({
             query: (organisationId) =>
                 `/api/services/app/Organisation/Get?id=${organisationId}`,
+            transformResponse: (response: any) => {
+                const org = response?.result?.organisation;
+                if (!org) return null;
+                return {
+                    sdlNo: org.sdL_No,
+                    setaId: org.setA_Id,
+                    seta: org.seta,
+                    sicCode: org.siC_Code,
+                    organisationRegistrationNumber: org.organisation_Registration_Number,
+                    organisationName: org.organisation_Name,
+                    organisationTradingName: org.organisation_Trading_Name,
+                    organisationFaxNumber: org.organisation_Fax_Number,
+                    organisationContactName: org.organisation_Contact_Name,
+                    organisationContactEmailAddress: org.organisation_Contact_Email_Address,
+                    organisationContactPhoneNumber: org.organisation_Contact_Phone_Number,
+                    organisationContactCellNumber: org.organisation_Contact_Cell_Number,
+                    companySize: org.companY_SIZE,
+                    numberOfEmployees: org.numbeR_OF_EMPLOYEES,
+                    typeOfEntity: org.typE_OF_ENTITY,
+                    coreBusiness: org.corE_BUSINESS,
+                    parentSdlNumber: org.parenT_SDL_NUMBER,
+                    bbbeeStatus: org.bbbeE_Status,
+                    bbbeeLevel: org.bbbeE_LEVEL,
+                    dateBusinessCommenced: org.datebusinesscommenced,
+                    status: org.status,
+                    exemptionCode: org.exmptioncode,
+                    chamber: org.chamber,
+                    ceoName: org.ceO_Name,
+                    ceoSurname: org.ceO_Surname,
+                    ceoEmail: org.ceO_Email,
+                    ceoRaceId: org.ceO_RaceId,
+                    ceoGenderId: org.ceO_GenderId,
+                    seniorRepName: org.senior_Rep_Name,
+                    seniorRepSurname: org.senior_Rep_Surname,
+                    seniorRepEmail: org.senior_Rep_Email,
+                    seniorRepRaceId: org.senior_Rep_RaceId,
+                    seniorRepGenderId: org.senior_Rep_GenderId,
+                    id: org.id,
+                };
+            },
             providesTags: ['Organization'],
         }),
         getOrganizationPhysicalAddress: builder.query({
             query: (organisationId) =>
                 `/api/services/app/Organisation/GetOrganisationPhysAddress?organisationId=${organisationId}`,
+            transformResponse: (response: any) => {
+                const addr = response?.result?.organisationPhysicalAddress;
+                if (!addr) return null;
+                return {
+                    id: addr.id,
+                    organisationId: addr.organisationId,
+                    addressLine1: addr.addressline1,
+                    addressLine2: addr.addressline2,
+                    suburb: addr.suburb,
+                    area: addr.area,
+                    district: addr.district,
+                    municipality: addr.municipality,
+                    province: addr.province,
+                    postcode: addr.postcode,
+                    userId: String(addr.userId),
+                };
+            },
+            providesTags: ['Organization'],
+        }),
+        getOrganizationPostalAddress: builder.query({
+            query: (organisationId) =>
+                `/api/services/app/Organisation/GetOrganisationPostAddress?organisationId=${organisationId}`,
+            transformResponse: (response: any) => {
+                const addr = response?.result?.organisationPostalAddress;
+                if (!addr) return null;
+                return {
+                    id: addr.id,
+                    organisationId: addr.organisationId,
+                    sameAsPhysical: addr.sameasphysical,
+                    addressLine1: addr.addressline1,
+                    addressLine2: addr.addressline2,
+                    suburb: addr.suburb,
+                    area: addr.area,
+                    district: addr.district,
+                    municipality: addr.municipality,
+                    province: addr.province,
+                    postcode: addr.postcode,
+                    userId: String(addr.userId),
+                };
+            },
             providesTags: ['Organization'],
         }),
 
@@ -710,6 +804,23 @@ export const api = createApi({
          */
         getOrgBank: builder.query({
             query: (id) => `/api/services/app/Organisation/GetOrgBank?Id=${id}`,
+            transformResponse: (response: any) => {
+                const details = response?.result?.bankDetails;
+                const bankName = response?.result?.bankName;
+                const accountType = response?.result?.account_Type;
+                if (!details) return null;
+                return {
+                    id: details.id,
+                    organisationId: details.organisationId,
+                    accountHolder: details.account_Holder,
+                    branchCode: details.branch_Code,
+                    accountNumber: details.account_Number,
+                    branchName: details.branch_Name,
+                    bankName: bankName || details.bank_Name,
+                    accountType: accountType || String(details.accountType),
+                    userId: details.userId,
+                };
+            },
             providesTags: ['Organization'],
         }),
 
@@ -826,6 +937,7 @@ export const {
     useGetOrganizationByProjectQuery,
     useGetOrganizationByIdQuery,
     useGetOrganizationPhysicalAddressQuery,
+    useGetOrganizationPostalAddressQuery,
     useGetDocumentsByEntityQuery,
     useGetOrgSdfByOrgQuery,
     useLazyGetOrgSdfByOrgQuery,

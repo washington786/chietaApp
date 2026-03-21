@@ -31,6 +31,11 @@ export function useCombinedNotifications(userId?: number) {
         refetch,
     } = useGetNotificationsByUserQuery(numericUserId ?? 0, {
         skip: !numericUserId,
+        // Poll every 5 minutes; the store.ts AppState bridge triggers refetchOnFocus
+        // when the app returns to the foreground, so no need for a dynamic pollingInterval.
+        pollingInterval: 300_000,
+        refetchOnFocus: true,
+        refetchOnMountOrArgChange: true,
     });
 
     const parsedError = useMemo(() => (error ? extractApiError(error) : undefined), [error]);

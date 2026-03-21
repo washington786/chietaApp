@@ -12,12 +12,13 @@ import {
     ApplicationStatusDetails,
     ChangePassword,
     DiscretionaryPage,
+    LinkedOrganizationDetails,
     LinkedOrganizationsPage,
     LinkOrgPage,
     MandatoryPage,
     PdfViewerPage,
     PrivacyPage,
-    SupportPage
+    SupportPage,
 } from '@/ui/pages'
 import AddNewDgApplicationPage from '@/ui/pages/application/AddNewDgApplicationPage'
 import { useSelector } from 'react-redux'
@@ -44,7 +45,8 @@ const PROTECTED_SCREENS = [
     'orgDetail',
     'pdfViewer',
     'newApplication',
-    'newDgApplication'
+    'newDgApplication',
+    'organisationDetails'
 ]
 
 // Inner component to use navigation hook
@@ -52,17 +54,6 @@ const RootStackNavigator = () => {
     const navigation = useNavigation<NavigationProp<navigationTypes>>()
     const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated)
     const previousAuthState = useRef(isAuthenticated)
-
-    // Navigate to login when user logs out
-    /* useEffect(() => {
-         if (!isAuthenticated) {
-             navigation.reset({
-                 index: 0,
-                 routes: [{ name: 'login' }]
-             })
-         }
-     }, [isAuthenticated, navigation])
- */
 
     useEffect(() => {
         const state = navigation.getState()
@@ -126,6 +117,7 @@ const RootStackNavigator = () => {
 
             <Stack.Screen name="account" component={AccountSettingsPage} />
             <Stack.Screen name="linkedOrganizationsProfile" component={LinkedOrganizationsPage} />
+            <Stack.Screen name="organisationDetails" component={LinkedOrganizationDetails} />
             <Stack.Screen name="changePassword" component={ChangePassword} />
             <Stack.Screen name="privacy" component={PrivacyPage} />
             <Stack.Screen name="support" component={SupportPage} />

@@ -12,6 +12,7 @@ import { Feather } from '@expo/vector-icons'
 import AuthScreenLayout, { authScreenStyles } from '@/components/modules/authentication/AuthScreenLayout'
 import AuthGradientButton from '@/components/modules/authentication/AuthGradientButton'
 import { clearError } from '@/store/slice/AuthSlice'
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
 
 const formValues = {
     email: '',
@@ -62,7 +63,7 @@ const LoginScreen = () => {
                             icon={'mail'}
                             keyboardType='email-address'
                             onChangeText={handleChange('email')}
-                            placeholderTextColor={colors.slate[200]}
+                            placeholderTextColor='rgba(255,255,255,0.32)'
                             onBlur={handleBlur('email')}
                             value={values.email}
                             customStyle={authScreenStyles.inputField}
@@ -76,7 +77,7 @@ const LoginScreen = () => {
                                 icon={'lock'}
                                 keyboardType='default'
                                 onChangeText={handleChange("password")}
-                                placeholderTextColor={colors.slate[200]}
+                                placeholderTextColor='rgba(255,255,255,0.32)'
                                 onBlur={handleBlur("password")}
                                 value={values.password}
                                 secureTextEntry={!showPassword}
@@ -84,7 +85,7 @@ const LoginScreen = () => {
                                 style={styles.inputText}
                             />
                             <TouchableOpacity style={styles.togglePassword} onPress={() => setShowPassword((prev) => !prev)}>
-                                <Feather name={showPassword ? 'eye-off' : 'eye'} size={18} color={'#fff'} />
+                                <Feather name={showPassword ? 'eye-off' : 'eye'} size={18} color='rgba(255,255,255,0.7)' />
                             </TouchableOpacity>
                         </View>
                         {touched.password && errors.password && (<RErrorMessage error={errors.password} />)}
@@ -94,6 +95,13 @@ const LoginScreen = () => {
                         </TouchableOpacity>
 
                         <AuthGradientButton title='Sign In' onPress={handleSubmit} loading={isLoading} />
+
+                        {/* Secure badge */}
+                        <View style={styles.secureBadge}>
+                            <MaterialCommunityIcons name='shield-check-outline' size={12} color='rgba(255,255,255,0.45)' />
+                            <Text style={styles.secureText}>Secure · End-to-end encrypted</Text>
+                        </View>
+
                         {isLoading && <RLoaderAnimation />}
                     </View>
                 )}
@@ -119,7 +127,17 @@ const styles = StyleSheet.create({
     forgotLink: {
         alignSelf: 'flex-end',
     },
-    inputText: {
-        color: '#fff',
+    inputText: { color: '#fff' },
+    secureBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 5,
+        marginTop: 4,
+    },
+    secureText: {
+        fontSize: 11,
+        color: 'rgba(255,255,255,0.45)',
+        fontWeight: '500',
     },
 });

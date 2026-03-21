@@ -58,4 +58,8 @@ export type navigationTypes = {
     discretionary: {
         orgId?: string;
     };
+    organisationDetails: {
+        orgId?: string;
+    };
+
 }

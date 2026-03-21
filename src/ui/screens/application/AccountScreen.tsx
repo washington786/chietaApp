@@ -1,6 +1,6 @@
-import { StyleSheet } from 'react-native'
+import { StyleSheet, View, TouchableOpacity } from 'react-native'
 import React, { useState, useEffect, useRef } from 'react'
-import { RCol, RDialog, RDivider, RLoaderAnimation, RVersion, SafeArea, Scroller } from '@/components/common'
+import { RDialog, RDivider, RLoaderAnimation, RVersion, SafeArea, Scroller } from '@/components/common'
 import { Text } from 'react-native-paper'
 import colors from '@/config/colors'
 import usePageTransition from '@/hooks/navigation/usePageTransition'
@@ -11,6 +11,8 @@ import Animated, { FadeInDown } from 'react-native-reanimated'
 import UseAuth from '@/hooks/main/auth/UseAuth'
 import { useSelector } from 'react-redux'
 import { RootState } from '@/store/store'
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
+import { useGetPersonByUserIdQuery } from '@/store/api/api'
 
 const AccountScreen = () => {
     const { account, privacy, support, changePassword, linkedOrganizations } = usePageTransition();
@@ -19,9 +21,20 @@ const AccountScreen = () => {
     const [visible, setVisible] = useState(false);
     const prevErrorRef = useRef<typeof error>(null);
 
-    const { error, isLoading } = useSelector((state: RootState) => state.auth);
+    const { error, isLoading, user } = useSelector((state: RootState) => state.auth);
+
+    const { data: sdfData } = useGetPersonByUserIdQuery(user?.id, { skip: !user?.id });
+    const person = sdfData?.result.person;
 
     const { open, close } = useGlobalBottomSheet();
+
+    const initials = (
+        `${person?.firstname?.[0] ?? user?.firstName?.[0] ?? ''}${person?.lastname?.[0] ?? user?.lastName?.[0] ?? ''}`
+    ).toUpperCase() || '?';
+    const fullName = person
+        ? `${person.firstname ?? ''} ${person.lastname ?? ''}`.trim()
+        : user ? `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim() : '';
+    const roleLabel = user?.roles?.[0]?.name ?? 'SDF User';
 
     // Handle errors via useEffect
     useEffect(() => {
@@ -68,41 +81,68 @@ const AccountScreen = () => {
 
     return (
         <SafeArea>
-            <Animated.View entering={FadeInDown.duration(600).springify()}>
-                <RCol style={styles.conWrap}>
-                    <Text variant='titleLarge' style={styles.textColor}>Account Management</Text>
-                </RCol>
+            {/* Profile hero card */}
+            <Animated.View entering={FadeInDown.duration(500).springify()} style={styles.heroCard}>
+                <View style={styles.avatarRing}>
+                    <View style={styles.avatar}>
+                        <Text style={styles.avatarText}>{initials}</Text>
+                    </View>
+                </View>
+                <View style={styles.heroInfo}>
+                    <Text style={styles.heroName} numberOfLines={1}>{fullName || 'My Account'}</Text>
+                    <Text style={styles.heroEmail} numberOfLines={1}>{user?.email ?? ''}</Text>
+                    <View style={styles.roleBadge}>
+                        <MaterialCommunityIcons name="shield-account" size={12} color={colors.primary[600]} />
+                        <Text style={styles.roleBadgeText}>{roleLabel}</Text>
+                    </View>
+                </View>
+                <TouchableOpacity style={styles.editBtn} onPress={account}>
+                    <MaterialCommunityIcons name="pencil-outline" size={18} color={colors.primary[600]} />
+                </TouchableOpacity>
             </Animated.View>
 
-            <Scroller contentContainerStyle={{ marginTop: 20, paddingHorizontal: 12 }}>
-                <Animated.View entering={FadeInDown.delay(100).duration(600).springify()}>
-                    <RCol style={{ borderRadius: 10, backgroundColor: colors.primary[50] }}>
-                        <Text variant='titleSmall' style={{ paddingVertical: 5 }}>Profile Section</Text>
-                        <RDivider />
-                        <AccWrapper icon='person-sharp' title='Account settings' onPress={account} />
+            <Scroller contentContainerStyle={styles.scrollContent}>
+                {/* Profile section */}
+                <Animated.View entering={FadeInDown.delay(80).duration(500).springify()}>
+                    <Text style={styles.sectionLabel}>PROFILE</Text>
+                    <View style={styles.sectionCard}>
+                        <AccWrapper icon='person-sharp' title='Account Settings' onPress={account} />
+                        <RDivider style={styles.itemDivider} />
                         <AccWrapper icon='file-tray-outline' title='Linked Organizations' onPress={linkedOrganizations} />
+                        <RDivider style={styles.itemDivider} />
                         <AccWrapper icon='lock-closed-outline' title='Change Password' onPress={changePassword} />
+                        <RDivider style={styles.itemDivider} />
                         <AccWrapper icon='lock-closed-sharp' title='Privacy' onPress={privacy} />
+                        <RDivider style={styles.itemDivider} />
                         <AccWrapper icon='help-circle-sharp' title='Support' onPress={support} />
-                    </RCol>
+                    </View>
                 </Animated.View>
-                <Animated.View entering={FadeInDown.delay(200).duration(600).springify()}>
-                    <RCol style={{ marginVertical: 10 }}>
-                        <Text variant='titleSmall'>Danger Section</Text>
-                        <RDivider />
-                        <AccWrapper icon='exit-outline' title='sign out' onPress={handleDialog} />
-                        <AccWrapper icon='remove-circle-sharp' title='deactivate account' onPress={handleBsheet} dangerStyle={{ backgroundColor: colors.red[600] }} isDanger dangerTextStyle={{ color: colors.red[600] }} />
 
-                        {isLoading && <RLoaderAnimation />}
+                {/* Account actions section */}
+                <Animated.View entering={FadeInDown.delay(160).duration(500).springify()}>
+                    <Text style={styles.sectionLabel}>ACCOUNT ACTIONS</Text>
+                    <View style={styles.sectionCard}>
+                        <AccWrapper icon='exit-outline' title='Sign Out' onPress={handleDialog} />
+                        <RDivider style={styles.itemDivider} />
+                        <AccWrapper
+                            icon='remove-circle-sharp'
+                            title='Deactivate Account'
+                            onPress={handleBsheet}
+                            dangerStyle={{ backgroundColor: colors.red[100] }}
+                            isDanger
+                            dangerTextStyle={{ color: colors.red[600] }}
+                        />
+                    </View>
+                    {isLoading && <RLoaderAnimation />}
+                </Animated.View>
 
-                        <RVersion />
-                    </RCol>
+                {/* Footer */}
+                <Animated.View entering={FadeInDown.delay(240).duration(500).springify()}>
+                    <RVersion />
                 </Animated.View>
             </Scroller>
 
-            <RDialog hideDialog={handleDialog} visible={visible} message='are you sure you want to sign-out of account?' title='Sign out' onContinue={handleContinue} />
-
-
+            <RDialog hideDialog={handleDialog} visible={visible} message='Are you sure you want to sign out of your account?' title='Sign Out' onContinue={handleContinue} />
         </SafeArea>
     )
 }
@@ -110,37 +150,113 @@ const AccountScreen = () => {
 export default AccountScreen
 
 const styles = StyleSheet.create({
-    conWrap: {
-        justifyContent: "center",
-        alignItems: "center",
-        paddingVertical: 12
-
+    // Hero card
+    heroCard: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 16,
+        paddingVertical: 18,
+        backgroundColor: colors.white,
+        borderBottomWidth: 1,
+        borderBottomColor: colors.slate[100],
+        gap: 14,
     },
-    textColor: {
-        color: colors.primary[900]
+    avatarRing: {
+        width: 68,
+        height: 68,
+        borderRadius: 34,
+        borderWidth: 2,
+        borderColor: colors.primary[300],
+        padding: 3,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
-
-    //item
-    wrap: {
-        alignItems: "center",
-        justifyContent: "space-between",
-        paddingHorizontal: 12,
-        paddingVertical: 16
+    avatar: {
+        width: 58,
+        height: 58,
+        borderRadius: 29,
+        backgroundColor: colors.primary[600],
+        justifyContent: 'center',
+        alignItems: 'center',
     },
-    rw: {
-        alignItems: "center",
-        gap: 5,
+    avatarText: {
+        fontSize: 22,
+        fontWeight: '700',
+        color: colors.white,
+        letterSpacing: 1,
+    },
+    heroInfo: {
         flex: 1,
-        paddingVertical: 2
+        gap: 3,
     },
-    //btn sheet
-    btn: {
-        borderRadius: 5,
-        backgroundColor: colors.red[800],
-        marginVertical: 12,
-        padding: 4
+    heroName: {
+        fontSize: 17,
+        fontWeight: '700',
+        color: colors.slate[900],
     },
-    wrapperSheet: {
-        gap: 5
-    }
+    heroEmail: {
+        fontSize: 12,
+        color: colors.slate[500],
+        fontWeight: '500',
+    },
+    roleBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+        marginTop: 4,
+        backgroundColor: colors.primary[50],
+        alignSelf: 'flex-start',
+        paddingHorizontal: 8,
+        paddingVertical: 3,
+        borderRadius: 20,
+        borderWidth: 1,
+        borderColor: colors.primary[200],
+    },
+    roleBadgeText: {
+        fontSize: 10,
+        fontWeight: '700',
+        color: colors.primary[600],
+        textTransform: 'uppercase',
+        letterSpacing: 0.4,
+    },
+    editBtn: {
+        width: 36,
+        height: 36,
+        borderRadius: 18,
+        backgroundColor: colors.primary[50],
+        borderWidth: 1,
+        borderColor: colors.primary[200],
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    // Scroll / sections
+    scrollContent: {
+        paddingHorizontal: 16,
+        paddingTop: 20,
+        paddingBottom: 40,
+    },
+    sectionLabel: {
+        fontSize: 11,
+        fontWeight: '700',
+        color: colors.slate[400],
+        letterSpacing: 0.8,
+        marginBottom: 6,
+        marginLeft: 4,
+    },
+    sectionCard: {
+        backgroundColor: colors.white,
+        borderRadius: 14,
+        borderWidth: 1,
+        borderColor: colors.slate[100],
+        overflow: 'hidden',
+        marginBottom: 24,
+        shadowColor: colors.slate[900],
+        shadowOpacity: 0.04,
+        shadowRadius: 8,
+        shadowOffset: { width: 0, height: 2 },
+        elevation: 2,
+    },
+    itemDivider: {
+        marginLeft: 66,
+    },
 })

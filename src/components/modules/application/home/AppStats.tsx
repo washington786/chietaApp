@@ -132,7 +132,10 @@ const WorkflowCard = ({
 // Home Page / Dashboard
 //////////////////////////
 const AppStats = () => {
-  const { data: apiData, isLoading } = useGetActiveWindowsQuery(undefined);
+  const { data: apiData, isLoading } = useGetActiveWindowsQuery(undefined, {
+    refetchOnFocus: true,
+    refetchOnMountOrArgChange: true,
+  });
 
   const { user } = useSelector((state: RootState) => state.auth);
 
@@ -160,10 +163,17 @@ const AppStats = () => {
 
   //pending tasks:
 
-  const { data: pendingTasksData, isLoading: pendingTasksLoading, error: pendingTasksError } = useGetUserPendingTasksQuery(Number(user?.id), { skip: !user?.id });
+  const { data: pendingTasksData, isLoading: pendingTasksLoading, error: pendingTasksError } = useGetUserPendingTasksQuery(Number(user?.id), {
+    skip: !user?.id,
+    refetchOnFocus: true,
+    refetchOnMountOrArgChange: true,
+  });
 
   // upcoming events
-  const { data: upcomingEventsData, isLoading: upcomingEventsLoading, error: upcomingEventsError } = useGetUpcomingEventsQuery(undefined);
+  const { data: upcomingEventsData, isLoading: upcomingEventsLoading, error: upcomingEventsError } = useGetUpcomingEventsQuery(undefined, {
+    refetchOnFocus: true,
+    refetchOnMountOrArgChange: true,
+  });
 
   if (upcomingEventsError || pendingTasksError) {
     showToast({ message: 'Failed to load some dashboard data', title: "Dashboard Error", type: "error", position: "top" });

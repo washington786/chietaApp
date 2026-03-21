@@ -1,7 +1,7 @@
 import { Image, StyleSheet, TouchableOpacity, View } from 'react-native'
 import React, { useMemo } from 'react'
 import RHeader from '@/components/common/RHeader'
-import { RCol, RRow, Scroller } from '@/components/common'
+import { RCol, RRow, SafeArea } from '@/components/common'
 import { Text } from 'react-native-paper'
 import colors from '@/config/colors'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
@@ -76,9 +76,9 @@ const ApplicationStatusDetails = () => {
         open(<ApplicationHelp close={close} />, { snapPoints: ["40%"] });
     }
     return (
-        <>
+        <SafeArea>
             <RHeader name='Track Application Status' />
-            <Scroller style={styles.container}>
+            <View style={styles.container}>
                 {/* Reference Header Section */}
                 <RCol style={styles.referenceBox}>
                     <Text variant='labelSmall' style={styles.refLabel}>REFERENCE: {item.sdlNo}</Text>
@@ -133,8 +133,8 @@ const ApplicationStatusDetails = () => {
                     </TouchableOpacity>
                 </RCol>
 
-            </Scroller>
-        </>
+            </View>
+        </SafeArea>
     )
 }
 
@@ -192,23 +192,18 @@ function ApplicationHelp({ close }: { close: () => void }) {
 
 const styles = StyleSheet.create({
     container: {
-        padding: 20,
-        paddingBottom: 48,
+        flex: 1,
+        padding: 16,
         backgroundColor: colors.white,
     },
     referenceBox: {
         backgroundColor: colors.slate[50],
         borderRadius: 8,
-        padding: 18,
-        marginBottom: 20,
+        padding: 14,
+        marginBottom: 12,
         gap: 4,
         borderLeftWidth: 4,
         borderLeftColor: colors.primary[800],
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.08,
-        shadowRadius: 8,
-        elevation: 3,
     },
     refLabel: {
         color: colors.primary[800],
@@ -246,15 +241,11 @@ const styles = StyleSheet.create({
         textAlign: 'right',
     },
     messageBox: {
-        padding: 16,
-        borderRadius: 12,
-        marginBottom: 24,
-        gap: 12,
+        padding: 10,
+        borderRadius: 10,
+        marginBottom: 12,
+        gap: 10,
         alignItems: 'flex-start',
-        shadowColor: '#000',
-        shadowOpacity: 0.06,
-        shadowRadius: 6,
-        elevation: 2,
     },
     msg: {
         backgroundColor: colors.emerald[500],
@@ -274,12 +265,12 @@ const styles = StyleSheet.create({
         fontWeight: '500',
     },
     progressSection: {
-        gap: 16,
+        flex: 1,
+        gap: 10,
     },
     progressHeader: {
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 8,
     },
     progressTitle: {
         color: colors.slate[400],
@@ -294,15 +285,15 @@ const styles = StyleSheet.create({
         fontSize: 12,
     },
     statusBox: {
+        flex: 1,
         backgroundColor: colors.white,
-        borderRadius: 16,
-        padding: 20,
-        marginBottom: 16,
+        borderRadius: 12,
+        padding: 16,
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.1,
-        shadowRadius: 12,
-        elevation: 5,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.07,
+        shadowRadius: 8,
+        elevation: 3,
     },
     helpSection: {
         alignItems: 'center',

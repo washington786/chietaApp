@@ -57,8 +57,8 @@ const RHeader: FC<prop> = ({ name, hasRightIcon = false, onPressRight, iconRight
                             <Ionicons name={(iconRight ?? 'search') as any} size={24} color={colors.gray[600]} />
                         </TouchableOpacity>
                         {hasSecondIcon && (
-                            <TouchableOpacity style={[styles.iconBtn, styles.secondaryIcon]} onPress={onPressSecond}>
-                                <FontAwesome6 name={iconSecond as any} size={20} color={colors.zinc[200]} />
+                            <TouchableOpacity style={[styles.secondaryIcon]} onPress={onPressSecond}>
+                                <FontAwesome6 name={iconSecond as any} size={18} color={colors.white} />
                             </TouchableOpacity>
                         )}
                     </View>
@@ -111,9 +111,11 @@ const styles = StyleSheet.create({
     },
     iconBtn: {
         padding: 6,
-        borderRadius: 12,
+        borderRadius: 8,
     },
     secondaryIcon: {
-        backgroundColor: colors.primary[400],
+        backgroundColor: colors.primary[600],
+        borderRadius: 999,
+        padding: 7,
     },
 });
