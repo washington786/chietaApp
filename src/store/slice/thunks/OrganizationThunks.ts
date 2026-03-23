@@ -287,7 +287,7 @@ export const loadOrganizations = createAsyncThunk<
 });
 
 export const fetchPersonBySdfId = createAsyncThunk<
-    number,
+    number | null,
     { userId: string; token: string },
     { state: any }
 >('organization/fetchPersonBySdfId', async ({ userId, token }, { rejectWithValue }) => {
@@ -323,13 +323,14 @@ export const fetchPersonBySdfId = createAsyncThunk<
         console.log('[SDF] id:', data?.result?.sdfDetails?.id);
 
         // Extract SDF ID from sdfDetails.id
-        const sdfId = data?.result?.sdfDetails?.id;
+        const sdfId = data?.result?.sdfDetails?.id ?? null;
 
         console.log('[SDF] Extracted SDF ID:', sdfId);
 
-        if (!sdfId) {
-            console.error('[SDF] No SDF ID found in response:', data);
-            return rejectWithValue('SDF ID not found in response');
+        if (sdfId === null) {
+            // New user — no SDF profile created yet; this is expected, not an error.
+            console.log('[SDF] No SDF profile found yet for this user (sdfDetails is null)');
+            return null;
         }
 
         return sdfId;

@@ -160,8 +160,8 @@ describe('authentication thunks', () => {
             const body = JSON.parse((request?.body as string) ?? '{}')
             expect(body.emailAddress).toBe('person@example.com')
             expect(body.password).toBe('pass123')
-            expect(body.firstName).toBe('Jane')
-            expect(body.lastName).toBe('Doe')
+            expect(body.name).toBe('Jane')
+            expect(body.surname).toBe('Doe')
             expect(body.userName).toBe('janedoe')
 
             const state = store.getState().auth

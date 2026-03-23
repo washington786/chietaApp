@@ -48,7 +48,7 @@ function PasswordStrength({ password }: { password: string }) {
         <View style={pStyles.wrap}>
             <View style={pStyles.bars}>
                 {[0, 1, 2, 3, 4].map(i => (
-                    <View key={i} style={[pStyles.bar, { backgroundColor: i <= score ? color : 'rgba(255,255,255,0.12)' }]} />
+                    <View key={i} style={[pStyles.bar, { backgroundColor: i <= score ? color : '#e5e7eb' }]} />
                 ))}
             </View>
             <Text style={[pStyles.label, { color }]}>{label}</Text>
@@ -133,7 +133,7 @@ const RegisterScreen = () => {
                     touched,
                     values,
                 }) => (
-                    <View style={authScreenStyles.formWrapper}>
+                    <View style={[authScreenStyles.formWrapper, { gap: 16 }]}>
                         <View style={styles.nameRow}>
                             <View style={styles.halfWrap}>
                                 <RInput
@@ -141,7 +141,7 @@ const RegisterScreen = () => {
                                     onBlur={handleBlur("firstName")}
                                     onChangeText={handleChange("firstName")}
                                     value={values.firstName}
-                                    placeholderTextColor="rgba(255,255,255,0.32)"
+                                    placeholderTextColor="#9ca3af"
                                     customStyle={authScreenStyles.inputField}
                                     style={styles.inputText}
                                 />
@@ -153,7 +153,7 @@ const RegisterScreen = () => {
                                     onBlur={handleBlur("lastName")}
                                     onChangeText={handleChange("lastName")}
                                     value={values.lastName}
-                                    placeholderTextColor="rgba(255,255,255,0.32)"
+                                    placeholderTextColor="#9ca3af"
                                     customStyle={authScreenStyles.inputField}
                                     style={styles.inputText}
                                 />
@@ -166,7 +166,7 @@ const RegisterScreen = () => {
                             onBlur={handleBlur("username")}
                             onChangeText={handleChange("username")}
                             value={values.username}
-                            placeholderTextColor="rgba(255,255,255,0.32)"
+                            placeholderTextColor="#9ca3af"
                             customStyle={authScreenStyles.inputField}
                             style={styles.inputText}
                         />
@@ -178,7 +178,7 @@ const RegisterScreen = () => {
                             onBlur={handleBlur("email")}
                             onChangeText={handleChange("email")}
                             value={values.email}
-                            placeholderTextColor="rgba(255,255,255,0.32)"
+                            placeholderTextColor="#9ca3af"
                             keyboardType="email-address"
                             customStyle={authScreenStyles.inputField}
                             style={styles.inputText}
@@ -193,7 +193,7 @@ const RegisterScreen = () => {
                                 onBlur={handleBlur("password")}
                                 onChangeText={handleChange("password")}
                                 value={values.password}
-                                placeholderTextColor="rgba(255,255,255,0.32)"
+                                placeholderTextColor="#9ca3af"
                                 customStyle={authScreenStyles.inputField}
                                 style={styles.inputText}
                             />
@@ -209,7 +209,7 @@ const RegisterScreen = () => {
                                 onBlur={handleBlur("confirmPassword")}
                                 onChangeText={handleChange("confirmPassword")}
                                 value={values.confirmPassword}
-                                placeholderTextColor="rgba(255,255,255,0.32)"
+                                placeholderTextColor="#9ca3af"
                                 customStyle={authScreenStyles.inputField}
                                 style={styles.inputText}
                             />
@@ -252,20 +252,20 @@ const RegisterScreen = () => {
 export default RegisterScreen;
 
 const styles = StyleSheet.create({
-    inputText: { color: '#fff' },
+    inputText: { color: '#111827' },
     nameRow: { flexDirection: 'row', gap: 10 },
     halfWrap: { flex: 1 },
     matchRow: { flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 6, marginHorizontal: 2 },
     matchText: { fontSize: 11, fontWeight: '600' },
     popiaText: {
         fontSize: 11,
-        color: 'rgba(255,255,255,0.42)',
+        color: '#9ca3af',
         textAlign: 'center',
         lineHeight: 17,
         paddingHorizontal: 4,
     },
     popiaLink: {
-        color: 'rgba(255,255,255,0.72)',
+        color: '#6b7280',
         fontWeight: '600',
         textDecorationLine: 'underline',
     },

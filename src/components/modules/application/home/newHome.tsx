@@ -14,8 +14,9 @@ import { RootState } from '@/store/store';
 import HomeHeader from './HomeHeader';
 import AppStatsSection from './AppStats';
 import { home_styles as styles } from '@/styles/HomeStyles';
-import { useGetPersonByUserIdQuery } from '@/store/api/api';
+import { useGetPersonByUserIdQuery, useGetOrganizationsBySdfIdQuery } from '@/store/api/api';
 import { useCombinedNotifications } from '@/hooks/notifications';
+import IncompleteProfileGate from './IncompleteProfileGate';
 
 const NewHome = () => {
     const [addLinking, setAdd] = useState<boolean>(false);
@@ -27,6 +28,13 @@ const NewHome = () => {
 
     //sdf
     const { data: sdfData, isLoading: sdfLoading, error: sdfError } = useGetPersonByUserIdQuery(user?.id, { skip: !user?.id });
+
+    // Gate: orgs for profile-completeness check
+    const { data: orgs, isLoading: orgsLoading } = useGetOrganizationsBySdfIdQuery(user?.sdfId || 0, { skip: !user?.sdfId });
+    const emailUnverified = !user?.isEmailConfirmed;
+    const noSdfProfile = !user?.sdfId;
+    const noOrgsLinked = !orgsLoading && (!orgs || orgs.length === 0);
+    const showProfileGate = emailUnverified || noSdfProfile || noOrgsLinked;
 
     // Fetch notifications
     const userId: number = user?.id ? parseInt(String(user.id), 10) : 0;
@@ -52,6 +60,10 @@ const NewHome = () => {
     const time = new Date().getTime();
     const currentDayTime = getTimeOfDay(new Date(time));
     const shouldScroll = useMemo(() => listHeight > 0 && contentHeight > listHeight + 1, [contentHeight, listHeight]);
+
+    if (showProfileGate) {
+        return <IncompleteProfileGate />;
+    }
 
     return (
         <SafeAreaView style={styles.container}>

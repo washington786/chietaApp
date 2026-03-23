@@ -66,6 +66,27 @@ export interface DocumentDto {
     userId: string;
 }
 
+/** Matches the shape returned by all DocumentDownload endpoints */
+export interface DocumentDownloadDto {
+    id: number;
+    entityId: number;
+    originalFileName: string;
+    storedFileName: string;
+    fileType: string;
+    documentType: string;
+    module: string;
+    fileSize: string;
+    dateCreated: string;
+    userId: number;
+    lastModifiedDate: string;
+    downloadUrl: string;
+}
+
+export interface UserDocumentsResult {
+    totalCount: number;
+    items: DocumentDownloadDto[];
+}
+
 export interface MandatoryGrantPaymentDto {
     sdL_Number: string;
     grantYear: number;

@@ -4,6 +4,7 @@ import { refreshTokenThunk, logout } from '../slice/AuthSlice'
 import { activeWindowBodyRequest, ProjectTimeline } from '@/core/models/DiscretionaryDto'
 import { notificationPayload } from '@/core/types/notifications'
 import { logger } from '@/utils/logger'
+import { DocumentDownloadDto, UserDocumentsResult } from '@/core/models/MandatoryDto'
 
 const baseQuery = fetchBaseQuery({
     baseUrl: 'https://ims.chieta.org.za:22743',
@@ -838,6 +839,34 @@ export const api = createApi({
             providesTags: ['Document'],
         }),
 
+        /** Fetch all documents attached to a specific entity */
+        getDocsByEntityId: builder.query<DocumentDownloadDto[], { entityId: number; userId: number }>({
+            query: ({ entityId, userId }) =>
+                `/api/DocumentDownload/GetByEntityId?entityId=${entityId}&userId=${userId}`,
+            transformResponse: (response: any) => response?.result ?? [],
+            providesTags: ['Document'],
+        }),
+
+        /** Fetch documents filtered by documentType for a user */
+        getDocsByType: builder.query<DocumentDownloadDto[], { documentType: string; userId: number; module: string }>({
+            query: ({ documentType, userId, module }) =>
+                `/api/DocumentDownload/GetByType?documentType=${encodeURIComponent(documentType)}&userId=${userId}&module=${encodeURIComponent(module)}`,
+            transformResponse: (response: any) => response?.result ?? [],
+            providesTags: ['Document'],
+        }),
+
+        /** Paginated list of all documents uploaded by a user for a module */
+        getUserDocuments: builder.query<
+            UserDocumentsResult,
+            { userId: number; module: string; maxResultCount?: number; skipCount?: number }
+        >({
+            query: ({ userId, module, maxResultCount = 100, skipCount = 0 }) =>
+                `/api/DocumentDownload/GetUserDocuments?userId=${userId}&module=${encodeURIComponent(module)}&maxResultCount=${maxResultCount}&skipCount=${skipCount}`,
+            transformResponse: (response: any) =>
+                response?.result ?? { totalCount: 0, items: [] },
+            providesTags: ['Document'],
+        }),
+
         /**
          * Organization SDF Endpoints
          */
@@ -939,6 +968,12 @@ export const {
     useGetOrganizationPhysicalAddressQuery,
     useGetOrganizationPostalAddressQuery,
     useGetDocumentsByEntityQuery,
+    useGetDocsByEntityIdQuery,
+    useLazyGetDocsByEntityIdQuery,
+    useGetDocsByTypeQuery,
+    useLazyGetDocsByTypeQuery,
+    useGetUserDocumentsQuery,
+    useLazyGetUserDocumentsQuery,
     useGetOrgSdfByOrgQuery,
     useLazyGetOrgSdfByOrgQuery,
     useValidateProjSubmissionMutation,

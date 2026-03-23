@@ -112,10 +112,10 @@ export const home_styles = StyleSheet.create({
         elevation: 1,
     },
     sectionTitle: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        color: '#111827',
-        marginBottom: 6,
+        fontSize: 18,
+        fontWeight: '700',
+        color: colors.primary[950],
+        letterSpacing: 0.1,
     },
 
     /* Timeline */
@@ -170,13 +170,16 @@ export const home_styles = StyleSheet.create({
 
     /* Orgs */
     sectionHeader: {
-        paddingHorizontal: 12,
+        paddingHorizontal: 14,
         flexDirection: 'row',
         justifyContent: 'space-between',
-        marginTop: 10
+        alignItems: 'center',
+        marginTop: 12,
+        marginBottom: 2,
     },
     viewAllText: {
-        color: colors.blue[700],
+        color: colors.primary[700],
         fontWeight: '600',
+        fontSize: 13,
     }
 });

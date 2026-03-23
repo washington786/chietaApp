@@ -1,6 +1,6 @@
 import ItemOrgs from "./ItemOrgs";
 import { OrganisationDto } from "@/core/models/organizationDto";
-import { FlatList, View, useWindowDimensions } from "react-native";
+import { FlatList, StyleSheet, View, useWindowDimensions } from "react-native";
 import { RCol, RDivider } from "@/components/common";
 import { Text } from "react-native-paper";
 import Feather from '@expo/vector-icons/Feather';
@@ -70,26 +70,40 @@ export const LinkedOrganizationList: FC<linkedProps> = ({ org, isLinkingRequired
 
             {hasNewOrgs && <View style={{ height: newOrgListHeight }}>
                 <RCol>
-                    <Text style={{ paddingVertical: 2 }}>
-                        {newOrgs?.length} New Organization(s)
-                    </Text>
+                    <View style={listStyles.newOrgHeader}>
+                        <Text style={listStyles.newOrgCount}>{newOrgs?.length} New Organisation{(newOrgs?.length || 0) > 1 ? 's' : ''}</Text>
+                    </View>
                     <RDivider />
                 </RCol>
                 <FlatList data={newOrgs}
-                        keyExtractor={(item) => `linked-orgs-${item.id}`}
-                        renderItem={renderAddNewItem}
-                        style={{ paddingVertical: 5 }}
-                        contentContainerStyle={{ gap: 8 }}
-                        ItemSeparatorComponent={() => <View style={{ width: 5 }} />}
-                        removeClippedSubviews={false}
-                        initialNumToRender={10}
-                        maxToRenderPerBatch={10}
-                        windowSize={21}
-                        {...scrollProps}
-                        horizontal={true}
-                        scrollEnabled={(newOrgs?.length || 0) > 1}
-                    />
+                    keyExtractor={(item) => `linked-orgs-${item.id}`}
+                    renderItem={renderAddNewItem}
+                    style={{ paddingVertical: 5 }}
+                    contentContainerStyle={{ gap: 8 }}
+                    ItemSeparatorComponent={() => <View style={{ width: 5 }} />}
+                    removeClippedSubviews={false}
+                    initialNumToRender={10}
+                    maxToRenderPerBatch={10}
+                    windowSize={21}
+                    {...scrollProps}
+                    horizontal={true}
+                    scrollEnabled={(newOrgs?.length || 0) > 1}
+                />
             </View>}
         </View>
     )
 }
+
+const listStyles = StyleSheet.create({
+    newOrgHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 4,
+    },
+    newOrgCount: {
+        fontSize: 13,
+        fontWeight: '600',
+        color: colors.primary[700],
+        letterSpacing: 0.2,
+    },
+});

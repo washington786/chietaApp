@@ -53,14 +53,14 @@ function StepFlow({ current }: { current: number }) {
 const sfStyles = StyleSheet.create({
     row: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'center' },
     step: { alignItems: 'center', gap: 6, width: 56 },
-    circle: { width: 30, height: 30, borderRadius: 15, backgroundColor: 'rgba(255,255,255,0.12)', borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.25)', justifyContent: 'center', alignItems: 'center' },
-    circleActive: { backgroundColor: 'rgba(255,255,255,0.9)', borderColor: '#fff' },
-    num: { fontSize: 12, fontWeight: '700', color: 'rgba(255,255,255,0.55)' },
-    numActive: { color: colors.primary[800] },
-    label: { fontSize: 10, fontWeight: '600', color: 'rgba(255,255,255,0.45)', textTransform: 'uppercase', letterSpacing: 0.4 },
-    labelActive: { color: 'rgba(255,255,255,0.9)' },
-    connector: { flex: 1, height: 1.5, backgroundColor: 'rgba(255,255,255,0.15)', marginTop: 14 },
-    connectorDone: { backgroundColor: 'rgba(255,255,255,0.7)' },
+    circle: { width: 30, height: 30, borderRadius: 15, backgroundColor: '#f3f4f6', borderWidth: 1.5, borderColor: '#e5e7eb', justifyContent: 'center', alignItems: 'center' },
+    circleActive: { backgroundColor: colors.primary[700], borderColor: colors.primary[600] },
+    num: { fontSize: 12, fontWeight: '700', color: '#9ca3af' },
+    numActive: { color: '#fff' },
+    label: { fontSize: 10, fontWeight: '600', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: 0.4 },
+    labelActive: { color: colors.primary[700] },
+    connector: { flex: 1, height: 1.5, backgroundColor: '#e5e7eb', marginTop: 14 },
+    connectorDone: { backgroundColor: colors.primary[600] },
 });
 
 // ── Password strength + hints ───────────────────────────────────────────────────
@@ -95,7 +95,7 @@ function PasswordHints({ password }: { password: string }) {
             <View style={phStyles.barsRow}>
                 <View style={phStyles.bars}>
                     {[0, 1, 2, 3, 4].map(i => (
-                        <View key={i} style={[phStyles.bar, { backgroundColor: i <= score ? color : 'rgba(255,255,255,0.12)' }]} />
+                        <View key={i} style={[phStyles.bar, { backgroundColor: i <= score ? color : '#e5e7eb' }]} />
                     ))}
                 </View>
                 <Text style={[phStyles.strengthLabel, { color }]}>{label}</Text>
@@ -108,9 +108,9 @@ function PasswordHints({ password }: { password: string }) {
                             <MaterialCommunityIcons
                                 name={met ? 'check-circle-outline' : 'circle-outline'}
                                 size={13}
-                                color={met ? '#22c55e' : 'rgba(255,255,255,0.35)'}
+                                color={met ? '#22c55e' : '#d1d5db'}
                             />
-                            <Text style={[phStyles.reqText, { color: met ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.4)' }]}>{req.label}</Text>
+                            <Text style={[phStyles.reqText, { color: met ? '#374151' : '#9ca3af' }]}>{req.label}</Text>
                         </View>
                     );
                 })}
@@ -219,7 +219,7 @@ const NewPasswordScreen = () => {
                                 onBlur={handleBlur('password')}
                                 onChangeText={handleChange('password')}
                                 value={values.password}
-                                placeholderTextColor='rgba(255,255,255,0.32)'
+                                placeholderTextColor='#9ca3af'
                                 customStyle={authScreenStyles.inputField}
                                 style={styles.inputText}
                             />
@@ -235,7 +235,7 @@ const NewPasswordScreen = () => {
                                 value={values.confirmPassword}
                                 onBlur={handleBlur('confirmPassword')}
                                 onChangeText={handleChange('confirmPassword')}
-                                placeholderTextColor='rgba(255,255,255,0.32)'
+                                placeholderTextColor='#9ca3af'
                                 customStyle={authScreenStyles.inputField}
                                 style={styles.inputText}
                             />
@@ -273,7 +273,7 @@ const NewPasswordScreen = () => {
 export default NewPasswordScreen
 
 const styles = StyleSheet.create({
-    inputText: { color: '#fff' },
+    inputText: { color: '#111827' },
     matchRow: { flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 6, marginHorizontal: 2 },
     matchText: { fontSize: 11, fontWeight: '600' },
 })
