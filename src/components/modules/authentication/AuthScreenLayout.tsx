@@ -29,79 +29,87 @@ const AuthScreenLayout = ({
     const { animatedStyle } = usePageEnterAnimation();
 
     return (
-        <LinearGradient colors={[`${colors.primary[900]}FF`, `${colors.primary[700]}F8`, `${colors.primary[600]}F0`]} style={styles.screen}>
-            <View style={styles.gradientStack} pointerEvents='none'>
-                <LinearGradient colors={['rgba(255,140,255,0.35)', 'rgba(106,80,255,0.0)']} style={[styles.gradientBlob, styles.blobTop]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} />
-                <LinearGradient colors={['rgba(87,195,255,0.45)', 'rgba(103,78,255,0.1)']} style={[styles.gradientBlob, styles.blobBottom]} start={{ x: 0.2, y: 1 }} end={{ x: 0.9, y: 0 }} />
-                <LinearGradient colors={['rgba(255,255,255,0.18)', 'rgba(255,255,255,0.02)']} style={[styles.gradientRing, styles.ringLeft]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} />
-            </View>
-            <SafeArea>
-                <View style={styles.safeContent}>
-                    {showBackButton && (
-                        <View style={styles.backRow}>
-                            <BackBtn />
-                        </View>
-                    )}
-                    <KeyboardAvoidingView
-                        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-                        style={{ flex: 1 }}
-                    >
-                        <Scroller style={styles.scrollerContent}>
-                            <View style={styles.cardWrapper}>
-                                <Animated.View style={[styles.animatedCard, animatedStyle]}>
-                                    <LinearGradient
-                                        colors={['rgba(21,9,38,0.92)', 'rgba(46,20,86,0.78)', 'rgba(33,15,63,0.9)']}
-                                        start={{ x: 0, y: 0 }}
-                                        end={{ x: 1, y: 1 }}
-                                        style={[styles.heroCard, cardStyle]}
-                                    >
-                                        <LinearGradient colors={['rgba(255,255,255,1)', 'rgba(255,255,255,1)']} style={styles.logoBadge} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}>
-                                            <RLogo stylesLogo={{ width: logoSize, height: logoSize }} />
-                                        </LinearGradient>
-                                        <Text style={styles.heading}>{title}</Text>
-                                        {subtitle && <Text style={styles.subHeading}>{subtitle}</Text>}
-                                        {children}
-                                        {footer}
-                                    </LinearGradient>
-                                </Animated.View>
-                            </View>
-                        </Scroller>
-                    </KeyboardAvoidingView>
+        <View style={styles.screen}>
+            {/* Purple gradient covers top portion of screen including behind status bar */}
+            <LinearGradient
+                colors={[colors.primary[950], colors.primary[900], colors.primary[800]]}
+                style={styles.gradientBg}
+            >
+                {/* Soft glass blobs clipped to gradient area */}
+                <View style={StyleSheet.absoluteFill} pointerEvents='none'>
+                    <View style={[styles.blob, styles.blobTR]} />
+                    <View style={[styles.blob, styles.blobBL]} />
                 </View>
+            </LinearGradient>
+
+            <SafeArea>
+                <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.kbAvoider}>
+                    <Scroller contentContainerStyle={styles.scroller}>
+
+                        {/* Transparent header — gradient shows through */}
+                        <View style={styles.header}>
+                            {showBackButton && (
+                                <View style={styles.backRow}>
+                                    <BackBtn />
+                                </View>
+                            )}
+                            <View style={styles.logoBadge}>
+                                <RLogo stylesLogo={{ width: logoSize, height: logoSize }} />
+                            </View>
+                            <Text style={styles.heading}>{title}</Text>
+                            {subtitle && <Text style={styles.subHeading}>{subtitle}</Text>}
+                        </View>
+
+                        {/* Floating white form card */}
+                        <Animated.View style={[styles.card, cardStyle, animatedStyle]}>
+                            {children}
+                            {footer}
+                        </Animated.View>
+
+                    </Scroller>
+                </KeyboardAvoidingView>
             </SafeArea>
-        </LinearGradient>
+        </View>
     );
 };
 
 export const authScreenStyles = StyleSheet.create({
     inputField: {
-        borderRadius: 18,
-        borderColor: 'rgba(255,255,255,0.25)',
-        backgroundColor: 'rgba(255,255,255,0.08)',
+        borderTopWidth: 0,
+        borderLeftWidth: 0,
+        borderRightWidth: 0,
+        borderBottomWidth: 1,
+        borderColor: '#e5e7eb',
+        borderRadius: 0,
+        backgroundColor: 'transparent',
         paddingVertical: 14,
-        paddingHorizontal: 16,
-        color: '#fff',
+        paddingHorizontal: 4,
+        minHeight: 52,
     },
     formWrapper: {
-        gap: 14,
+        gap: 0,
     },
     footerRow: {
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
         gap: 6,
-        marginTop: 18,
+        paddingTop: 16,
+        borderTopWidth: 1,
+        borderTopColor: '#f0f0f5',
     },
     footerText: {
-        color: 'rgba(255,255,255,0.7)',
+        color: '#6b7280',
         fontFamily: `${appFonts.medium}`,
+        fontSize: 13,
     },
     footerLink: {
-        color: '#fff',
+        color: colors.primary[700],
         fontFamily: `${appFonts.semiBold}`,
+        fontSize: 13,
     },
     forgotText: {
-        color: '#fff',
+        color: colors.primary[700],
         fontFamily: `${appFonts.medium}`,
         fontSize: 13,
     },
@@ -110,103 +118,73 @@ export const authScreenStyles = StyleSheet.create({
 const styles = StyleSheet.create({
     screen: {
         flex: 1,
-        position: 'relative',
+        backgroundColor: '#f3f4f6',
     },
-    safeContent: {
-        flex: 1,
+    gradientBg: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        height: '48%',
+        overflow: 'hidden',
+    },
+    kbAvoider: { flex: 1 },
+    scroller: { flexGrow: 1 },
+    blob: { position: 'absolute', backgroundColor: 'rgba(255,255,255,0.08)', borderRadius: 200 },
+    blobTR: { width: 280, height: 280, top: -90, right: -90 },
+    blobBL: { width: 200, height: 200, top: 80, left: -80 },
+    header: {
+        paddingTop: 16,
+        paddingBottom: 64,
+        paddingHorizontal: 28,
+        gap: 6,
     },
     backRow: {
-        paddingHorizontal: 16,
-        paddingTop: 8,
-        paddingBottom: 12,
-    },
-    gradientStack: {
-        ...StyleSheet.absoluteFillObject,
-    },
-    gradientBlob: {
-        position: 'absolute',
-        width: 260,
-        height: 260,
-        borderRadius: 130,
-        opacity: 0.8,
-        transform: [{ rotate: '25deg' }],
-    },
-    blobTop: {
-        top: -60,
-        right: -40,
-    },
-    blobBottom: {
-        bottom: -40,
-        left: -30,
-    },
-    gradientRing: {
-        position: 'absolute',
-        width: 200,
-        height: 200,
-        borderRadius: 100,
-        borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.12)',
-        opacity: 0.8,
-    },
-    ringLeft: {
-        top: 140,
-        left: 20,
-    },
-    scrollerContent: {
-        paddingHorizontal: 16,
-        paddingBottom: 48,
-        paddingTop: 8,
-        justifyContent: 'center',
-        minHeight: '100%',
-    },
-    cardWrapper: {
-        flex: 1,
-        width: '100%',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    animatedCard: {
-        width: '100%',
-        maxWidth: 480,
-    },
-    heroCard: {
-        borderRadius: 36,
-        padding: 28,
-        borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.18)',
-        shadowColor: '#0f050f',
-        shadowOffset: { width: 0, height: 16 },
-        shadowOpacity: 0.28,
-        shadowRadius: 40,
-        elevation: 12,
-        overflow: 'hidden',
-        width: '100%',
-        maxWidth: 480,
-        gap: 16,
+        marginBottom: 4,
     },
     logoBadge: {
-        width: 85,
-        height: 85,
-        borderRadius: 26,
+        width: 80,
+        height: 80,
+        borderRadius: 40,
+        backgroundColor: 'rgba(255,255,255,0.22)',
+        borderWidth: 2,
+        borderColor: 'rgba(255,255,255,0.55)',
         alignItems: 'center',
         justifyContent: 'center',
-        alignSelf: 'center',
-        marginTop: 8,
-        marginBottom: 8,
+        marginBottom: 16,
+        shadowColor: '#fff',
+        shadowOffset: { width: 0, height: 0 },
+        shadowOpacity: 0.15,
+        shadowRadius: 10,
+        elevation: 4,
     },
     heading: {
-        fontSize: 26,
+        fontSize: 28,
         fontFamily: `${appFonts.bold}`,
-        textAlign: 'center',
         color: '#fff',
+        lineHeight: 34,
     },
     subHeading: {
         fontSize: 14,
-        textAlign: 'center',
         color: 'rgba(255,255,255,0.78)',
         lineHeight: 20,
         fontFamily: `${appFonts.medium}`,
-        marginHorizontal: 12,
+    },
+    card: {
+        backgroundColor: '#fff',
+        borderRadius: 28,
+        marginHorizontal: 16,
+        marginTop: -36,
+        marginBottom: 24,
+        paddingHorizontal: 24,
+        paddingTop: 32,
+        paddingBottom: 40,
+        gap: 20,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.10,
+        shadowRadius: 16,
+        elevation: 10,
     },
 });
 

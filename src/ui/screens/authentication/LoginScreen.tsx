@@ -1,6 +1,7 @@
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import colors from '@/config/colors'
+import appFonts from '@/config/fonts'
 import { RErrorMessage, RInput, RLoaderAnimation } from '@/components/common'
 import usePageTransition from '@/hooks/navigation/usePageTransition'
 import { Formik } from 'formik'
@@ -25,6 +26,7 @@ const LoginScreen = () => {
     const dispatch = useDispatch<AppDispatch>();
     const { isLoading, error } = useSelector((state: RootState) => state.auth)
     const [showPassword, setShowPassword] = useState(false);
+    const [rememberMe, setRememberMe] = useState(false);
 
     const handleSubmit = async (email: string, password: string) => {
         const result = await login({
@@ -48,59 +50,82 @@ const LoginScreen = () => {
         <View style={authScreenStyles.footerRow}>
             <Text style={authScreenStyles.footerText}>Don’t have an account?</Text>
             <TouchableOpacity onPress={register}>
-                <Text style={authScreenStyles.footerLink}>Sign Up</Text>
+                <Text style={authScreenStyles.footerLink}>Register</Text>
             </TouchableOpacity>
         </View>
     );
 
     return (
-        <AuthScreenLayout title='Welcome Back' subtitle='Sign in to access your IMS portal.' footer={footer}>
+        <AuthScreenLayout title='Welcome Back' subtitle='Sign in to access the CHIETA IMS mobile app.' footer={footer}>
             <Formik initialValues={formValues} onSubmit={(values) => handleSubmit(values.email, values.password)} validationSchema={loginSchema}>
                 {({ handleSubmit, handleBlur, handleChange, touched, errors, values }) => (
                     <View style={authScreenStyles.formWrapper}>
-                        <RInput
-                            placeholder='Email or Username'
-                            icon={'mail'}
-                            keyboardType='email-address'
-                            onChangeText={handleChange('email')}
-                            placeholderTextColor='rgba(255,255,255,0.32)'
-                            onBlur={handleBlur('email')}
-                            value={values.email}
-                            customStyle={authScreenStyles.inputField}
-                            style={styles.inputText}
-                        />
-                        {touched.email && errors.email && (<RErrorMessage error={errors.email} />)}
 
-                        <View style={styles.passwordWrapper}>
+                        {/* Email */}
+                        <View style={styles.inputGroup}>
+                            <Text style={styles.inputLabel}>Email Address</Text>
                             <RInput
-                                placeholder='Password'
-                                icon={'lock'}
-                                keyboardType='default'
-                                onChangeText={handleChange("password")}
-                                placeholderTextColor='rgba(255,255,255,0.32)'
-                                onBlur={handleBlur("password")}
-                                value={values.password}
-                                secureTextEntry={!showPassword}
-                                customStyle={[authScreenStyles.inputField, styles.passwordInput]}
+                                placeholder='Enter your email'
+                                icon='mail'
+                                iconColor={colors.primary[600]}
+                                keyboardType='email-address'
+                                onChangeText={handleChange('email')}
+                                placeholderTextColor='#9ca3af'
+                                onBlur={handleBlur('email')}
+                                value={values.email}
+                                customStyle={authScreenStyles.inputField}
                                 style={styles.inputText}
                             />
-                            <TouchableOpacity style={styles.togglePassword} onPress={() => setShowPassword((prev) => !prev)}>
-                                <Feather name={showPassword ? 'eye-off' : 'eye'} size={18} color='rgba(255,255,255,0.7)' />
+                            {touched.email && errors.email && <RErrorMessage error={errors.email} />}
+                        </View>
+
+                        {/* Password */}
+                        <View style={styles.inputGroup}>
+                            <Text style={styles.inputLabel}>Password</Text>
+                            <View style={styles.passwordWrapper}>
+                                <RInput
+                                    placeholder='Enter your password'
+                                    icon='lock'
+                                    iconColor={colors.primary[600]}
+                                    keyboardType='default'
+                                    onChangeText={handleChange('password')}
+                                    placeholderTextColor='#9ca3af'
+                                    onBlur={handleBlur('password')}
+                                    value={values.password}
+                                    secureTextEntry={!showPassword}
+                                    customStyle={[authScreenStyles.inputField, styles.passwordInput]}
+                                    style={styles.inputText}
+                                />
+                                <TouchableOpacity
+                                    style={styles.togglePassword}
+                                    onPress={() => setShowPassword(prev => !prev)}
+                                >
+                                    <Feather name={showPassword ? 'eye-off' : 'eye'} size={18} color='#9ca3af' />
+                                </TouchableOpacity>
+                            </View>
+                            {touched.password && errors.password && <RErrorMessage error={errors.password} />}
+                        </View>
+
+                        {/* Remember Me + Forgot Password */}
+                        <View style={styles.rememberRow}>
+                            <TouchableOpacity
+                                style={styles.rememberLeft}
+                                onPress={() => setRememberMe(prev => !prev)}
+                                activeOpacity={0.7}
+                            >
+                                <MaterialCommunityIcons
+                                    name={rememberMe ? 'checkbox-marked' : 'checkbox-blank-outline'}
+                                    size={22}
+                                    color={rememberMe ? colors.primary[700] : '#374151'}
+                                />
+                                <Text style={styles.rememberText}>Remember Me</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={resetPassword} activeOpacity={0.7}>
+                                <Text style={authScreenStyles.forgotText}>Forgot Password?</Text>
                             </TouchableOpacity>
                         </View>
-                        {touched.password && errors.password && (<RErrorMessage error={errors.password} />)}
 
-                        <TouchableOpacity onPress={resetPassword} style={styles.forgotLink}>
-                            <Text style={authScreenStyles.forgotText}>Forgot Password?</Text>
-                        </TouchableOpacity>
-
-                        <AuthGradientButton title='Sign In' onPress={handleSubmit} loading={isLoading} />
-
-                        {/* Secure badge */}
-                        <View style={styles.secureBadge}>
-                            <MaterialCommunityIcons name='shield-check-outline' size={12} color='rgba(255,255,255,0.45)' />
-                            <Text style={styles.secureText}>Secure · End-to-end encrypted</Text>
-                        </View>
+                        <AuthGradientButton title='Login' onPress={handleSubmit} loading={isLoading} />
 
                         {isLoading && <RLoaderAnimation />}
                     </View>
@@ -112,6 +137,15 @@ const LoginScreen = () => {
 
 export default LoginScreen
 const styles = StyleSheet.create({
+    inputGroup: {
+        gap: 6,
+        marginBottom: 20,
+    },
+    inputLabel: {
+        fontSize: 14,
+        fontFamily: `${appFonts.semiBold}`,
+        color: '#111827',
+    },
     passwordWrapper: {
         width: '100%',
         position: 'relative',
@@ -124,20 +158,24 @@ const styles = StyleSheet.create({
         right: 18,
         top: '35%',
     },
-    forgotLink: {
-        alignSelf: 'flex-end',
+    inputText: {
+        color: '#111827',
     },
-    inputText: { color: '#fff' },
-    secureBadge: {
+    rememberRow: {
         flexDirection: 'row',
+        justifyContent: 'space-between',
         alignItems: 'center',
-        justifyContent: 'center',
-        gap: 5,
+        marginBottom: 20,
         marginTop: 4,
     },
-    secureText: {
-        fontSize: 11,
-        color: 'rgba(255,255,255,0.45)',
-        fontWeight: '500',
+    rememberLeft: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+    },
+    rememberText: {
+        fontSize: 14,
+        color: '#374151',
+        fontFamily: `${appFonts.medium}`,
     },
 });
