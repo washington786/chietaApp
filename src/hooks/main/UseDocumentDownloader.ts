@@ -107,7 +107,7 @@ const useDocumentDownloader = (): UseDocumentDownloaderResult => {
 
     /** Download a single document by its numeric ID */
     const downloadById = (documentId: number, filename: string): Promise<string | null> => {
-        const url = `${API_BASE_URL}/api/DocumentDownload/DownloadById?documentId=${documentId}`;
+        const url = `${API_BASE_URL}/api/services/app/Account/DownloadFile?id=${documentId}`;
         return downloadDocument(url, filename);
     };
 
@@ -117,7 +117,7 @@ const useDocumentDownloader = (): UseDocumentDownloaderResult => {
         filename: string,
     ): Promise<string | null> => {
         const url =
-            `${API_BASE_URL}/api/DocumentDownload/DownloadByEntity` +
+            `${API_BASE_URL}/api/services/app/Documents/DownloadByEntity` +
             `?entityId=${entityId}` +
             `&documentType=${encodeURIComponent(documentType)}` +
             `&module=${encodeURIComponent(module)}` +

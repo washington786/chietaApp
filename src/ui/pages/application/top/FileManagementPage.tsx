@@ -1,196 +1,278 @@
-import { StyleSheet } from 'react-native'
-import React, { useState, useMemo } from 'react'
-import { RCol, RLoaderAnimation, Scroller, REmpty } from '@/components/common'
+import { ActivityIndicator, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import React, { useState } from 'react'
+import { RListLoading, REmpty } from '@/components/common'
 import { useRoute, RouteProp } from '@react-navigation/native'
 import { navigationTypes } from '@/core/types/navigationTypes'
-import { DocumentDto } from '@/core/models/MandatoryDto'
 import { showToast } from '@/core'
-import { useGetDocumentsByEntityQuery, useGetGrantDetailsViewQuery, useGetProjectDetailsListViewQuery } from '@/store/api/api'
+import { useGetDocsByEntityIdQuery, useGetProjectDetailsListViewQuery } from '@/store/api/api'
 import { Expandable, GrantDetails } from '@/components/modules/application'
-import RDownload from '@/components/common/RDownload'
 import { useSelector } from 'react-redux'
 import { RootState } from '@/store/store'
-import { FlatList } from 'react-native'
-import { Text } from 'react-native-paper'
 import colors from '@/config/colors'
+import appFonts from '@/config/fonts'
+import useDocumentDownloader from '@/hooks/main/UseDocumentDownloader'
+import { DocumentDownloadDto } from '@/core/models/MandatoryDto'
+import Ionicons from '@expo/vector-icons/Ionicons'
+import { MaterialCommunityIcons } from '@expo/vector-icons'
 
+const API_BASE_URL = 'https://ims.chieta.org.za:22743'
+
+// ─── Identical palette & helpers to ApplicationDetails ────────────────────────
+type DocPalette = { bg: string; text: string; accent: string };
+
+const DOC_TYPE_PALETTE: Record<string, DocPalette> = {
+    'Signed Application': { bg: colors.primary[100], text: colors.primary[700], accent: colors.primary[500] },
+    'Company Registration': { bg: colors.green[100], text: colors.green[700], accent: colors.green[600] },
+    'Declaration': { bg: colors.purple[100], text: colors.purple[700], accent: colors.purple[500] },
+    'Commitment': { bg: colors.secondary[100], text: colors.secondary[700], accent: colors.secondary[600] },
+    'BEE Certificate': { bg: colors.violet[100], text: colors.violet[700], accent: colors.violet[500] },
+    'Bank Proof': { bg: colors.emerald[100], text: colors.emerald[700], accent: colors.emerald[600] },
+    'Tax Clearance': { bg: colors.blue[100], text: colors.blue[700], accent: colors.blue[600] },
+    'Accreditation': { bg: colors.yellow[100], text: colors.yellow[700], accent: colors.yellow[600] },
+    'Workplace Approval': { bg: colors.blue[50], text: colors.blue[700], accent: colors.blue[500] },
+    'Schedule': { bg: colors.primary[50], text: colors.primary[700], accent: colors.primary[400] },
+    'Proposal': { bg: colors.violet[50], text: colors.violet[700], accent: colors.violet[400] },
+};
+const getDocPalette = (docType: string): DocPalette =>
+    DOC_TYPE_PALETTE[docType] ?? { bg: colors.gray[100], text: colors.gray[600], accent: colors.gray[400] };
+
+const formatFileSize = (bytes: string): string => {
+    const n = parseInt(bytes, 10);
+    if (isNaN(n) || n === 0) return '—';
+    if (n < 1024) return `${n} B`;
+    if (n < 1048576) return `${(n / 1024).toFixed(1)} KB`;
+    return `${(n / 1048576).toFixed(1)} MB`;
+};
+const formatDate = (dateStr: string): string => {
+    try { return new Date(dateStr).toLocaleDateString('en-ZA', { day: '2-digit', month: 'short', year: 'numeric' }); }
+    catch { return dateStr; }
+};
+const getFileIconName = (fileType: string): keyof typeof Ionicons.glyphMap => {
+    if (fileType?.includes('pdf')) return 'document-text';
+    if (fileType?.includes('word') || fileType?.includes('wordprocessingml')) return 'document';
+    if (fileType?.includes('sheet') || fileType?.includes('spreadsheet')) return 'grid';
+    if (fileType?.startsWith('image/')) return 'image';
+    return 'document-outline';
+};
+
+// ─── DocumentCard — identical to ApplicationDetails ───────────────────────────
+interface DocumentCardProps {
+    doc: DocumentDownloadDto;
+    downloading: boolean;
+    onDownload: (doc: DocumentDownloadDto) => void;
+}
+function DocumentCard({ doc, downloading, onDownload }: DocumentCardProps) {
+    const palette = getDocPalette(doc.documentType);
+    const iconName = getFileIconName(doc.fileType);
+    return (
+        <View style={[cardStyles.card, { borderLeftColor: palette.accent }]}>
+            <View style={[cardStyles.iconWrap, { backgroundColor: palette.bg }]}>
+                <Ionicons name={iconName} size={22} color={palette.accent} />
+            </View>
+            <View style={cardStyles.info}>
+                <Text style={cardStyles.filename} numberOfLines={2} ellipsizeMode='middle'>
+                    {doc.originalFileName}
+                </Text>
+                <View style={cardStyles.metaRow}>
+                    <View style={[cardStyles.badge, { backgroundColor: palette.bg }]}>
+                        <Text style={[cardStyles.badgeText, { color: palette.text }]}>{doc.documentType}</Text>
+                    </View>
+                    <Text style={cardStyles.metaDot}>·</Text>
+                    <Text style={cardStyles.metaText}>{formatFileSize(doc.fileSize)}</Text>
+                    <Text style={cardStyles.metaDot}>·</Text>
+                    <Text style={cardStyles.metaText}>{formatDate(doc.dateCreated)}</Text>
+                </View>
+            </View>
+            <TouchableOpacity
+                onPress={() => onDownload(doc)}
+                disabled={downloading}
+                style={[cardStyles.dlBtn, downloading && cardStyles.dlBtnBusy]}
+                activeOpacity={0.7}
+            >
+                {downloading
+                    ? <ActivityIndicator size={16} color={colors.blue[600]} />
+                    : <Ionicons name='cloud-download-outline' size={20} color={colors.blue[600]} />
+                }
+            </TouchableOpacity>
+        </View>
+    );
+}
+
+const cardStyles = StyleSheet.create({
+    card: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: colors.white,
+        borderRadius: 12,
+        borderLeftWidth: 4,
+        paddingVertical: 11,
+        paddingHorizontal: 12,
+        marginVertical: 4,
+        shadowColor: colors.slate[800],
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.07,
+        shadowRadius: 6,
+        elevation: 2,
+    },
+    iconWrap: {
+        width: 40,
+        height: 40,
+        borderRadius: 10,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginRight: 10,
+    },
+    info: { flex: 1, gap: 5 },
+    filename: { fontSize: 13, fontWeight: '600', color: colors.gray[800], lineHeight: 17 },
+    metaRow: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 5 },
+    badge: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: 20 },
+    badgeText: { fontSize: 10, fontWeight: '700' },
+    metaText: { fontSize: 11, color: colors.slate[500] },
+    metaDot: { fontSize: 11, color: colors.slate[300] },
+    dlBtn: {
+        width: 38,
+        height: 38,
+        borderRadius: 19,
+        backgroundColor: colors.blue[50],
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginLeft: 6,
+    },
+    dlBtnBusy: { backgroundColor: colors.blue[100] },
+});
+
+// ─── Page ─────────────────────────────────────────────────────────────────────
 const FileManagementPage = () => {
     const { appId } = useRoute<RouteProp<navigationTypes, "applicationDetails">>().params;
-    const { selectedProject } = useSelector((state: RootState) => state.discretionaryGrant);
-    const projType = selectedProject?.projType;
+    const user = useSelector((state: RootState) => state.auth.user);
 
-    const [showDocs, setShowDocs] = useState<boolean>(false);
-    const [showGrant, setShowGrant] = useState<boolean>(true);
+    const [showDocs, setShowDocs] = useState(true);
+    const [showGrant, setShowGrant] = useState(true);
+    const [downloadingIds, setDownloadingIds] = useState<Set<number>>(new Set());
 
-    // Define required documents by project type (using actual DB names)
-    const documentsByProjectType: Record<string, string[]> = {
-        'Learning Projects': [
-            'Bank Proof',
-            'BEE Certificate',
-            'Schedule',
-            'Declaration',
-            'Workplace Approval',
-            'Signed Application',
-            'Tax Clearance',
-            'Accreditation',
-            'Proposal',
-            'Company Registration',
-            'Commitment'
-        ],
-        'Research Projects': [
-            'Bank Proof',
-            'BEE Certificate',
-            'Schedule',
-            'Declaration',
-            'Workplace Approval',
-            'Signed Application',
-            'Tax Clearance',
-            'Accreditation',
-            'Proposal',
-            'Company Registration',
-            'Commitment'
-        ],
-        'Strategic Projects': [
-            'Bank Proof',
-            'Tax Clearance',
-            'BEE Certificate',
-            'Declaration',
-            'Signed Application',
-            'Proposal',
-            'Company Registration',
-            'Commitment'
-        ]
+    const entityId = typeof appId === 'string' ? parseInt(appId, 10) : (appId ?? 0);
+    const userId = user?.id ? parseInt(String(user.id), 10) : 0;
+
+    const {
+        data: documents = [],
+        isLoading: docsLoading,
+        isError: docsError,
+        refetch: refetchDocs,
+    } = useGetDocsByEntityIdQuery(
+        { entityId, userId },
+        { skip: !appId || !user?.id },
+    );
+
+    const { data: grants } = useGetProjectDetailsListViewQuery(Number(appId), { skip: !appId });
+    const { downloadDocument } = useDocumentDownloader();
+
+    const handleDocDownload = async (doc: DocumentDownloadDto) => {
+        if (downloadingIds.has(doc.id)) return;
+        setDownloadingIds(prev => new Set(prev).add(doc.id));
+        try {
+            // Normalise URL — the API may return a relative path or an empty string
+            let url = doc.downloadUrl?.trim();
+            if (!url) {
+                url = `${API_BASE_URL}/api/services/app/Account/DownloadFile?id=${doc.id}`;
+            } else if (!url.startsWith('http')) {
+                url = `${API_BASE_URL}${url.startsWith('/') ? '' : '/'}${url}`;
+            }
+
+            const uri = await downloadDocument(url, doc.originalFileName);
+            if (uri && uri !== 'dismissed') {
+                showToast({ message: `"${doc.originalFileName}" is ready to save`, title: 'Download ready', type: 'success', position: 'top' });
+            } else if (uri === null) {
+                showToast({
+                    title: 'File not found',
+                    message: `"${doc.originalFileName}" could not be located on the server. Please contact support if this persists.`,
+                    type: 'error',
+                    position: 'top',
+                });
+            }
+        } catch {
+            showToast({ title: 'Download failed', message: `Could not download "${doc.originalFileName}". Please try again.`, type: 'error', position: 'top' });
+        } finally {
+            setDownloadingIds(prev => { const s = new Set(prev); s.delete(doc.id); return s; });
+        }
     };
 
-    const requiredDocuments = documentsByProjectType[projType || ''] || [];
-
-    // Fetch all document types
-    const allDocuments: Record<string, any> = {
-        'Bank Proof': useGetDocumentsByEntityQuery(
-            { entityId: appId, module: 'Projects', documentType: 'Bank Proof' },
-            { skip: !appId || !requiredDocuments.includes('Bank Proof') }
-        ),
-        'BEE Certificate': useGetDocumentsByEntityQuery(
-            { entityId: appId, module: 'Projects', documentType: 'BEE Certificate' },
-            { skip: !appId || !requiredDocuments.includes('BEE Certificate') }
-        ),
-        'Schedule': useGetDocumentsByEntityQuery(
-            { entityId: appId, module: 'Projects', documentType: 'Schedule' },
-            { skip: !appId || !requiredDocuments.includes('Schedule') }
-        ),
-        'Declaration': useGetDocumentsByEntityQuery(
-            { entityId: appId, module: 'Projects', documentType: 'Declaration' },
-            { skip: !appId || !requiredDocuments.includes('Declaration') }
-        ),
-        'Workplace Approval': useGetDocumentsByEntityQuery(
-            { entityId: appId, module: 'Projects', documentType: 'Workplace Approval' },
-            { skip: !appId || !requiredDocuments.includes('Workplace Approval') }
-        ),
-        'Signed Application': useGetDocumentsByEntityQuery(
-            { entityId: appId, module: 'Projects', documentType: 'Signed Application' },
-            { skip: !appId || !requiredDocuments.includes('Signed Application') }
-        ),
-        'Tax Clearance': useGetDocumentsByEntityQuery(
-            { entityId: appId, module: 'Projects', documentType: 'Tax Clearance' },
-            { skip: !appId || !requiredDocuments.includes('Tax Clearance') }
-        ),
-        'Accreditation': useGetDocumentsByEntityQuery(
-            { entityId: appId, module: 'Projects', documentType: 'Accreditation' },
-            { skip: !appId || !requiredDocuments.includes('Accreditation') }
-        ),
-        'Proposal': useGetDocumentsByEntityQuery(
-            { entityId: appId, module: 'Projects', documentType: 'Proposal' },
-            { skip: !appId || !requiredDocuments.includes('Proposal') }
-        ),
-        'Company Registration': useGetDocumentsByEntityQuery(
-            { entityId: appId, module: 'Projects', documentType: 'Company Registration' },
-            { skip: !appId || !requiredDocuments.includes('Company Registration') }
-        ),
-        'Commitment': useGetDocumentsByEntityQuery(
-            { entityId: appId, module: 'Projects', documentType: 'Commitment' },
-            { skip: !appId || !requiredDocuments.includes('Commitment') }
-        ),
-    };
-
-    const { data: grants, isLoading: grantsLoading, error } = useGetProjectDetailsListViewQuery(Number(appId), { skip: !appId });
-
-    // Helper function to get document from RTK Query data
-    const getDocument = (query: any) => query.data?.result?.items?.[0]?.documents;
-
-
-    // Check if any documents exist
-    const hasDocuments = useMemo(() => {
-        return requiredDocuments.some(docType => getDocument(allDocuments[docType]));
-    }, [requiredDocuments, allDocuments]);
-
-    // Check if any queries are loading
-    const isLoading = useMemo(() => {
-        return requiredDocuments.some(docType => allDocuments[docType]?.isLoading);
-    }, [requiredDocuments, allDocuments]);
-
-
-    const handleDownload = (doc: DocumentDto) => {
-        showToast({
-            title: "Download",
-            message: `${doc.filename} is not available for download in the mobile app. Please access the desktop version to download this document.`,
-            type: "info",
-            position: "top"
-        });
-    };
+    const sortedDocs = [...documents].sort(
+        (a, b) => new Date(b.dateCreated).getTime() - new Date(a.dateCreated).getTime()
+    );
 
     return (
-        <>
-            <FlatList
-                data={[]}
-                renderItem={() => null}
-                style={styles.list}
-                showsHorizontalScrollIndicator={false}
-                showsVerticalScrollIndicator={false}
-                ListFooterComponent={
-                    <>
-                        {isLoading ? (
-                            <RLoaderAnimation />
-                        ) : !hasDocuments ? (
-                            <REmpty title='No Documents' subtitle='No documents have been uploaded for this application yet.' />
-                        ) : (
-                            <Expandable title='Manage Uploaded Documents' isExpanded={showDocs} onPress={() => setShowDocs(!showDocs)}>
-                                <RCol style={styles.docs}>
-                                    {requiredDocuments.map((docType) => {
-                                        const query = allDocuments[docType];
-                                        const doc = getDocument(query);
-                                        return (
-                                            doc && query.isSuccess && (
-                                                <RDownload
-                                                    key={docType}
-                                                    title={doc.documenttype}
-                                                    fileName={doc.filename}
-                                                    onPress={() => { handleDownload(doc) }}
-                                                />
-                                            )
-                                        );
-                                    })}
-                                </RCol>
-                            </Expandable>
+        <FlatList
+            data={[]}
+            renderItem={() => null}
+            style={styles.list}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.content}
+            ListFooterComponent={
+                <>
+                    {/* ── Attached Documents ───────────────────────────────── */}
+                    <Expandable
+                        title={docsLoading ? 'Loading documents…' : `Attached Documents (${documents.length})`}
+                        isExpanded={showDocs}
+                        onPress={() => setShowDocs(v => !v)}
+                    >
+                        {docsLoading && <RListLoading count={3} />}
+
+                        {!docsLoading && docsError && (
+                            <View style={styles.errorBox}>
+                                <Ionicons name='alert-circle-outline' size={28} color={colors.red[500]} />
+                                <Text style={styles.errorText}>Failed to load documents</Text>
+                                <TouchableOpacity onPress={refetchDocs} style={styles.retryBtn}>
+                                    <Text style={styles.retryText}>Retry</Text>
+                                </TouchableOpacity>
+                            </View>
                         )}
 
-                        <Expandable title='Grant Management' isExpanded={showGrant} onPress={() => setShowGrant(!showGrant)}>
+                        {!docsLoading && !docsError && documents.length === 0 && (
+                            <REmpty
+                                title='No documents found'
+                                subtitle='No files have been uploaded for this application yet.'
+                                icon='file'
+                            />
+                        )}
+
+                        {!docsLoading && !docsError && sortedDocs.map(doc => (
+                            <DocumentCard
+                                key={doc.id}
+                                doc={doc}
+                                downloading={downloadingIds.has(doc.id)}
+                                onDownload={handleDocDownload}
+                            />
+                        ))}
+                    </Expandable>
+
+                    {/* ── Grant Management ─────────────────────────────────── */}
+                    <View style={styles.section}>
+                        <Expandable
+                            title='Grant Management'
+                            isExpanded={showGrant}
+                            onPress={() => setShowGrant(v => !v)}
+                        >
                             <FlatList
                                 data={grants}
                                 keyExtractor={(item) => String(item.id)}
                                 renderItem={({ item }) => (
                                     <GrantDetails data={item} appId={Number(appId)} />
                                 )}
+                                scrollEnabled={false}
                                 showsVerticalScrollIndicator={false}
-                                ListEmptyComponent={<RCol>
-                                    <Text variant='bodySmall' style={{ color: colors.gray[500] }}>No grant details available</Text>
-                                </RCol>}
+                                ListEmptyComponent={
+                                    <View style={styles.emptyGrant}>
+                                        <MaterialCommunityIcons name='cash-clock' size={32} color={colors.gray[300]} />
+                                        <Text style={styles.emptyGrantText}>No grant details available</Text>
+                                    </View>
+                                }
                             />
                         </Expandable>
-                    </>
-                }
-            />
-        </>
-    )
+                    </View>
+                </>
+            }
+        />
+    );
 }
 
 export default FileManagementPage
@@ -198,15 +280,52 @@ export default FileManagementPage
 const styles = StyleSheet.create({
     list: {
         flex: 1,
-        flexGrow: 1,
+        backgroundColor: colors.gray[50],
+    },
+    content: {
         paddingHorizontal: 12,
         paddingTop: 6,
-        paddingBottom: 20,
+        paddingBottom: 32,
+        gap: 8,
     },
-    docs: {
-        marginVertical: 10,
-        gap: 10,
+    errorBox: {
         alignItems: 'center',
-        justifyContent: 'center',
-    }
+        paddingVertical: 20,
+        gap: 8,
+    },
+    errorText: {
+        color: colors.red[500],
+        fontSize: 13,
+    },
+    retryBtn: {
+        paddingHorizontal: 20,
+        paddingVertical: 7,
+        borderRadius: 20,
+        backgroundColor: colors.blue[600],
+    },
+    retryText: {
+        color: colors.white,
+        fontSize: 13,
+        fontWeight: '600',
+    },
+    section: {
+        backgroundColor: '#fff',
+        borderRadius: 16,
+        overflow: 'hidden',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.06,
+        shadowRadius: 8,
+        elevation: 3,
+    },
+    emptyGrant: {
+        alignItems: 'center' as const,
+        paddingVertical: 28,
+        gap: 8,
+    },
+    emptyGrantText: {
+        fontSize: 13,
+        fontFamily: `${appFonts.regular}`,
+        color: colors.gray[400],
+    },
 })
