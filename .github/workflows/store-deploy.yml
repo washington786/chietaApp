@@ -25,7 +25,7 @@ permissions:
 
 concurrency:
   group: store-deploy-${{ github.ref }}
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 env:
   BUILD_PROFILE: ${{ github.event.inputs.build-profile || 'production' }}
@@ -37,6 +37,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -46,6 +48,9 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Run TypeScript check
+        run: npx tsc --noEmit
 
       - name: Run tests
         run: npm run test
@@ -60,10 +65,11 @@ jobs:
         platform: [android, ios]
     env:
       EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-      EAS_NO_VCS: 1
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4

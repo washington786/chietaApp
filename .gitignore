@@ -35,6 +35,9 @@ yarn-error.*
 .env
 .env*.local
 
+# API endpoints file (may contain test credentials — use endpoints.txt.example instead)
+endpoints.txt
+
 # EAS builds
 .eas/
 

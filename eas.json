@@ -5,6 +5,11 @@
     "build": {
         "preview": {
             "distribution": "internal",
+            "channel": "preview",
+            "autoIncrement": true,
+            "cache": {
+                "key": "npm-{{ hashFiles('package-lock.json') }}"
+            },
             "android": {
                 "buildType": "apk"
             },
@@ -13,13 +18,21 @@
             }
         },
         "preview2": {
-            "distribution": "internal"
+            "distribution": "internal",
+            "channel": "preview2",
+            "autoIncrement": true,
+            "cache": {
+                "key": "npm-{{ hashFiles('package-lock.json') }}"
+            }
         },
         "production": {
             "channel": "production",
             "distribution": "store",
             "developmentClient": false,
-            "autoIncrement": "version",
+            "autoIncrement": true,
+            "cache": {
+                "key": "npm-{{ hashFiles('package-lock.json') }}"
+            },
             "env": {
                 "APP_ENV": "production"
             },
@@ -31,6 +44,9 @@
             }
         },
         "development": {
+            "cache": {
+                "key": "npm-{{ hashFiles('package-lock.json') }}"
+            },
             "ios": {
                 "simulator": true
             }
@@ -43,8 +59,7 @@
                 "releaseStatus": "completed"
             },
             "ios": {
-                "appName": "Chieta",
-                "ascAppIdentifier": "com.danielkarabo.Chieta"
+                "appName": "Chieta"
             }
         }
     }
