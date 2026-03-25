@@ -5,6 +5,9 @@ const errorInspect: ImageSourcePropType = require('../../assets/error-inspect-v1
 const chatSquare: ImageSourcePropType = require('../../assets/chat-square.png');
 const chatBot: ImageSourcePropType = require('../../assets/smartphone-chat.png');
 const landingBg: ImageSourcePropType = require('../../assets/bg_landing.png');
+
 const logo: ImageSourcePropType = require('../../assets/logov2.png');
 
-export { errorBox, errorInspect, chatSquare, chatBot, landingBg, logo };
+const white_logo: ImageSourcePropType = require('../../assets/logo_white.png');
+
+export { errorBox, errorInspect, chatSquare, chatBot, landingBg, logo, white_logo };

@@ -1,9 +1,9 @@
 import * as React from 'react';
 import { DataTable, Text, IconButton } from 'react-native-paper';
-import { StyleSheet, View, ScrollView } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import colors from '@/config/colors';
 import { RButton } from '@/components/common';
-import { useGlobalBottomSheet } from '@/hooks/navigation/BottomSheet';
+import { useGlobalBottomSheet, BottomSheetScrollView } from '@/hooks/navigation/BottomSheet';
 
 interface DgApplicationRow {
     id: string;
@@ -42,7 +42,7 @@ const DgTable: React.FC<DgTableProps> = ({ data, onEdit, onDelete, isLoading = f
 
     const handleViewDetails = (row: DgApplicationRow) => {
         const bottomSheetContent = (
-            <ScrollView style={styles.bottomSheetContent}>
+            <BottomSheetScrollView style={styles.bottomSheetContent} contentContainerStyle={styles.bottomSheetContentContainer} showsVerticalScrollIndicator={false} bounces={false} overScrollMode="never">
                 <View style={styles.bottomSheetHeader}>
                     <Text style={styles.bottomSheetTitle}>Application Details</Text>
                 </View>
@@ -81,7 +81,7 @@ const DgTable: React.FC<DgTableProps> = ({ data, onEdit, onDelete, isLoading = f
                         />
                     )}
                 </View>
-            </ScrollView>
+            </BottomSheetScrollView>
         );
 
         openBottomSheet(bottomSheetContent, { snapPoints: ['60%', '90%'] });
@@ -332,10 +332,12 @@ const styles = StyleSheet.create({
         paddingHorizontal: 0,
     },
     bottomSheetContent: {
+        flex: 1,
         backgroundColor: 'white',
         paddingHorizontal: 16,
-        paddingBottom: 24,
-        maxHeight: '80%',
+    },
+    bottomSheetContentContainer: {
+        paddingBottom: 48,
     },
     bottomSheetHeader: {
         paddingVertical: 16,

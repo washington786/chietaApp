@@ -19,7 +19,10 @@ export const history_styles = StyleSheet.create({
         gap: 8,
     },
     filterTab: {
-        paddingHorizontal: 16,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        paddingHorizontal: 14,
         paddingVertical: 8,
         borderRadius: 20,
         backgroundColor: colors.slate[100],
@@ -252,10 +255,8 @@ export const history_styles = StyleSheet.create({
     },
     // Organization Bottom Sheet Styles
     organizationBottomSheet: {
-        flex: 1,
+        padding: 16,
         backgroundColor: colors.white,
-        paddingHorizontal: 8,
-        paddingVertical: 24,
         gap: 16,
         position: "relative"
     },
@@ -329,5 +330,120 @@ export const history_styles = StyleSheet.create({
     },
     orgItemCheckmark: {
         marginLeft: 8,
-    }
+    },
+    // Context bar (org pill + result count)
+    contextBar: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingHorizontal: 12,
+        paddingTop: 6,
+        paddingBottom: 8,
+        backgroundColor: colors.slate[50],
+        borderBottomWidth: 1,
+        borderBottomColor: colors.slate[100],
+    },
+    orgPill: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 5,
+        backgroundColor: colors.primary[50],
+        borderWidth: 1,
+        borderColor: colors.primary[200],
+        borderRadius: 20,
+        paddingHorizontal: 10,
+        paddingVertical: 5,
+        maxWidth: '68%' as any,
+    },
+    orgPillText: {
+        fontSize: 12,
+        fontWeight: '600' as const,
+        color: colors.primary[700],
+        flexShrink: 1,
+    },
+    resultCountText: {
+        fontSize: 12,
+        color: colors.slate[400],
+        fontWeight: '500' as const,
+    },
+    // Enhanced filter scroll
+    filterScrollView: {
+        backgroundColor: colors.white,
+        borderBottomWidth: 1,
+        borderBottomColor: colors.slate[100],
+    },
+    filterScrollContent: {
+        paddingHorizontal: 12,
+        paddingTop: 8,
+        paddingBottom: 10,
+        gap: 8,
+        flexDirection: 'row' as const,
+    },
+    filterTabBadge: {
+        backgroundColor: colors.slate[300],
+        borderRadius: 10,
+        paddingHorizontal: 6,
+        paddingVertical: 1,
+        minWidth: 22,
+        alignItems: 'center' as const,
+    },
+    filterTabBadgeActive: {
+        backgroundColor: 'rgba(255,255,255,0.25)',
+    },
+    filterTabBadgeText: {
+        fontSize: 10,
+        fontWeight: '700' as const,
+        color: colors.slate[600],
+    },
+    filterTabBadgeTextActive: {
+        color: colors.white,
+    },
+    // Search bar wrapper
+    searchWrapper: {
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        backgroundColor: colors.white,
+        borderBottomWidth: 1,
+        borderBottomColor: colors.slate[100],
+    },
+    searchBar: {
+        backgroundColor: colors.zinc[50],
+        borderWidth: 1,
+        borderColor: colors.zinc[200],
+        elevation: 0,
+    },
+    // Org initials inside orgItemIcon
+    orgItemInitials: {
+        fontSize: 16,
+        fontWeight: '700' as const,
+        color: colors.primary[600],
+    },
+    orgItemInitialsSelected: {
+        color: colors.white,
+    },
+    // Grant type segmented toggle (Disc. / Mand.)
+    grantTypeToggle: {
+        flexDirection: 'row' as const,
+        backgroundColor: colors.slate[100],
+        borderRadius: 16,
+        padding: 2,
+        borderWidth: 1,
+        borderColor: colors.slate[200],
+    },
+    grantTypePill: {
+        paddingHorizontal: 10,
+        paddingVertical: 4,
+        borderRadius: 14,
+    },
+    grantTypePillActive: {
+        backgroundColor: colors.primary[600],
+    },
+    grantTypePillText: {
+        fontSize: 11,
+        fontWeight: '700' as const,
+        color: colors.slate[500],
+    },
+    grantTypePillTextActive: {
+        color: colors.white,
+    },
 })

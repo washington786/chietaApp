@@ -1,8 +1,9 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { StatusBar, View } from 'react-native'
+import { View, StyleSheet } from 'react-native'
 import * as SplashScreen from 'expo-splash-screen'
+import { StatusBar } from 'expo-status-bar'
 
-import { RMainAlerts, RNetworkAlert, RSplash } from '@/components/common'
+import { CrashFallback, RMainAlerts, RNetworkAlert, RSplash } from '@/components/common'
 import ProviderWraper from '@/components/common/ProviderWraper'
 import { BottomSheetWrapper } from '@/components/modules/application'
 import useLoadAppFonts from '@/hooks/loadfonts/useLoadFonts'
@@ -14,6 +15,10 @@ import { persistor, store } from '@/store/store'
 import colors from '@/config/colors'
 import { useGetActiveWindowsQuery } from '@/store/api/api'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import { NotificationProvider } from '@/hooks/notifications'
+import { initializeReliabilityLayer } from '@/core/services/reliability'
+import AppErrorBoundary from '@/components/common/AppErrorBoundary'
+import { logger } from '@/utils/logger'
 
 SplashScreen.preventAutoHideAsync().catch(() => {
   let tm = setTimeout(() => SplashScreen.preventAutoHideAsync(), 100)
@@ -107,18 +112,25 @@ const AppContent = () => {
     };
   }, [activeWindowCount, incrementAlertCount, shouldShowAlert]);
 
+  useEffect(() => {
+    initializeReliabilityLayer()
+      .then(() => logger.info('Reliability layer initialized'))
+      .catch((error) => logger.error('Failed to init reliability layer', error))
+  }, [])
+
+  // Hide the native splash as soon as the view first mounts
+  const nativeSplashHidden = useRef(false);
   const onLayoutRootView = useCallback(async () => {
-    if (appIsReady) {
+    if (!nativeSplashHidden.current) {
+      nativeSplashHidden.current = true;
       await SplashScreen.hideAsync();
     }
-  }, [appIsReady]);
+  }, []);
 
-  if (!loadedApplicationFonts || !appIsReady) {
-    return <RSplash />;
-  }
+  const isLoading = !loadedApplicationFonts || !appIsReady;
 
   return (
-    <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
+    <View style={{ flex: 1, backgroundColor: colors.primary[950] }} onLayout={onLayoutRootView}>
       <RMainAlerts
         visible={showAlert && activeWindowCount > 0}
         title='Discretionary Grants Open'
@@ -131,21 +143,34 @@ const AppContent = () => {
       <RNetworkAlert />
       <MainNavigation />
       <Toast />
-      <StatusBar backgroundColor={colors.primary[950]} barStyle={'dark-content'} networkActivityIndicatorVisible animated />
+      <StatusBar style="dark" backgroundColor={colors.primary[950]} translucent={false} animated />
+      {isLoading && (
+        <View style={StyleSheet.absoluteFill}>
+          <RSplash />
+        </View>
+      )}
     </View>
   );
 };
 
 export default function App() {
   return (
-    <Provider store={store}>
-      <PersistGate loading={null} persistor={persistor}>
-        <BottomSheetWrapper>
-          <ProviderWraper>
-            <AppContent />
-          </ProviderWraper>
-        </BottomSheetWrapper>
-      </PersistGate>
-    </Provider>
+    <AppErrorBoundary
+      fallback={({ error, reset }) => (
+        <CrashFallback error={error} resetError={reset} />
+      )}
+    >
+      <Provider store={store}>
+        <PersistGate loading={null} persistor={persistor}>
+          <BottomSheetWrapper>
+            <ProviderWraper>
+              <NotificationProvider>
+                <AppContent />
+              </NotificationProvider>
+            </ProviderWraper>
+          </BottomSheetWrapper>
+        </PersistGate>
+      </Provider>
+    </AppErrorBoundary>
   );
 }

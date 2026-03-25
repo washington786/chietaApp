@@ -1,31 +1,32 @@
 import { View, SectionList } from 'react-native'
-import React, { useMemo } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import { REmpty, SafeArea, RListLoading, RToggleInfo, RText } from '@/components/common'
 import RHeader from '@/components/common/RHeader'
 import { ItemNotification } from '@/components/modules/application'
 import Animated, { FadeInDown } from 'react-native-reanimated'
 import { useSelector } from 'react-redux'
 import { RootState } from '@/store/store'
-import { AppNotification } from '@/core/types/notifications'
-import { useGetNotificationsByUserQuery, useMarkNotificationAsReadMutation } from '@/store/api/api'
+import { useCombinedNotifications } from '@/hooks/notifications'
+import type { CombinedNotification } from '@/hooks/notifications'
+import { useMarkNotificationAsReadMutation } from '@/store/api/api'
 import { showToast } from '@/core'
 import { StyleSheet } from 'react-native'
 import colors from '@/config/colors'
 
 const NotificationsPage = () => {
     const user = useSelector((state: RootState) => state.auth.user);
-    const userId: number = user?.id ? parseInt(String(user.id), 10) : 0;
+    const userId = user?.id ? Number(user.id) : undefined;
 
-    // Fetch notifications from server
-    const { data: serverNotifications, isLoading, error } = useGetNotificationsByUserQuery(userId, {
-        skip: userId === 0
-    });
+    const {
+        reminders,
+        system,
+        isLoading,
+        errorMessage,
+        markLocalNotificationAsRead,
+    } = useCombinedNotifications(userId);
 
     // Mark notification as read mutation
     const [markAsRead] = useMarkNotificationAsReadMutation();
-
-    // Use server notifications
-    const notifications = serverNotifications?.items || [];
 
     // Helper function to get date label
     const getDateLabel = (timestamp: number): string => {
@@ -43,50 +44,52 @@ const NotificationsPage = () => {
         }
     };
 
-    // Group notifications by type and date
-    const groupedNotifications = useMemo(() => {
-        const groupByTypeAndDate = (type: string): Array<{ title: string; data: AppNotification[] }> => {
-            const filtered: AppNotification[] = notifications.filter((n: AppNotification) => n.source === type);
-            const grouped: { [key: string]: AppNotification[] } = {};
+    const groupByDate = useCallback((items: CombinedNotification[]): Array<{ title: string; data: CombinedNotification[] }> => {
+        const grouped: Record<string, CombinedNotification[]> = {};
+        items.forEach(notification => {
+            const label = getDateLabel(notification.timestamp);
+            if (!grouped[label]) {
+                grouped[label] = [];
+            }
+            grouped[label].push(notification);
+        });
 
-            filtered.forEach((notification: AppNotification) => {
-                const dateLabel = getDateLabel(notification.timestamp);
-                if (!grouped[dateLabel]) {
-                    grouped[dateLabel] = [];
-                }
-                grouped[dateLabel].push(notification);
-            });
+        return Object.entries(grouped)
+            .sort((a, b) => {
+                const dateA = new Date(a[0]);
+                const dateB = new Date(b[0]);
+                return dateB.getTime() - dateA.getTime();
+            })
+            .map(([date, data]) => ({
+                title: date,
+                data,
+            }));
+    }, []);
 
-            // Convert to array of sections, sorted by date
-            return Object.entries(grouped)
-                .sort((a, b) => {
-                    const dateA = new Date(a[0]);
-                    const dateB = new Date(b[0]);
-                    return dateB.getTime() - dateA.getTime();
-                })
-                .map(([date, data]: [string, AppNotification[]]) => ({
-                    title: date,
-                    data,
-                }));
-        };
+    const groupedReminders = useMemo(() => groupByDate(reminders), [groupByDate, reminders]);
+    const groupedSystem = useMemo(() => groupByDate(system), [groupByDate, system]);
 
-        return {
-            reminders: groupByTypeAndDate('reminder'),
-            system: groupByTypeAndDate('system'),
-        };
-    }, [notifications]);
-
-    const handleNotificationPress = async (notificationId: string, isRead: boolean) => {
-        if (isRead) {
+    const handleNotificationPress = async (notification: CombinedNotification) => {
+        if (notification.read) {
             return;
         }
 
-        try {
-            await markAsRead(parseInt(notificationId, 10)).unwrap();
-            showToast({ message: 'Notification marked as read', type: 'info', title: 'Success', position: 'top' });
-        } catch (error) {
-            showToast({ message: 'Failed to mark notification as read', type: 'error', title: 'Error', position: 'top' });
-            console.error('Failed to mark notification as read:', error);
+        if (notification.isLocal) {
+            markLocalNotificationAsRead(notification.id);
+        }
+
+        const serverId = notification.serverId ? Number(notification.serverId) : null;
+
+        if (serverId && !Number.isNaN(serverId)) {
+            try {
+                await markAsRead(serverId).unwrap();
+                showToast({ message: 'Notification marked as read', type: 'info', title: 'Success', position: 'top' });
+            } catch (error) {
+                showToast({ message: 'Failed to mark notification as read', type: 'error', title: 'Error', position: 'top' });
+                console.error('Failed to mark notification as read:', error);
+            }
+        } else if (notification.isLocal) {
+            showToast({ message: 'Reminder marked as read', type: 'info', title: 'Success', position: 'top' });
         }
     };
 
@@ -94,7 +97,7 @@ const NotificationsPage = () => {
         <RText title={title} style={styles.sectionHeader} />
     );
 
-    const renderNotification = ({ item, index }: { item: AppNotification; index: number }) => (
+    const renderNotification = ({ item, index }: { item: CombinedNotification; index: number }) => (
         <Animated.View key={`notification-${item.id}`} entering={FadeInDown.duration(600).delay(index * 100).springify()}>
             <ItemNotification
                 notification={item}
@@ -104,14 +107,23 @@ const NotificationsPage = () => {
                 timestamp={item.timestamp}
                 read={item.read}
                 source={item.source}
-                onPress={() => handleNotificationPress(item.id, item.read)}
+                onPress={() => handleNotificationPress(item)}
             />
         </Animated.View>
     );
 
-    const renderNotificationSection = (sections: Array<{ title: string; data: AppNotification[] }>) => {
+    const renderNotificationSection = (
+        sections: Array<{ title: string; data: CombinedNotification[] }>,
+        emptySubtitle?: string,
+    ) => {
         if (sections.length === 0) {
-            return <REmpty title='No Notifications' icon='bell-off' subtitle='You do not have any notifications available for your profile.' />;
+            return (
+                <REmpty
+                    title='No Notifications'
+                    icon='bell-off'
+                    subtitle={emptySubtitle ?? 'You do not have any notifications available for your profile.'}
+                />
+            );
         }
 
         return (
@@ -130,8 +142,9 @@ const NotificationsPage = () => {
         );
     };
 
-    const remindersContent = renderNotificationSection(groupedNotifications.reminders);
-    const systemContent = renderNotificationSection(groupedNotifications.system);
+    const emptySubtitle = errorMessage ?? 'You do not have any notifications available for your profile.';
+    const remindersContent = renderNotificationSection(groupedReminders, emptySubtitle);
+    const systemContent = renderNotificationSection(groupedSystem, emptySubtitle);
 
     if (isLoading) {
         return <RListLoading count={7} />

@@ -12,7 +12,7 @@ import ApplicationStatusDetails from "./application/history/ApplicationStatusDet
 import LinkOrgPage from "./application/LinkOrgPage";
 import MandatoryPage from "./application/MandatoryPage";
 import PdfViewerPage from "./application/top/PdfViewerPage";
-
+import LinkedOrganizationDetails from '../pages/application/account/LinkedOrganizationDetails'
 
 export {
     AddNewOrganization,
@@ -25,5 +25,6 @@ export {
     LinkOrgPage,
     ChangePassword,
     LinkedOrganizationsPage,
-    PdfViewerPage
+    PdfViewerPage,
+    LinkedOrganizationDetails
 }

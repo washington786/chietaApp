@@ -1,207 +1,423 @@
-import { FlatList, StyleSheet, View, ActivityIndicator, TouchableOpacity, Image } from 'react-native'
-import React, { useEffect, useState } from 'react'
-import { RCol, REmpty, RListLoading, RRow, SafeArea } from '@/components/common'
+import {
+    FlatList, StyleSheet, View, ActivityIndicator,
+    TouchableOpacity, Image, ScrollView,
+} from 'react-native'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { REmpty, RInput, RListLoading, RRow, SafeArea } from '@/components/common'
 import RHeader from '@/components/common/RHeader'
 import { ItemOrganization } from '@/components/modules/application'
-import { Searchbar, Text } from 'react-native-paper'
+import { Text } from 'react-native-paper'
 import colors from '@/config/colors'
+import appFonts from '@/config/fonts'
 import { showToast } from '@/core'
 import { OrganisationDto } from '@/core/models/organizationDto'
 import usePageTransition from '@/hooks/navigation/usePageTransition'
 import { useDispatch, useSelector } from 'react-redux'
 import { setSearchQuery } from '@/store/slice/Organization'
 import { AppDispatch, RootState } from '@/store/store'
-import { linkOrganizationAsync, loadAllOrganizations } from '@/store/slice/thunks/OrganizationThunks'
+import { linkOrganizationAsync, loadAllOrganizations, loadLinkedOrganizationsAsync } from '@/store/slice/thunks/OrganizationThunks'
 import { useGlobalBottomSheet } from '@/hooks/navigation/BottomSheet'
-import EvilIcons from '@expo/vector-icons/EvilIcons';
+import EvilIcons from '@expo/vector-icons/EvilIcons'
+import Ionicons from '@expo/vector-icons/Ionicons'
 import { useLazyGetOrgSdfByOrgQuery } from '@/store/api/api'
 import { errorBox } from '@/components/loadAssets'
+
+type FilterType = 'all' | 'active' | 'inactive' | 'linked';
+
+const FILTERS: { key: FilterType; label: string; icon: keyof typeof Ionicons.glyphMap }[] = [
+    { key: 'all', label: 'All', icon: 'layers-outline' },
+    { key: 'active', label: 'Active', icon: 'checkmark-circle-outline' },
+    { key: 'inactive', label: 'Inactive', icon: 'close-circle-outline' },
+    { key: 'linked', label: 'Linked', icon: 'link-outline' },
+];
+
 const AddNewOrganization = () => {
-    const { filteredOrganizations, searchQuery, loading } = useSelector(
+    const { filteredOrganizations, searchQuery, loading, linkedOrganizations } = useSelector(
         (state: RootState) => state.linkedOrganization
     );
-
     const { user } = useSelector((state: RootState) => state.auth);
 
-    const [showSearch, setSearchVisible] = useState(false);
+    const [activeFilter, setActiveFilter] = useState<FilterType>('all');
     const [pageIndex, setPageIndex] = useState(0);
     const [isLoadingMore, setIsLoadingMore] = useState(false);
+    const [hasMore, setHasMore] = useState(true);
+    const [linkingId, setLinkingId] = useState<number | null>(null);
 
     const { onBack } = usePageTransition();
     const dispatch = useDispatch<AppDispatch>();
-
     const [getOrgSdf] = useLazyGetOrgSdfByOrgQuery();
-
+    const { open, close } = useGlobalBottomSheet();
     const pageSize = 20;
 
-    const { open, close } = useGlobalBottomSheet();
+    const linkedIds = useMemo(
+        () => new Set((linkedOrganizations ?? []).map((o: any) => o.id)),
+        [linkedOrganizations]
+    );
 
-    function showLinkedCompanyError(item: any) {
-        open(<AlreadLinked orgName={item} close={close} />, { snapPoints: ['35%'] });
-    }
-
-    // Initial load
+    // Initial load — both paginated org list and locally-stored linked orgs
     useEffect(() => {
-        dispatch(loadAllOrganizations({ first: 0, rows: pageSize }));
+        dispatch(loadLinkedOrganizationsAsync());
+        dispatch(loadAllOrganizations({ first: 0, rows: pageSize }))
+            .unwrap()
+            .then((items) => { setHasMore(items.length >= pageSize); setPageIndex(0); })
+            .catch(() => setHasMore(false));
     }, [dispatch]);
 
-    function handleLinkOrganization(item: OrganisationDto) {
-        // Fetch org SDF details first
-        getOrgSdf({ organisationId: item.id, userId: user ? Number(user.id) : 0 })
-            .unwrap()
-            .then((sdfOrgData: any) => {
+    // Sync search input to redux
+    const handleSearch = useCallback((text: string) => {
+        dispatch(setSearchQuery(text));
+    }, [dispatch]);
 
-                // Check if organization is already linked to this SDF
-                if (sdfOrgData && sdfOrgData.id) {
-                    // Organization already linked
-                    showLinkedCompanyError(item.organisationTradingName);
-                    return;
-                }
-
-                // Organization not linked yet, proceed with linking
-                dispatch(linkOrganizationAsync(item))
-                    .unwrap()
-                    .then(() => {
-                        onBack();
-                        showToast({
-                            message: 'Organization linked successfully to your profile',
-                            type: 'success',
-                            title: 'Organization Linking',
-                            position: 'bottom',
-                        });
-                    })
-                    .catch((error: any) => {
-                        showToast({
-                            message: error || 'Failed to link organization',
-                            type: 'error',
-                            title: 'Error',
-                            position: 'bottom',
-                        });
-                    });
-            })
-            .catch((error: any) => {
-                showToast({
-                    message: error || 'Failed to fetch organization details',
-                    type: 'error',
-                    title: 'Error',
-                    position: 'bottom',
-                });
-            });
-    }
-
-    const handleSearch = (query: string) => {
-        dispatch(setSearchQuery(query));
-    };
-
-    const handleLoadMore = () => {
-        if (!isLoadingMore && !loading && filteredOrganizations.length > 0) {
-            setIsLoadingMore(true);
-            const nextPage = pageIndex + 1;
-            dispatch(loadAllOrganizations({ first: nextPage * pageSize, rows: pageSize }))
-                .then(() => {
-                    setPageIndex(nextPage);
-                    setIsLoadingMore(false);
-                })
-                .catch(() => {
-                    setIsLoadingMore(false);
-                });
+    // Display list — "linked" filter uses the SecureStore-backed list directly
+    // so it works regardless of pagination state
+    const displayList = useMemo<OrganisationDto[]>(() => {
+        if (activeFilter === 'linked') {
+            return (linkedOrganizations ?? []) as OrganisationDto[];
         }
-    };
+        let list = filteredOrganizations;
+        if (activeFilter === 'active') list = list.filter(o => o.status?.toLowerCase() === 'active');
+        if (activeFilter === 'inactive') list = list.filter(o => o.status?.toLowerCase() !== 'active');
+        return list;
+    }, [filteredOrganizations, activeFilter, linkedOrganizations]);
 
-    const renderList = ({ index, item }: { index: number, item: OrganisationDto }) => {
-        return (
-            <ItemOrganization key={`${item.id}-${index}`} onPress={() => handleLinkOrganization(item)} item={item} />
-        )
+    function showLinkedCompanyError(orgName: string) {
+        open(<AlreadyLinked orgName={orgName} close={close} />, { snapPoints: ['40%'] });
     }
 
-    const renderFooter = () => {
-        if (!isLoadingMore) return null;
-        return (
-            <View style={styles.footer}>
-                <ActivityIndicator size="large" color={colors.primary[900]} />
-            </View>
-        );
+    async function handleLinkOrganization(item: OrganisationDto) {
+        if (linkingId !== null) return;
+        setLinkingId(item.id);
+        try {
+            const sdfOrgData: any = await getOrgSdf(
+                { organisationId: item.id, userId: user ? Number(user.id) : 0 }
+            ).unwrap();
+
+            if (sdfOrgData?.id) {
+                showLinkedCompanyError(item.organisationTradingName);
+                return;
+            }
+
+            await dispatch(linkOrganizationAsync(item)).unwrap();
+            onBack();
+            showToast({
+                message: 'Organization linked successfully to your profile',
+                type: 'success',
+                title: 'Organization Linked',
+                position: 'bottom',
+            });
+        } catch (error: any) {
+            showToast({
+                message: error?.message || error || 'Failed to link organization',
+                type: 'error',
+                title: 'Error',
+                position: 'bottom',
+            });
+        } finally {
+            setLinkingId(null);
+        }
+    }
+
+    const handleLoadMore = useCallback(() => {
+        // Don't paginate when search or non-paginated filters are active
+        if (searchQuery.trim() || activeFilter === 'linked' || !hasMore || isLoadingMore || loading) return;
+        setIsLoadingMore(true);
+        const nextPage = pageIndex + 1;
+        dispatch(loadAllOrganizations({ first: nextPage * pageSize, rows: pageSize }))
+            .unwrap()
+            .then((items) => {
+                setPageIndex(nextPage);
+                setHasMore(items.length >= pageSize);
+            })
+            .catch(() => setHasMore(false))
+            .finally(() => setIsLoadingMore(false));
+    }, [searchQuery, activeFilter, hasMore, isLoadingMore, loading, pageIndex, dispatch]);
+
+    const renderItem = useCallback(({ index, item }: { index: number; item: OrganisationDto }) => (
+        <ItemOrganization
+            key={`${item.id}-${index}`}
+            item={item}
+            isLinked={linkedIds.has(item.id)}
+            isLinking={linkingId === item.id}
+            onPress={() => handleLinkOrganization(item)}
+        />
+    ), [linkedIds, linkingId]);
+
+    const keyExtractor = useCallback((item: OrganisationDto) => `org-${item.id}`, []);
+
+    const showInitialLoader = loading && filteredOrganizations.length === 0 && pageIndex === 0;
+
+    const activeCount = filteredOrganizations.filter(o => o.status?.toLowerCase() === 'active').length;
+    const inactiveCount = filteredOrganizations.filter(o => o.status?.toLowerCase() !== 'active').length;
+    const linkedCount = (linkedOrganizations ?? []).length;
+
+    const countFor = (key: FilterType) => {
+        if (key === 'all') return filteredOrganizations.length;
+        if (key === 'active') return activeCount;
+        if (key === 'inactive') return inactiveCount;
+        if (key === 'linked') return linkedCount;
+        return 0;
     };
 
-    if (loading) {
-        return (<RListLoading count={7} />);
-    }
+    // Only show empty state when not loading in any way
+    const isAnyLoading = loading || isLoadingMore;
+    const [show, setShow] = useState(false);
 
     return (
         <SafeArea>
-            <RHeader name='Link An Organization' hasRightIcon={true} iconRight='search' onPressRight={() => setSearchVisible(!showSearch)} />
+            <RHeader name='Link An Organization' hasRightIcon iconRight='search' onPressRight={() => setShow(!show)} />
+
+            {/* ── Search (uses project RInput) ──────────────────────── */}
             {
-                showSearch &&
-                <RCol style={styles.col}>
-                    <Searchbar
-                        placeholder="Search"
-                        onChangeText={handleSearch}
+                show &&
+                <View style={styles.searchWrap}>
+                    <RInput
+                        icon='search'
+                        iconColor={colors.primary[400]}
+                        placeholder='Search by name or registration number…'
+                        placeholderTextColor={colors.slate[400]}
                         value={searchQuery}
-                        style={styles.searchBar}
+                        onChangeText={handleSearch}
+                        returnKeyType='search'
+                        customStyle={styles.searchInput}
                     />
-                </RCol>
+                </View>
             }
-            <FlatList data={filteredOrganizations}
-                style={{ paddingHorizontal: 12, paddingVertical: 6, flex: 1, flexGrow: 1 }}
-                renderItem={renderList}
-                keyExtractor={(item, index) => `organization-${item.id}-${index}`}
-                showsVerticalScrollIndicator={false}
-                ItemSeparatorComponent={() => <View style={{ height: 5 }} />}
-                removeClippedSubviews={true}
-                initialNumToRender={15}
-                maxToRenderPerBatch={15}
-                windowSize={10}
-                onEndReached={handleLoadMore}
-                onEndReachedThreshold={0.3}
-                ListFooterComponent={renderFooter}
-                ListEmptyComponent={loading ? null : <REmpty title='No Organizations' subtitle='Sorry, no organizations are available to link. Please add an organization on web platform.' icon='briefcase' />}
-            />
+
+            {/* ── Filter chips ──────────────────────────────────────── */}
+            <View style={styles.filterContainer}>
+                <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    alwaysBounceHorizontal={false}
+                    contentContainerStyle={styles.filterRow}
+                >
+                    {FILTERS.map(f => {
+                        const active = activeFilter === f.key;
+                        return (
+                            <TouchableOpacity
+                                key={f.key}
+                                onPress={() => setActiveFilter(f.key)}
+                                style={[styles.chip, active && styles.chipActive]}
+                                activeOpacity={0.75}
+                            >
+                                <Ionicons
+                                    name={f.icon}
+                                    size={14}
+                                    color={active ? colors.white : colors.primary[600]}
+                                />
+                                <Text style={[styles.chipLabel, active && styles.chipLabelActive]}>
+                                    {f.label}
+                                </Text>
+                                <View style={[styles.chipBadge, active && styles.chipBadgeActive]}>
+                                    <Text style={[styles.chipBadgeText, active && styles.chipBadgeTextActive]}>
+                                        {countFor(f.key)}
+                                    </Text>
+                                </View>
+                            </TouchableOpacity>
+                        );
+                    })}
+                </ScrollView>
+            </View>
+
+            {/* ── Result count ──────────────────────────────────────── */}
+            {!showInitialLoader && (
+                <View style={styles.resultMeta}>
+                    <Text style={styles.resultCount}>
+                        {displayList.length} organization{displayList.length !== 1 ? 's' : ''}
+                    </Text>
+                    {searchQuery.trim() ? (
+                        <Text style={styles.resultQuery}>for "{searchQuery}"</Text>
+                    ) : null}
+                </View>
+            )}
+
+            {/* ── List ──────────────────────────────────────────────── */}
+            {showInitialLoader ? (
+                <RListLoading count={7} />
+            ) : (
+                <FlatList
+                    data={displayList}
+                    style={styles.list}
+                    renderItem={renderItem}
+                    keyExtractor={keyExtractor}
+                    showsVerticalScrollIndicator={false}
+                    ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
+                    removeClippedSubviews
+                    initialNumToRender={15}
+                    maxToRenderPerBatch={15}
+                    windowSize={10}
+                    onEndReached={handleLoadMore}
+                    onEndReachedThreshold={0.4}
+                    contentContainerStyle={styles.listContent}
+                    ListFooterComponent={
+                        isLoadingMore ? (
+                            <View style={styles.loadMoreIndicator}>
+                                <ActivityIndicator size='small' color={colors.primary[600]} />
+                                <Text style={styles.loadMoreText}>Loading more…</Text>
+                            </View>
+                        ) : null
+                    }
+                    ListEmptyComponent={
+                        // Don't show empty state while any loading is in progress
+                        isAnyLoading ? null : (
+                            <REmpty
+                                title='No Organizations Found'
+                                subtitle={
+                                    activeFilter === 'linked'
+                                        ? 'You have not linked any organizations yet.'
+                                        : activeFilter !== 'all'
+                                            ? `No organizations match the "${FILTERS.find(f => f.key === activeFilter)?.label}" filter.`
+                                            : 'No organizations are available to link. Please add an organization on the web platform.'
+                                }
+                                icon='briefcase'
+                            />
+                        )
+                    }
+                />
+            )}
         </SafeArea>
-    )
-}
+    );
+};
 
-export default AddNewOrganization
+export default AddNewOrganization;
 
-interface props {
-    orgName: string;
-    close: () => void;
-}
-function AlreadLinked({ close, orgName }: props) {
-    return <View style={{ flex: 1, backgroundColor: "white", padding: 16 }}>
-        <RRow
-            style={{
-                justifyContent: "space-between",
-                alignItems: "center",
-                marginBottom: 24,
-            }}
-        >
+// ─── Already Linked bottom sheet ─────────────────────────────────────────────
+interface AlreadyLinkedProps { orgName: string; close: () => void; }
+function AlreadyLinked({ close, orgName }: AlreadyLinkedProps) {
+    return (
+        <View style={sheet.wrap}>
+            <RRow style={sheet.header}>
+                <View style={sheet.titleRow}>
+                    <View style={sheet.iconCircle}>
+                        <Ionicons name='link' size={20} color={colors.primary[600]} />
+                    </View>
+                    <Text variant='titleMedium' style={sheet.title}>Already Linked</Text>
+                </View>
+                <TouchableOpacity onPress={close} hitSlop={8}>
+                    <EvilIcons name='close' size={32} color={colors.gray[600]} />
+                </TouchableOpacity>
+            </RRow>
 
-            <Text variant="titleMedium">Organization Error</Text>
+            <View style={sheet.body}>
+                <Image source={errorBox} style={sheet.img} />
+                <Text variant='titleSmall' style={sheet.heading}>Organization Already Linked</Text>
+                <Text variant='bodySmall' style={sheet.msg}>
+                    {`"${orgName}" is already linked to an SDF profile. Please check your linked organizations or contact support for assistance.`}
+                </Text>
+            </View>
 
-            <TouchableOpacity onPress={close}>
-                <EvilIcons name="close" size={32} color="black" />
+            <TouchableOpacity onPress={close} style={sheet.closeBtn}>
+                <Text style={sheet.closeBtnText}>Got it</Text>
             </TouchableOpacity>
-        </RRow>
-
-        <RCol style={{ alignItems: "center", gap: 16 }}>
-            <Image source={errorBox} style={{ width: 64, height: 64 }} />
-            <Text variant='titleMedium' style={{ textAlign: 'center' }}>Organization Already Linked</Text>
-            <Text variant='bodySmall' style={{ textAlign: 'center', color: colors.gray[400], fontWeight: "ultralight" }}>The organization "{orgName}" is already linked to another profile under another SDF. Please check your linked organizations or contact support for assistance.</Text>
-        </RCol>
-    </View>
+        </View>
+    );
 }
+
+const sheet = StyleSheet.create({
+    wrap: { flex: 1, backgroundColor: 'white', padding: 20 },
+    header: { justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
+    titleRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+    iconCircle: { width: 36, height: 36, borderRadius: 18, backgroundColor: colors.primary[50], alignItems: 'center', justifyContent: 'center' },
+    title: { color: colors.gray[800] },
+    body: { alignItems: 'center', gap: 12, paddingVertical: 8 },
+    img: { width: 64, height: 64 },
+    heading: { textAlign: 'center', color: colors.gray[800], fontFamily: `${appFonts.semiBold}` },
+    msg: { textAlign: 'center', color: colors.gray[500], lineHeight: 20 },
+    closeBtn: { marginTop: 20, backgroundColor: colors.primary[600], borderRadius: 12, paddingVertical: 13, alignItems: 'center' },
+    closeBtnText: { color: 'white', fontFamily: `${appFonts.semiBold}`, fontSize: 14 },
+});
 
 const styles = StyleSheet.create({
-    col: {
-        paddingVertical: 6,
-        marginVertical: 5,
-        paddingHorizontal: 12
+    searchWrap: {
+        marginHorizontal: 16,
+        marginTop: 10,
+        marginBottom: 6,
     },
-    searchBar: {
-        backgroundColor: colors.slate[100],
+    searchInput: {
+        borderRadius: 12,
+        borderColor: colors.primary[200],
+        backgroundColor: colors.primary[50],
     },
-    footer: {
-        paddingVertical: 20,
+    filterContainer: {
+        height: 52,
+        justifyContent: 'center',
+    },
+    filterRow: {
+        paddingHorizontal: 16,
         alignItems: 'center',
-    }
-})
+        gap: 8,
+    },
+    chip: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 5,
+        paddingHorizontal: 13,
+        paddingVertical: 8,
+        borderRadius: 20,
+        backgroundColor: colors.slate[100],
+        borderWidth: 1,
+        borderColor: colors.slate[200],
+    },
+    chipActive: {
+        backgroundColor: colors.primary[950],
+        borderColor: colors.primary[950],
+    },
+    chipLabel: {
+        fontSize: 12,
+        fontFamily: `${appFonts.medium}`,
+        color: colors.slate[600],
+        lineHeight: 16,
+    },
+    chipLabelActive: { color: colors.white },
+    chipBadge: {
+        borderRadius: 10,
+        backgroundColor: colors.slate[200],
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingHorizontal: 6,
+        paddingVertical: 2,
+    },
+    chipBadgeActive: { backgroundColor: colors.primary[400] },
+    chipBadgeText: {
+        fontSize: 10,
+        fontFamily: `${appFonts.bold}`,
+        color: colors.slate[600],
+        lineHeight: 14,
+    },
+    chipBadgeTextActive: { color: colors.white },
+    resultMeta: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+        paddingHorizontal: 18,
+        paddingBottom: 6,
+    },
+    resultCount: {
+        fontSize: 12,
+        fontFamily: `${appFonts.semiBold}`,
+        color: colors.slate[600],
+    },
+    resultQuery: {
+        fontSize: 12,
+        fontFamily: `${appFonts.regular}`,
+        color: colors.slate[400],
+    },
+    list: { flex: 1 },
+    listContent: {
+        paddingHorizontal: 16,
+        paddingTop: 4,
+        paddingBottom: 32,
+    },
+    loadMoreIndicator: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 8,
+        paddingVertical: 16,
+    },
+    loadMoreText: {
+        fontSize: 12,
+        fontFamily: `${appFonts.regular}`,
+        color: colors.slate[500],
+    },
+});

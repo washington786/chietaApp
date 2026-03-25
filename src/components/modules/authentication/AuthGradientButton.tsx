@@ -81,7 +81,7 @@ const AuthGradientButton = ({ title, onPress, loading = false, disabled = false,
             <LinearGradient
                 colors={[colors.primary[900], colors.primary[700]]}
                 start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
+                end={{ x: 1, y: 0 }}
                 style={styles.gradientButton}
             >
                 <View style={[styles.content, loading && styles.loading]}>
@@ -123,8 +123,7 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontFamily: `${appFonts.semiBold}`,
         fontSize: 16,
-        textTransform: 'uppercase',
-        letterSpacing: 1,
+        letterSpacing: 0.5,
     },
 });
 

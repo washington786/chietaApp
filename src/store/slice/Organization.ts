@@ -25,6 +25,26 @@ export const initialOrganizationState: OrganizationState = {
     linkedOrganizations: [],
 };
 
+const includesText = (value: unknown, query: string) =>
+    String(value ?? '').toLowerCase().includes(query);
+
+const mergeOrganizationsById = (
+    existing: OrganisationDto[],
+    incoming: OrganisationDto[]
+) => {
+    const orgMap = new Map<number, OrganisationDto>();
+
+    existing.forEach((org) => {
+        orgMap.set(org.id, org);
+    });
+
+    incoming.forEach((org) => {
+        orgMap.set(org.id, org);
+    });
+
+    return Array.from(orgMap.values());
+};
+
 const organizationSlice = createSlice({
     name: 'organization',
     initialState: initialOrganizationState,
@@ -39,9 +59,9 @@ const organizationSlice = createSlice({
             state.searchQuery = action.payload;
             state.filteredOrganizations = state.organizations.filter(
                 (org) =>
-                    org.organisationName.toLowerCase().includes(query) ||
-                    org.organisationTradingName.toLowerCase().includes(query) ||
-                    org.organisationRegistrationNumber.includes(query)
+                    includesText(org.organisationName, query) ||
+                    includesText(org.organisationTradingName, query) ||
+                    includesText(org.organisationRegistrationNumber, query)
             );
         },
         setLoading: (state, action: PayloadAction<boolean>) => {
@@ -102,6 +122,7 @@ const organizationSlice = createSlice({
             })
             .addCase(loadOrganizations.fulfilled, (state, action) => {
                 state.organizations = action.payload;
+                state.filteredOrganizations = action.payload;
                 state.loading = false;
                 state.error = null;
             })
@@ -116,16 +137,18 @@ const organizationSlice = createSlice({
                 state.error = null;
             })
             .addCase(loadAllOrganizations.fulfilled, (state, action) => {
-                // Append new organizations to existing list (for pagination)
-                state.organizations = [...state.organizations, ...action.payload];
+                const isFirstPage = action.meta.arg.first === 0;
+                state.organizations = isFirstPage
+                    ? mergeOrganizationsById([], action.payload)
+                    : mergeOrganizationsById(state.organizations, action.payload);
                 // Re-apply search filter if there's an active search query
                 if (state.searchQuery.trim()) {
                     const query = state.searchQuery.toLowerCase();
                     state.filteredOrganizations = state.organizations.filter(
                         (org) =>
-                            org.organisationName.toLowerCase().includes(query) ||
-                            org.organisationTradingName.toLowerCase().includes(query) ||
-                            org.organisationRegistrationNumber.includes(query)
+                            includesText(org.organisationName, query) ||
+                            includesText(org.organisationTradingName, query) ||
+                            includesText(org.organisationRegistrationNumber, query)
                     );
                 } else {
                     // No search query, show all organizations

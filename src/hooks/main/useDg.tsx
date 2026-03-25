@@ -1,12 +1,15 @@
 
 import { useState, useMemo, useEffect } from 'react';
+import { useSelector } from 'react-redux';
 import { DocumentPickerResult } from 'expo-document-picker';
 import { Province } from '@/core/types/provTypes';
+import { RootState } from '@/store/store';
 import { main_manicipalities, mainDistricts, provinces } from '@/core/helpers/data';
 import { showToast } from '@/core';
 import { checkProjectClosed } from '@/core/utils/CheckClosed';
 import useDocumentPicker from '@/hooks/main/UseDocumentPicker';
 import useGenerate from '@/hooks/main/useGenerate';
+import { createProjectSubmissionHandler } from './helpers/projectSubmissionHandler';
 import {
     useGetProjectTypeQuery,
     useGetFocusAreaQuery,
@@ -48,6 +51,8 @@ interface ApplicationEntry {
 }
 
 const useDg = ({ projectId, appId, userId }: UseDgParams) => {
+    const { selectedProject } = useSelector((state: RootState) => state.discretionaryGrant);
+
     // ========== Form State ==========
     const [currentStep, setCurrentStep] = useState(1);
     const [expandDocs, setDocs] = useState(false);
@@ -198,13 +203,29 @@ const useDg = ({ projectId, appId, userId }: UseDgParams) => {
         if (dgProjectDetailsApp?.result?.items?.[0]?.projectDetails) {
             const details = dgProjectDetailsApp.result.items[0].projectDetails;
             const projectStatus = details.status || 'Registered';
-            const projectEndDate = dgProjectDetailsApp.result.items[0]?.projectEndDate || new Date().toISOString();
+            const projectEndDate = selectedProject?.projectEndDate || new Date().toISOString();
 
             const closureCheck = checkProjectClosed(projectStatus, projectEndDate);
-            return closureCheck;
+
+            // Additional check: status is 'registered' and end date is past today
+            const normalizedStatus = (projectStatus || '').trim().toLowerCase();
+            const isApplicationStatus = normalizedStatus.includes('registered');
+            let isExpiredApplication = false;
+            if (isApplicationStatus) {
+                const endDate = projectEndDate ? new Date(projectEndDate) : null;
+                if (endDate && !Number.isNaN(endDate.getTime())) {
+                    const normalizedEnd = new Date(endDate);
+                    normalizedEnd.setHours(23, 59, 59, 999);
+                    const now = new Date();
+                    now.setHours(0, 0, 0, 0);
+                    isExpiredApplication = normalizedEnd < now;
+                }
+            }
+
+            return { ...closureCheck, isExpiredApplication };
         }
         // Default to open and editable while loading, don't use stale Redux value
-        return { isClosed: false, isEditable: true };
+        return { isClosed: false, isEditable: true, isExpiredApplication: false };
     }, [dgProjectDetailsApp]);
 
     // ========== Document Picker ==========
@@ -482,52 +503,30 @@ const useDg = ({ projectId, appId, userId }: UseDgParams) => {
     };
 
     // ========== Application Submission ==========
-    const handleSubmitApplication = async () => {
-        if (!applicationForm?.assets && !getDocument(signedAppQuery)?.filename) {
-            showToast({
-                message: "Please upload the signed application form",
-                title: "Submission",
-                type: "error",
-                position: "top",
-            });
-            return;
-        }
-
-        try {
-            const validationResult = await validateProjectSubmission(appId).unwrap();
-            console.log("Validation result:", validationResult);
-
-            if (!validationResult.success) {
-                return { success: false, message: validationResult.message };
-            }
-
-            const submitResult = await submitApplication({ projId: appId, userId }).unwrap();
-            console.log("Submit result:", submitResult);
-
-            showToast({
-                message: submitResult.message || "The application has been submitted successfully.",
-                title: "Success",
-                type: "success",
-                position: "top",
-            });
-
-            setHasSubmitted(true);
-
-            try {
-                await refetchProjectDetails();
-            } catch (refetchError) {
-                console.log("Failed to refetch project details after submission", refetchError);
-            }
-
-            return { success: true, message: submitResult.message };
-        } catch (error: any) {
-            console.error("Submission error:", error);
-            const errorMessage =
-                error?.data?.error?.message || error?.message || "Failed to submit application";
-            showToast({ message: errorMessage, title: "Error", type: "error", position: "top" });
-            return { success: false, message: errorMessage };
-        }
-    };
+    const handleSubmitApplication = useMemo(
+        () =>
+            createProjectSubmissionHandler({
+                hasSignedApplication: () =>
+                    Boolean(applicationForm?.assets) ||
+                    Boolean(signedAppQuery?.data?.result?.items?.[0]?.documents?.filename),
+                validateProjectSubmission: () => validateProjectSubmission(appId).unwrap(),
+                submitApplication: () => submitApplication({ projId: appId, userId }).unwrap(),
+                refetchProjectDetails,
+                setHasSubmitted,
+                showToast,
+            }),
+        [
+            applicationForm,
+            appId,
+            refetchProjectDetails,
+            setHasSubmitted,
+            showToast,
+            signedAppQuery?.data,
+            submitApplication,
+            userId,
+            validateProjectSubmission,
+        ],
+    );
 
     const handleSaveApplication = async () => {
         setProg(!expandProg);

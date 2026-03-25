@@ -1,7 +1,9 @@
-import React, { createContext, useContext, useRef, useState, useEffect, useCallback } from 'react';
-import { BottomSheetModal, BottomSheetView, useBottomSheetInternal } from '@gorhom/bottom-sheet';
-import { Dimensions } from 'react-native';
-import Animated, { useAnimatedStyle, interpolate, Extrapolate } from 'react-native-reanimated';
+import React, { createContext, useContext, useRef, useState, useCallback } from 'react';
+import { BottomSheetModal, BottomSheetScrollView, BottomSheetFlatList, BottomSheetBackdrop } from '@gorhom/bottom-sheet';
+import { StyleSheet } from 'react-native';
+
+// Re-export gorhom scroll-aware components so callers don't need to import gorhom directly
+export { BottomSheetScrollView, BottomSheetFlatList };
 
 type OpenOptions = {
     snapPoints?: (string | number)[];
@@ -19,81 +21,25 @@ const GlobalBottomSheetContext = createContext<GlobalBottomSheetContextType>({
 
 export const useGlobalBottomSheet = () => useContext(GlobalBottomSheetContext);
 
-const CustomBackdrop = ({ onPress }: { onPress: () => void }) => {
-    const { animatedIndex, animatedPosition } = useBottomSheetInternal();
-
-    const animatedStyle = useAnimatedStyle(() => {
-        const opacity = interpolate(
-            animatedIndex.value,
-            [-1, 0],
-            [0, 0.6],
-            Extrapolate.CLAMP
-        );
-
-        return {
-            opacity,
-        };
-    });
-
-    return (
-        <Animated.View
-            style={[
-                {
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    backgroundColor: '#000',
-                },
-                animatedStyle,
-            ]}
-            onTouchEnd={onPress}
-        />
-    );
-};
-
 export const GlobalBottomSheet = ({ children }: { children: React.ReactNode }) => {
 
     const bottomSheetRef = useRef<BottomSheetModal>(null);
 
     const [content, setContent] = useState<React.ReactNode>(null);
-    const [snapPoints, setSnapPoints] = useState<(string | number)[]>(['50%']);
-    const [pendingIndex, setPendingIndex] = useState<number | null>(null);
-
-    const normalizeSnapPoints = (points: (string | number)[]) => {
-        return points.map(p => {
-            if (typeof p === 'string' && p.includes('%')) {
-                const value = parseFloat(p.replace('%', '')) / 100;
-                return Dimensions.get('window').height * value;
-            }
-            return p;
-        });
-    };
+    const [snapPoints, setSnapPoints] = useState<(string | number)[]>(['90%']);
 
     const open = useCallback((newContent: React.ReactNode, options?: OpenOptions) => {
+        const points = options?.snapPoints ?? ['90%'];
+        setSnapPoints(points);
         setContent(newContent);
-
-        const rawPoints = options?.snapPoints || ['50%'];
-        const numeric = normalizeSnapPoints(rawPoints);
-
-        setSnapPoints(numeric);
-
         setTimeout(() => {
-            bottomSheetRef.current?.present(numeric.length - 1);
-        }, 10);
+            bottomSheetRef.current?.present();
+        }, 50);
     }, []);
 
-    useEffect(() => {
-        if (pendingIndex !== null && bottomSheetRef.current) {
-            bottomSheetRef.current.present(pendingIndex);
-            setPendingIndex(null);
-        }
-    }, [pendingIndex, snapPoints]);
-
-    const close = () => {
+    const close = useCallback(() => {
         bottomSheetRef.current?.dismiss();
-    };
+    }, []);
 
     return (
         <GlobalBottomSheetContext.Provider value={{ open, close }}>
@@ -102,16 +48,19 @@ export const GlobalBottomSheet = ({ children }: { children: React.ReactNode }) =
             <BottomSheetModal
                 ref={bottomSheetRef}
                 snapPoints={snapPoints}
-                index={0}
+                index={snapPoints.length - 1}
+                enableDynamicSizing={false}
                 enablePanDownToClose={true}
                 onDismiss={() => setContent(null)}
                 backgroundStyle={{ backgroundColor: '#fff' }}
-                backdropComponent={() => <CustomBackdrop onPress={close} />}
+                backdropComponent={(props) => (
+                    <BottomSheetBackdrop {...props} disappearsOnIndex={-1} appearsOnIndex={0} pressBehavior="close" opacity={0.6} />
+                )}
             >
-                <BottomSheetView style={{ flex: 1, padding: 16, minHeight: 300 }}>
-                    {content}
-                </BottomSheetView>
+                {content}
             </BottomSheetModal>
         </GlobalBottomSheetContext.Provider>
     );
 };
+
+const styles = StyleSheet.create({});

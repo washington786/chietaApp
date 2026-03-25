@@ -1,4 +1,4 @@
-import { FlatList, View, TouchableOpacity, Text as NativeText } from 'react-native'
+import { FlatList, View, TouchableOpacity, Text as NativeText, ScrollView } from 'react-native'
 import React, { useEffect, useMemo, useState } from 'react'
 import { RCol, REmpty, RListLoading, SafeArea, RRow } from '@/components/common'
 import colors from '@/config/colors'
@@ -6,13 +6,14 @@ import usePageTransition from '@/hooks/navigation/usePageTransition'
 import { useSelector } from 'react-redux'
 import { RootState } from '@/store/store'
 import { showToast } from '@/core'
-import { useGetOrganizationsBySdfIdQuery, useGetProjectTimelineQuery } from '@/store/api/api'
+import { useGetOrganizationsBySdfIdQuery, useGetProjectTimelineQuery, useGetOrgApplicationsQuery } from '@/store/api/api'
 import { ProjectTimeline } from '@/core/models/DiscretionaryDto'
+import { MandatoryApplicationDto } from '@/core/models/MandatoryDto'
 import RHeader from '@/components/common/RHeader'
 import { history_styles as styles } from '@/styles/HistoryStyles';
 import { Searchbar, Text } from 'react-native-paper'
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
-import { useGlobalBottomSheet } from '@/hooks/navigation/BottomSheet'
+import { useGlobalBottomSheet, BottomSheetFlatList } from '@/hooks/navigation/BottomSheet'
 import AntDesign from '@expo/vector-icons/AntDesign';
 
 const HistoryScreen = () => {
@@ -21,12 +22,16 @@ const HistoryScreen = () => {
 
     // State for selected organization
     const [selectedOrgId, setSelectedOrgId] = useState<number | undefined>(undefined);
+    const [grantType, setGrantType] = useState<'discretionary' | 'mandatory'>('discretionary');
     const [statusFilter, setStatusFilter] = useState<'all' | 'started' | 'submitted' | 'rsa review'>('all');
+    const [mandatoryStatusFilter, setMandatoryStatusFilter] = useState<'all' | 'submitted' | 'approved' | 'pending'>('all');
 
     const sdfId = user?.sdfId;
 
     const { data: orgsData, isLoading: orgsLoading, error: orgsError } = useGetOrganizationsBySdfIdQuery(sdfId || 0, {
-        skip: !sdfId
+        skip: !sdfId,
+        refetchOnFocus: true,
+        refetchOnMountOrArgChange: true,
     });
 
     const [searchQuery, setSearchQuery] = useState('');
@@ -41,6 +46,11 @@ const HistoryScreen = () => {
         return [];
     }, [orgsData]);
 
+    const selectedOrg = useMemo(
+        () => organizations.find((org: OrgItem) => org.id === selectedOrgId),
+        [organizations, selectedOrgId]
+    );
+
     // Set default organization when data loads
     useEffect(() => {
         if (organizations.length > 0 && selectedOrgId === undefined) {
@@ -51,13 +61,70 @@ const HistoryScreen = () => {
     // Fetch project timeline data based on selected organization
     const { data, isLoading: timelineLoading, error: timelineError } = useGetProjectTimelineQuery(
         selectedOrgId || 0,
-        { skip: !selectedOrgId }
+        { skip: !selectedOrgId, refetchOnFocus: true, refetchOnMountOrArgChange: true }
+    );
+
+    // Fetch mandatory applications for the selected organization
+    const { data: mandatoryData, isLoading: mandatoryLoading, error: mandatoryError } = useGetOrgApplicationsQuery(
+        selectedOrgId || 0,
+        { skip: !selectedOrgId, refetchOnFocus: true, refetchOnMountOrArgChange: true }
     );
 
 
     const timelineItems = useMemo(() => {
         return data?.items || [];
     }, [data]);
+
+    const filterCounts = useMemo(() => ({
+        all: timelineItems.length,
+        started: timelineItems.filter(i => i.applicationStarted && !i.applicationSubmitted).length,
+        submitted: timelineItems.filter(i => i.applicationSubmitted).length,
+    }), [timelineItems]);
+
+    const mandatoryItems = useMemo(() => mandatoryData?.items || [], [mandatoryData]);
+
+    const mandatoryFilterCounts = useMemo(() => ({
+        all: mandatoryItems.length,
+        submitted: mandatoryItems.filter((i: MandatoryApplicationDto) => i.grantStatus?.toLowerCase().includes('submitted')).length,
+        approved: mandatoryItems.filter((i: MandatoryApplicationDto) => {
+            const s = (i.grantStatus || '').toLowerCase();
+            return s.includes('approved') || s.includes('completed');
+        }).length,
+        pending: mandatoryItems.filter((i: MandatoryApplicationDto) => {
+            const s = (i.grantStatus || '').toLowerCase();
+            return !s.includes('submitted') && !s.includes('approved') && !s.includes('completed');
+        }).length,
+    }), [mandatoryItems]);
+
+    const filteredMandatoryItems = useMemo(() => {
+        let filtered: MandatoryApplicationDto[] = mandatoryItems;
+
+        if (mandatoryStatusFilter === 'submitted') {
+            filtered = filtered.filter((i: MandatoryApplicationDto) => i.grantStatus?.toLowerCase().includes('submitted'));
+        } else if (mandatoryStatusFilter === 'approved') {
+            filtered = filtered.filter((i: MandatoryApplicationDto) => {
+                const s = (i.grantStatus || '').toLowerCase();
+                return s.includes('approved') || s.includes('completed');
+            });
+        } else if (mandatoryStatusFilter === 'pending') {
+            filtered = filtered.filter((i: MandatoryApplicationDto) => {
+                const s = (i.grantStatus || '').toLowerCase();
+                return !s.includes('submitted') && !s.includes('approved') && !s.includes('completed');
+            });
+        }
+
+        if (searchQuery.trim()) {
+            const q = searchQuery.toLowerCase();
+            filtered = filtered.filter((i: MandatoryApplicationDto) =>
+                i.description?.toLowerCase().includes(q) ||
+                i.referenceNo?.toLowerCase().includes(q) ||
+                i.organisation_Name?.toLowerCase().includes(q) ||
+                i.grantStatus?.toLowerCase().includes(q)
+            );
+        }
+
+        return filtered;
+    }, [mandatoryItems, mandatoryStatusFilter, searchQuery]);
 
     const filteredTimelineItems = useMemo(() => {
         let filtered = timelineItems;
@@ -98,6 +165,13 @@ const HistoryScreen = () => {
         }
     }, [timelineError]);
 
+    useEffect(() => {
+        if (mandatoryError) {
+            const errorMessage = typeof mandatoryError === 'string' ? mandatoryError : 'Failed to fetch mandatory applications';
+            showToast({ message: errorMessage, type: "error", title: "Error", position: "top" });
+        }
+    }, [mandatoryError]);
+
     const renderList = ({ item }: { index: number, item: ProjectTimeline }) => {
         return (
             <View key={`proj-${item.projectId}`}>
@@ -110,11 +184,12 @@ const HistoryScreen = () => {
         open(<OrganizationBottomSheet close={close} organizations={organizations} selectedOrgId={selectedOrgId} onSelectOrg={(orgId) => {
             setSelectedOrgId(orgId);
             // Close is handled by the bottom sheet internally now
-        }} />, { snapPoints: ["60%"] });
+        }} />, { snapPoints: ["80%"] });
     }
 
 
-    if (orgsLoading || timelineLoading) {
+    const activeDataLoading = grantType === 'discretionary' ? timelineLoading : mandatoryLoading;
+    if (orgsLoading || activeDataLoading) {
         return <RListLoading count={7} />
     }
 
@@ -122,63 +197,140 @@ const HistoryScreen = () => {
         <SafeArea>
             <RHeader name='Application Timelines' showBack={false} iconRight='search' hasRightIcon onPressRight={() => setShow(!show)} hasSecondIcon={true} iconSecond='building-circle-check' onPressSecond={handleOrgFilter} />
 
-            {/* Status Filter Tabs */}
-            <RCol style={{ paddingHorizontal: 12 }}>
-                <Text style={{ fontWeight: 'thin', fontSize: 10, color: colors.gray[400] }}>Filter by Status:</Text>
-
-                <View style={styles.filterTabsContainer}>
+            {/* Org context bar: org pill + grant type toggle */}
+            <View style={styles.contextBar}>
+                <TouchableOpacity style={styles.orgPill} onPress={handleOrgFilter} activeOpacity={0.75}>
+                    <MaterialCommunityIcons name="office-building-outline" size={14} color={colors.primary[600]} />
+                    <NativeText style={styles.orgPillText} numberOfLines={1}>
+                        {selectedOrg?.organisationTradingName || selectedOrg?.organisationName || 'Select Organization'}
+                    </NativeText>
+                    <MaterialCommunityIcons name="chevron-down" size={14} color={colors.primary[400]} />
+                </TouchableOpacity>
+                <View style={styles.grantTypeToggle}>
                     <TouchableOpacity
-                        style={[styles.filterTab, statusFilter === 'all' && styles.filterTabActive]}
-                        onPress={() => setStatusFilter('all')}
+                        style={[styles.grantTypePill, grantType === 'discretionary' && styles.grantTypePillActive]}
+                        onPress={() => { setGrantType('discretionary'); setStatusFilter('all'); }}
+                        activeOpacity={0.75}
                     >
-                        <Text style={[styles.filterTabText, statusFilter === 'all' && styles.filterTabTextActive]}>All Statuses</Text>
+                        <NativeText style={[styles.grantTypePillText, grantType === 'discretionary' && styles.grantTypePillTextActive]}>
+                            Disc.
+                        </NativeText>
                     </TouchableOpacity>
                     <TouchableOpacity
-                        style={[styles.filterTab, statusFilter === 'started' && styles.filterTabActive]}
-                        onPress={() => setStatusFilter('started')}
+                        style={[styles.grantTypePill, grantType === 'mandatory' && styles.grantTypePillActive]}
+                        onPress={() => { setGrantType('mandatory'); setMandatoryStatusFilter('all'); }}
+                        activeOpacity={0.75}
                     >
-                        <Text style={[styles.filterTabText, statusFilter === 'started' && styles.filterTabTextActive]}>Started</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        style={[styles.filterTab, statusFilter === 'submitted' && styles.filterTabActive]}
-                        onPress={() => setStatusFilter('submitted')}
-                    >
-                        <Text style={[styles.filterTabText, statusFilter === 'submitted' && styles.filterTabTextActive]}>Submitted</Text>
+                        <NativeText style={[styles.grantTypePillText, grantType === 'mandatory' && styles.grantTypePillTextActive]}>
+                            Mand.
+                        </NativeText>
                     </TouchableOpacity>
                 </View>
-            </RCol>
+            </View>
 
-            {
-                show && (
+            {/* Status Filter Tabs — different options per grant type */}
+            <View style={styles.filterScrollView}>
+                <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={styles.filterScrollContent}
+                >
+                    {grantType === 'discretionary' ? (
+                        ([
+                            { key: 'all' as const, label: 'All Statuses', count: filterCounts.all },
+                            { key: 'started' as const, label: 'Started', count: filterCounts.started },
+                            { key: 'submitted' as const, label: 'Submitted', count: filterCounts.submitted },
+                        ]).map(tab => (
+                            <TouchableOpacity
+                                key={tab.key}
+                                style={[styles.filterTab, statusFilter === tab.key && styles.filterTabActive]}
+                                onPress={() => setStatusFilter(tab.key)}
+                            >
+                                <NativeText style={[styles.filterTabText, statusFilter === tab.key && styles.filterTabTextActive]}>
+                                    {tab.label}
+                                </NativeText>
+                                <View style={[styles.filterTabBadge, statusFilter === tab.key && styles.filterTabBadgeActive]}>
+                                    <NativeText style={[styles.filterTabBadgeText, statusFilter === tab.key && styles.filterTabBadgeTextActive]}>
+                                        {tab.count}
+                                    </NativeText>
+                                </View>
+                            </TouchableOpacity>
+                        ))
+                    ) : (
+                        ([
+                            { key: 'all' as const, label: 'All', count: mandatoryFilterCounts.all },
+                            { key: 'submitted' as const, label: 'Submitted', count: mandatoryFilterCounts.submitted },
+                            { key: 'approved' as const, label: 'Approved', count: mandatoryFilterCounts.approved },
+                            { key: 'pending' as const, label: 'Pending', count: mandatoryFilterCounts.pending },
+                        ]).map(tab => (
+                            <TouchableOpacity
+                                key={tab.key}
+                                style={[styles.filterTab, mandatoryStatusFilter === tab.key && styles.filterTabActive]}
+                                onPress={() => setMandatoryStatusFilter(tab.key)}
+                            >
+                                <NativeText style={[styles.filterTabText, mandatoryStatusFilter === tab.key && styles.filterTabTextActive]}>
+                                    {tab.label}
+                                </NativeText>
+                                <View style={[styles.filterTabBadge, mandatoryStatusFilter === tab.key && styles.filterTabBadgeActive]}>
+                                    <NativeText style={[styles.filterTabBadgeText, mandatoryStatusFilter === tab.key && styles.filterTabBadgeTextActive]}>
+                                        {tab.count}
+                                    </NativeText>
+                                </View>
+                            </TouchableOpacity>
+                        ))
+                    )}
+                </ScrollView>
+            </View>
 
-                    <RCol style={{
-                        paddingVertical: 6,
-                        paddingHorizontal: 12
-                    }}>
-                        <Searchbar
-                            placeholder="Search application"
-                            onChangeText={setSearchQuery}
-                            value={searchQuery}
-                            style={{ backgroundColor: colors.zinc[50], borderWidth: 1, borderColor: colors.zinc[300] }}
+            {/* Collapsible search bar */}
+            {show && (
+                <View style={styles.searchWrapper}>
+                    <Searchbar
+                        placeholder="Search by name, status, SDL…"
+                        onChangeText={setSearchQuery}
+                        value={searchQuery}
+                        style={styles.searchBar}
+                        inputStyle={{ fontSize: 13 }}
+                    />
+                </View>
+            )}
+
+            {/* Application List — switches between discretionary timeline and mandatory applications */}
+            {grantType === 'discretionary' ? (
+                <FlatList data={filteredTimelineItems}
+                    keyExtractor={(item) => `${item.projectId}`}
+                    style={{ paddingHorizontal: 12, paddingVertical: 5, flex: 1, flexGrow: 1 }}
+                    contentContainerStyle={{ paddingBottom: 24 }}
+                    renderItem={renderList}
+                    showsVerticalScrollIndicator={false}
+                    ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
+                    removeClippedSubviews={false}
+                    initialNumToRender={10}
+                    maxToRenderPerBatch={10}
+                    windowSize={21}
+                    ListEmptyComponent={<REmpty title='No Applications Found' icon='rotate-ccw' subtitle={searchQuery ? 'No applications match your search. Try different keywords.' : 'You currently do not have any applications for tracking status. Please create an application.'} />}
+                />
+            ) : (
+                <FlatList
+                    data={filteredMandatoryItems}
+                    keyExtractor={(item: MandatoryApplicationDto) => `mg-${item.id}`}
+                    style={{ paddingHorizontal: 12, paddingVertical: 5, flex: 1, flexGrow: 1 }}
+                    contentContainerStyle={{ paddingBottom: 24 }}
+                    renderItem={({ item }: { item: MandatoryApplicationDto }) => (
+                        <MandatoryTimelineItem
+                            item={item}
+                            onPress={(mgItem) => historyItemDetails({ appId: mgItem.id, item: mgToProjectTimeline(mgItem) })}
                         />
-                    </RCol>
-                )
-            }
-
-            {/* Timeline List */}
-            <FlatList data={filteredTimelineItems}
-                keyExtractor={(item) => `${item.projectId}`}
-                style={{ paddingHorizontal: 12, paddingVertical: 5, flex: 1, flexGrow: 1 }}
-                contentContainerStyle={{ paddingBottom: 24 }}
-                renderItem={renderList}
-                showsVerticalScrollIndicator={false}
-                ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
-                removeClippedSubviews={false}
-                initialNumToRender={10}
-                maxToRenderPerBatch={10}
-                windowSize={21}
-                ListEmptyComponent={<REmpty title='No Applications Found' icon='rotate-ccw' subtitle={searchQuery ? 'No applications match your search. Try different keywords.' : 'You currently do not have any applications for tracking status. Please create an application.'} />}
-            />
+                    )}
+                    showsVerticalScrollIndicator={false}
+                    ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
+                    removeClippedSubviews={false}
+                    initialNumToRender={10}
+                    maxToRenderPerBatch={10}
+                    windowSize={21}
+                    ListEmptyComponent={<REmpty title='No Mandatory Applications Found' icon='rotate-ccw' subtitle={searchQuery ? 'No applications match your search. Try different keywords.' : 'No mandatory grant applications found for this organisation.'} />}
+                />
+            )}
         </SafeArea>
     )
 }
@@ -240,6 +392,122 @@ const ProjectTimelineItem = ({ item, onPress }: { item: ProjectTimeline, onPress
     );
 };
 
+/** Derive progress-stage booleans from a mandatory grantStatus string */
+function getMgStageFlags(grantStatus: string): {
+    applicationStarted: boolean;
+    applicationSubmitted: boolean;
+    rsaReviewCompleted: boolean;
+    grantsCommitteeReview: boolean;
+    evaluationCompleted: boolean;
+} {
+    const s = (grantStatus || '').toLowerCase();
+    const submitted = s.includes('submitted') || s.includes('rsa') || s.includes('committee') || s.includes('approved') || s.includes('evaluation') || s.includes('completed') || s.includes('final');
+    const rsaDone = s.includes('rsa review completed') || s.includes('committee') || s.includes('approved') || s.includes('evaluation completed') || s.includes('completed') || s.includes('final');
+    const committee = s.includes('committee') || s.includes('approved') || s.includes('evaluation completed') || s.includes('completed') || s.includes('final');
+    const evalDone = s.includes('evaluation completed') || s.includes('completed') || s.includes('final');
+    return {
+        applicationStarted: true,
+        applicationSubmitted: submitted,
+        rsaReviewCompleted: rsaDone,
+        grantsCommitteeReview: committee,
+        evaluationCompleted: evalDone,
+    };
+}
+
+/** Map a MandatoryApplicationDto to the ProjectTimeline shape expected by ApplicationStatusDetails */
+function mgToProjectTimeline(mg: MandatoryApplicationDto): ProjectTimeline {
+    const flags = getMgStageFlags(mg.grantStatus);
+    return {
+        projectId: mg.id,
+        projectName: mg.referenceNo || `REF-${mg.id}`,
+        projectShortName: mg.referenceNo || '',
+        status: mg.grantStatus || '',
+        statusChangedDate: String(mg.submissionDte || mg.dteCreated || new Date().toISOString()),
+        organisationName: mg.organisation_Trading_Name || mg.organisation_Name || '',
+        sdlNo: mg.organisationSDL || '',
+        focusArea: null,
+        subCategory: null,
+        intervention: null,
+        projectType: 'Mandatory Grant',
+        windowTitle: mg.description || 'Mandatory Grant Application',
+        projectEndDate: String(mg.closingDate || ''),
+        rejectedAfterAssessment: false,
+        isFinalStage: flags.evaluationCompleted,
+        currentStage: mg.grantStatus || 'Application Started',
+        ...flags,
+    };
+}
+
+/**
+ * Card component for mandatory grant applications — mirrors ProjectTimelineItem styling
+ */
+const MandatoryTimelineItem = ({ item, onPress }: { item: MandatoryApplicationDto; onPress: (item: MandatoryApplicationDto) => void }) => {
+    const getMgStageColor = (status: string) => {
+        const s = (status || '').toLowerCase().trim();
+        if (s.includes('approved') || s.includes('final') || s.includes('completed')) return { bg: '#d1fae5', text: '#065f46', border: colors.emerald[600] };
+        if (s.includes('committee')) return { bg: '#f3e8ff', text: '#6b21a8', border: colors.purple[500] };
+        if (s.includes('evaluation')) return { bg: '#fef3c7', text: '#92400e', border: colors.yellow[500] };
+        if (s.includes('rsa') || s.includes('review')) return { bg: '#dcfce7', text: '#15803d', border: colors.emerald[500] };
+        if (s.includes('submitted')) return { bg: '#e0f2fe', text: '#0369a1', border: colors.primary[500] };
+        if (s.includes('rejected') || s.includes('declined')) return { bg: '#fee2e2', text: '#991b1b', border: colors.red[500] };
+        return { bg: '#f3f4f6', text: '#4b5563', border: colors.slate[400] };
+    };
+
+    const flags = getMgStageFlags(item.grantStatus);
+    const stageColors = getMgStageColor(item.grantStatus);
+    const title = item.description?.split('-')[0]?.trim() || item.referenceNo || 'Mandatory Grant';
+    const subtitle = item.organisation_Trading_Name || item.organisation_Name || '';
+    const dateLabel = item.submissionDte
+        ? new Date(String(item.submissionDte)).toLocaleDateString()
+        : item.dteCreated
+            ? new Date(String(item.dteCreated)).toLocaleDateString()
+            : '—';
+
+    return (
+        <TouchableOpacity
+            style={[styles.card, { borderLeftColor: stageColors.border, borderLeftWidth: 5 }]}
+            activeOpacity={0.7}
+            onPress={() => onPress(item)}
+        >
+            {/* Header: title + status badge */}
+            <View style={styles.cardHeader}>
+                <View style={{ flex: 1 }}>
+                    <Text variant='titleMedium' style={styles.projectTitle} numberOfLines={2}>{title}</Text>
+                    <Text variant='bodySmall' style={styles.projectSubtitle} numberOfLines={1}>{subtitle}</Text>
+                </View>
+                <View style={[styles.stageBadge, { backgroundColor: stageColors.bg }]}>
+                    <NativeText style={[styles.stageBadgeText, { color: stageColors.text }]}>
+                        {(item.grantStatus || 'STARTED').toUpperCase()}
+                    </NativeText>
+                </View>
+            </View>
+
+            {/* Progress indicator — mirrors DG dot/line structure */}
+            <View style={styles.progressIndicator}>
+                <ProgressDot completed={flags.applicationStarted} />
+                <ProgressLine completed={flags.applicationStarted && flags.applicationSubmitted} />
+                <ProgressDot completed={flags.applicationSubmitted} active={!flags.applicationSubmitted} />
+                <ProgressLine completed={flags.applicationSubmitted && flags.rsaReviewCompleted} />
+                <ProgressDot completed={flags.rsaReviewCompleted} active={!flags.rsaReviewCompleted && flags.applicationSubmitted} />
+                <ProgressLine completed={flags.rsaReviewCompleted && flags.grantsCommitteeReview} />
+                <ProgressDot completed={flags.grantsCommitteeReview} />
+                <ProgressLine completed={flags.grantsCommitteeReview && flags.evaluationCompleted} />
+                <ProgressDot completed={flags.evaluationCompleted} />
+            </View>
+
+            {/* Status footer */}
+            <View style={styles.statusSection}>
+                <NativeText style={styles.statusLabel}>STATUS</NativeText>
+                <RRow style={{ justifyContent: 'space-between', alignItems: 'center' }}>
+                    <NativeText style={styles.statusValue}>{item.grantStatus || 'In Progress'}</NativeText>
+                    <NativeText style={styles.statusDate}>Ref: {item.referenceNo || '—'}</NativeText>
+                </RRow>
+                <NativeText style={[styles.statusDate, { marginTop: 2 }]}>Last Updated: {dateLabel}</NativeText>
+            </View>
+        </TouchableOpacity>
+    );
+};
+
 /**
  * Progress indicator dot component
  */
@@ -269,15 +537,17 @@ const ProgressLine = ({ completed }: { completed: boolean }) => {
 };
 
 
+type OrgItem = { id: number; organisationTradingName: string; organisationName: string; sdfId?: string };
+
 function OrganizationBottomSheet({ organizations, selectedOrgId, onSelectOrg, close }: {
-    organizations: Array<{ id: number; organisationTradingName: string; organisationName: string; sdfId?: string }>;
+    organizations: OrgItem[];
     selectedOrgId: number | undefined;
     onSelectOrg: (orgId: number) => void;
     close: () => void;
 }) {
     const [searchQuery, setSearchQuery] = React.useState('');
 
-    const filteredOrgs = React.useMemo(() => {
+    const filteredOrgs = React.useMemo((): OrgItem[] => {
         if (!searchQuery.trim()) return organizations;
 
         const query = searchQuery.toLowerCase();
@@ -297,7 +567,7 @@ function OrganizationBottomSheet({ organizations, selectedOrgId, onSelectOrg, cl
     };
 
     return (
-        <RCol style={styles.organizationBottomSheet}>
+        <View style={{ flex: 1, paddingHorizontal: 16, paddingTop: 12 }}>
             {/* Header */}
             <Text variant='headlineMedium' style={styles.orgBottomSheetTitle}>Switch Organization</Text>
             <Text variant='bodySmall' style={{ fontSize: 12 }}>choose the entity for your application view.</Text>
@@ -314,29 +584,34 @@ function OrganizationBottomSheet({ organizations, selectedOrgId, onSelectOrg, cl
                 style={{ borderRadius: 10, backgroundColor: colors.white, borderWidth: 1, borderColor: colors.slate[200] }}
             />
 
-            {/* Organization List */}
-            <FlatList
+            {/* Organization List — BottomSheetFlatList is required for FlatList inside a bottomsheet */}
+            <BottomSheetFlatList<OrgItem>
                 data={filteredOrgs}
-                keyExtractor={(item) => `${item.id}`}
-                renderItem={({ item }) => (
+                keyExtractor={(item: OrgItem) => `${item.id}`}
+                renderItem={({ item }: { item: OrgItem }) => (
                     <SwitchOrgItem
                         item={item}
                         isSelected={selectedOrgId === item.id}
                         onPress={() => handleSelectOrg(item.id)}
                     />
                 )}
-                scrollEnabled={true}
+                keyboardShouldPersistTaps="handled"
                 showsVerticalScrollIndicator={false}
-                contentContainerStyle={{ gap: 12 }}
+                contentContainerStyle={{ gap: 12, paddingBottom: 36 }}
+                ListFooterComponent={<View style={{ height: 8 }} />}
+                bounces={false}
+                overScrollMode="never"
             />
-        </RCol>
+        </View>
     );
 }
 
 /**
  * Individual organization item for the switch organization bottom sheet
  */
-const SwitchOrgItem = ({ item, isSelected, onPress }: { item: any; isSelected: boolean; onPress: () => void }) => {
+const SwitchOrgItem = ({ item, isSelected, onPress }: { item: OrgItem; isSelected: boolean; onPress: () => void }) => {
+    const orgName = item.organisationTradingName || item.organisationName || '';
+    const initials = orgName.split(' ').slice(0, 2).map(w => w[0]?.toUpperCase() ?? '').join('') || '?';
     return (
         <TouchableOpacity
             style={[
@@ -347,11 +622,9 @@ const SwitchOrgItem = ({ item, isSelected, onPress }: { item: any; isSelected: b
         >
             <View style={styles.orgItemLeft}>
                 <View style={[styles.orgItemIcon, isSelected && styles.orgItemIconSelected]}>
-                    <MaterialCommunityIcons
-                        name="office-building"
-                        size={24}
-                        color={isSelected ? colors.white : colors.primary[600]}
-                    />
+                    <NativeText style={[styles.orgItemInitials, isSelected && styles.orgItemInitialsSelected]}>
+                        {initials}
+                    </NativeText>
                 </View>
                 <RCol style={styles.orgItemInfo}>
                     <RRow style={{ alignItems: 'center', gap: 6 }}>

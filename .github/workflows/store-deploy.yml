@@ -1,0 +1,161 @@
+name: Deploy mobile apps
+
+on:
+  push:
+    branches:
+      - main
+      - master
+      - release/**
+    paths:
+      - "App.tsx"
+      - "app.json"
+      - "eas.json"
+      - "package.json"
+      - "package-lock.json"
+      - "src/**"
+      - "assets/**"
+  workflow_dispatch:
+    inputs:
+      build-profile:
+        description: "EAS build profile to use (default: production)"
+        required: false
+        default: "production"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: store-deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  BUILD_PROFILE: ${{ github.event.inputs.build-profile || 'production' }}
+
+jobs:
+  test:
+    name: Run unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run TypeScript check
+        run: npx tsc --noEmit
+
+      - name: Run tests
+        run: npm run test
+
+  build-and-submit:
+    name: Build & submit (${{ matrix.platform }})
+    needs: test
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [android, ios]
+    env:
+      EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Expo & EAS
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Configure Google Play credentials
+        if: matrix.platform == 'android'
+        env:
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+        run: |
+          if [ -z "$GOOGLE_SERVICE_ACCOUNT_JSON" ]; then
+            echo "::error::GOOGLE_SERVICE_ACCOUNT_JSON secret is required to submit to Google Play"
+            exit 1
+          fi
+          printf '%s' "$GOOGLE_SERVICE_ACCOUNT_JSON" > google-service-account.json
+
+      - name: Configure App Store Connect API key
+        if: matrix.platform == 'ios'
+        env:
+          APP_STORE_CONNECT_API_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY }}
+        run: |
+          if [ -z "$APP_STORE_CONNECT_API_KEY" ]; then
+            echo "::error::APP_STORE_CONNECT_API_KEY secret is required to submit to App Store Connect"
+            exit 1
+          fi
+          printf '%s' "$APP_STORE_CONNECT_API_KEY" > asc-api-key.p8
+
+      - name: Build ${{ matrix.platform }} artifact
+        run: |
+          eas build \
+            --platform ${{ matrix.platform }} \
+            --profile "$BUILD_PROFILE" \
+            --non-interactive \
+            --wait
+
+      - name: Submit ${{ matrix.platform }} build to stores
+        env:
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ISSUER_ID }}
+        run: |
+          if [ "${{ matrix.platform }}" = "android" ]; then
+            if [ ! -f google-service-account.json ]; then
+              echo "::error::Google Play credentials were not generated"
+              exit 1
+            fi
+            eas submit \
+              --platform android \
+              --profile "$BUILD_PROFILE" \
+              --non-interactive \
+              --latest \
+              --service-account-key-path ./google-service-account.json \
+              --android-package com.danielkarabo.Chieta \
+              --track internal \
+              --release-status completed
+          else
+            if [ -z "$APP_STORE_CONNECT_KEY_ID" ] || [ -z "$APP_STORE_CONNECT_KEY_ISSUER_ID" ]; then
+              echo "::error::App Store Connect key id/issuer id secrets are required"
+              exit 1
+            fi
+            if [ ! -f asc-api-key.p8 ]; then
+              echo "::error::App Store Connect API key file missing"
+              exit 1
+            fi
+            eas submit \
+              --platform ios \
+              --profile "$BUILD_PROFILE" \
+              --non-interactive \
+              --latest \
+              --asc-app-identifier com.danielkarabo.Chieta \
+              --asc-api-key-id "$APP_STORE_CONNECT_KEY_ID" \
+              --asc-api-key-issuer-id "$APP_STORE_CONNECT_KEY_ISSUER_ID" \
+              --asc-api-key-path ./asc-api-key.p8
+          fi
+
+      - name: Clean up credential files
+        if: always()
+        run: rm -f google-service-account.json asc-api-key.p8

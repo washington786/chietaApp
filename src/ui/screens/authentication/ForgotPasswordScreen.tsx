@@ -1,8 +1,9 @@
-import { StyleSheet } from 'react-native'
+import { StyleSheet, Text, View } from 'react-native'
 import React, { useEffect } from 'react'
 import usePageTransition from '@/hooks/navigation/usePageTransition';
-import { RErrorMessage, RInput, RKeyboardView, RLoaderAnimation } from '@/components/common';
+import { RErrorMessage, RInput, RLoaderAnimation } from '@/components/common';
 import colors from '@/config/colors';
+import appFonts from '@/config/fonts';
 import { Formik } from 'formik';
 import { resetPasswordSchema, showToast } from '@/core';
 import UseAuth from '@/hooks/main/auth/UseAuth';
@@ -13,10 +14,48 @@ import { initializeReset } from '@/store/slice/PasswordResetSlice';
 import AuthScreenLayout, { authScreenStyles } from '@/components/modules/authentication/AuthScreenLayout';
 import AuthGradientButton from '@/components/modules/authentication/AuthGradientButton';
 import { clearError } from '@/store/slice/AuthSlice';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 
 const initialValues = {
     email: ''
 }
+
+// ── Step flow indicator ─────────────────────────────────────────────────────────
+const STEPS = [{ n: 1, label: 'Email' }, { n: 2, label: 'OTP' }, { n: 3, label: 'Reset' }];
+function StepFlow({ current }: { current: number }) {
+    return (
+        <View style={sfStyles.row}>
+            {STEPS.map((step, i) => (
+                <React.Fragment key={step.n}>
+                    <View style={sfStyles.step}>
+                        <View style={[sfStyles.circle, step.n <= current && sfStyles.circleActive]}>
+                            {step.n < current
+                                ? <MaterialCommunityIcons name='check' size={12} color='#fff' />
+                                : <Text style={[sfStyles.num, step.n === current && sfStyles.numActive]}>{step.n}</Text>
+                            }
+                        </View>
+                        <Text style={[sfStyles.label, step.n === current && sfStyles.labelActive]}>{step.label}</Text>
+                    </View>
+                    {i < STEPS.length - 1 && (
+                        <View style={[sfStyles.connector, step.n < current && sfStyles.connectorDone]} />
+                    )}
+                </React.Fragment>
+            ))}
+        </View>
+    );
+}
+const sfStyles = StyleSheet.create({
+    row: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'center' },
+    step: { alignItems: 'center', gap: 6, width: 56 },
+    circle: { width: 30, height: 30, borderRadius: 15, backgroundColor: '#f3f4f6', borderWidth: 1.5, borderColor: '#e5e7eb', justifyContent: 'center', alignItems: 'center' },
+    circleActive: { backgroundColor: colors.primary[700], borderColor: colors.primary[600] },
+    num: { fontSize: 12, fontWeight: '700', color: '#9ca3af' },
+    numActive: { color: '#fff' },
+    label: { fontSize: 10, fontWeight: '600', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: 0.4 },
+    labelActive: { color: colors.primary[700] },
+    connector: { flex: 1, height: 1.5, backgroundColor: '#e5e7eb', marginTop: 14 },
+    connectorDone: { backgroundColor: colors.primary[600] },
+});
 
 const ForgotPasswordScreen = () => {
     const { otp } = usePageTransition();
@@ -63,28 +102,38 @@ const ForgotPasswordScreen = () => {
 
     return (
         <AuthScreenLayout
-            title='Forgot your password'
-            subtitle='Please enter your email address to reset your password.'
+            title='Reset Password'
+            subtitle='Enter your registered email and we’ll send you a one-time PIN.'
         >
+            <StepFlow current={1} />
             <Formik initialValues={initialValues} onSubmit={(values) => handleSubmit(values)} validationSchema={resetPasswordSchema}>
                 {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
-                    <RKeyboardView style={authScreenStyles.formWrapper}>
-                        <RInput
-                            placeholder='Email'
-                            icon={'mail'}
-                            onChangeText={handleChange('email')}
-                            placeholderTextColor={colors.slate[200]}
-                            onBlur={handleBlur('email')}
-                            value={values.email}
-                            customStyle={authScreenStyles.inputField}
-                            style={styles.inputText}
+                    <View style={authScreenStyles.formWrapper}>
+                        <View style={styles.inputGroup}>
+                            <Text style={styles.inputLabel}>Email Address</Text>
+                            <RInput
+                                placeholder='Enter your email'
+                                icon={'mail'}
+                                iconColor={colors.primary[600]}
+                                onChangeText={handleChange('email')}
+                                placeholderTextColor='#9ca3af'
+                                onBlur={handleBlur('email')}
+                                value={values.email}
+                                keyboardType='email-address'
+                                customStyle={authScreenStyles.inputField}
+                                style={styles.inputText}
+                            />
+                            {errors.email && touched.email && <RErrorMessage error={errors.email} />}
+                        </View>
+
+                        <AuthGradientButton
+                            title='Send Reset Code'
+                            onPress={handleSubmit}
+                            loading={isLoading}
+                            disabled={isLoading}
                         />
-
-                        {errors.email && touched.email && <RErrorMessage error={errors.email} />}
-
-                        <AuthGradientButton title='Reset Password' onPress={handleSubmit} loading={isLoading} />
                         {isLoading && <RLoaderAnimation />}
-                    </RKeyboardView>
+                    </View>
                 )}
             </Formik>
         </AuthScreenLayout>
@@ -94,7 +143,16 @@ const ForgotPasswordScreen = () => {
 export default ForgotPasswordScreen;
 
 const styles = StyleSheet.create({
+    inputGroup: {
+        gap: 6,
+        marginBottom: 20,
+    },
+    inputLabel: {
+        fontSize: 14,
+        fontFamily: `${appFonts.semiBold}`,
+        color: '#111827',
+    },
     inputText: {
-        color: '#fff',
+        color: '#111827',
     },
 });

@@ -14,15 +14,32 @@ interface props {
 
 export function AccWrapper({ icon, title, onPress, dangerStyle, dangerTextStyle, isDanger }: props) {
     return (
-        <TouchableOpacity onPress={onPress}>
+        <TouchableOpacity onPress={onPress} activeOpacity={0.65}>
             <RRow style={styles.wrap}>
                 <RRow style={styles.rw}>
-                    <View style={[{ padding: 8, borderRadius: 100, backgroundColor: colors.primary[800] }, dangerStyle]}>
-                        <Ionicons name={icon} size={24} color="white" />
+                    <View style={[
+                        styles.iconWrap,
+                        isDanger ? styles.iconWrapDanger : styles.iconWrapDefault,
+                        dangerStyle,
+                    ]}>
+                        <Ionicons
+                            name={icon}
+                            size={20}
+                            color={isDanger ? colors.red[600] : colors.primary[700]}
+                        />
                     </View>
-                    <Text variant='titleMedium' style={[{ textTransform: "capitalize" }, dangerTextStyle]}>{title}</Text>
+                    <Text
+                        variant='titleMedium'
+                        style={[styles.label, isDanger && styles.labelDanger, dangerTextStyle]}
+                    >
+                        {title}
+                    </Text>
                 </RRow>
-                <Ionicons name="chevron-forward" size={24} color={isDanger ? "red" : "black"} />
+                <Ionicons
+                    name="chevron-forward"
+                    size={18}
+                    color={isDanger ? colors.red[400] : colors.slate[400]}
+                />
             </RRow>
         </TouchableOpacity>
     )
@@ -31,13 +48,34 @@ const styles = StyleSheet.create({
     wrap: {
         alignItems: "center",
         justifyContent: "space-between",
-        paddingHorizontal: 12,
-        paddingVertical: 14
+        paddingHorizontal: 16,
+        paddingVertical: 14,
     },
     rw: {
         alignItems: "center",
-        gap: 5,
+        gap: 12,
         flex: 1,
-        paddingVertical: 2,
-    }
+    },
+    iconWrap: {
+        width: 38,
+        height: 38,
+        borderRadius: 10,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    iconWrapDefault: {
+        backgroundColor: colors.primary[100],
+    },
+    iconWrapDanger: {
+        backgroundColor: colors.red[100],
+    },
+    label: {
+        fontSize: 15,
+        fontWeight: '500',
+        color: colors.slate[800],
+        textTransform: 'capitalize',
+    },
+    labelDanger: {
+        color: colors.red[600],
+    },
 })

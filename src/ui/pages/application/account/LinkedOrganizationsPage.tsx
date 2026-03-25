@@ -6,9 +6,7 @@ import ItemOrgs from '@/components/modules/application/home/ItemOrgs'
 import { OrganisationDto } from '@/core/models/organizationDto'
 import { useSelector, useDispatch } from 'react-redux'
 import { RootState, AppDispatch } from '@/store/store'
-import { useGlobalBottomSheet } from '@/hooks/navigation/BottomSheet'
 import usePageTransition from '@/hooks/navigation/usePageTransition'
-import { OrgDetails } from '@/components/modules/application/home/LinkedOrganizations'
 import { Searchbar } from 'react-native-paper'
 import colors from '@/config/colors'
 import { showToast } from '@/core'
@@ -20,7 +18,7 @@ const LinkedOrganizationsPage = () => {
 
     const [showSearch, setShowSearch] = useState(false);
 
-    const { discretionaryGrants, mandatoryGrants, linkOrgDoc } = usePageTransition();
+    const { organisationDetails } = usePageTransition();
 
     const { linkedOrganizations, error, loading } = useSelector((state: RootState) => state.linkedOrganization);
     const { user } = useSelector((state: RootState) => state.auth);
@@ -35,14 +33,10 @@ const LinkedOrganizationsPage = () => {
 
     const dispatch = useDispatch<AppDispatch>();
 
-    const [visible, setVisible] = useState(false);
-
     const [searchQuery, setSearchQuery] = useState('');
     const prevErrorRef = useRef<typeof error>(null);
 
     const onChangeSearch = (query: string) => setSearchQuery(query);
-
-    const { close, open } = useGlobalBottomSheet();
 
     useEffect(() => {
         dispatch(loadLinkedOrganizationsAsync());
@@ -55,50 +49,36 @@ const LinkedOrganizationsPage = () => {
         prevErrorRef.current = error;
     }, [error]);
 
-    function handleMandatoryGrants(org: OrganisationDto) {
-        close();
-        mandatoryGrants({ orgId: String(org.id) });
+
+    function handleOrganisationDetails(org: OrganisationDto) {
+        organisationDetails({ orgId: String(org.id) });
     }
 
-    function handleDiscretionaryGrants(org: OrganisationDto) {
-        close();
-        discretionaryGrants({ orgId: String(org.id) });
-    }
-
-    function handleOrgLinking(org: OrganisationDto) {
-        linkOrgDoc({ orgId: String(org.id) });
-    }
-
-    function handleDialog() {
-        close();
-        setVisible(!visible);
-    };
-
-    function onPress(org: OrganisationDto) {
-        open(
-            <OrgDetails
-                onDiscretionaryGrants={() => handleDiscretionaryGrants(org)} onMandatoryGrants={() => handleMandatoryGrants(org)} onDelink={handleDialog} orgName={`${org.organisationTradingName}`} />, { snapPoints: ["50%"] })
-    }
 
     const unifiedList = useMemo(() => {
         const allItems: UnifiedOrgItem[] = [];
         const orgs = organizationsData || [];
 
-        // Add main organizations
+        // Build deduplicated org list: API orgs first, then any linked orgs not already included
+        const seenIds = new Set<number>();
         orgs.forEach((org: OrganisationDto) => {
+            seenIds.add(org.id);
             allItems.push({ type: 'main', data: org });
         });
 
-        // Add footer organizations (linked, not cancelled)
         linkedOrganizations
             .filter(l => l.approvalStatus !== 'cancelled')
-            .map(l => orgs.find((o: OrganisationDto) => o.id === l.id))
-            .filter(Boolean)
-            .forEach(org => {
-                allItems.push({ type: 'footer', data: org as OrganisationDto });
+            .forEach(l => {
+                if (!seenIds.has(l.id)) {
+                    const org = orgs.find((o: OrganisationDto) => o.id === l.id);
+                    if (org) {
+                        seenIds.add(org.id);
+                        allItems.push({ type: 'footer', data: org });
+                    }
+                }
             });
 
-        // Now filter the entire list
+        // Filter the list
         if (!searchQuery.trim()) return allItems;
 
         const query = searchQuery.toLowerCase();
@@ -110,17 +90,12 @@ const LinkedOrganizationsPage = () => {
     }, [organizationsData, linkedOrganizations, searchQuery]);
 
     const renderItem = ({ item }: { item: UnifiedOrgItem }) => {
-        if (item.type === 'main') {
-            return <ItemOrgs org={item.data} onPress={() => onPress(item.data)} />;
-        } else {
-            return (
-                <ItemOrgs
-                    org={item.data}
-                    onNewLinking={() => handleOrgLinking(item.data)}
-                    isLinkingRequired={true}
-                />
-            );
-        }
+        return (
+            <ItemOrgs
+                org={item.data}
+                onPress={() => handleOrganisationDetails(item.data)}
+            />
+        );
     };
 
     if (loading || orgLoading) {

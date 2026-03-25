@@ -3,6 +3,8 @@ import { RootState } from '../store'
 import { refreshTokenThunk, logout } from '../slice/AuthSlice'
 import { activeWindowBodyRequest, ProjectTimeline } from '@/core/models/DiscretionaryDto'
 import { notificationPayload } from '@/core/types/notifications'
+import { logger } from '@/utils/logger'
+import { DocumentDownloadDto, UserDocumentsResult } from '@/core/models/MandatoryDto'
 
 const baseQuery = fetchBaseQuery({
     baseUrl: 'https://ims.chieta.org.za:22743',
@@ -22,28 +24,84 @@ const baseQuery = fetchBaseQuery({
 /**
  * Base query with automatic token refresh on 401
  */
+const MAX_RETRIES = 2
+const RETRYABLE_STATUSES = [408, 429, 500, 502, 503, 504]
+
+const shouldRetryRequest = (error: FetchBaseQueryError) => {
+    if (error.status === 'FETCH_ERROR' || error.status === 'PARSING_ERROR') {
+        return true
+    }
+
+    if (typeof error.status === 'number') {
+        return RETRYABLE_STATUSES.includes(error.status)
+    }
+
+    return false
+}
+
 const baseQueryWithReauth = async (args: any, api: any, extraOptions: any) => {
-    let result = await baseQuery(args, api, extraOptions)
+    // Respect per-endpoint maxRetries override (0 = no retries)
+    const maxRetries = extraOptions?.maxRetries !== undefined ? extraOptions.maxRetries : MAX_RETRIES
 
-    if (result.error && (result.error as FetchBaseQueryError).status === 401) {
-        // Token expired, try to refresh
-        const refreshResult = await api.dispatch(refreshTokenThunk())
+    const execute = async () => {
+        let result = await baseQuery(args, api, extraOptions)
 
-        if (refreshResult.type === refreshTokenThunk.fulfilled.type) {
-            // Retry original request with new token
-            result = await baseQuery(args, api, extraOptions)
-        } else {
-            // Refresh failed, logout user
-            api.dispatch(logout())
+        if (result.error && (result.error as FetchBaseQueryError).status === 401) {
+            const refreshResult = await api.dispatch(refreshTokenThunk())
+
+            if (refreshResult.type === refreshTokenThunk.fulfilled.type) {
+                result = await baseQuery(args, api, extraOptions)
+            } else {
+                api.dispatch(logout())
+            }
+        }
+
+        return result
+    }
+
+    let attempt = 0
+    let lastResult = await execute()
+
+    while (lastResult.error && attempt < maxRetries) {
+        const error = lastResult.error as FetchBaseQueryError
+        if (!shouldRetryRequest(error)) {
+            break
+        }
+
+        attempt += 1
+        const backoff = Math.min(500 * 2 ** attempt, 3000)
+        logger.warn('Retrying API request after failure', {
+            attempt,
+            backoff,
+        })
+        await new Promise((resolve) => setTimeout(resolve, backoff))
+        lastResult = await execute()
+    }
+
+    if (lastResult.error) {
+        // Skip noisy error logging for non-critical endpoints that set maxRetries: 0
+        // (e.g. the notification polling endpoint which returns 500 intermittently)
+        const isSilent = extraOptions?.maxRetries === 0
+        if (!isSilent) {
+            logger.error('API request failed', lastResult.error, {
+                url: typeof args === 'string' ? args : args?.url,
+                error: lastResult.error,
+            })
         }
     }
 
-    return result
+    return lastResult
 }
 
 export const api = createApi({
     reducerPath: 'api',
     baseQuery: baseQueryWithReauth,
+    // Automatically refetch queries that have `refetchOnFocus: true` when
+    // the device comes back online (handled via store.ts AppState bridge).
+    refetchOnReconnect: true,
+    // Keep unused cache data for 5 minutes so navigating between screens is
+    // instant while still expiring data that hasn't been viewed recently.
+    keepUnusedDataFor: 300,
     tagTypes: ['Grant', 'Document', 'Organization', 'User', 'Auth', 'Notification'],
 
     endpoints: (builder) => ({
@@ -162,11 +220,91 @@ export const api = createApi({
         getOrganizationById: builder.query({
             query: (organisationId) =>
                 `/api/services/app/Organisation/Get?id=${organisationId}`,
+            transformResponse: (response: any) => {
+                const org = response?.result?.organisation;
+                if (!org) return null;
+                return {
+                    sdlNo: org.sdL_No,
+                    setaId: org.setA_Id,
+                    seta: org.seta,
+                    sicCode: org.siC_Code,
+                    organisationRegistrationNumber: org.organisation_Registration_Number,
+                    organisationName: org.organisation_Name,
+                    organisationTradingName: org.organisation_Trading_Name,
+                    organisationFaxNumber: org.organisation_Fax_Number,
+                    organisationContactName: org.organisation_Contact_Name,
+                    organisationContactEmailAddress: org.organisation_Contact_Email_Address,
+                    organisationContactPhoneNumber: org.organisation_Contact_Phone_Number,
+                    organisationContactCellNumber: org.organisation_Contact_Cell_Number,
+                    companySize: org.companY_SIZE,
+                    numberOfEmployees: org.numbeR_OF_EMPLOYEES,
+                    typeOfEntity: org.typE_OF_ENTITY,
+                    coreBusiness: org.corE_BUSINESS,
+                    parentSdlNumber: org.parenT_SDL_NUMBER,
+                    bbbeeStatus: org.bbbeE_Status,
+                    bbbeeLevel: org.bbbeE_LEVEL,
+                    dateBusinessCommenced: org.datebusinesscommenced,
+                    status: org.status,
+                    exemptionCode: org.exmptioncode,
+                    chamber: org.chamber,
+                    ceoName: org.ceO_Name,
+                    ceoSurname: org.ceO_Surname,
+                    ceoEmail: org.ceO_Email,
+                    ceoRaceId: org.ceO_RaceId,
+                    ceoGenderId: org.ceO_GenderId,
+                    seniorRepName: org.senior_Rep_Name,
+                    seniorRepSurname: org.senior_Rep_Surname,
+                    seniorRepEmail: org.senior_Rep_Email,
+                    seniorRepRaceId: org.senior_Rep_RaceId,
+                    seniorRepGenderId: org.senior_Rep_GenderId,
+                    id: org.id,
+                };
+            },
             providesTags: ['Organization'],
         }),
         getOrganizationPhysicalAddress: builder.query({
             query: (organisationId) =>
                 `/api/services/app/Organisation/GetOrganisationPhysAddress?organisationId=${organisationId}`,
+            transformResponse: (response: any) => {
+                const addr = response?.result?.organisationPhysicalAddress;
+                if (!addr) return null;
+                return {
+                    id: addr.id,
+                    organisationId: addr.organisationId,
+                    addressLine1: addr.addressline1,
+                    addressLine2: addr.addressline2,
+                    suburb: addr.suburb,
+                    area: addr.area,
+                    district: addr.district,
+                    municipality: addr.municipality,
+                    province: addr.province,
+                    postcode: addr.postcode,
+                    userId: String(addr.userId),
+                };
+            },
+            providesTags: ['Organization'],
+        }),
+        getOrganizationPostalAddress: builder.query({
+            query: (organisationId) =>
+                `/api/services/app/Organisation/GetOrganisationPostAddress?organisationId=${organisationId}`,
+            transformResponse: (response: any) => {
+                const addr = response?.result?.organisationPostalAddress;
+                if (!addr) return null;
+                return {
+                    id: addr.id,
+                    organisationId: addr.organisationId,
+                    sameAsPhysical: addr.sameasphysical,
+                    addressLine1: addr.addressline1,
+                    addressLine2: addr.addressline2,
+                    suburb: addr.suburb,
+                    area: addr.area,
+                    district: addr.district,
+                    municipality: addr.municipality,
+                    province: addr.province,
+                    postcode: addr.postcode,
+                    userId: String(addr.userId),
+                };
+            },
             providesTags: ['Organization'],
         }),
 
@@ -344,22 +482,44 @@ export const api = createApi({
         getNotificationsByUser: builder.query<any, number>({
             query: (userId) =>
                 `/api/services/app/Notification/GetByUser?userId=${userId}`,
+            transformErrorResponse: (response) => {
+                // Treat server errors as non-fatal — return structured error
+                return { status: response.status, message: 'Notifications unavailable' };
+            },
             transformResponse: (response: any) => {
                 if (response?.result) {
-                    return {
-                        items: response.result.map((item: any) => ({
-                            id: String(item.id),
+                    const items = response.result.map((item: any) => {
+                        let parsedData: Record<string, any> = {};
+                        if (typeof item.data === 'string' && item.data.trim().length) {
+                            try {
+                                parsedData = JSON.parse(item.data);
+                            } catch (error) {
+                                console.warn('Failed to parse notification data payload', error);
+                            }
+                        } else if (item.data && typeof item.data === 'object') {
+                            parsedData = item.data;
+                        }
+
+                        const createdAt = item.createdAt || item.creationTime || item.timestamp || item.dateCreated;
+                        const timestamp = createdAt ? new Date(createdAt).getTime() : Date.now();
+
+                        return {
+                            id: String(item.id ?? parsedData?.reminderId ?? Date.now()),
                             title: item.title,
-                            body: item.message, // Backend returns 'message' not 'body'
-                            data: {},
-                            timestamp: new Date(item.createdAt).getTime(), // Backend uses 'createdAt'
-                            read: item.isRead, // Backend returns 'isRead' not 'read'
-                            source: item.source || 'system', // Default to 'system' if not provided
-                        })),
-                    };
+                            body: item.message ?? item.body ?? '',
+                            data: parsedData,
+                            timestamp,
+                            read: Boolean(item.isRead ?? item.read),
+                            source: item.source || parsedData?.source || 'system',
+                        };
+                    });
+
+                    return { items };
                 }
                 return { items: [] };
             },
+            // Never retry the notifications endpoint - a 500 here is non-critical
+            extraOptions: { maxRetries: 0 },
             providesTags: ['Notification'],
         }),
         markNotificationAsRead: builder.mutation<any, number>({
@@ -645,6 +805,23 @@ export const api = createApi({
          */
         getOrgBank: builder.query({
             query: (id) => `/api/services/app/Organisation/GetOrgBank?Id=${id}`,
+            transformResponse: (response: any) => {
+                const details = response?.result?.bankDetails;
+                const bankName = response?.result?.bankName;
+                const accountType = response?.result?.account_Type;
+                if (!details) return null;
+                return {
+                    id: details.id,
+                    organisationId: details.organisationId,
+                    accountHolder: details.account_Holder,
+                    branchCode: details.branch_Code,
+                    accountNumber: details.account_Number,
+                    branchName: details.branch_Name,
+                    bankName: bankName || details.bank_Name,
+                    accountType: accountType || String(details.accountType),
+                    userId: details.userId,
+                };
+            },
             providesTags: ['Organization'],
         }),
 
@@ -659,6 +836,34 @@ export const api = createApi({
             transformResponse: (response: any) => {
                 return response;
             },
+            providesTags: ['Document'],
+        }),
+
+        /** Fetch all documents attached to a specific entity */
+        getDocsByEntityId: builder.query<DocumentDownloadDto[], { entityId: number; userId: number }>({
+            query: ({ entityId, userId }) =>
+                `/api/DocumentDownload/GetByEntityId?entityId=${entityId}&userId=${userId}`,
+            transformResponse: (response: any) => response?.result ?? [],
+            providesTags: ['Document'],
+        }),
+
+        /** Fetch documents filtered by documentType for a user */
+        getDocsByType: builder.query<DocumentDownloadDto[], { documentType: string; userId: number; module: string }>({
+            query: ({ documentType, userId, module }) =>
+                `/api/DocumentDownload/GetByType?documentType=${encodeURIComponent(documentType)}&userId=${userId}&module=${encodeURIComponent(module)}`,
+            transformResponse: (response: any) => response?.result ?? [],
+            providesTags: ['Document'],
+        }),
+
+        /** Paginated list of all documents uploaded by a user for a module */
+        getUserDocuments: builder.query<
+            UserDocumentsResult,
+            { userId: number; module: string; maxResultCount?: number; skipCount?: number }
+        >({
+            query: ({ userId, module, maxResultCount = 100, skipCount = 0 }) =>
+                `/api/DocumentDownload/GetUserDocuments?userId=${userId}&module=${encodeURIComponent(module)}&maxResultCount=${maxResultCount}&skipCount=${skipCount}`,
+            transformResponse: (response: any) =>
+                response?.result ?? { totalCount: 0, items: [] },
             providesTags: ['Document'],
         }),
 
@@ -761,7 +966,14 @@ export const {
     useGetOrganizationByProjectQuery,
     useGetOrganizationByIdQuery,
     useGetOrganizationPhysicalAddressQuery,
+    useGetOrganizationPostalAddressQuery,
     useGetDocumentsByEntityQuery,
+    useGetDocsByEntityIdQuery,
+    useLazyGetDocsByEntityIdQuery,
+    useGetDocsByTypeQuery,
+    useLazyGetDocsByTypeQuery,
+    useGetUserDocumentsQuery,
+    useLazyGetUserDocumentsQuery,
     useGetOrgSdfByOrgQuery,
     useLazyGetOrgSdfByOrgQuery,
     useValidateProjSubmissionMutation,

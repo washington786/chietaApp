@@ -15,3 +15,6 @@ https://ims.chieta.org.za:22743/api/services/app/DiscretionaryWindow/GetProjectT
 ---------
 organization applications dg grants:
 https://ims.chieta.org.za:22743/api/services/app/DiscretionaryProject/GetOrgProjects?OrganisationId=673436
+
+thulani.mabanga@petrosa.co.za
+Chieta123$

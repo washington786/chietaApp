@@ -2,6 +2,7 @@ import { configureStore } from '@reduxjs/toolkit'
 import { persistStore, persistReducer } from 'redux-persist'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { setupListeners } from '@reduxjs/toolkit/query'
+import { AppState, AppStateStatus } from 'react-native'
 import { api } from './api/api';
 import AuthReducer from './slice/AuthSlice';
 import PasswordResetReducer from './slice/PasswordResetSlice';
@@ -43,7 +44,30 @@ export const store = configureStore({
         }).concat(api.middleware),
 })
 
-setupListeners(store.dispatch)
+setupListeners(store.dispatch, (dispatch, actions) => {
+    // Bridge React Native AppState to RTK Query's focus/blur system.
+    // When the app returns to the foreground RTK Query will re-run any
+    // query that has `refetchOnFocus: true` configured at call-site level.
+    let current: AppStateStatus = AppState.currentState
+
+    const subscription = AppState.addEventListener('change', (next: AppStateStatus) => {
+        const wasInactive = current.match(/inactive|background/)
+        const isNowActive = next === 'active'
+        const isNowInactive = next.match(/inactive|background/)
+
+        if (wasInactive && isNowActive) {
+            dispatch(actions.onFocus())
+            dispatch(actions.onOnline())
+        }
+        if (!wasInactive && isNowInactive) {
+            dispatch(actions.onFocusLost())
+        }
+
+        current = next
+    })
+
+    return () => subscription.remove()
+})
 
 export const persistor = persistStore(store)
 export type RootState = ReturnType<typeof store.getState>

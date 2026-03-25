@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { useNavigation, NavigationProp } from '@react-navigation/native'
 import { ForgotPasswordScreen, LandingScreen, LoginScreen, NewPasswordScreen, NotificationsPage, OtpScreen, RegisterScreen } from '@/ui/screens'
@@ -12,12 +12,13 @@ import {
     ApplicationStatusDetails,
     ChangePassword,
     DiscretionaryPage,
+    LinkedOrganizationDetails,
     LinkedOrganizationsPage,
     LinkOrgPage,
     MandatoryPage,
     PdfViewerPage,
     PrivacyPage,
-    SupportPage
+    SupportPage,
 } from '@/ui/pages'
 import AddNewDgApplicationPage from '@/ui/pages/application/AddNewDgApplicationPage'
 import { useSelector } from 'react-redux'
@@ -44,35 +45,35 @@ const PROTECTED_SCREENS = [
     'orgDetail',
     'pdfViewer',
     'newApplication',
-    'newDgApplication'
+    'newDgApplication',
+    'organisationDetails'
 ]
 
 // Inner component to use navigation hook
 const RootStackNavigator = () => {
     const navigation = useNavigation<NavigationProp<navigationTypes>>()
     const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated)
-
-    // Navigate to login when user logs out
-    /* useEffect(() => {
-         if (!isAuthenticated) {
-             navigation.reset({
-                 index: 0,
-                 routes: [{ name: 'login' }]
-             })
-         }
-     }, [isAuthenticated, navigation])
- */
+    const previousAuthState = useRef(isAuthenticated)
 
     useEffect(() => {
-        const currentRoute = navigation.getState()?.routes?.[0]?.name;
+        const state = navigation.getState()
+        const routes = state?.routes ?? []
+        const activeIndex = state?.index ?? routes.length - 1
+        const safeIndex = activeIndex >= 0 ? activeIndex : 0
+        const currentRoute = routes[safeIndex]?.name
+        const wasAuthenticated = previousAuthState.current
+        const becameUnauthenticated = wasAuthenticated && !isAuthenticated
+        const onProtectedRoute = currentRoute ? PROTECTED_SCREENS.includes(currentRoute) : false
 
-        if (!isAuthenticated && currentRoute !== 'landing') {
+        previousAuthState.current = isAuthenticated
+
+        if (!isAuthenticated && currentRoute !== 'login' && (becameUnauthenticated || onProtectedRoute)) {
             navigation.reset({
                 index: 0,
-                routes: [{ name: 'landing' }]
-            });
+                routes: [{ name: 'login' }]
+            })
         }
-    }, [isAuthenticated, navigation]);
+    }, [isAuthenticated, navigation])
 
     // Set up navigation listener to enforce authentication on protected routes
     useEffect(() => {
@@ -116,6 +117,7 @@ const RootStackNavigator = () => {
 
             <Stack.Screen name="account" component={AccountSettingsPage} />
             <Stack.Screen name="linkedOrganizationsProfile" component={LinkedOrganizationsPage} />
+            <Stack.Screen name="organisationDetails" component={LinkedOrganizationDetails} />
             <Stack.Screen name="changePassword" component={ChangePassword} />
             <Stack.Screen name="privacy" component={PrivacyPage} />
             <Stack.Screen name="support" component={SupportPage} />

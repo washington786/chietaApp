@@ -1,0 +1,68 @@
+{
+  "cli": {
+    "version": ">= 5.0.0",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "preview": {
+      "distribution": "internal",
+      "channel": "preview",
+      "autoIncrement": true,
+      "cache": {
+        "key": "npm-{{ hashFiles('package-lock.json') }}"
+      },
+      "android": {
+        "buildType": "apk"
+      },
+      "ios": {
+        "distribution": "internal"
+      }
+    },
+    "preview2": {
+      "distribution": "internal",
+      "channel": "preview2",
+      "autoIncrement": true,
+      "cache": {
+        "key": "npm-{{ hashFiles('package-lock.json') }}"
+      }
+    },
+    "production": {
+      "channel": "production",
+      "distribution": "store",
+      "developmentClient": false,
+      "autoIncrement": true,
+      "cache": {
+        "key": "npm-{{ hashFiles('package-lock.json') }}"
+      },
+      "env": {
+        "APP_ENV": "production"
+      },
+      "android": {
+        "buildType": "app-bundle"
+      },
+      "ios": {
+        "simulator": false
+      }
+    },
+    "development": {
+      "cache": {
+        "key": "npm-{{ hashFiles('package-lock.json') }}"
+      },
+      "ios": {
+        "simulator": true
+      },
+      "channel": "development"
+    }
+  },
+  "submit": {
+    "production": {
+      "android": {
+        "track": "internal",
+        "releaseStatus": "completed"
+      },
+      "ios": {
+        "appName": "Chieta"
+      }
+    }
+  }
+}

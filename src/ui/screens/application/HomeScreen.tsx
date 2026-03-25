@@ -16,8 +16,6 @@ const HomeScreen = () => {
         showToast({ message: 'Failed to set up push notifications', title: "Notification Error", type: "error", position: "top" });
     }
 
-    console.log('Push notification permission:', hasPermission);
-    console.log('Push notification token:', pushToken);
     return (
         <NewHome />
     )

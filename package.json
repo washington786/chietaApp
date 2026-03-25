@@ -7,7 +7,13 @@
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "build:android": "eas build --platform android --profile preview",
+    "build:ios": "eas build --platform ios --profile preview",
+    "build:all": "eas build --platform all --profile preview",
+    "build:status": "eas build:list",
+    "prebuild:clean": "expo prebuild --clean",
+    "test": "vitest run"
   },
   "dependencies": {
     "@expo-google-fonts/inter": "^0.4.2",
@@ -37,6 +43,7 @@
     "expo-sharing": "~14.0.8",
     "expo-splash-screen": "~31.0.13",
     "expo-status-bar": "~3.0.9",
+    "expo-updates": "~29.0.16",
     "fix": "^0.0.6",
     "formik": "^2.4.9",
     "jwt-decode": "^4.0.0",
@@ -60,11 +67,16 @@
     "redux-persist": "^6.0.0",
     "yup": "^1.7.1"
   },
+  "overrides": {
+    "expo-font": "~14.0.11"
+  },
   "devDependencies": {
+    "@types/node": "^22.9.0",
     "@types/react": "~19.1.0",
     "@types/react-native-vector-icons": "^6.4.18",
     "baseline-browser-mapping": "^2.9.18",
-    "typescript": "~5.9.2"
+    "typescript": "~5.9.2",
+    "vitest": "^2.1.4"
   },
   "private": true
 }

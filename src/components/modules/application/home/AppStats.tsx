@@ -110,13 +110,13 @@ const WorkflowCard = ({
 
           <View style={styles.smallCardsContainer}>
             {startDate && (
-              <View style={[styles.smallCard, { backgroundColor: isUpcoming ? "#3498db" : "#27ae60" }]}>
-                <Text style={styles.smallCardTitle}>{isUpcoming ? "Upcoming Start" : "Start"}</Text>
+              <View style={styles.smallCard}>
+                <Text style={styles.smallCardTitle}>{isUpcoming ? 'Upcoming Start' : 'Start'}</Text>
                 <Text style={styles.smallCardValue}>{startDate.toLocaleDateString()}</Text>
               </View>
             )}
             {!isUpcoming && deadlineTime && (
-              <View style={[styles.smallCard, { backgroundColor: isClosed ? "#bdc3c7" : "#f39c12" }]}>
+              <View style={[styles.smallCard, isClosed && { opacity: 0.55 }]}>
                 <Text style={styles.smallCardTitle}>Deadline</Text>
                 <Text style={styles.smallCardValue}>{countdown}</Text>
               </View>
@@ -132,7 +132,10 @@ const WorkflowCard = ({
 // Home Page / Dashboard
 //////////////////////////
 const AppStats = () => {
-  const { data: apiData, isLoading } = useGetActiveWindowsQuery(undefined);
+  const { data: apiData, isLoading } = useGetActiveWindowsQuery(undefined, {
+    refetchOnFocus: true,
+    refetchOnMountOrArgChange: true,
+  });
 
   const { user } = useSelector((state: RootState) => state.auth);
 
@@ -160,10 +163,17 @@ const AppStats = () => {
 
   //pending tasks:
 
-  const { data: pendingTasksData, isLoading: pendingTasksLoading, error: pendingTasksError } = useGetUserPendingTasksQuery(Number(user?.id), { skip: !user?.id });
+  const { data: pendingTasksData, isLoading: pendingTasksLoading, error: pendingTasksError } = useGetUserPendingTasksQuery(Number(user?.id), {
+    skip: !user?.id,
+    refetchOnFocus: true,
+    refetchOnMountOrArgChange: true,
+  });
 
   // upcoming events
-  const { data: upcomingEventsData, isLoading: upcomingEventsLoading, error: upcomingEventsError } = useGetUpcomingEventsQuery(undefined);
+  const { data: upcomingEventsData, isLoading: upcomingEventsLoading, error: upcomingEventsError } = useGetUpcomingEventsQuery(undefined, {
+    refetchOnFocus: true,
+    refetchOnMountOrArgChange: true,
+  });
 
   if (upcomingEventsError || pendingTasksError) {
     showToast({ message: 'Failed to load some dashboard data', title: "Dashboard Error", type: "error", position: "top" });
@@ -173,12 +183,12 @@ const AppStats = () => {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer} showsVerticalScrollIndicator={false}>
-      <LinearGradient colors={["#7f5af0", "#5a3d73"]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.sectionContainer}>
+      <LinearGradient colors={[colors.primary[800], colors.primary[950]]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.sectionContainer}>
         <Text style={styles.sectionTitle}>Your Dashboard</Text>
 
         <Text style={styles.subtitle}>Active Windows</Text>
         {isLoading ? (
-          <Text style={{ color: "#fff" }}>Loading...</Text>
+          <Text style={{ color: 'rgba(255,255,255,0.6)', fontSize: 13 }}>Loading windows…</Text>
         ) : activeWindows.length ? (
           activeWindows.map((w: DiscretionaryWindow) => (
             <WorkflowCard
@@ -189,7 +199,7 @@ const AppStats = () => {
             />
           ))
         ) : (
-          <Text style={{ color: "#fff" }}>No active windows</Text>
+          <Text style={{ color: 'rgba(255,255,255,0.55)', fontSize: 13, fontStyle: 'italic' }}>No active windows at this time.</Text>
         )}
 
         <Text style={[styles.subtitle, { marginTop: 16 }]}>Upcoming Windows</Text>
@@ -197,7 +207,7 @@ const AppStats = () => {
           upcomingEventsLoading && <RLoaderAnimation customStyle={styles.loader} />
         }
         {
-          !upcomingEventsLoading && <Text style={{ color: colors.white }}>{upcomingEventsData?.items?.length > 0 ? `${upcomingEventsData?.items?.length} upcoming windows` : `No upcoming windows`}</Text>
+          !upcomingEventsLoading && <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 13 }}>{upcomingEventsData?.items?.length > 0 ? `${upcomingEventsData?.items?.length} upcoming windows` : `No upcoming windows`}</Text>
         }
         {/* {upcomingWindows.length ? (
           upcomingWindows.map((w: DiscretionaryWindow) => (
@@ -214,7 +224,7 @@ const AppStats = () => {
       </LinearGradient>
 
       <View style={styles.quickStatsContainer}>
-        <View style={[styles.quickStatCard, { backgroundColor: "#27ae60" }]}>
+        <View style={[styles.quickStatCard, { backgroundColor: colors.primary[700] }]}>
           <Text style={styles.statTitle}>Active Grants</Text>
           {isLoading && <RLoaderAnimation customStyle={styles.loader} />}
           {
@@ -222,7 +232,7 @@ const AppStats = () => {
             <Text style={styles.statValue}>{activeWindows.length}</Text>
           }
         </View>
-        <View style={[styles.quickStatCard, { backgroundColor: "#e74c3c" }]}>
+        <View style={[styles.quickStatCard, { backgroundColor: colors.primary[500] }]}>
           <Text style={styles.statTitle}>Pending Tasks</Text>
           {pendingTasksLoading && <RLoaderAnimation customStyle={styles.loader} />}
           {
@@ -230,13 +240,12 @@ const AppStats = () => {
             <Text style={styles.statValue}>{pendingTasksData?.items?.length || 0}</Text>
           }
         </View>
-        <View style={[styles.quickStatCard, { backgroundColor: "#3498db" }]}>
+        <View style={[styles.quickStatCard, { backgroundColor: colors.primary[900] }]}>
           <Text style={styles.statTitle}>Upcoming Events</Text>
           {upcomingEventsLoading && <RLoaderAnimation customStyle={styles.loader} />}
           {
             !upcomingEventsLoading && <Text style={styles.statValue}>{upcomingEventsData?.items?.length || 0}</Text>
           }
-
         </View>
       </View>
     </ScrollView>
@@ -247,32 +256,33 @@ const AppStats = () => {
 // Styles
 //////////////////////////
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#f5f5f7" },
+  container: { flex: 1, backgroundColor: 'transparent' },
   contentContainer: { paddingBottom: 24 },
   sectionContainer: {
     marginHorizontal: 16,
     marginTop: 16,
-    marginBottom: 16,
+    marginBottom: 8,
     borderRadius: 20,
-    padding: 16,
-    shadowColor: "#000",
-    shadowOpacity: 0.15,
-    shadowRadius: 10,
-    elevation: 6,
+    padding: 18,
+    shadowColor: colors.primary[950],
+    shadowOpacity: 0.25,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 8,
   },
-  sectionTitle: { fontSize: 22, fontWeight: "700", color: "#fff", marginBottom: 4 },
-  subtitle: { fontSize: 13, fontWeight: "500", color: "#d1c4e9", marginBottom: 8 },
+  sectionTitle: { fontSize: 20, fontWeight: '700', color: '#fff', marginBottom: 6, letterSpacing: 0.2 },
+  subtitle: { fontSize: 12, fontWeight: '600', color: 'rgba(255,255,255,0.55)', marginBottom: 8, textTransform: 'uppercase', letterSpacing: 0.8 },
   workflowItemWrapper: { marginBottom: 12 },
   contentWrapper: { flex: 1 },
   title: { fontSize: 15, fontWeight: "700", color: "#fff", marginBottom: 2 },
   smallCardsContainer: { flexDirection: "row", gap: 8, marginTop: 4 },
-  smallCard: { flex: 1, borderRadius: 12, paddingVertical: 6, paddingHorizontal: 8, alignItems: "center" },
-  smallCardTitle: { fontSize: 11, color: "#e0d6ff", fontWeight: "600", marginBottom: 2 },
-  smallCardValue: { fontSize: 12, fontWeight: "700", color: "#fff" },
-  quickStatsContainer: { flexDirection: "row", justifyContent: "space-between", paddingHorizontal: 16, marginTop: 16 },
-  quickStatCard: { flex: 1, marginHorizontal: 4, borderRadius: 16, paddingVertical: 12, alignItems: "center" },
-  statTitle: { fontSize: 12, color: "#fff", fontWeight: "600", marginBottom: 4 },
-  statValue: { fontSize: 18, fontWeight: "700", color: "#fff" },
+  smallCard: { flex: 1, borderRadius: 12, paddingVertical: 7, paddingHorizontal: 8, alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.15)' },
+  smallCardTitle: { fontSize: 10, color: 'rgba(255,255,255,0.7)', fontWeight: '600', marginBottom: 2, letterSpacing: 0.4, textTransform: 'uppercase' },
+  smallCardValue: { fontSize: 12, fontWeight: '700', color: '#fff' },
+  quickStatsContainer: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 16, marginTop: 8, marginBottom: 4 },
+  quickStatCard: { flex: 1, marginHorizontal: 4, borderRadius: 16, paddingVertical: 14, alignItems: 'center', shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 6, elevation: 3 },
+  statTitle: { fontSize: 11, color: 'rgba(255,255,255,0.75)', fontWeight: '600', marginBottom: 5, textTransform: 'uppercase', letterSpacing: 0.4 },
+  statValue: { fontSize: 22, fontWeight: '800', color: '#fff' },
   loader: { backgroundColor: 'white', width: 4, height: 4 },
 });
 

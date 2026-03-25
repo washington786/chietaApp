@@ -31,6 +31,8 @@ import RWrapperInput from "./RWrapperInput";
 import SafeArea from "./SafeArea";
 import Scroller from "./Scroller";
 import SkeletonLoader from "./SkeletonLoader";
+import CrashFallback from './CrashFallback'
+import AppErrorBoundary from './AppErrorBoundary'
 
 export {
   RSelected,
@@ -58,5 +60,5 @@ export {
   RWrapperInput as RChildWrapper,
   RPickerContainer,
   RRNButton,
-  RDialog, RRPicker, REmpty, RLoaderAnimation, SkeletonLoader, RListLoading, RNetworkAlert, RMainAlerts
+   RDialog, RRPicker, REmpty, RLoaderAnimation, SkeletonLoader, RListLoading, RNetworkAlert, RMainAlerts, CrashFallback, AppErrorBoundary
 };

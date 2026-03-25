@@ -5,7 +5,7 @@ export type AppNotification = {
     data?: Record<string, any>;
     timestamp: number;
     read: boolean;
-    source: 'local' | 'push';
+    source: 'local' | 'push' | 'system' | 'reminder';
 };
 
 export interface notificationPayload {
@@ -15,4 +15,3 @@ export interface notificationPayload {
     source: string,
     userId: number
 }
-

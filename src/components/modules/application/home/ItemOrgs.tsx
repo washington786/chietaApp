@@ -4,6 +4,7 @@ import { Text } from "react-native-paper";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { RCol, RRow } from "@/components/common";
 import { OrganisationDto } from "@/core/models/organizationDto";
+import colors from "@/config/colors";
 
 const { width } = Dimensions.get("window");
 
@@ -43,8 +44,8 @@ const ItemOrgs: FC<Props> = ({
           <View style={styles.iconWrap}>
             <MaterialIcons
               name="business"
-              size={32}
-              color="#7f5af0"
+              size={30}
+              color={colors.primary[600]}
             />
           </View>
 
@@ -116,84 +117,92 @@ const styles = StyleSheet.create({
   },
 
   card: {
-    backgroundColor: "#f6f3ff", // lavender-tinted white
-    borderRadius: 18,
-    padding: 18,
-    shadowColor: "#000",
-    shadowOpacity: 0.08,
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 16,
+    shadowColor: colors.primary[950],
+    shadowOpacity: 0.07,
     shadowRadius: 10,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 3,
-    position: "relative",
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 2,
+    position: 'relative',
+    borderWidth: 1,
+    borderColor: colors.slate[100],
   },
 
   row: {
-    gap: 14,
-    alignItems: "flex-start",
+    gap: 12,
+    alignItems: 'flex-start',
   },
 
   iconWrap: {
-    width: 58,
-    height: 58,
-    borderRadius: 14,
-    backgroundColor: "#ede9fe",
-    justifyContent: "center",
-    alignItems: "center",
+    width: 52,
+    height: 52,
+    borderRadius: 12,
+    backgroundColor: colors.primary[50],
+    borderWidth: 1,
+    borderColor: colors.primary[100],
+    justifyContent: 'center',
+    alignItems: 'center',
     flexShrink: 0,
   },
 
   titleRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    marginBottom: 4,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    marginBottom: 3,
   },
 
   title: {
-    fontSize: 16,
-    fontWeight: "800",
-    color: "#2b1c4a",
+    fontSize: 15,
+    fontWeight: '700',
+    color: colors.primary[950],
     flexShrink: 1,
   },
 
   reg: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: "#7a6f9b",
-    marginBottom: 6,
+    fontSize: 11,
+    fontWeight: '600',
+    color: colors.slate[400],
+    marginBottom: 4,
+    letterSpacing: 0.2,
   },
 
   desc: {
-    fontSize: 14,
-    lineHeight: 20,
-    color: "#5f5a72",
+    fontSize: 13,
+    lineHeight: 19,
+    color: colors.slate[500],
   },
 
   badgesRow: {
-    gap: 8,
-    marginTop: 10,
-    flexWrap: "wrap",
+    gap: 6,
+    marginTop: 8,
+    flexWrap: 'wrap',
   },
 
   chip: {
-    backgroundColor: "rgba(127,90,240,0.12)",
+    backgroundColor: colors.primary[50],
     borderRadius: 999,
-    paddingHorizontal: 12,
-    paddingVertical: 5,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderWidth: 1,
+    borderColor: colors.primary[100],
   },
 
   chipText: {
-    fontSize: 11,
-    fontWeight: "700",
-    color: "#5a3d73",
-    textTransform: "uppercase",
+    fontSize: 10,
+    fontWeight: '700',
+    color: colors.primary[700],
+    textTransform: 'uppercase',
+    letterSpacing: 0.4,
   },
 
   newChip: {
-    position: "absolute",
+    position: 'absolute',
     top: 12,
     right: 12,
-    backgroundColor: "#f39c12",
+    backgroundColor: colors.primary[600],
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 999,

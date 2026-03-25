@@ -1,10 +1,11 @@
-import { Image, StyleSheet, TouchableOpacity, View } from 'react-native'
-import React, { FC } from 'react'
+import { ActivityIndicator, Image, StyleSheet, TouchableOpacity, View } from 'react-native'
+import React, { FC, useState } from 'react'
 import { RCol, RDivider, RRow } from '@/components/common'
 import { Expandable } from './Expandable'
 import { Text } from 'react-native-paper'
 import colors from '@/config/colors'
-import FontAwesome from '@expo/vector-icons/FontAwesome';
+import appFonts from '@/config/fonts'
+import Ionicons from '@expo/vector-icons/Ionicons'
 import { EvilIcons } from '@expo/vector-icons'
 import { errorBox } from '@/components/loadAssets'
 import { useGlobalBottomSheet } from '@/hooks/navigation/BottomSheet'
@@ -45,154 +46,389 @@ interface GrantDetailsProps {
     appId: number;
 }
 
+// ─── Stat pill ────────────────────────────────────────────────────────────────
+function StatPill({
+    label,
+    value,
+    valueStyle,
+}: {
+    label: string;
+    value: string | number;
+    valueStyle?: object;
+}) {
+    return (
+        <View style={statStyles.pill}>
+            <Text style={statStyles.pillLabel}>{label}</Text>
+            <Text style={[statStyles.pillValue, valueStyle]}>{value}</Text>
+        </View>
+    );
+}
+
+const statStyles = StyleSheet.create({
+    pill: {
+        flex: 1,
+        backgroundColor: colors.gray[50],
+        borderRadius: 10,
+        paddingVertical: 10,
+        paddingHorizontal: 12,
+        alignItems: 'center',
+        gap: 3,
+        borderWidth: 1,
+        borderColor: colors.gray[100],
+    },
+    pillLabel: {
+        fontSize: 10,
+        fontFamily: `${appFonts.regular}`,
+        color: colors.slate[400],
+        textAlign: 'center',
+    },
+    pillValue: {
+        fontSize: 13,
+        fontFamily: `${appFonts.semiBold}`,
+        color: colors.gray[800],
+        textAlign: 'center',
+    },
+});
+
+// ─── Download action button ───────────────────────────────────────────────────
+function DownloadButton({
+    label,
+    sublabel,
+    icon,
+    accentColor,
+    loading,
+    onPress,
+    disabled,
+}: {
+    label: string;
+    sublabel?: string;
+    icon: keyof typeof Ionicons.glyphMap;
+    accentColor: string;
+    loading?: boolean;
+    onPress?: () => void;
+    disabled?: boolean;
+}) {
+    return (
+        <TouchableOpacity
+            activeOpacity={0.75}
+            onPress={onPress}
+            disabled={loading || disabled}
+            style={[dlStyles.btn, (loading || disabled) && dlStyles.btnDisabled]}
+        >
+            <View style={[dlStyles.iconCircle, { backgroundColor: accentColor + '18' }]}>
+                {loading
+                    ? <ActivityIndicator size={18} color={accentColor} />
+                    : <Ionicons name={icon} size={20} color={accentColor} />
+                }
+            </View>
+            <View style={dlStyles.textBlock}>
+                <Text style={dlStyles.label}>{loading ? 'Generating…' : label}</Text>
+                {sublabel ? <Text style={dlStyles.sublabel}>{sublabel}</Text> : null}
+            </View>
+            {!loading && (
+                <Ionicons name='chevron-forward' size={16} color={colors.gray[300]} />
+            )}
+        </TouchableOpacity>
+    );
+}
+
+const dlStyles = StyleSheet.create({
+    btn: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 12,
+        backgroundColor: colors.white,
+        borderRadius: 12,
+        borderWidth: 1,
+        borderColor: colors.gray[100],
+        paddingVertical: 12,
+        paddingHorizontal: 14,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.04,
+        shadowRadius: 4,
+        elevation: 1,
+    },
+    btnDisabled: { opacity: 0.6 },
+    iconCircle: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    textBlock: { flex: 1 },
+    label: {
+        fontSize: 13,
+        fontFamily: `${appFonts.semiBold}`,
+        color: colors.gray[800],
+    },
+    sublabel: {
+        fontSize: 11,
+        fontFamily: `${appFonts.regular}`,
+        color: colors.slate[400],
+        marginTop: 1,
+    },
+});
+
+// ─── Main component ───────────────────────────────────────────────────────────
 const GrantDetails: FC<GrantDetailsProps> = ({ data, appId }) => {
-    const [showDetails, setShowDetails] = React.useState<boolean>(true);
+    const [showDetails, setShowDetails] = useState<boolean>(true);
+    const [evaluationLoading, setEvaluationLoading] = useState(false);
+    const [moaLoading, setMoaLoading] = useState(false);
 
     const { generateApprovedGrantsReport, generateRejectedGrantsReport } = useGrants({ appId });
-
-    // Use data prop if provided, otherwise fall back to entry prop
-    const displayData = data ?? null;
-
     const { close, open } = useGlobalBottomSheet();
 
-    if (!displayData) {
+    if (!data) {
         return (
-            <RCol style={styles.moduleContainer}>
-                <Text variant='bodySmall' style={{ color: colors.gray[500] }}>No grant details available</Text>
-            </RCol>
+            <View style={styles.emptyContainer}>
+                <Ionicons name='document-outline' size={28} color={colors.gray[300]} />
+                <Text style={styles.emptyText}>No grant details available</Text>
+            </View>
         );
     }
 
-    const focusAreaLabel = data?.focusArea || 'Grant Details';
-    const subCategory = data?.subCategory || 'N/A';
-    const intervention = data?.intervention || 'N/A';
-    const approvedLearners = data?.gC_New || data?.number_New || 0;
-    const costPerLearner = data?.gC_CostPerLearner || data?.costPerLearner || 0;
-    const contractNo = data?.contract_Number || 'N/A';
+    const focusAreaLabel = data.focusArea || 'Grant Details';
+    const subCategory = data.subCategory || 'N/A';
+    const intervention = data.intervention || 'N/A';
+    const approvedLearners = data.gC_New || data.number_New || 0;
+    const costPerLearner = data.gC_CostPerLearner || data.costPerLearner || 0;
+    const contractNo = data.contract_Number || null;
+    const isApproved = contractNo !== null;
 
     async function handleEvaluationDownload() {
-        if (data?.contract_Number === null) {
-            await generateRejectedGrantsReport();
-            return;
+        if (evaluationLoading) return;
+        setEvaluationLoading(true);
+        try {
+            if (isApproved) {
+                await generateApprovedGrantsReport();
+            } else {
+                await generateRejectedGrantsReport();
+            }
+        } finally {
+            setEvaluationLoading(false);
         }
-
-        if (data?.contract_Number !== null) {
-            await generateApprovedGrantsReport();
-        }
-
     }
+
     async function handleMOADownload() {
-        if (data?.contract_Number !== null) {
-            open(<DownloadError close={close} file="MOA " />, { snapPoints: ['40%'] });
-        } else {
-            open(<DownloadError close={close} file='MOA ' />, { snapPoints: ['40%'] });
+        if (moaLoading) return;
+        setMoaLoading(true);
+        try {
+            // MOA is not yet available — show informative bottom sheet
+            open(<DownloadError close={close} file='MOA' />, { snapPoints: ['40%'] });
+        } finally {
+            setMoaLoading(false);
         }
     }
 
     return (
-        <RCol style={styles.moduleContainer}>
-            <Expandable title={focusAreaLabel} isExpanded={showDetails} onPress={() => { setShowDetails(!showDetails) }}>
-                <RCol style={{ padding: 5, gap: 4 }}>
-                    <RRow style={styles.row}>
-                        <Text variant='titleSmall'>Subcategory</Text>
-                        <Text variant='bodySmall' style={styles.value} lineBreakMode='tail' numberOfLines={2}>{subCategory}</Text>
-                    </RRow>
-                    <RRow style={styles.row}>
-                        <Text variant='titleSmall'>Intervention</Text>
-                        <Text variant='bodySmall' style={styles.value} lineBreakMode='tail' numberOfLines={2}>{intervention}</Text>
-                    </RRow>
-                    <RRow style={styles.row}>
-                        <Text variant='titleSmall'>Approved Learners</Text>
-                        <Text variant='bodySmall' style={styles.value} lineBreakMode='tail' numberOfLines={2}>{approvedLearners}</Text>
-                    </RRow>
-                    <RRow style={styles.row}>
-                        <Text variant='titleSmall'>Approved Amount/Learner</Text>
-                        <Text variant='bodySmall' style={[styles.value, styles.cost]} lineBreakMode='tail' numberOfLines={2}>R{costPerLearner.toLocaleString()}</Text>
-                    </RRow>
-                    <RRow style={styles.row}>
-                        <Text variant='titleSmall'>Contract No</Text>
-                        <Text variant='bodySmall' style={[styles.value]} lineBreakMode='tail' numberOfLines={2}>{contractNo}</Text>
-                    </RRow>
-
-                    <RDivider />
-                    <Text variant='bodySmall' style={{ color: colors.primary[800] }}>Memorandum of Agreement (MOA)</Text>
-
-                    <RCol style={{ marginTop: 5 }}>
-                        <Text variant='labelSmall' style={{ color: colors.zinc[800] }}>Download Files</Text>
-                        <DownloadTemp fileName='Download Evaluation Outcome' onPress={handleEvaluationDownload} />
-
-                        <DownloadTemp fileName='Download MOA' onPress={handleMOADownload} />
-                    </RCol>
-
-                </RCol>
-            </Expandable>
-        </RCol>
-    )
-}
-
-function DownloadTemp({ fileName, onPress }: { fileName: string, onPress?: () => void }) {
-    return (
-        <TouchableOpacity activeOpacity={0.8} onPress={onPress} style={{ flexDirection: 'row', alignItems: 'center', gap: 5, marginVertical: 5, borderWidth: 0.4, borderColor: colors.blue[300], padding: 8, borderRadius: 20, width: "auto" }}>
-            <FontAwesome name="cloud-download" size={24} color={colors.blue[400]} />
-            <Text variant='bodySmall' style={{ color: colors.gray[500] }}>{fileName}</Text>
-        </TouchableOpacity>
-    )
-}
-
-
-function DownloadError({ close, file }: { close: () => void, file: string }) {
-    return (
-        <View style={{ flex: 1, backgroundColor: "white", padding: 16 }}>
-            <RRow
-                style={{
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    marginBottom: 24,
-                }}
+        <View style={styles.card}>
+            <Expandable
+                title={focusAreaLabel}
+                isExpanded={showDetails}
+                onPress={() => setShowDetails(v => !v)}
             >
-                <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
-                    <Text variant="titleMedium">Download Error</Text>
+                {/* ── Stats grid ────────────────────────────────────── */}
+                <View style={styles.statsGrid}>
+                    <StatPill label='Approved Learners' value={approvedLearners} />
+                    <StatPill
+                        label='Amount / Learner'
+                        value={`R ${costPerLearner.toLocaleString()}`}
+                        valueStyle={{ color: colors.emerald[600] }}
+                    />
                 </View>
 
+                {/* ── Info rows ─────────────────────────────────────── */}
+                <View style={styles.infoSection}>
+                    <InfoRow label='Subcategory' value={subCategory} />
+                    <InfoRow label='Intervention' value={intervention} />
+                    <InfoRow
+                        label='Contract No'
+                        value={contractNo ?? '—'}
+                        valueStyle={contractNo ? { color: colors.primary[600], fontFamily: `${appFonts.semiBold}` } : {}}
+                    />
+                    <View style={[styles.statusBadgeRow]}>
+                        <Text style={styles.infoLabel}>Status</Text>
+                        <View style={[
+                            styles.statusBadge,
+                            { backgroundColor: isApproved ? colors.emerald[50] : colors.red[50] },
+                        ]}>
+                            <View style={[
+                                styles.statusDot,
+                                { backgroundColor: isApproved ? colors.emerald[500] : colors.red[400] },
+                            ]} />
+                            <Text style={[
+                                styles.statusText,
+                                { color: isApproved ? colors.emerald[700] : colors.red[600] },
+                            ]}>
+                                {isApproved ? 'Approved' : 'Not Approved'}
+                            </Text>
+                        </View>
+                    </View>
+                </View>
+
+                <RDivider />
+
+                {/* ── Downloads ─────────────────────────────────────── */}
+                <View style={styles.downloadsSection}>
+                    <View style={styles.downloadHeader}>
+                        <Ionicons name='cloud-download-outline' size={16} color={colors.primary[600]} />
+                        <Text style={styles.downloadTitle}>Documents</Text>
+                    </View>
+
+                    <DownloadButton
+                        label='Evaluation Outcome'
+                        sublabel={isApproved ? 'Approval letter (PDF)' : 'Rejection letter (PDF)'}
+                        icon='document-text-outline'
+                        accentColor={isApproved ? colors.emerald[600] : colors.red[500]}
+                        loading={evaluationLoading}
+                        onPress={handleEvaluationDownload}
+                    />
+
+                    <DownloadButton
+                        label='Memorandum of Agreement'
+                        sublabel='MOA document (PDF)'
+                        icon='reader-outline'
+                        accentColor={colors.primary[600]}
+                        loading={moaLoading}
+                        onPress={handleMOADownload}
+                        disabled={!isApproved}
+                    />
+                </View>
+            </Expandable>
+        </View>
+    );
+};
+
+// ─── Info row (compact key-value) ─────────────────────────────────────────────
+function InfoRow({ label, value, valueStyle }: { label: string; value: string; valueStyle?: object }) {
+    return (
+        <View style={styles.infoRow}>
+            <Text style={styles.infoLabel}>{label}</Text>
+            <Text style={[styles.infoValue, valueStyle]} numberOfLines={2}>{value}</Text>
+        </View>
+    );
+}
+
+// ─── Error bottom sheet ───────────────────────────────────────────────────────
+function DownloadError({ close, file }: { close: () => void; file: string }) {
+    return (
+        <View style={{ flex: 1, backgroundColor: 'white', padding: 16 }}>
+            <RRow style={{ justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+                <Text variant='titleMedium'>Document Unavailable</Text>
                 <TouchableOpacity onPress={close}>
-                    <EvilIcons name="close" size={32} color="black" />
+                    <EvilIcons name='close' size={32} color='black' />
                 </TouchableOpacity>
             </RRow>
-
-            <RCol style={{ alignItems: "center", gap: 16 }}>
+            <RCol style={{ alignItems: 'center', gap: 16 }}>
                 <Image source={errorBox} style={{ width: 64, height: 64 }} />
-                <Text variant="headlineMedium" style={{ fontWeight: "bold", textAlign: "center" }}>
+                <Text variant='headlineMedium' style={{ fontWeight: 'bold', textAlign: 'center' }}>
                     File Not Available
                 </Text>
-
-                <Text
-                    variant="bodyMedium"
-                    style={{ textAlign: "center", color: "#666", lineHeight: 24 }}
-                >
-                    An error occurred while trying to download the {file}
-                    file. File not available for this application grant.
+                <Text variant='bodyMedium' style={{ textAlign: 'center', color: '#666', lineHeight: 24 }}>
+                    The {file} document is not yet available for this grant application. Please check back later or contact support.
                 </Text>
             </RCol>
         </View>
-    )
+    );
 }
 
 export default GrantDetails
 
 const styles = StyleSheet.create({
-    moduleContainer: {
-        marginVertical: 10,
+    card: {
+        marginVertical: 6,
+        backgroundColor: colors.white,
+        borderRadius: 14,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.06,
+        shadowRadius: 6,
+        elevation: 2,
+        overflow: 'hidden',
     },
-    row: { justifyContent: 'space-between', alignItems: 'center' },
-    value: {
-        flex: 1,
-        textAlign: 'right',
-        fontWeight: 'ultralight',
-        fontSize: 10
+    statsGrid: {
+        flexDirection: 'row',
+        gap: 8,
+        paddingHorizontal: 12,
+        paddingTop: 10,
+        paddingBottom: 6,
     },
-    cost: {
-        fontWeight: 'bold',
+    infoSection: {
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        gap: 2,
+    },
+    infoRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
+        paddingVertical: 7,
+        borderBottomWidth: 1,
+        borderBottomColor: colors.gray[50],
+    },
+    infoLabel: {
         fontSize: 12,
-        color: 'green',
+        fontFamily: `${appFonts.regular}`,
+        color: colors.slate[500],
+        flex: 1,
+    },
+    infoValue: {
+        fontSize: 12,
+        fontFamily: `${appFonts.medium}`,
+        color: colors.gray[800],
+        flex: 1.5,
+        textAlign: 'right',
+    },
+    statusBadgeRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingVertical: 7,
+    },
+    statusBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 5,
+        paddingHorizontal: 10,
+        paddingVertical: 4,
+        borderRadius: 20,
+    },
+    statusDot: {
+        width: 7,
+        height: 7,
+        borderRadius: 4,
+    },
+    statusText: {
+        fontSize: 11,
+        fontFamily: `${appFonts.semiBold}`,
+    },
+    downloadsSection: {
+        paddingHorizontal: 12,
+        paddingTop: 10,
+        paddingBottom: 14,
+        gap: 8,
+    },
+    downloadHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        marginBottom: 2,
+    },
+    downloadTitle: {
+        fontSize: 12,
+        fontFamily: `${appFonts.semiBold}`,
+        color: colors.primary[700],
+    },
+    emptyContainer: {
+        alignItems: 'center',
+        paddingVertical: 24,
+        gap: 8,
+    },
+    emptyText: {
+        fontSize: 13,
+        fontFamily: `${appFonts.regular}`,
+        color: colors.gray[400],
     },
 })

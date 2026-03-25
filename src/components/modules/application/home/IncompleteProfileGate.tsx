@@ -1,0 +1,672 @@
+import React, { useEffect, useRef } from 'react';
+import {
+    View,
+    Text,
+    StyleSheet,
+    Animated,
+    TouchableOpacity,
+    Linking,
+    ScrollView,
+    Platform,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState } from '@/store/store';
+import { useGetOrganizationsBySdfIdQuery } from '@/store/api/api';
+import { colors } from '@/config/colors';
+import { logout } from '@/store/slice/AuthSlice';
+
+const WEB_APP_URL = 'https://ims.chieta.org.za';
+
+interface ChecklistItem {
+    key: string;
+    icon: string;
+    label: string;
+    sublabel: string;
+    done: boolean;
+}
+
+const IncompleteProfileGate: React.FC = () => {
+    const dispatch = useDispatch();
+    const { user } = useSelector((state: RootState) => state.auth);
+
+    const sdfId = user?.sdfId;
+
+    const {
+        data: orgs,
+        isLoading: orgsLoading,
+        refetch: refetchOrgs,
+    } = useGetOrganizationsBySdfIdQuery(sdfId || 0, { skip: !sdfId });
+
+    // ── Animations ──────────────────────────────────────────────────────────
+    const fadeAnim = useRef(new Animated.Value(0)).current;
+    const slideAnim = useRef(new Animated.Value(28)).current;
+
+    useEffect(() => {
+        Animated.parallel([
+            Animated.timing(fadeAnim, {
+                toValue: 1,
+                duration: 480,
+                useNativeDriver: true,
+            }),
+            Animated.spring(slideAnim, {
+                toValue: 0,
+                tension: 60,
+                friction: 10,
+                useNativeDriver: true,
+            }),
+        ]).start();
+    }, []);
+
+    // ── Derive conditions ────────────────────────────────────────────────────
+    const emailUnverified = !user?.isEmailConfirmed;
+    const noSdfProfile = !user?.sdfId;
+    const noOrgsLinked = !orgsLoading && (!orgs || orgs.length === 0);
+
+    const checklist: ChecklistItem[] = [
+        {
+            key: 'email',
+            icon: 'email-check-outline',
+            label: 'Verify your email address',
+            sublabel: `Sent to ${user?.email ?? 'your email'}`,
+            done: !emailUnverified,
+        },
+        {
+            key: 'sdf',
+            icon: 'card-account-details-outline',
+            label: 'Complete your SDF profile',
+            sublabel: 'Skills Development Facilitator profile required',
+            done: !noSdfProfile,
+        },
+        {
+            key: 'org',
+            icon: 'office-building-outline',
+            label: 'Link an organisation',
+            sublabel: 'Connect at least one organisation to your profile',
+            done: !noOrgsLinked,
+        },
+    ];
+
+    const pendingItems = checklist.filter(item => !item.done);
+    const completedCount = checklist.filter(item => item.done).length;
+    const progressPct = (completedCount / checklist.length) * 100;
+
+    // ── Handlers ─────────────────────────────────────────────────────────────
+    function handleOpenWebApp() {
+        Linking.openURL(WEB_APP_URL).catch(() => {
+            // URL couldn't be opened — silently no-op; user sees the URL in the pill
+        });
+    }
+
+    function handleRefresh() {
+        refetchOrgs();
+    }
+
+    function handleSignOut() {
+        dispatch(logout() as any);
+    }
+
+    return (
+        <SafeAreaView style={styles.safeArea}>
+            <ScrollView
+                contentContainerStyle={styles.scrollContent}
+                showsVerticalScrollIndicator={false}
+                bounces={false}
+            >
+                <Animated.View
+                    style={[
+                        styles.root,
+                        { opacity: fadeAnim, transform: [{ translateY: slideAnim }] },
+                    ]}
+                >
+                    {/* ── Top accent banner ─────────────────────────────────── */}
+                    <LinearGradient
+                        colors={[colors.primary[800], colors.primary[950]]}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 1 }}
+                        style={styles.banner}
+                    >
+                        {/* Decorative blobs */}
+                        <View style={styles.blobTopRight} />
+                        <View style={styles.blobBottomLeft} />
+
+                        <View style={styles.iconBadge}>
+                            <MaterialCommunityIcons
+                                name="shield-account-outline"
+                                size={36}
+                                color={colors.primary[200]}
+                            />
+                        </View>
+
+                        <Text style={styles.bannerTitle}>Complete Your Profile</Text>
+                        <Text style={styles.bannerSubtitle}>
+                            A few steps are needed before you can use the CHIETA IMS mobile app.
+                        </Text>
+
+                        {/* Progress row */}
+                        <View style={styles.progressRow}>
+                            <View style={styles.progressTrack}>
+                                <View
+                                    style={[
+                                        styles.progressFill,
+                                        { width: `${progressPct}%` as any },
+                                    ]}
+                                />
+                            </View>
+                            <Text style={styles.progressLabel}>
+                                {completedCount}/{checklist.length} completed
+                            </Text>
+                        </View>
+                    </LinearGradient>
+
+                    {/* ── Card body ─────────────────────────────────────────── */}
+                    <View style={styles.card}>
+                        {/* Section heading */}
+                        <Text style={styles.cardHeading}>Setup Checklist</Text>
+                        <Text style={styles.cardSubheading}>
+                            Complete the steps below on the CHIETA web portal to unlock full
+                            access.
+                        </Text>
+
+                        {/* Checklist items */}
+                        <View style={styles.checklist}>
+                            {checklist.map((item, idx) => (
+                                <ChecklistRow
+                                    key={item.key}
+                                    item={item}
+                                    isLast={idx === checklist.length - 1}
+                                />
+                            ))}
+                        </View>
+
+                        {/* Divider */}
+                        <View style={styles.divider} />
+
+                        {/* Web portal pill */}
+                        <Text style={styles.portalLabel}>Open the web portal to continue</Text>
+                        <TouchableOpacity
+                            style={styles.portalPill}
+                            onPress={handleOpenWebApp}
+                            activeOpacity={0.75}
+                        >
+                            <MaterialCommunityIcons
+                                name="web"
+                                size={18}
+                                color={colors.primary[700]}
+                            />
+                            <Text style={styles.portalUrl}>{WEB_APP_URL}</Text>
+                            <MaterialCommunityIcons
+                                name="open-in-new"
+                                size={14}
+                                color={colors.primary[400]}
+                            />
+                        </TouchableOpacity>
+
+                        {/* Primary CTA */}
+                        <TouchableOpacity
+                            style={styles.ctaButton}
+                            onPress={handleOpenWebApp}
+                            activeOpacity={0.85}
+                        >
+                            <LinearGradient
+                                colors={[colors.primary[700], colors.primary[900]]}
+                                start={{ x: 0, y: 0 }}
+                                end={{ x: 1, y: 0 }}
+                                style={styles.ctaGradient}
+                            >
+                                <MaterialCommunityIcons
+                                    name="arrow-right-circle-outline"
+                                    size={20}
+                                    color="#fff"
+                                />
+                                <Text style={styles.ctaText}>Go to CHIETA Web Portal</Text>
+                            </LinearGradient>
+                        </TouchableOpacity>
+
+                        {/* Secondary: I've completed the steps */}
+                        <TouchableOpacity
+                            style={styles.refreshButton}
+                            onPress={handleRefresh}
+                            activeOpacity={0.7}
+                        >
+                            <MaterialCommunityIcons
+                                name="refresh"
+                                size={17}
+                                color={colors.primary[700]}
+                            />
+                            <Text style={styles.refreshText}>
+                                {"I've completed the steps — check again"}
+                            </Text>
+                        </TouchableOpacity>
+
+                        {/* Pending summary pill (only when items still pending) */}
+                        {pendingItems.length > 0 && (
+                            <View style={styles.pendingPill}>
+                                <MaterialCommunityIcons
+                                    name="information-outline"
+                                    size={14}
+                                    color={colors.primary[600]}
+                                />
+                                <Text style={styles.pendingPillText}>
+                                    {pendingItems.length} step
+                                    {pendingItems.length > 1 ? 's' : ''} still pending
+                                </Text>
+                            </View>
+                        )}
+                    </View>
+
+                    {/* Sign out */}
+                    <TouchableOpacity
+                        style={styles.signOutRow}
+                        onPress={handleSignOut}
+                        activeOpacity={0.6}
+                    >
+                        <MaterialCommunityIcons
+                            name="logout"
+                            size={15}
+                            color={colors.slate[400]}
+                        />
+                        <Text style={styles.signOutText}>Sign out</Text>
+                    </TouchableOpacity>
+                </Animated.View>
+            </ScrollView>
+        </SafeAreaView>
+    );
+};
+
+// ── Sub-component: individual checklist row ─────────────────────────────────
+
+interface ChecklistRowProps {
+    item: ChecklistItem;
+    isLast: boolean;
+}
+
+const ChecklistRow: React.FC<ChecklistRowProps> = ({ item, isLast }) => {
+    const rowAnim = useRef(new Animated.Value(0)).current;
+
+    useEffect(() => {
+        Animated.timing(rowAnim, {
+            toValue: 1,
+            duration: 350,
+            delay: item.done ? 0 : 80,
+            useNativeDriver: true,
+        }).start();
+    }, []);
+
+    return (
+        <Animated.View
+            style={[
+                styles.checklistRow,
+                !isLast && styles.checklistRowBorder,
+                { opacity: rowAnim },
+            ]}
+        >
+            {/* Icon wrap */}
+            <View
+                style={[
+                    styles.checklistIconWrap,
+                    item.done
+                        ? styles.checklistIconWrapDone
+                        : styles.checklistIconWrapPending,
+                ]}
+            >
+                <MaterialCommunityIcons
+                    name={item.done ? 'check' : item.icon}
+                    size={20}
+                    color={item.done ? colors.primary[700] : colors.primary[500]}
+                />
+            </View>
+
+            {/* Labels */}
+            <View style={styles.checklistTextWrap}>
+                <Text
+                    style={[
+                        styles.checklistLabel,
+                        item.done && styles.checklistLabelDone,
+                    ]}
+                >
+                    {item.label}
+                </Text>
+                <Text style={styles.checklistSublabel}>{item.sublabel}</Text>
+            </View>
+
+            {/* Status badge */}
+            <View
+                style={[
+                    styles.statusBadge,
+                    item.done ? styles.statusBadgeDone : styles.statusBadgePending,
+                ]}
+            >
+                <Text
+                    style={[
+                        styles.statusBadgeText,
+                        item.done
+                            ? styles.statusBadgeTextDone
+                            : styles.statusBadgeTextPending,
+                    ]}
+                >
+                    {item.done ? 'Done' : 'Pending'}
+                </Text>
+            </View>
+        </Animated.View>
+    );
+};
+
+// ── Styles ──────────────────────────────────────────────────────────────────
+
+const styles = StyleSheet.create({
+    safeArea: {
+        flex: 1,
+        backgroundColor: '#ffffff',
+    },
+    scrollContent: {
+        flexGrow: 1,
+        paddingBottom: 32,
+    },
+    root: {
+        flex: 1,
+        backgroundColor: '#ffffff',
+    },
+
+    // Banner
+    banner: {
+        paddingTop: 40,
+        paddingBottom: 36,
+        paddingHorizontal: 24,
+        overflow: 'hidden',
+    },
+    blobTopRight: {
+        position: 'absolute',
+        width: 160,
+        height: 160,
+        borderRadius: 80,
+        backgroundColor: 'rgba(255,255,255,0.05)',
+        top: -40,
+        right: -40,
+    },
+    blobBottomLeft: {
+        position: 'absolute',
+        width: 120,
+        height: 120,
+        borderRadius: 60,
+        backgroundColor: 'rgba(255,255,255,0.04)',
+        bottom: -30,
+        left: -20,
+    },
+    iconBadge: {
+        width: 68,
+        height: 68,
+        borderRadius: 34,
+        backgroundColor: 'rgba(255,255,255,0.12)',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: 16,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.18)',
+    },
+    bannerTitle: {
+        fontSize: 24,
+        fontWeight: '800',
+        color: '#ffffff',
+        marginBottom: 8,
+        letterSpacing: -0.4,
+    },
+    bannerSubtitle: {
+        fontSize: 14,
+        fontWeight: '400',
+        color: colors.primary[200],
+        lineHeight: 21,
+        marginBottom: 24,
+    },
+
+    // Progress
+    progressRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 12,
+    },
+    progressTrack: {
+        flex: 1,
+        height: 6,
+        borderRadius: 3,
+        backgroundColor: 'rgba(255,255,255,0.18)',
+        overflow: 'hidden',
+    },
+    progressFill: {
+        height: '100%',
+        borderRadius: 3,
+        backgroundColor: colors.primary[300],
+    },
+    progressLabel: {
+        fontSize: 12,
+        fontWeight: '600',
+        color: colors.primary[300],
+    },
+
+    // Card
+    card: {
+        marginHorizontal: 16,
+        marginTop: -20,
+        backgroundColor: '#ffffff',
+        borderRadius: 20,
+        padding: 20,
+        ...Platform.select({
+            ios: {
+                shadowColor: colors.primary[950],
+                shadowOffset: { width: 0, height: 4 },
+                shadowOpacity: 0.08,
+                shadowRadius: 16,
+            },
+            android: {
+                elevation: 4,
+            },
+        }),
+    },
+    cardHeading: {
+        fontSize: 17,
+        fontWeight: '700',
+        color: colors.primary[950],
+        marginBottom: 4,
+    },
+    cardSubheading: {
+        fontSize: 13,
+        fontWeight: '400',
+        color: colors.slate[500],
+        lineHeight: 19,
+        marginBottom: 20,
+    },
+
+    // Checklist
+    checklist: {
+        borderRadius: 14,
+        borderWidth: 1,
+        borderColor: colors.slate[100],
+        overflow: 'hidden',
+        marginBottom: 20,
+    },
+    checklistRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 14,
+        paddingHorizontal: 14,
+        backgroundColor: '#fff',
+        gap: 12,
+    },
+    checklistRowBorder: {
+        borderBottomWidth: StyleSheet.hairlineWidth,
+        borderBottomColor: colors.slate[100],
+    },
+    checklistIconWrap: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexShrink: 0,
+    },
+    checklistIconWrapDone: {
+        backgroundColor: colors.primary[50],
+        borderWidth: 1,
+        borderColor: colors.primary[100],
+    },
+    checklistIconWrapPending: {
+        backgroundColor: colors.primary[50],
+        borderWidth: 1,
+        borderColor: colors.primary[100],
+    },
+    checklistTextWrap: {
+        flex: 1,
+        gap: 2,
+    },
+    checklistLabel: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: colors.primary[950],
+    },
+    checklistLabelDone: {
+        color: colors.slate[400],
+    },
+    checklistSublabel: {
+        fontSize: 12,
+        fontWeight: '400',
+        color: colors.slate[400],
+        lineHeight: 17,
+    },
+    statusBadge: {
+        paddingHorizontal: 9,
+        paddingVertical: 4,
+        borderRadius: 20,
+        flexShrink: 0,
+    },
+    statusBadgeDone: {
+        backgroundColor: colors.primary[50],
+        borderWidth: 1,
+        borderColor: colors.primary[100],
+    },
+    statusBadgePending: {
+        backgroundColor: '#fff8f0',
+        borderWidth: 1,
+        borderColor: '#fde5c8',
+    },
+    statusBadgeText: {
+        fontSize: 11,
+        fontWeight: '700',
+    },
+    statusBadgeTextDone: {
+        color: colors.primary[700],
+    },
+    statusBadgeTextPending: {
+        color: '#c87c2e',
+    },
+
+    // Divider
+    divider: {
+        height: StyleSheet.hairlineWidth,
+        backgroundColor: colors.slate[100],
+        marginBottom: 16,
+    },
+
+    // Portal pill
+    portalLabel: {
+        fontSize: 12,
+        fontWeight: '500',
+        color: colors.slate[400],
+        marginBottom: 8,
+        textAlign: 'center',
+    },
+    portalPill: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+        backgroundColor: colors.primary[50],
+        borderWidth: 1,
+        borderColor: colors.primary[100],
+        borderRadius: 30,
+        paddingVertical: 10,
+        paddingHorizontal: 16,
+        marginBottom: 16,
+        alignSelf: 'center',
+    },
+    portalUrl: {
+        fontSize: 13,
+        fontWeight: '600',
+        color: colors.primary[700],
+        flex: 1,
+    },
+
+    // CTA button
+    ctaButton: {
+        borderRadius: 14,
+        overflow: 'hidden',
+        marginBottom: 12,
+    },
+    ctaGradient: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 10,
+        paddingVertical: 15,
+        paddingHorizontal: 20,
+    },
+    ctaText: {
+        fontSize: 15,
+        fontWeight: '700',
+        color: '#ffffff',
+        letterSpacing: 0.2,
+    },
+
+    // Refresh button
+    refreshButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 6,
+        paddingVertical: 12,
+        borderRadius: 12,
+        borderWidth: 1,
+        borderColor: colors.primary[100],
+        backgroundColor: colors.primary[50],
+        marginBottom: 16,
+    },
+    refreshText: {
+        fontSize: 13,
+        fontWeight: '600',
+        color: colors.primary[700],
+    },
+
+    // Pending info pill
+    pendingPill: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        backgroundColor: colors.primary[50],
+        borderRadius: 8,
+        paddingVertical: 8,
+        paddingHorizontal: 12,
+        alignSelf: 'center',
+    },
+    pendingPillText: {
+        fontSize: 12,
+        fontWeight: '500',
+        color: colors.primary[600],
+    },
+
+    // Sign out
+    signOutRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 6,
+        marginTop: 20,
+        paddingVertical: 12,
+    },
+    signOutText: {
+        fontSize: 13,
+        fontWeight: '500',
+        color: colors.slate[400],
+    },
+});
+
+export default IncompleteProfileGate;

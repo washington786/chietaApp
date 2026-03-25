@@ -36,7 +36,18 @@ const initialState: AuthState = {
     isAuthenticated: false,
 }
 
+const resetAuthState = (state: AuthState) => {
+    state.user = null
+    state.token = null
+    state.refreshToken = null
+    state.expiresIn = null
+    state.isAuthenticated = false
+    state.error = null
+    state.isLoading = false
+}
+
 const API_BASE_URL = 'https://ims.chieta.org.za:22743'
+const ABP_TENANT_ID = '2' // tenancyName: "chieta"
 
 /**
  * Login with email and password
@@ -150,6 +161,10 @@ const login = createAsyncThunk<
 
 /**
  * Register new user
+ *
+ * ABP's Account/Register endpoint returns { result: { canLogin: bool }, success: bool }.
+ * It does NOT return an access token, so we auto-login after a successful registration
+ * to get the token and keep the auth state consistent.
  */
 const register = createAsyncThunk<
     RegisterResponse,
@@ -157,67 +172,132 @@ const register = createAsyncThunk<
     { rejectValue: AuthError }
 >('auth/register', async (payload, { rejectWithValue }) => {
     try {
-        // Normalize email and password - trim only, don't change case as backend is case-sensitive
         const trimmedEmail = payload.email.trim();
+        const trimmedFirstName = payload.firstName.trim();
+        const trimmedLastName = payload.lastName.trim();
+        const trimmedUsername = payload.username.trim();
         const trimmedPassword = payload.password.trim();
 
-        const response = await fetch(`${API_BASE_URL}/api/services/app/Account/Register`, {
+        const regBody = {
+            name: trimmedFirstName,
+            surname: trimmedLastName,
+            emailAddress: trimmedEmail,
+            userName: trimmedUsername,
+            password: trimmedPassword,
+        };
+        console.log('[Register] Step 1 — request body:', JSON.stringify(regBody));
+
+        // ── Step 1: Register the account ────────────────────────────────────
+        const regResponse = await fetch(`${API_BASE_URL}/api/services/app/Account/Register`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                Accept: 'application/json',
-            },
-            body: JSON.stringify({
-                firstName: payload.firstName.trim(),
-                lastName: payload.lastName.trim(),
-                emailAddress: trimmedEmail,
-                userName: payload.username.trim(),
-                password: trimmedPassword,
-            }),
-        })
+            headers: { 'Content-Type': 'application/json', Accept: 'application/json', 'Abp.TenantId': ABP_TENANT_ID },
+            body: JSON.stringify(regBody),
+        });
 
-        if (!response.ok) {
-            const errorData = await response.json().catch(() => ({
-                error: { message: 'Registration failed' }
-            }))
+        const regData = await regResponse.json().catch(() => null);
+        console.log('[Register] Step 1 — status:', regResponse.status, 'response:', JSON.stringify(regData));
 
-            // Extract error message from nested structure: prioritize details for user-friendliness
-            const errorMessage = errorData?.error?.message ||
-                errorData?.error?.details ||
-                errorData?.message ||
-                `Registration failed with status ${response.status}`;
+        // ABP can return HTTP 200 with success: false for validation failures
+        if (!regResponse.ok || regData?.success === false) {
+            const abpError = regData?.error;
+            // ABP puts the user-friendly message in details; message is often generic
+            const validationMsg = Array.isArray(abpError?.validationErrors) && abpError.validationErrors.length > 0
+                ? abpError.validationErrors.map((v: any) => v?.message || v).join(' ')
+                : null;
+            const errorMessage =
+                validationMsg ||
+                abpError?.details ||
+                abpError?.message ||
+                regData?.message ||
+                `Registration failed (${regResponse.status})`;
 
+            console.log('[Register] Step 1 FAILED — error:', errorMessage);
             return rejectWithValue({
                 code: 'REGISTRATION_ERROR',
                 message: errorMessage,
-                details: errorData?.error?.details,
-            })
+            });
         }
 
-        const data = await response.json()
+        // ── Step 2: ABP Register succeeded — auto-login to obtain token ─────
+        // Some API versions return the token directly in the register response.
+        const regResult = regData?.result;
+        console.log('[Register] Step 1 SUCCESS — result:', JSON.stringify(regResult));
+        if (regResult?.accessToken) {
+            console.log('[Register] Token found in register response — skipping auto-login');
+            const accessToken: string = regResult.accessToken;
+            const refreshToken: string | undefined = regResult.refreshToken || undefined;
+            const expiresIn = extractTokenExpiry(accessToken) || 3600;
+            const userId: string = String(regResult.userId || '');
+            return {
+                user: {
+                    id: userId,
+                    email: trimmedEmail,
+                    firstName: trimmedFirstName,
+                    lastName: trimmedLastName,
+                    username: trimmedUsername,
+                    sdfId: regResult.sdfId,
+                    isActive: true,
+                    isEmailConfirmed: false,
+                },
+                accessToken,
+                refreshToken,
+                expiresIn,
+            };
+        }
 
-        const expiresIn = extractTokenExpiry(data.result?.accessToken)
+        // Account/Register returns { canLogin: bool }, not an access token.
+        const authBody = { userNameOrEmailAddress: trimmedUsername, password: trimmedPassword, rememberClient: false };
+        console.log('[Register] Step 2 — auto-login body:', JSON.stringify(authBody));
+        const authResponse = await fetch(`${API_BASE_URL}/api/TokenAuth/Authenticate`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Accept: 'application/json', 'Abp.TenantId': ABP_TENANT_ID },
+            body: JSON.stringify(authBody),
+        });
+
+        const authData = await authResponse.json().catch(() => null);
+        console.log('[Register] Step 2 — status:', authResponse.status, 'response:', JSON.stringify(authData));
+
+        if (!authResponse.ok || authData?.success === false) {
+            console.log('[Register] Step 2 auto-login failed — registered but no token');
+            return {
+                user: {
+                    id: '',
+                    email: trimmedEmail,
+                    firstName: trimmedFirstName,
+                    lastName: trimmedLastName,
+                    username: trimmedUsername,
+                    isActive: false,
+                    isEmailConfirmed: false,
+                },
+                accessToken: '',
+                expiresIn: 0,
+            };
+        }
+
+        const accessToken: string = authData?.result?.accessToken || '';
+        const refreshToken: string | undefined = authData?.result?.refreshToken || undefined;
+        const expiresIn = extractTokenExpiry(accessToken) || 3600;
+        const userId: string = String(authData?.result?.userId || '');
 
         return {
             user: {
-                id: data.result?.userId || '',
-                email: payload.email,
-                firstName: payload.firstName,
-                lastName: payload.lastName,
-                username: payload.username,
-                sdfId: data.result?.sdfId,
+                id: userId,
+                email: trimmedEmail,
+                firstName: trimmedFirstName,
+                lastName: trimmedLastName,
+                username: trimmedUsername,
                 isActive: true,
                 isEmailConfirmed: false,
             },
-            accessToken: data.result?.accessToken || '',
-            refreshToken: data.result?.refreshToken || undefined,
-            expiresIn: expiresIn || 3600,
-        }
+            accessToken,
+            refreshToken,
+            expiresIn,
+        };
     } catch (error) {
         return rejectWithValue({
             code: 'NETWORK_ERROR',
             message: error instanceof Error ? error.message : 'Network error occurred',
-        })
+        });
     }
 })
 
@@ -237,6 +317,7 @@ const resetPassword = createAsyncThunk<
                 headers: {
                     'Content-Type': 'application/json',
                     Accept: 'application/json',
+                    'Abp.TenantId': ABP_TENANT_ID,
                 },
                 body: JSON.stringify({
                     emailAddress: payload.email,
@@ -281,6 +362,7 @@ const verifyOtp = createAsyncThunk<
                 headers: {
                     'Content-Type': 'application/json',
                     Accept: 'application/json',
+                    'Abp.TenantId': ABP_TENANT_ID,
                 },
                 body: JSON.stringify({
                     emailAddress: payload.email,
@@ -509,6 +591,8 @@ const deleteAccount = createAsyncThunk<
                 })
             }
 
+            await clearCredentialsFromSecureStore()
+
             return { message: 'Account deleted successfully' }
         } catch (error) {
             return rejectWithValue({
@@ -516,6 +600,16 @@ const deleteAccount = createAsyncThunk<
                 message: error instanceof Error ? error.message : 'Network error occurred',
             })
         }
+    }
+)
+
+/**
+ * Logout current user and clear secure storage
+ */
+const logout = createAsyncThunk<void, void>(
+    'auth/logout',
+    async () => {
+        await clearCredentialsFromSecureStore()
     }
 )
 
@@ -659,16 +753,6 @@ const authSlice = createSlice({
         clearError: (state) => {
             state.error = null
         },
-        logout: (state) => {
-            state.user = null
-            state.token = null
-            state.refreshToken = null
-            state.expiresIn = null
-            state.isAuthenticated = false
-            state.error = null
-            // Clear from secure storage
-            clearCredentialsFromSecureStore()
-        },
     },
     extraReducers: (builder) => {
         // Login
@@ -705,13 +789,15 @@ const authSlice = createSlice({
             .addCase(register.fulfilled, (state, action) => {
                 state.isLoading = false
                 state.user = action.payload.user
-                state.token = action.payload.accessToken
-                state.refreshToken = action.payload.refreshToken || null
-                state.expiresIn = action.payload.expiresIn
-                state.isAuthenticated = true
                 state.error = null
-                // Save to secure storage
-                saveCredentialsToSecureStore(action.payload.user, action.payload.accessToken, action.payload.refreshToken, action.payload.expiresIn)
+                // Only mark as authenticated if auto-login succeeded and we have a real token
+                if (action.payload.accessToken) {
+                    state.token = action.payload.accessToken
+                    state.refreshToken = action.payload.refreshToken || null
+                    state.expiresIn = action.payload.expiresIn
+                    state.isAuthenticated = true
+                    saveCredentialsToSecureStore(action.payload.user, action.payload.accessToken, action.payload.refreshToken, action.payload.expiresIn)
+                }
             })
             .addCase(register.rejected, (state, action) => {
                 state.isLoading = false
@@ -810,8 +896,6 @@ const authSlice = createSlice({
                 state.refreshToken = null
                 state.isAuthenticated = false
                 state.error = null
-                // Clear secure storage
-                clearCredentialsFromSecureStore()
             })
             .addCase(deleteAccount.rejected, (state, action) => {
                 state.isLoading = false
@@ -819,6 +903,18 @@ const authSlice = createSlice({
                     code: 'DELETE_ACCOUNT_ERROR',
                     message: 'Account deletion failed',
                 }
+            })
+
+        // Logout
+        builder
+            .addCase(logout.pending, (state) => {
+                state.isLoading = true
+            })
+            .addCase(logout.fulfilled, (state) => {
+                resetAuthState(state)
+            })
+            .addCase(logout.rejected, (state) => {
+                resetAuthState(state)
             })
 
         // Restore Session
@@ -864,7 +960,7 @@ const authSlice = createSlice({
         builder
             .addCase(fetchPersonBySdfId.fulfilled, (state, action) => {
                 console.log('[AUTH] fetchPersonBySdfId fulfilled with payload:', action.payload)
-                if (state.user) {
+                if (state.user && action.payload !== null) {
                     console.log('[AUTH] Setting sdfId from', state.user.sdfId, 'to', action.payload)
                     state.user.sdfId = action.payload
                     console.log('[AUTH] After setting, sdfId is now:', state.user.sdfId)
@@ -877,7 +973,7 @@ const authSlice = createSlice({
     },
 })
 
-export const { setCredentials, clearError, logout } = authSlice.actions
+export const { setCredentials, clearError } = authSlice.actions
 
 const AuthReducer = authSlice.reducer
 
@@ -894,6 +990,7 @@ export {
     refreshTokenThunk,
     restoreSession,
     deleteAccount,
+    logout,
 }
 
 /**
@@ -930,19 +1027,23 @@ function saveCredentialsToSecureStore(
 /**
  * Clear credentials from secure storage
  */
-function clearCredentialsFromSecureStore() {
-    SecureStore.deleteItemAsync('user').catch((error) =>
-        console.error('Failed to delete user from secure store:', error)
+async function clearCredentialsFromSecureStore() {
+    const keys: Array<'user' | 'accessToken' | 'refreshToken' | 'expiresIn'> = [
+        'user',
+        'accessToken',
+        'refreshToken',
+        'expiresIn',
+    ]
+
+    const results = await Promise.allSettled(
+        keys.map((key) => SecureStore.deleteItemAsync(key))
     )
-    SecureStore.deleteItemAsync('accessToken').catch((error) =>
-        console.error('Failed to delete token from secure store:', error)
-    )
-    SecureStore.deleteItemAsync('refreshToken').catch((error) =>
-        console.error('Failed to delete refresh token from secure store:', error)
-    )
-    SecureStore.deleteItemAsync('expiresIn').catch((error) =>
-        console.error('Failed to delete expiresIn from secure store:', error)
-    )
+
+    results.forEach((result, index) => {
+        if (result.status === 'rejected') {
+            console.error(`Failed to delete ${keys[index]} from secure store:`, result.reason)
+        }
+    })
 }
 
 /**

@@ -101,7 +101,7 @@ const LinkedOrganizations = () => {
                             onDelink={handleDialog}
                             onCancel={close}
                             orgName={`${selectedOrg.organisationTradingName}`}
-                        />, { snapPoints: ["70%"] })} isLinkingRequired={false}
+                        />, { snapPoints: ["55%"] })} isLinkingRequired={false}
                     newOrgs={linkedOrganizations.filter(l => l.approvalStatus !== 'cancelled')}
                     isLinkingRequiredNew={true} />
             </RCol>
@@ -127,13 +127,13 @@ export function OrgDetails({ onDelink, onMandatoryGrants, onDiscretionaryGrants,
         <View style={{ alignItems: 'center', width: '100%', marginBottom: 8 }}>
             <TouchableOpacity style={styles.delinkBtn} onPress={onDelink}>
                 <Text style={styles.delinkText}>Delink</Text>
-                <Feather name="x" size={18} color={colors.red[600]} />
+                <Feather name="x" size={16} color={colors.red[600]} />
             </TouchableOpacity>
             <View style={styles.iconContainer}>
-                <MaterialCommunityIcons name="office-building" size={40} color={colors.slate[300]} />
+                <MaterialCommunityIcons name="office-building" size={38} color={colors.primary[400]} />
             </View>
-            <Text variant='headlineMedium' style={{ marginTop: 12, fontWeight: '700' }}>{orgName}</Text>
-            <Text variant='bodySmall' style={{ color: colors.zinc[400], marginTop: 4, textAlign: 'center' }}>Select grant type to view and manage your active applications for this organization</Text>
+            <Text variant='headlineSmall' style={{ marginTop: 12, fontWeight: '700', color: colors.primary[950], textAlign: 'center' }}>{orgName}</Text>
+            <Text variant='bodySmall' style={{ color: colors.slate[400], marginTop: 6, textAlign: 'center', lineHeight: 18, paddingHorizontal: 8 }}>Select a grant type to view and manage your active applications for this organisation.</Text>
         </View>
 
         {/* Grant type options */}
@@ -201,28 +201,36 @@ const styles = StyleSheet.create({
         width: 80,
         height: 80,
         borderRadius: 40,
-        backgroundColor: colors.slate[100],
+        backgroundColor: colors.primary[50],
+        borderWidth: 1,
+        borderColor: colors.primary[100],
         justifyContent: 'center',
         alignItems: 'center',
     },
     iconBg: {
-        width: 56,
-        height: 56,
+        width: 52,
+        height: 52,
         borderRadius: 12,
-        backgroundColor: colors.primary[100],
+        backgroundColor: colors.primary[50],
+        borderWidth: 1,
+        borderColor: colors.primary[100],
         justifyContent: 'center',
         alignItems: 'center',
     },
     grantBtn: {
-        backgroundColor: colors.slate[50],
+        backgroundColor: '#fff',
         paddingHorizontal: 16,
-        paddingVertical: 16,
-        borderRadius: 12,
-        alignItems: "center",
-        flexDirection: "row",
+        paddingVertical: 15,
+        borderRadius: 14,
+        alignItems: 'center',
+        flexDirection: 'row',
         borderWidth: 1,
         borderColor: colors.slate[200],
         gap: 8,
+        shadowColor: '#000',
+        shadowOpacity: 0.04,
+        shadowRadius: 6,
+        elevation: 1,
     },
     delinkBtn: {
         position: 'absolute',
@@ -245,9 +253,11 @@ const styles = StyleSheet.create({
     cancelBtn: {
         width: '100%',
         paddingVertical: 12,
-        borderRadius: 8,
+        borderRadius: 10,
         alignItems: 'center',
-        marginTop: 12,
+        marginTop: 4,
+        borderWidth: StyleSheet.hairlineWidth,
+        borderColor: colors.slate[200],
     },
     cancelText: {
         color: colors.slate[400],

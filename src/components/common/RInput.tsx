@@ -6,13 +6,14 @@ import colors from "../../config/colors";
 
 interface props extends TextInputProps {
   icon?: any;
+  iconColor?: string;
   customStyle?: StyleProp<ViewStyle>
 }
-const RInput: FC<props> = ({ icon, customStyle, style, ...rest }) => {
+const RInput: FC<props> = ({ icon, iconColor, customStyle, style, ...rest }) => {
   return (
     <View style={[styles.inputCon, customStyle]}>
       {icon && (
-        <Feather size={20} name={icon} color={colors.gray[400]} />
+        <Feather size={20} name={icon} color={iconColor ?? colors.gray[400]} />
       )}
       <TextInput {...rest} style={[styles.input, style]} autoCapitalize="none" />
     </View>

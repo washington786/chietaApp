@@ -17,8 +17,10 @@
       "infoPlist": {
         "UIBackgroundModes": [
           "remote-notification"
-        ]
-      }
+        ],
+        "ITSAppUsesNonExemptEncryption": false
+      },
+      "bundleIdentifier": "com.danielkarabo.Chieta"
     },
     "android": {
       "adaptiveIcon": {
@@ -29,8 +31,11 @@
       "predictiveBackGestureEnabled": false,
       "permissions": [
         "android.permission.READ_EXTERNAL_STORAGE",
-        "android.permission.POST_NOTIFICATIONS"
-      ]
+        "android.permission.POST_NOTIFICATIONS",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.INTERNET"
+      ],
+      "package": "com.danielkarabo.Chieta"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -45,6 +50,17 @@
       "expo-secure-store",
       "expo-notifications",
       "expo-file-system"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "bf7fe68d-64d6-4ebb-a535-11a958f069c8"
+      }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/bf7fe68d-64d6-4ebb-a535-11a958f069c8"
+    }
   }
 }
