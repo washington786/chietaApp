@@ -19,7 +19,7 @@ const AddMgApplicationItem: FC<props> = ({ onPress, item }) => {
 
     const title = description.split('-')[0];
 
-    let status = getMandatoryStatus(grantStatusId);
+    let status = getMandatoryStatus(grantStatusId ?? 0);
 
     return (
         <RCol style={styles.con}>

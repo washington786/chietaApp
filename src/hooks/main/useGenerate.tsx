@@ -48,7 +48,7 @@ const useGenerate = ({ appId, programmeType, learningProgramme, subCategory, int
             const org = dgOrgData?.result?.organisation;
 
             // Extract physical address data
-            const physicalAddress = physicalAddressData?.result?.organisationPhysicalAddress;
+            const physicalAddress = physicalAddressData;
 
             console.log('address: ', physicalAddress);
             console.log('entries data: ', entries);

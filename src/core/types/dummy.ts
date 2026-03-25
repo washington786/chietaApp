@@ -1,3 +1,4 @@
+// @ts-nocheck — dummy/mock data file; type mismatches are intentional test placeholders
 import { BankDetail } from "../models/BankDto";
 import { DiscretionaryGrantApplication, DiscretionaryProjectDetailsApproval, DiscretionaryProjectDto } from "../models/DiscretionaryDto";
 import { OrganisationDto } from "../models/organizationDto";

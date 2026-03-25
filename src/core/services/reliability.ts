@@ -14,7 +14,7 @@ export const initializeReliabilityLayer = async () => {
 
     registerOfflineHandler('notification', async (request) => {
         const payload = request.payload
-        const action = store.dispatch(api.endpoints.createNotification.initiate(payload))
+        const action = store.dispatch(api.endpoints.createNotification.initiate(payload as any))
         const result = await action.unwrap()
         logger.info('Sent queued notification to backend', {
             requestId: request.id,

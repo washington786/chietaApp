@@ -21,7 +21,7 @@ const executors = new Map<OfflineRequestType, OfflineExecutor>()
 let isOnline = true
 let initialized = false
 let flushInFlight: Promise<void> | null = null
-let networkSubscription: Network.NetworkStateSubscription | null = null
+let networkSubscription: ReturnType<typeof Network.addNetworkStateListener> | null = null
 
 const readQueue = async (): Promise<OfflineRequest[]> => {
     try {

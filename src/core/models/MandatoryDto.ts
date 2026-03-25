@@ -18,6 +18,7 @@ export interface MandatoryApplicationDto {
     rsaId: number;
     rsa: any | null;
     rmId: number;
+    grantStatusId?: number;
     submittedPrevious: boolean;
 }
 

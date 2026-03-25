@@ -47,12 +47,12 @@ export const mapDgProjectToApplicationForm = (
       email: "",
     },
 
-    gms: {
+    gms: [{
       learningProgramme: String(p.projType ?? ""),
       subCategory: String(p.subCategory ?? ""),
       intervention: String(p.focusArea ?? ""),
       cost: "",
-    },
+    }],
 
     checklist: {
       csdOrSarsPin: "",
