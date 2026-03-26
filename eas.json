@@ -15,7 +15,7 @@
         "buildType": "apk"
       },
       "ios": {
-        "distribution": "internal"
+        "distribution": "store"
       }
     },
     "preview2": {
@@ -60,6 +60,11 @@
         "track": "internal",
         "releaseStatus": "completed"
       },
+      "ios": {
+        "appName": "Chieta"
+      }
+    },
+    "preview": {
       "ios": {
         "appName": "Chieta"
       }

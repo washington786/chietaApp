@@ -1,0 +1,156 @@
+name: Preview build (TestFlight + APK)
+
+on:
+  workflow_dispatch:
+    inputs:
+      build-profile:
+        description: "EAS build profile (default: preview)"
+        required: false
+        default: "preview"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: preview-deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  BUILD_PROFILE: ${{ github.event.inputs.build-profile || 'preview' }}
+
+jobs:
+  test:
+    name: Run unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run TypeScript check
+        run: npx tsc --noEmit
+
+      - name: Run tests
+        run: npm run test
+
+  build-ios:
+    name: Build & submit iOS to TestFlight
+    needs: test
+    runs-on: ubuntu-latest
+    env:
+      EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Expo & EAS
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Configure App Store Connect API key
+        env:
+          APP_STORE_CONNECT_API_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY }}
+        run: |
+          if [ -z "$APP_STORE_CONNECT_API_KEY" ]; then
+            echo "::error::APP_STORE_CONNECT_API_KEY secret is required"
+            exit 1
+          fi
+          printf '%s' "$APP_STORE_CONNECT_API_KEY" > asc-api-key.p8
+
+      - name: Build iOS preview artifact
+        run: |
+          eas build \
+            --platform ios \
+            --profile "$BUILD_PROFILE" \
+            --non-interactive \
+            --wait
+
+      - name: Submit iOS build to TestFlight
+        env:
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ISSUER_ID }}
+        run: |
+          if [ -z "$APP_STORE_CONNECT_KEY_ID" ] || [ -z "$APP_STORE_CONNECT_KEY_ISSUER_ID" ]; then
+            echo "::error::APP_STORE_CONNECT_KEY_ID and APP_STORE_CONNECT_KEY_ISSUER_ID secrets are required"
+            exit 1
+          fi
+          eas submit \
+            --platform ios \
+            --profile "$BUILD_PROFILE" \
+            --non-interactive \
+            --latest \
+            --asc-app-identifier com.danielkarabo.Chieta \
+            --asc-api-key-id "$APP_STORE_CONNECT_KEY_ID" \
+            --asc-api-key-issuer-id "$APP_STORE_CONNECT_KEY_ISSUER_ID" \
+            --asc-api-key-path ./asc-api-key.p8
+
+      - name: Clean up credential files
+        if: always()
+        run: rm -f asc-api-key.p8
+
+  build-android:
+    name: Build Android APK (no store submission)
+    needs: test
+    runs-on: ubuntu-latest
+    env:
+      EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Expo & EAS
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Build Android APK
+        run: |
+          eas build \
+            --platform android \
+            --profile "$BUILD_PROFILE" \
+            --non-interactive \
+            --wait \
+            --json \
+            --non-interactive \
+            | tee build-output.json
+
+      - name: Print APK download link
+        run: |
+          APK_URL=$(cat build-output.json | python3 -c "import sys,json; builds=json.load(sys.stdin); url=[b.get('artifacts',{}).get('buildUrl','') for b in (builds if isinstance(builds,list) else [builds])]; print(next((u for u in url if u), 'Not found'))" 2>/dev/null || echo "See https://expo.dev")
+          echo "##[notice]📦 Android APK: $APK_URL"
+          echo "Share this URL with testers — they must enable 'Install unknown apps' on their device."
