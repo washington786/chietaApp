@@ -43,9 +43,49 @@ jobs:
       - name: Run tests
         run: npm run test
 
+  setup-eas:
+    name: Ensure EAS channel exists
+    needs: test
+    runs-on: ubuntu-latest
+    env:
+      EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Expo & EAS
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Create EAS update channel (idempotent)
+        run: |
+          OUTPUT=$(eas channel:create "$BUILD_PROFILE" 2>&1)
+          EXIT_CODE=$?
+          if [ $EXIT_CODE -ne 0 ]; then
+            if echo "$OUTPUT" | grep -qi "already exists"; then
+              echo "✓ Channel '$BUILD_PROFILE' already exists"
+            else
+              echo "$OUTPUT"
+              exit $EXIT_CODE
+            fi
+          else
+            echo "$OUTPUT"
+          fi
+
   build-ios:
     name: Build & submit iOS to TestFlight
-    needs: test
+    needs: setup-eas
     runs-on: ubuntu-latest
     env:
       EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
@@ -113,7 +153,7 @@ jobs:
 
   build-android:
     name: Build Android APK (no store submission)
-    needs: test
+    needs: setup-eas
     runs-on: ubuntu-latest
     env:
       EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
@@ -144,13 +184,11 @@ jobs:
             --platform android \
             --profile "$BUILD_PROFILE" \
             --non-interactive \
-            --wait \
-            --json \
-            --non-interactive \
-            | tee build-output.json
+            --wait
 
       - name: Print APK download link
         run: |
-          APK_URL=$(cat build-output.json | python3 -c "import sys,json; builds=json.load(sys.stdin); url=[b.get('artifacts',{}).get('buildUrl','') for b in (builds if isinstance(builds,list) else [builds])]; print(next((u for u in url if u), 'Not found'))" 2>/dev/null || echo "See https://expo.dev")
-          echo "##[notice]📦 Android APK: $APK_URL"
-          echo "Share this URL with testers — they must enable 'Install unknown apps' on their device."
+          echo "##[notice]📦 Android APK build complete."
+          echo "Download the APK from: https://expo.dev/accounts/washington786/projects/chietaApp/builds"
+          echo "Share the APK link with testers — they must enable 'Install unknown apps' on their device."
+
