@@ -43,37 +43,9 @@ jobs:
       - name: Run tests
         run: npm run test
 
-  setup-eas:
-    name: Ensure EAS channel exists
-    needs: test
-    runs-on: ubuntu-latest
-    env:
-      EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: "npm"
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Install Expo & EAS
-        uses: expo/expo-github-action@v8
-        with:
-          eas-version: latest
-          token: ${{ secrets.EXPO_TOKEN }}
-
-      - name: Create EAS update channel (idempotent)
-        run: eas channel:create "$BUILD_PROFILE" 2>&1 || true
-
   build-ios:
     name: Build & submit iOS to TestFlight
-    needs: setup-eas
+    needs: test
     runs-on: ubuntu-latest
     env:
       EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
@@ -141,7 +113,7 @@ jobs:
 
   build-android:
     name: Build Android APK (no store submission)
-    needs: setup-eas
+    needs: test
     runs-on: ubuntu-latest
     env:
       EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}

@@ -6,7 +6,6 @@
   "build": {
     "preview": {
       "distribution": "internal",
-      "channel": "preview",
       "autoIncrement": true,
       "cache": {
         "key": "npm-{{ hashFiles('package-lock.json') }}"
