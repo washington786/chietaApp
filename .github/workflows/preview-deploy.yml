@@ -70,18 +70,16 @@ jobs:
 
       - name: Create EAS update channel (idempotent)
         run: |
+          set +e
           OUTPUT=$(eas channel:create "$BUILD_PROFILE" 2>&1)
           EXIT_CODE=$?
-          if [ $EXIT_CODE -ne 0 ]; then
-            if echo "$OUTPUT" | grep -qi "already exists"; then
-              echo "✓ Channel '$BUILD_PROFILE' already exists"
-            else
-              echo "$OUTPUT"
-              exit $EXIT_CODE
-            fi
-          else
-            echo "$OUTPUT"
+          set -e
+          echo "$OUTPUT"
+          if [ $EXIT_CODE -ne 0 ] && ! echo "$OUTPUT" | grep -qi "already exists"; then
+            echo "::error::Failed to create EAS channel '$BUILD_PROFILE'"
+            exit $EXIT_CODE
           fi
+          echo "✓ EAS channel '$BUILD_PROFILE' is ready"
 
   build-ios:
     name: Build & submit iOS to TestFlight
