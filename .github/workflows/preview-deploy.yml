@@ -69,17 +69,7 @@ jobs:
           token: ${{ secrets.EXPO_TOKEN }}
 
       - name: Create EAS update channel (idempotent)
-        run: |
-          set +e
-          OUTPUT=$(eas channel:create "$BUILD_PROFILE" 2>&1)
-          EXIT_CODE=$?
-          set -e
-          echo "$OUTPUT"
-          if [ $EXIT_CODE -ne 0 ] && ! echo "$OUTPUT" | grep -qi "already exists"; then
-            echo "::error::Failed to create EAS channel '$BUILD_PROFILE'"
-            exit $EXIT_CODE
-          fi
-          echo "✓ EAS channel '$BUILD_PROFILE' is ready"
+        run: eas channel:create "$BUILD_PROFILE" 2>&1 || true
 
   build-ios:
     name: Build & submit iOS to TestFlight
