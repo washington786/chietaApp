@@ -56,7 +56,7 @@ const LoginScreen = () => {
     );
 
     return (
-        <AuthScreenLayout title='Welcome Back' subtitle='Sign in to access the CHIETA IMS mobile app.' footer={footer}>
+        <AuthScreenLayout title='Welcome Back' subtitle='Sign in to access the CHIETA IMS mobile app.' footer={footer} isLogin={true}>
             <Formik initialValues={formValues} onSubmit={(values) => handleSubmit(values.email, values.password)} validationSchema={loginSchema}>
                 {({ handleSubmit, handleBlur, handleChange, touched, errors, values }) => (
                     <View style={authScreenStyles.formWrapper}>

@@ -106,15 +106,14 @@ export default function LandingScreen() {
             {/* 2 cards per row */}
             <View style={styles.grid}>
               <Card
-                icon="briefcase"
-                title="Careers"
-                badge="Visit Website"
-                desc="Jobs & Opportunities"
-                onPress={() =>
-                  Linking.openURL("https://chieta.org.za/careers/vacancies/")
-                }
+                icon="business"
+                title="IMS"
+                badge="Login to IMS Portal"
+                desc="Grants Applications"
+                onPress={login}
                 color={colors.primary[700] || "#6d28d9"}
               />
+
               <Card
                 icon="bulb"
                 title="SSC"
@@ -125,14 +124,7 @@ export default function LandingScreen() {
                 }
                 color={colors.primary[700] || "#6d28d9"}
               />
-              <Card
-                icon="business"
-                title="IMS"
-                badge="Login to IMS Portal"
-                desc="Grants Applications"
-                onPress={login}
-                color={colors.primary[700] || "#6d28d9"}
-              />
+
               <Card
                 icon="school"
                 title="SSDD"
@@ -140,6 +132,16 @@ export default function LandingScreen() {
                 desc="Learner Opportunities"
                 disabled
                 color="#9ca3af"
+              />
+              <Card
+                icon="briefcase"
+                title="Careers"
+                badge="Visit Website"
+                desc="Jobs & Opportunities"
+                onPress={() =>
+                  Linking.openURL("https://chieta.org.za/careers/vacancies/")
+                }
+                color={colors.primary[700] || "#6d28d9"}
               />
             </View>
           </ScrollView>

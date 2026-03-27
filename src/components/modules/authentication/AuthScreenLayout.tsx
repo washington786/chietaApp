@@ -15,6 +15,7 @@ interface AuthScreenLayoutProps {
     showBackButton?: boolean;
     logoSize?: number;
     cardStyle?: StyleProp<ViewStyle>;
+    isLogin?: boolean;
 }
 
 const AuthScreenLayout = ({
@@ -25,6 +26,8 @@ const AuthScreenLayout = ({
     showBackButton = true,
     logoSize = 40,
     cardStyle,
+    isLogin = false
+
 }: AuthScreenLayoutProps) => {
     const { animatedStyle } = usePageEnterAnimation();
 
@@ -50,7 +53,7 @@ const AuthScreenLayout = ({
                         <View style={styles.header}>
                             {showBackButton && (
                                 <View style={styles.backRow}>
-                                    <BackBtn />
+                                    <BackBtn isLogin={isLogin} />
                                 </View>
                             )}
                             <View style={styles.logoBadge}>
