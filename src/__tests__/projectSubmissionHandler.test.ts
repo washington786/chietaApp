@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest'
 import {
     createProjectSubmissionHandler,
     __TESTING__,
-} from '../helpers/projectSubmissionHandler'
+} from '@/hooks/main/helpers/projectSubmissionHandler'
 
 type HandlerDeps = Parameters<typeof createProjectSubmissionHandler>[0]
 

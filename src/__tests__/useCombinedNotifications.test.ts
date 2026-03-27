@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { buildCombinedNotifications } from '../notificationFeed';
+import { buildCombinedNotifications } from '@/hooks/notifications/notificationFeed';
 import { AppNotification } from '@/core/types/notifications';
 
 const createNotification = (overrides: Partial<AppNotification>): AppNotification => ({
