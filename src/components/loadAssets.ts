@@ -9,5 +9,6 @@ const landingBg: ImageSourcePropType = require('../../assets/bg_landing.png');
 const logo: ImageSourcePropType = require('../../assets/logov2.png');
 
 const white_logo: ImageSourcePropType = require('../../assets/logo_white.png');
+const _bot: ImageSourcePropType = require('../../assets/chieta_bot.png');
 
-export { errorBox, errorInspect, chatSquare, chatBot, landingBg, logo, white_logo };
+export { errorBox, errorInspect, chatSquare, chatBot, landingBg, logo, white_logo, _bot };

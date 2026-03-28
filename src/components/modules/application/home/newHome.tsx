@@ -5,6 +5,7 @@ import {
     TouchableOpacity,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons as Icon } from '@expo/vector-icons';
 import { RRow } from '@/components/common';
 import LinkedOrganizations from './LinkedOrganizations';
 import usePageTransition from '@/hooks/navigation/usePageTransition';
@@ -17,12 +18,15 @@ import { home_styles as styles } from '@/styles/HomeStyles';
 import { useGetPersonByUserIdQuery, useGetOrganizationsBySdfIdQuery } from '@/store/api/api';
 import { useCombinedNotifications } from '@/hooks/notifications';
 import IncompleteProfileGate from './IncompleteProfileGate';
+import { useGlobalBottomSheet } from '@/hooks/navigation/BottomSheet';
+import { ChatBot } from '@/components/common/ChietaBot';
 
 const NewHome = () => {
     const [addLinking, setAdd] = useState<boolean>(false);
     const [listHeight, setListHeight] = useState(0);
     const [contentHeight, setContentHeight] = useState(0);
     const { newOrg, notifications, linkedOrganizations } = usePageTransition();
+    const { open, close } = useGlobalBottomSheet();
 
     const { user } = useSelector((state: RootState) => state.auth);
 
@@ -55,6 +59,10 @@ const NewHome = () => {
     function handleAddLinkNewOrg() {
         newOrg()
         setAdd(!addLinking);
+    }
+
+    function openChatBot() {
+        open(<ChatBot close={close} />, { snapPoints: ["92%"] });
     }
 
     const time = new Date().getTime();
@@ -99,6 +107,11 @@ const NewHome = () => {
                 }
                 ListFooterComponent={<LinkedOrganizations />}
             />
+
+            {/* Floating chatbot button */}
+            <TouchableOpacity style={styles.fab} onPress={openChatBot}>
+                <Icon name="chatbubble-ellipses" size={26} color="white" />
+            </TouchableOpacity>
         </SafeAreaView>
     );
 };

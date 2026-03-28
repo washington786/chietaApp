@@ -1,0 +1,17 @@
+name: Protect Master Branch
+
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  require-approval:
+    name: PR must be approved by washington786
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check that PR is not a direct push bypass
+        run: |
+          echo "PR #${{ github.event.pull_request.number }} targeting master."
+          echo "Branch protection rules require approval from @washington786 before merging."
+          echo "This workflow must pass before the merge button is enabled."

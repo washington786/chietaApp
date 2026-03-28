@@ -7,20 +7,18 @@ import {
   Image,
   TouchableOpacity,
   ScrollView,
-  StyleSheet,
   Animated,
+  ImageBackground,
 } from "react-native";
 import { Ionicons as Icon } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useGlobalBottomSheet } from "@/hooks/navigation/BottomSheet";
 import usePageTransition from "@/hooks/navigation/usePageTransition";
-import EvilIcons from "@expo/vector-icons/EvilIcons";
-import { Text as RnText } from "react-native-paper";
-import { RCol, RRow } from "@/components/common";
 import colors from "@/config/colors";
-import { chatBot, chatSquare, landingBg } from "@/components/loadAssets";
-import { ImageBackground } from "react-native";
+import { landingBg } from "@/components/loadAssets";
 import usePageEnterAnimation from '@/hooks/animations/usePageEnterAnimation';
+import { ChatBot } from "@/components/common/ChietaBot";
+import { l_styles as styles } from "@/styles/LandingStyles";
 
 const overlayGradient = [
   `${colors.primary[900]}CC`,
@@ -60,7 +58,7 @@ export default function LandingScreen() {
   }, []);
 
   function openInfoSheet() {
-    open(<ChatBot close={close} />, { snapPoints: ["50%"] });
+    open(<ChatBot close={close} />, { snapPoints: ["92%"] });
   }
 
   return (
@@ -215,152 +213,3 @@ function Card({ icon, title, badge, desc, onPress, disabled = false, color }: Ca
   );
 }
 
-// ================= CHATBOT =================
-function ChatBot({ close }: { close: () => void }) {
-  return (
-    <View style={{ flex: 1, backgroundColor: "white", padding: 16 }}>
-      <RRow
-        style={{
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: 24,
-        }}
-      >
-        <View style={{ flexDirection: "row", alignItems: "center", gap: 4 }}>
-          <Image source={chatSquare} style={{ width: 20, height: 20 }} />
-          <RnText variant="titleMedium">Chieta Assistant</RnText>
-        </View>
-
-        <TouchableOpacity onPress={close}>
-          <EvilIcons name="close" size={32} color="black" />
-        </TouchableOpacity>
-      </RRow>
-
-      <RCol style={{ alignItems: "center", gap: 16 }}>
-        <Image source={chatBot} style={{ width: 64, height: 64 }} />
-        <RnText variant="headlineMedium" style={{ fontWeight: "bold" }}>
-          Coming Soon
-        </RnText>
-        <RnText
-          variant="bodyMedium"
-          style={{ textAlign: "center", color: "#666", lineHeight: 24 }}
-        >
-          Our helpful assistant is still in development.{"\n"}We’ll notify you
-          when it's ready!
-        </RnText>
-      </RCol>
-    </View>
-  );
-}
-
-// ================= STYLES =================
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  backgroundImage: {
-    opacity: 0.45,
-    resizeMode: 'cover',
-  },
-  gradient: {
-    flex: 1,
-    paddingHorizontal: 20,
-  },
-  scrollContent: {
-    alignItems: 'center',
-    paddingTop: 40,
-    paddingHorizontal: 16,
-    paddingBottom: 40,
-  },
-  scrollWrapper: {
-    width: '100%',
-  },
-  logo: { width: 220, height: 120, marginBottom: 16 },
-  title: {
-    fontSize: 28,
-    fontWeight: "800",
-    textAlign: "center",
-    color: colors.white || "#6d28d9",
-    lineHeight: 34,
-    marginBottom: 8,
-    letterSpacing: 1,
-  },
-  attentionMessage: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: colors.secondary[400] || "#f97316",
-    textAlign: "center",
-    marginBottom: 6,
-    lineHeight: 20,
-  },
-  grid: {
-    width: '100%',
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    columnGap: 12,
-    rowGap: 16,
-    marginTop: 16,
-  },
-  fab: {
-    position: "absolute",
-    bottom: 20,
-    right: 20,
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: colors.primary[700] || "#6d28d9",
-    justifyContent: "center",
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOpacity: 0.2,
-    shadowRadius: 5,
-    elevation: 5,
-  },
-  card: {
-    flexBasis: '48%',
-    maxWidth: 320,
-    minWidth: 150,
-    backgroundColor: 'rgba(255,255,255,0.92)',
-    borderRadius: 22,
-    paddingVertical: 22,
-    paddingHorizontal: 18,
-    alignItems: 'center',
-    shadowColor: '#2d1b4a',
-    shadowOpacity: 0.12,
-    shadowRadius: 14,
-    shadowOffset: { width: 0, height: 6 },
-    elevation: 5,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.4)',
-  },
-  cardDisabled: { opacity: 0.6 },
-  iconWrapper: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 8,
-  },
-  cardTitle: {
-    fontSize: 14,
-    fontWeight: "700",
-    marginBottom: 2,
-    textAlign: "center",
-    color: "#111827",
-  },
-  cardTitleDisabled: { color: "#9ca3af" },
-  cardDesc: {
-    fontSize: 12,
-    textAlign: 'center',
-    color: '#6b7280',
-    marginBottom: 8,
-    lineHeight: 16,
-  },
-  cardDescDisabled: { color: "#9ca3af" },
-  badge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 10 },
-  badgeText: { fontSize: 10, fontWeight: '600' },
-  footerContainer: { paddingVertical: 16, alignItems: "center" },
-  footer: { fontSize: 12, color: colors.gray[100], textAlign: "center", marginTop: -30 },
-});
