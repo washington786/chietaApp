@@ -47,3 +47,6 @@ endpoints.txt
 # generated native folders
 /ios
 /android
+
+# Temporary scripts
+tmp/

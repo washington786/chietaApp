@@ -181,5 +181,23 @@ export const home_styles = StyleSheet.create({
         color: colors.primary[700],
         fontWeight: '600',
         fontSize: 13,
-    }
+    },
+
+    /* Chatbot FAB */
+    fab: {
+        position: 'absolute',
+        bottom: 32,
+        right: 24,
+        width: 60,
+        height: 60,
+        borderRadius: 30,
+        backgroundColor: colors.primary[800],
+        justifyContent: 'center',
+        alignItems: 'center',
+        shadowColor: colors.primary[700],
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.4,
+        shadowRadius: 8,
+        elevation: 8,
+    },
 });
