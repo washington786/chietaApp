@@ -2,6 +2,7 @@ export type navigationTypes = {
     landing: undefined;
 
     login: undefined;
+    careers: undefined;
     register: undefined;
     reset: undefined;
 

@@ -13,6 +13,10 @@ const usePageTransition = () => {
         navigation.navigate("login")
     }
 
+    function careers() {
+        navigation.navigate("careers")
+    }
+
     function landing() {
         navigation.navigate("landing")
     }
@@ -105,7 +109,7 @@ const usePageTransition = () => {
         navigation.navigate("discretionary", { orgId: orgId });
     }
 
-    return { onBack, login, register, otp, resetPassword, getStarted, onAuth, notifications, newOrg, mandatoryGrants, discretionaryGrants, newApplication, newDgApplication, applicationDetails, account, privacy, support, historyItemDetails, linkOrgDoc, newPassword, changePassword, linkedOrganizations, pdfViewer, organisationDetails, landing };
+    return { onBack, login, register, otp, resetPassword, getStarted, onAuth, notifications, newOrg, mandatoryGrants, discretionaryGrants, newApplication, newDgApplication, applicationDetails, account, privacy, support, historyItemDetails, linkOrgDoc, newPassword, changePassword, linkedOrganizations, pdfViewer, organisationDetails, landing, careers };
 }
 
 export default usePageTransition

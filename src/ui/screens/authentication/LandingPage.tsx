@@ -27,7 +27,7 @@ const overlayGradient = [
 ];
 
 export default function LandingScreen() {
-  const { login } = usePageTransition();
+  const { login, careers } = usePageTransition();
   const { open, close } = useGlobalBottomSheet();
   const { animatedStyle } = usePageEnterAnimation({ initialOffset: 28 });
 
@@ -134,11 +134,9 @@ export default function LandingScreen() {
               <Card
                 icon="briefcase"
                 title="Careers"
-                badge="Visit Website"
-                desc="Jobs & Opportunities"
-                onPress={() =>
-                  Linking.openURL("https://chieta.org.za/careers/vacancies/")
-                }
+                badge="View Options"
+                desc="Help & Opportunities"
+                onPress={careers}
                 color={colors.primary[700] || "#6d28d9"}
               />
             </View>

@@ -10,6 +10,7 @@ import {
     AddNewOrganization,
     ApplicationDetailsPage,
     ApplicationStatusDetails,
+    CareersPage,
     ChangePassword,
     DiscretionaryPage,
     LinkedOrganizationDetails,
@@ -104,6 +105,7 @@ const RootStackNavigator = () => {
 
             {/* Auth Screens */}
             <Stack.Screen name="login" component={LoginScreen} />
+            <Stack.Screen name="careers" component={CareersPage} />
             <Stack.Screen name="register" component={RegisterScreen} />
             <Stack.Screen name="reset" component={ForgotPasswordScreen} />
             <Stack.Screen name="otp" component={OtpScreen} />
