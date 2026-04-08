@@ -19,9 +19,10 @@ import { navigationTypes } from '@/core/types/navigationTypes';
 import { RootState } from '@/store/store';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { generateMgApprovalPdf } from '@/core/helpers/pdfGenerator';
+import { generateMgApprovalPdf, generateSubmissionLetterPdf } from '@/core/helpers/pdfGenerator';
 import { GrantsMgApprovalTemplateParams } from '@/core/helpers/grantsTemplate';
 import useDocumentDownloader from '@/hooks/main/UseDocumentDownloader';
+import { ILetter } from '@/core/helpers/SubmissionLetter';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 const formatFileSize = (bytes: string): string => {
@@ -291,6 +292,22 @@ const ApplicationDetails = () => {
             showToast({ message: `Failed to generate Approval Letter`, title: "Error", type: "error", position: "top" });
         }
     }
+    const handleSubmissionLetterDownload = async () => {
+        try {
+            const temp: ILetter = {
+                Organisation_Name: OrgData?.organisationName || 'N/A',
+                Trade_Name: OrgData?.organisationTradingName || 'N/A',
+                SDL: OrgData?.sdlNo || 'N/A',
+                Period: period,
+                downloadedDate: new Date().toLocaleDateString('en-za', { month: '2-digit', day: '2-digit', year: 'numeric' }),
+                isDG: false,
+            };
+            await generateSubmissionLetterPdf(temp);
+        } catch (error) {
+            console.error("Error generating submission letter PDF:", error);
+            showToast({ message: `Failed to generate Submission Letter`, title: "Error", type: "error", position: "top" });
+        }
+    }
 
     if (loading) {
         return <RListLoading count={4} />
@@ -392,6 +409,9 @@ const ApplicationDetails = () => {
 
                         <Text variant='titleMedium' style={styles.sectionTitle}>Download Approval Letter</Text>
                         <DownloadTemp fileName='Approval Letter Document' onPress={handleApprovalDownload} />
+
+                        <Text variant='titleMedium' style={styles.sectionTitle}>Download Submission Letter</Text>
+                        <DownloadTemp fileName='Submission Letter Document' onPress={handleSubmissionLetterDownload} />
 
                     </>
                 )
