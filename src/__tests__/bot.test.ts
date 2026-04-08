@@ -20,8 +20,8 @@ describe('CHIETA Bot — exports', () => {
         }
     })
 
-    it('QUICK_CHIPS has exactly 12 string entries', () => {
-        expect(QUICK_CHIPS).toHaveLength(12)
+    it('QUICK_CHIPS has at least 12 string entries', () => {
+        expect(QUICK_CHIPS.length).toBeGreaterThanOrEqual(12)
         expect(QUICK_CHIPS.every(c => typeof c === 'string')).toBe(true)
     })
 

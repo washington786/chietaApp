@@ -13,7 +13,8 @@
     "build:all": "eas build --platform all --profile preview",
     "build:status": "eas build:list",
     "prebuild:clean": "expo prebuild --clean",
-    "test": "vitest run"
+    "test": "vitest run",
+    "extract-docs": "./node_modules/.bin/ts-node --project tsconfig.scripts.json scripts/extract-docs.ts"
   },
   "dependencies": {
     "@expo-google-fonts/inter": "^0.4.2",
@@ -72,9 +73,12 @@
   },
   "devDependencies": {
     "@types/node": "^22.9.0",
+    "@types/pdf-parse": "^1.1.5",
     "@types/react": "~19.1.0",
     "@types/react-native-vector-icons": "^6.4.18",
     "baseline-browser-mapping": "^2.9.18",
+    "pdf-parse": "^1.1.4",
+    "ts-node": "^10.9.2",
     "typescript": "~5.9.2",
     "vitest": "^2.1.4"
   },

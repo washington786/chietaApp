@@ -1,7 +1,8 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// CHIETA Assistant — Bot knowledge base
-// Source: chieta.org.za (fetched March 2026) — v2 comprehensive
+// CHIETA Assistant — Bot routing layer
+// Content lives in src/core/knowledge/ — this file handles routing only.
 // ─────────────────────────────────────────────────────────────────────────────
+import { ALL_TOPICS } from '../knowledge';
 
 export const SUGGESTIONS = [
     { icon: 'help-circle', label: 'What is CHIETA?' },
@@ -25,6 +26,14 @@ export const QUICK_CHIPS = [
     'NQF levels explained',
     'Learner stipend',
     'IMS portal help',
+    'Career guidance',
+    'Payment timeline',
+    'Inter-SETA transfer',
+    'Whistleblowing',
+    'SPOI occupations',
+    'Tax rebates',
+    'RPL / prior learning',
+    'M&E system',
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -99,6 +108,14 @@ export function getBotReply(
     // ── Greetings ─────────────────────────────────────────────────────────────
     if (/\b(hi|hello|hey|howzit|good morning|good day|good afternoon|good evening|sawubona|hola)\b/.test(q))
         return "Hello! I'm the CHIETA Assistant. I can help with grants, bursaries, learnerships, skills programmes, career opportunities, Smart Skills Centres, and more.\n\nWhat would you like to know today?";
+
+    // ── Knowledge modules (modular topic matching) ────────────────────────────
+    for (const topic of ALL_TOPICS) {
+        if (topic.patterns.some(p => p.test(q))) {
+            const res = topic.response;
+            return typeof res === 'function' ? res(fy(), yr()) : res;
+        }
+    }
 
     // ── About CHIETA ──────────────────────────────────────────────────────────
     if (/\b(what is chieta|who is chieta|about chieta|chieta seta|tell me about chieta|overview|mission|mandate)\b/.test(q)
