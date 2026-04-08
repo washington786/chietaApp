@@ -390,6 +390,7 @@ const ApplicationDetails = () => {
                                     title='No documents found'
                                     subtitle='No files have been uploaded for this application'
                                     icon='file'
+                                    style={{ minHeight: 200 }}
                                 />
                             )}
 
@@ -407,11 +408,25 @@ const ApplicationDetails = () => {
                             }
                         </Expandable>
 
-                        <Text variant='titleMedium' style={styles.sectionTitle}>Download Approval Letter</Text>
-                        <DownloadTemp fileName='Approval Letter Document' onPress={handleApprovalDownload} />
+                        {
+                            selectedApplication?.grantStatus.toLowerCase().includes('approved') && (
+                                <>
+                                    <Text variant='titleMedium' style={styles.sectionTitle}>Download Approval Letter</Text>
+                                    <DownloadTemp fileName='Approval Letter Document' onPress={handleApprovalDownload} />
+                                </>
+                            )
+                        }
 
-                        <Text variant='titleMedium' style={styles.sectionTitle}>Download Submission Letter</Text>
-                        <DownloadTemp fileName='Submission Letter Document' onPress={handleSubmissionLetterDownload} />
+                        {
+                            !selectedApplication?.grantStatus.toLowerCase().includes('application') && (
+                                <>
+                                    <Text variant='titleMedium' style={styles.sectionTitle}>Download Submission Letter</Text>
+                                    <DownloadTemp fileName='Submission Letter Document' onPress={handleSubmissionLetterDownload} />
+                                </>
+                            )
+                        }
+
+
 
                     </>
                 )
