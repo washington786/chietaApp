@@ -64,7 +64,7 @@ const CareersPage = () => {
 
                 {/* Hero banner */}
                 <LinearGradient
-                    colors={[primary[800], primary[600]]}
+                    colors={[primary[950], primary[700]]}
                     start={{ x: 0, y: 0 }}
                     end={{ x: 1, y: 1 }}
                     style={styles.heroBanner}
@@ -106,7 +106,7 @@ const CareersPage = () => {
                             ]}
                         >
                             <LinearGradient
-                                colors={[primary[600], primary[800]]}
+                                colors={[primary[700], primary[900]]}
                                 start={{ x: 0, y: 0 }}
                                 end={{ x: 1, y: 0 }}
                                 style={styles.ctaBtnGradient}
@@ -147,7 +147,7 @@ const CareersPage = () => {
                             ]}
                         >
                             <LinearGradient
-                                colors={[primary[600], primary[800]]}
+                                colors={[primary[700], primary[900]]}
                                 start={{ x: 0, y: 0 }}
                                 end={{ x: 1, y: 0 }}
                                 style={styles.ctaBtnGradient}
