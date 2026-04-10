@@ -15,9 +15,10 @@ import { RLoaderAnimation, SafeArea } from "@/components/common";
 import { MandatoryGrantPaymentDto } from "@/core/models/MandatoryDto";
 import usePageTransition from "@/hooks/navigation/usePageTransition";
 import colors from "@/config/colors";
+import { useGetOrgBankQuery } from "@/store/api/api";
 
 interface Props {
-  route: { params: { payment: MandatoryGrantPaymentDto } };
+  route: { params: { payment: MandatoryGrantPaymentDto; orgId?: string } };
   navigation: any;
 }
 
@@ -32,12 +33,15 @@ const maskAccount = (acc?: string | null) => {
   return "•".repeat(acc.length - 4) + acc.slice(-4);
 };
 
-const refId = (id: number) => `CHIETA-MG-${String(id).padStart(8, "0")}`;
+const refId = (id: number) => `CHIETA-MG-${String(id).padStart(2, "0")}`;
 
 // ─── Component ───────────────────────────────────────────────────────────────
 const PdfViewerPage = ({ route, navigation }: Props) => {
   const { onBack } = usePageTransition();
   const payment = route?.params?.payment;
+  const orgId = route?.params?.orgId;
+
+  const { data: orgBankData } = useGetOrgBankQuery(orgId!, { skip: !orgId });
 
   if (!payment) {
     return (
@@ -52,9 +56,9 @@ const PdfViewerPage = ({ route, navigation }: Props) => {
   const year = payment.grantYear;
   const monthName = new Date(0, payment.month - 1).toLocaleString("en-ZA", { month: "long" });
   const issueDate = new Date().toLocaleDateString("en-ZA", { day: "2-digit", month: "long", year: "numeric" });
-  const bankName = payment.banK_NAME && payment.banK_NAME.trim() ? payment.banK_NAME.trim() : "Not on record";
+  const bankName = payment.banK_NAME?.trim() || orgBankData?.bankName?.trim() || "Not on record";
   const orgName = payment.organisation_Name || payment.orgName_Code || "—";
-  const reference = refId(payment.id ?? 0);
+  const reference = refId((payment.grantYear) ?? 0);
 
   // ────────────────────────────────────────────────────────────────────────────
   // Professional bank payment statement HTML

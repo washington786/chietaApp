@@ -60,7 +60,7 @@ const BankDetailsPage = () => {
         const filename = `${getMonth(item.month)}-${item.grantYear}`
         return (
             <Animated.View key={`pay-${index}-${item.sdlCode}`} entering={FadeInDown.duration(600).delay(index * 100).springify()}>
-                <FileWrapper fileName={filename} onPress={() => pdfViewer({ payment: item })} />
+                <FileWrapper fileName={filename} onPress={() => pdfViewer({ payment: item, orgId })} />
             </Animated.View>
         )
     }

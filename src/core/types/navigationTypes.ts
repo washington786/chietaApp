@@ -34,6 +34,7 @@ export type navigationTypes = {
 
     pdfViewer: {
         payment: any;
+        orgId?: string;
     };
 
     orgLinking: {

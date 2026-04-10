@@ -97,8 +97,8 @@ const usePageTransition = () => {
         navigation.navigate("mandatory", { orgId: orgId });
     }
 
-    function pdfViewer({ payment }: { payment: any }) {
-        navigation.navigate("pdfViewer", { payment: payment });
+    function pdfViewer({ payment, orgId }: { payment: any; orgId?: string }) {
+        navigation.navigate("pdfViewer", { payment, orgId });
     }
 
     function historyItemDetails({ appId, item }: { appId: string | number, item: any }) {
