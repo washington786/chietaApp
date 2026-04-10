@@ -1,5 +1,6 @@
 export type navigationTypes = {
     landing: undefined;
+    upcomingWindows: undefined;
 
     login: undefined;
     careers: undefined;

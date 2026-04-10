@@ -14,6 +14,7 @@ import MandatoryPage from "./application/MandatoryPage";
 import PdfViewerPage from "./application/top/PdfViewerPage";
 import LinkedOrganizationDetails from '../pages/application/account/LinkedOrganizationDetails'
 import CareersPage from "./authentication/CareersPage";
+import UpcomingWindowsPage from "./application/home/UpcomingWindowsPage";
 
 export {
     AddNewOrganization,
@@ -28,5 +29,6 @@ export {
     LinkedOrganizationsPage,
     PdfViewerPage,
     LinkedOrganizationDetails,
-    CareersPage
+    CareersPage,
+    UpcomingWindowsPage
 }

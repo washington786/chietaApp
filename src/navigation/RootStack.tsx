@@ -20,6 +20,7 @@ import {
     PdfViewerPage,
     PrivacyPage,
     SupportPage,
+    UpcomingWindowsPage,
 } from '@/ui/pages'
 import AddNewDgApplicationPage from '@/ui/pages/application/AddNewDgApplicationPage'
 import { useSelector } from 'react-redux'
@@ -114,6 +115,7 @@ const RootStackNavigator = () => {
             {/* App Screens */}
             <Stack.Screen name="app" component={BottomTabNavigation} />
             <Stack.Screen name="notifications" component={NotificationsPage} />
+            <Stack.Screen name="upcomingWindows" component={UpcomingWindowsPage} />
             <Stack.Screen name="newOrgLink" component={AddNewOrganization} />
             <Stack.Screen name="mandatory" component={MandatoryPage} />
 

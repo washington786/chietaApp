@@ -47,6 +47,9 @@ const usePageTransition = () => {
     function notifications() {
         navigation.navigate("notifications");
     }
+    function upcomingWindows() {
+        navigation.navigate("upcomingWindows");
+    }
     function newOrg() {
         navigation.navigate("newOrgLink");
     }
@@ -109,7 +112,7 @@ const usePageTransition = () => {
         navigation.navigate("discretionary", { orgId: orgId });
     }
 
-    return { onBack, login, register, otp, resetPassword, getStarted, onAuth, notifications, newOrg, mandatoryGrants, discretionaryGrants, newApplication, newDgApplication, applicationDetails, account, privacy, support, historyItemDetails, linkOrgDoc, newPassword, changePassword, linkedOrganizations, pdfViewer, organisationDetails, landing, careers };
+    return { onBack, login, register, otp, resetPassword, getStarted, onAuth, notifications, newOrg, mandatoryGrants, discretionaryGrants, newApplication, newDgApplication, applicationDetails, account, privacy, support, historyItemDetails, linkOrgDoc, newPassword, changePassword, linkedOrganizations, pdfViewer, organisationDetails, landing, careers, upcomingWindows };
 }
 
 export default usePageTransition

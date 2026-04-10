@@ -9,6 +9,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/store/store";
 import { showToast } from "@/core";
 import { RLoaderAnimation } from "@/components/common";
+import usePageTransition from "@/hooks/navigation/usePageTransition";
 
 const { width } = Dimensions.get("window");
 const cardWidth = width < 350 ? width - 40 : 140;
@@ -132,6 +133,9 @@ const WorkflowCard = ({
 // Home Page / Dashboard
 //////////////////////////
 const AppStats = () => {
+
+  const { upcomingWindows: navigateToUpcomingWindows } = usePageTransition();
+
   const { data: apiData, isLoading } = useGetActiveWindowsQuery(undefined, {
     refetchOnFocus: true,
     refetchOnMountOrArgChange: true,
@@ -179,6 +183,8 @@ const AppStats = () => {
     showToast({ message: 'Failed to load some dashboard data', title: "Dashboard Error", type: "error", position: "top" });
     return;
   }
+
+
 
 
   return (
@@ -240,13 +246,13 @@ const AppStats = () => {
             <Text style={styles.statValue}>{pendingTasksData?.items?.length || 0}</Text>
           }
         </View>
-        <View style={[styles.quickStatCard, { backgroundColor: colors.primary[900] }]}>
+        <TouchableOpacity onPress={navigateToUpcomingWindows} activeOpacity={0.3} style={[styles.quickStatCard, { backgroundColor: colors.primary[900] }]}>
           <Text style={styles.statTitle}>Upcoming Events</Text>
           {upcomingEventsLoading && <RLoaderAnimation customStyle={styles.loader} />}
           {
             !upcomingEventsLoading && <Text style={styles.statValue}>{upcomingEventsData?.items?.length || 0}</Text>
           }
-        </View>
+        </TouchableOpacity>
       </View>
     </ScrollView>
   );
