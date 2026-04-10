@@ -9,15 +9,8 @@ export type CombinedNotification = AppNotification & {
     isLocal: boolean;
 };
 
-const REMINDER_TYPES = new Set(['reminder', 'window', 'event', 'pending_tasks']);
-
-const deriveCategory = (notification: AppNotification): NotificationCategory => {
-    if (notification.source === 'local') {
-        return 'reminder';
-    }
-    const type = notification.data?.type || notification.source;
-    return REMINDER_TYPES.has(String(type)) ? 'reminder' : 'system';
-};
+const deriveCategory = (notification: AppNotification): NotificationCategory =>
+    notification.source === 'system' ? 'system' : 'reminder';
 
 export function buildCombinedNotifications(
     localNotifications: AppNotification[],

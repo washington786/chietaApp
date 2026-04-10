@@ -39,6 +39,9 @@ export const NotificationProvider = ({ children }: PropsWithChildren) => {
   const dispatch = useDispatch();
   const userId = useSelector((state: RootState) => state.auth.user?.id);
   const numericUserId = typeof userId === 'number' ? userId : userId ? Number(userId) : undefined;
+  const orgId = useSelector(
+    (state: RootState) => state.linkedOrganization.linkedOrganizations?.[0]?.id,
+  );
   const [registerPushToken] = useRegisterPushTokenMutation();
   const lastRegisteredToken = useRef<string | null>(null);
   const [state, setState] = useState<NotificationCenterState>({
@@ -143,6 +146,7 @@ export const NotificationProvider = ({ children }: PropsWithChildren) => {
   useReminderScheduler({
     enabled: state.hasPermission,
     userId: numericUserId,
+    orgId,
   });
 
   return (

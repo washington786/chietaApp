@@ -42,17 +42,6 @@ const RToggleInfo = ({
             {/* Button Toggle */}
             <View style={[styles.buttonContainer, buttonContainerStyle]}>
                 <Button
-                    mode={activeButton === 1 ? 'contained' : 'outlined'}
-                    onPress={() => handleToggle(1)}
-                    style={[
-                        styles.button,
-                        activeButton === 1 ? styles.buttonActive : styles.inactiveBtn,
-                    ]}
-                    labelStyle={styles.buttonLabel}
-                >
-                    {button1Label}
-                </Button>
-                <Button
                     mode={activeButton === 2 ? 'contained' : 'outlined'}
                     onPress={() => handleToggle(2)}
                     style={[
@@ -62,6 +51,17 @@ const RToggleInfo = ({
                     labelStyle={styles.buttonLabel}
                 >
                     {button2Label}
+                </Button>
+                <Button
+                    mode={activeButton === 1 ? 'contained' : 'outlined'}
+                    onPress={() => handleToggle(1)}
+                    style={[
+                        styles.button,
+                        activeButton === 1 ? styles.buttonActive : styles.inactiveBtn,
+                    ]}
+                    labelStyle={styles.buttonLabel}
+                >
+                    {button1Label}
                 </Button>
             </View>
 

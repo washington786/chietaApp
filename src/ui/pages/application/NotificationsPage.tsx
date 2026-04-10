@@ -14,6 +14,7 @@ import { StyleSheet } from 'react-native'
 import colors from '@/config/colors'
 
 const NotificationsPage = () => {
+
     const user = useSelector((state: RootState) => state.auth.user);
     const userId = user?.id ? Number(user.id) : undefined;
 
