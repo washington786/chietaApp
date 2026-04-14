@@ -238,6 +238,7 @@ const AppStats = () => {
             <Text style={styles.statValue}>{activeWindows.length}</Text>
           }
         </View>
+
         <View style={[styles.quickStatCard, { backgroundColor: colors.primary[500] }]}>
           <Text style={styles.statTitle}>Pending Tasks</Text>
           {pendingTasksLoading && <RLoaderAnimation customStyle={styles.loader} />}
@@ -246,12 +247,14 @@ const AppStats = () => {
             <Text style={styles.statValue}>{pendingTasksData?.items?.length || 0}</Text>
           }
         </View>
+
         <TouchableOpacity onPress={navigateToUpcomingWindows} activeOpacity={0.3} style={[styles.quickStatCard, { backgroundColor: colors.primary[900] }]}>
           <Text style={styles.statTitle}>Upcoming Events</Text>
           {upcomingEventsLoading && <RLoaderAnimation customStyle={styles.loader} />}
           {
             !upcomingEventsLoading && <Text style={styles.statValue}>{upcomingEventsData?.items?.length || 0}</Text>
           }
+          <Text style={{ fontSize: 8, color: colors.primary[200], position: 'absolute', bottom: 8, right: 8, borderWidth: 1, borderColor: colors.primary[200], borderRadius: 4, paddingHorizontal: 2 }}>view</Text>
         </TouchableOpacity>
       </View>
     </ScrollView>
@@ -286,7 +289,9 @@ const styles = StyleSheet.create({
   smallCardTitle: { fontSize: 10, color: 'rgba(255,255,255,0.7)', fontWeight: '600', marginBottom: 2, letterSpacing: 0.4, textTransform: 'uppercase' },
   smallCardValue: { fontSize: 12, fontWeight: '700', color: '#fff' },
   quickStatsContainer: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 16, marginTop: 8, marginBottom: 4 },
-  quickStatCard: { flex: 1, marginHorizontal: 4, borderRadius: 16, paddingVertical: 14, alignItems: 'center', shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 6, elevation: 3 },
+  quickStatCard: {
+    flex: 1, marginHorizontal: 4, borderRadius: 16, paddingVertical: 14, alignItems: 'center', shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 6, elevation: 3, position: 'relative',
+  },
   statTitle: { fontSize: 11, color: 'rgba(255,255,255,0.75)', fontWeight: '600', marginBottom: 5, textTransform: 'uppercase', letterSpacing: 0.4 },
   statValue: { fontSize: 22, fontWeight: '800', color: '#fff' },
   loader: { backgroundColor: 'white', width: 4, height: 4 },
