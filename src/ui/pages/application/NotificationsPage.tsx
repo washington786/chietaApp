@@ -133,10 +133,11 @@ const NotificationsPage = () => {
                 keyExtractor={(item) => item.id}
                 renderItem={renderNotification}
                 renderSectionHeader={renderSectionHeader}
+                showsVerticalScrollIndicator={false}
                 scrollEnabled={true}
                 nestedScrollEnabled={true}
                 style={{ paddingHorizontal: 12 }}
-                contentContainerStyle={{ paddingBottom: 20 }}
+                contentContainerStyle={{ paddingBottom: 80 }}
                 ItemSeparatorComponent={() => <View style={{ height: 5 }} />}
                 SectionSeparatorComponent={() => <View style={{ height: 12 }} />}
             />

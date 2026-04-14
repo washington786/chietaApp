@@ -135,6 +135,7 @@ const DiscretionaryPage = () => {
                             horizontal
                             scrollEnabled
                             showsHorizontalScrollIndicator={false}
+                            showsVerticalScrollIndicator={false}
                             style={{ marginVertical: 10 }}
                             contentContainerStyle={{ gap: 8 }}
                             keyExtractor={(item) => item.value}

@@ -76,6 +76,7 @@ const RToggleInfo = ({
 const styles = StyleSheet.create({
     container: {
         width: '100%',
+        flex: 1,
     },
     buttonContainer: {
         flexDirection: 'row',
@@ -98,6 +99,7 @@ const styles = StyleSheet.create({
         fontWeight: '600',
     },
     contentContainer: {
+        flex: 1,
         paddingVertical: 8,
     },
 });

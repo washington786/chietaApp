@@ -99,6 +99,7 @@ const DocumentsList: React.FC<DocumentsListProps> = ({
                 keyExtractor={(item) => item.id.toString()}
                 scrollEnabled={false}
                 nestedScrollEnabled={false}
+                showsVerticalScrollIndicator={false}
             />
         </View>
     );

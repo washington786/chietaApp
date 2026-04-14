@@ -46,6 +46,7 @@ const DgActiveWindow = () => {
                         keyExtractor={(item) => item.id.toString()}
                         horizontal
                         showsHorizontalScrollIndicator={false}
+                        showsVerticalScrollIndicator={false}
                         snapToInterval={CARD_WIDTH + SPACING}
                         snapToAlignment="start"
                         decelerationRate="fast"

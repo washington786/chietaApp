@@ -50,6 +50,7 @@ const DgEntryList: React.FC<DgEntryListProps> = ({
                 horizontal
                 scrollEnabled={data.length > 0}
                 showsHorizontalScrollIndicator={false}
+                showsVerticalScrollIndicator={false}
                 contentContainerStyle={{
                     flexGrow: 1
                 }}
