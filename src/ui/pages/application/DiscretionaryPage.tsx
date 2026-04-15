@@ -135,6 +135,7 @@ const DiscretionaryPage = () => {
                             horizontal
                             scrollEnabled
                             showsHorizontalScrollIndicator={false}
+                            showsVerticalScrollIndicator={false}
                             style={{ marginVertical: 10 }}
                             contentContainerStyle={{ gap: 8 }}
                             keyExtractor={(item) => item.value}
@@ -165,6 +166,7 @@ const DiscretionaryPage = () => {
                 removeClippedSubviews={false}
                 initialNumToRender={10}
                 maxToRenderPerBatch={10}
+                contentContainerStyle={{ paddingBottom: 100 }}
                 windowSize={21}
                 ListEmptyComponent={
                     filteredProjects.length === 0 ? (

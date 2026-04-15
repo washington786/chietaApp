@@ -4,7 +4,7 @@ import { RListLoading, REmpty } from '@/components/common'
 import { useRoute, RouteProp } from '@react-navigation/native'
 import { navigationTypes } from '@/core/types/navigationTypes'
 import { showToast } from '@/core'
-import { useGetDocsByEntityIdQuery, useGetProjectDetailsListViewQuery } from '@/store/api/api'
+import { useGetDocsByEntityIdQuery, useGetDGOrgApplicationsQuery, useGetOrganizationByIdQuery, useGetProjectDetailsListViewQuery } from '@/store/api/api'
 import { Expandable, GrantDetails } from '@/components/modules/application'
 import { useSelector } from 'react-redux'
 import { RootState } from '@/store/store'
@@ -14,6 +14,11 @@ import useDocumentDownloader from '@/hooks/main/UseDocumentDownloader'
 import { DocumentDownloadDto } from '@/core/models/MandatoryDto'
 import Ionicons from '@expo/vector-icons/Ionicons'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
+import { DownloadTemp } from './ApplicationDetails'
+import { ILetter } from '@/core/helpers/SubmissionLetter'
+import { generateSubmissionLetterPdf } from '@/core/helpers/pdfGenerator'
+
+import { Text as RNText } from "react-native-paper"
 
 const API_BASE_URL = 'https://ims.chieta.org.za:22743'
 
@@ -143,15 +148,41 @@ const cardStyles = StyleSheet.create({
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 const FileManagementPage = () => {
-    const { appId } = useRoute<RouteProp<navigationTypes, "applicationDetails">>().params;
+    const { appId, orgId } = useRoute<RouteProp<navigationTypes, "applicationDetails">>().params;
     const user = useSelector((state: RootState) => state.auth.user);
 
     const [showDocs, setShowDocs] = useState(true);
     const [showGrant, setShowGrant] = useState(true);
     const [downloadingIds, setDownloadingIds] = useState<Set<number>>(new Set());
 
+    const [submissionDownloading, setSubmissionDownloading] = useState(false);
+
     const entityId = typeof appId === 'string' ? parseInt(appId, 10) : (appId ?? 0);
     const userId = user?.id ? parseInt(String(user.id), 10) : 0;
+
+    const { selectedProject: selectedApplication } = useSelector((state: RootState) => state.discretionaryGrant);
+    const { data: OrgData } = useGetOrganizationByIdQuery(orgId, { skip: !orgId });
+
+    // Use the RTK Query cache (already populated by DiscretionaryPage) to get the
+    // authoritative project record for this specific appId — avoids stale store state.
+    const { data: dgApplicationsData } = useGetDGOrgApplicationsQuery(orgId, { skip: !orgId });
+    const projectFromQuery = dgApplicationsData?.result?.items?.find(
+        (p: any) => p.id === entityId
+    );
+    // Prefer the query result; fall back to the store's selectedProject
+    const activeProject = projectFromQuery ?? selectedApplication;
+
+    const period = (() => {
+        const start = activeProject?.contractStartDate;
+        const end = activeProject?.contractEndDate;
+        if (start && end) {
+            const startYear = new Date(start).getFullYear();
+            const endYear = new Date(end).getFullYear();
+            if (startYear && endYear && startYear !== endYear) return `${startYear}/${endYear}`;
+        }
+        const match = activeProject?.title?.match(/(\d{4})-(\d{4})/);
+        return match ? `${match[1]}/${match[2]}` : '';
+    })();
 
     const {
         data: documents = [],
@@ -196,6 +227,27 @@ const FileManagementPage = () => {
         }
     };
 
+    const handleSubmissionLetterDownload = async () => {
+        if (submissionDownloading) return;
+        setSubmissionDownloading(true);
+        try {
+            const temp: ILetter = {
+                Organisation_Name: OrgData?.organisationName || 'N/A',
+                Trade_Name: OrgData?.organisationTradingName || 'N/A',
+                SDL: OrgData?.sdlNo || 'N/A',
+                Period: period,
+                downloadedDate: new Date().toLocaleDateString('en-za', { month: '2-digit', day: '2-digit', year: 'numeric' }),
+                isDG: true,
+            };
+            await generateSubmissionLetterPdf(temp);
+        } catch (error) {
+            console.error("Error generating submission letter PDF:", error);
+            showToast({ message: `Failed to generate Submission Letter`, title: "Error", type: "error", position: "top" });
+        } finally {
+            setSubmissionDownloading(false);
+        }
+    }
+
     const sortedDocs = [...documents].sort(
         (a, b) => new Date(b.dateCreated).getTime() - new Date(a.dateCreated).getTime()
     );
@@ -232,6 +284,7 @@ const FileManagementPage = () => {
                                 title='No documents found'
                                 subtitle='No files have been uploaded for this application yet.'
                                 icon='file'
+                                style={{ minHeight: 200 }}
                             />
                         )}
 
@@ -268,6 +321,15 @@ const FileManagementPage = () => {
                                 }
                             />
                         </Expandable>
+
+                        {
+                            !activeProject?.projectStatus?.toLowerCase().includes('registered') && (
+                                <>
+                                    <RNText variant='titleMedium' style={styles.sectionTitle}>Download Submission Letter</RNText>
+                                    <DownloadTemp fileName='Submission Letter Document' onPress={handleSubmissionLetterDownload} isLoading={submissionDownloading} />
+                                </>
+                            )
+                        }
                     </View>
                 </>
             }
@@ -281,6 +343,13 @@ const styles = StyleSheet.create({
     list: {
         flex: 1,
         backgroundColor: colors.gray[50],
+    },
+    sectionTitle: {
+        fontSize: 15,
+        fontWeight: '700',
+        color: colors.gray[700],
+        marginTop: 14,
+        marginBottom: 4,
     },
     content: {
         paddingHorizontal: 12,

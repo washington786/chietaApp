@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, useWindowDimensions } from 'react-native';
+import { View, Text, StyleSheet, useWindowDimensions, ViewStyle } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
@@ -8,6 +8,7 @@ type EmptyScreenProps = {
     title: string;
     subtitle?: string;
     backgroundColor?: string;
+    style?: ViewStyle;
 };
 
 const REmpty = ({
@@ -15,11 +16,12 @@ const REmpty = ({
     title = "No items found",
     subtitle = "When you have items, they’ll appear here",
     backgroundColor = "#f8f9fa",
+    style,
 }: EmptyScreenProps) => {
     const { height } = useWindowDimensions();
 
     return (
-        <View style={[styles.container, { backgroundColor, minHeight: height - 200 }]}>
+        <View style={[styles.container, { backgroundColor, minHeight: height - 200 }, style]}>
             <Animated.View entering={FadeInDown.duration(600)} style={styles.content}>
                 <View style={styles.iconCircle}>
                     <Feather name={icon} size={48} color="#6c5ce7" />

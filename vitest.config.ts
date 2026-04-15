@@ -6,6 +6,9 @@ export default defineConfig({
         environment: 'node',
         globals: true,
     },
+    define: {
+        __DEV__: 'false',
+    },
     resolve: {
         alias: {
             '@': path.resolve(__dirname, 'src'),

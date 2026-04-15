@@ -50,10 +50,6 @@ const useGenerate = ({ appId, programmeType, learningProgramme, subCategory, int
             // Extract physical address data
             const physicalAddress = physicalAddressData;
 
-            console.log('address: ', physicalAddress);
-            console.log('entries data: ', entries);
-            console.log('entries.result: ', entries?.result);
-
             // Generate PDF with actual data and fallback to placeholders
             const templateData = {
                 reference: referenceNumber || '',

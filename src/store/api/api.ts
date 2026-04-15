@@ -503,15 +503,41 @@ export const api = createApi({
                         const createdAt = item.createdAt || item.creationTime || item.timestamp || item.dateCreated;
                         const timestamp = createdAt ? new Date(createdAt).getTime() : Date.now();
 
-                        return {
+                        // Derive source: prefer explicit field, then payload, then infer
+                        // from data.type so reminder-typed server notifications land in
+                        // the Reminders tab rather than System.
+                        const REMINDER_SOURCE_TYPES = new Set([
+                            'local', 'reminder', 'window', 'event',
+                            'pending_tasks', 'upcoming_events', 'active_grants',
+                            'registered_dg_apps', 'manual_reminder',
+                        ]);
+                        const rawSource: string = item.source || parsedData?.source || '';
+                        const dataType: string = parsedData?.type || '';
+                        const derivedSource: string =
+                            rawSource === 'system' || rawSource === 'push' || rawSource === 'local' || rawSource === 'reminder'
+                                ? rawSource
+                                : REMINDER_SOURCE_TYPES.has(dataType)
+                                    ? 'reminder'
+                                    : 'system';
+
+                        const notification = {
                             id: String(item.id ?? parsedData?.reminderId ?? Date.now()),
                             title: item.title,
                             body: item.message ?? item.body ?? '',
                             data: parsedData,
                             timestamp,
                             read: Boolean(item.isRead ?? item.read),
-                            source: item.source || parsedData?.source || 'system',
+                            source: derivedSource,
                         };
+
+                        logger.info('[Notification] mapped', {
+                            id: notification.id,
+                            rawSource,
+                            dataType,
+                            derivedSource,
+                        });
+
+                        return notification;
                     });
 
                     return { items };

@@ -139,7 +139,7 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 3 },
         shadowOpacity: 0.08,
         shadowRadius: 10,
-        elevation: 4,
+        elevation: 0,
         position: 'relative', // for chevron
     },
     header: {

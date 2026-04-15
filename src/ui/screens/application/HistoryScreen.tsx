@@ -195,7 +195,7 @@ const HistoryScreen = () => {
 
     return (
         <SafeArea>
-            <RHeader name='Application Timelines' showBack={false} iconRight='search' hasRightIcon onPressRight={() => setShow(!show)} hasSecondIcon={true} iconSecond='building-circle-check' onPressSecond={handleOrgFilter} />
+            <RHeader name='Application Timelines' showBack={false} iconRight='search' hasRightIcon onPressRight={() => setShow(!show)} hasSecondIcon={false} iconSecond='building-circle-check' onPressSecond={handleOrgFilter} />
 
             {/* Org context bar: org pill + grant type toggle */}
             <View style={styles.contextBar}>
@@ -213,7 +213,7 @@ const HistoryScreen = () => {
                         activeOpacity={0.75}
                     >
                         <NativeText style={[styles.grantTypePillText, grantType === 'discretionary' && styles.grantTypePillTextActive]}>
-                            Disc.
+                            Discretionary
                         </NativeText>
                     </TouchableOpacity>
                     <TouchableOpacity
@@ -222,7 +222,7 @@ const HistoryScreen = () => {
                         activeOpacity={0.75}
                     >
                         <NativeText style={[styles.grantTypePillText, grantType === 'mandatory' && styles.grantTypePillTextActive]}>
-                            Mand.
+                            Mandatory
                         </NativeText>
                     </TouchableOpacity>
                 </View>

@@ -10,6 +10,7 @@ import {
     AddNewOrganization,
     ApplicationDetailsPage,
     ApplicationStatusDetails,
+    CareersPage,
     ChangePassword,
     DiscretionaryPage,
     LinkedOrganizationDetails,
@@ -19,6 +20,7 @@ import {
     PdfViewerPage,
     PrivacyPage,
     SupportPage,
+    UpcomingWindowsPage,
 } from '@/ui/pages'
 import AddNewDgApplicationPage from '@/ui/pages/application/AddNewDgApplicationPage'
 import { useSelector } from 'react-redux'
@@ -104,6 +106,7 @@ const RootStackNavigator = () => {
 
             {/* Auth Screens */}
             <Stack.Screen name="login" component={LoginScreen} />
+            <Stack.Screen name="careers" component={CareersPage} />
             <Stack.Screen name="register" component={RegisterScreen} />
             <Stack.Screen name="reset" component={ForgotPasswordScreen} />
             <Stack.Screen name="otp" component={OtpScreen} />
@@ -112,6 +115,7 @@ const RootStackNavigator = () => {
             {/* App Screens */}
             <Stack.Screen name="app" component={BottomTabNavigation} />
             <Stack.Screen name="notifications" component={NotificationsPage} />
+            <Stack.Screen name="upcomingWindows" component={UpcomingWindowsPage} />
             <Stack.Screen name="newOrgLink" component={AddNewOrganization} />
             <Stack.Screen name="mandatory" component={MandatoryPage} />
 

@@ -8,6 +8,9 @@ import { enqueueOfflineRequest } from '@/core/services/offlineQueue';
 import { logger } from '@/utils/logger';
 
 const REMINDER_META_KEY = '@chieta/reminders/meta';
+const WEEKLY_META_KEY = '@chieta/reminders/weekly';
+
+const WEEK_MS = 24 * 60 * 60 * 1000;
 
 type ReminderMeta = Record<string, number>;
 
@@ -57,6 +60,62 @@ export async function pruneReminderMetadata(validIds: string[]) {
         await writeReminderMeta(meta);
     }
 }
+
+// ─── Weekly reminder throttle ─────────────────────────────────────────────────
+
+async function readWeeklyMeta(): Promise<ReminderMeta> {
+    try {
+        const value = await AsyncStorage.getItem(WEEKLY_META_KEY);
+        return value ? (JSON.parse(value) as ReminderMeta) : {};
+    } catch {
+        return {};
+    }
+}
+
+async function writeWeeklyMeta(meta: ReminderMeta): Promise<void> {
+    try {
+        await AsyncStorage.setItem(WEEKLY_META_KEY, JSON.stringify(meta));
+    } catch (error) {
+        console.warn('Failed to persist weekly reminder metadata', error);
+    }
+}
+
+/**
+ * Returns true when no reminder with this key has been sent in the last day.
+ */
+export async function shouldSendWeeklyReminder(key: string): Promise<boolean> {
+    const meta = await readWeeklyMeta();
+    const lastSent = meta[key];
+    return !lastSent || Date.now() - lastSent > WEEK_MS;
+}
+
+/**
+ * Stamps the current time as the last-sent timestamp for this key.
+ */
+export async function markWeeklyReminderSent(key: string): Promise<void> {
+    const meta = await readWeeklyMeta();
+    meta[key] = Date.now();
+    await writeWeeklyMeta(meta);
+}
+
+/**
+ * Removes stale keys that are no longer relevant (e.g. after logout).
+ */
+export async function pruneWeeklyMeta(validKeys: string[]): Promise<void> {
+    const meta = await readWeeklyMeta();
+    const validSet = new Set(validKeys);
+    let dirty = false;
+    for (const key of Object.keys(meta)) {
+        if (!validSet.has(key)) {
+            delete meta[key];
+            dirty = true;
+        }
+    }
+    if (dirty) await writeWeeklyMeta(meta);
+}
+
+// ─── Re-export WEEK_MS for use in tests ───────────────────────────────────────
+export { WEEK_MS };
 
 export const autoSaveNotification = async (
     title: string,

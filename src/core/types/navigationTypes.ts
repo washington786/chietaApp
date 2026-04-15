@@ -1,7 +1,9 @@
 export type navigationTypes = {
     landing: undefined;
+    upcomingWindows: undefined;
 
     login: undefined;
+    careers: undefined;
     register: undefined;
     reset: undefined;
 
@@ -33,6 +35,7 @@ export type navigationTypes = {
 
     pdfViewer: {
         payment: any;
+        orgId?: string;
     };
 
     orgLinking: {

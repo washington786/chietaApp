@@ -124,7 +124,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.07,
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 3 },
-    elevation: 2,
+    elevation: 0,
     position: 'relative',
     borderWidth: 1,
     borderColor: colors.slate[100],

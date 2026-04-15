@@ -2,12 +2,14 @@ import { StyleSheet, View } from 'react-native'
 import React from 'react'
 import colors from '@/config/colors'
 import { Text } from 'react-native-paper'
+import Constants from 'expo-constants'
 
 const RVersion = () => {
+    const version = Constants.expoConfig?.version ?? '—'
     return (
         <View style={styles.con}>
             <Text variant='titleSmall' style={styles.appName}>Chieta IMS</Text>
-            <Text variant='bodySmall' style={styles.versionText}>Version 1.0.0</Text>
+            <Text variant='bodySmall' style={styles.versionText}>Version {version}</Text>
             <Text variant='bodySmall' style={styles.versionText}>&copy; 2025 Chieta IMS</Text>
         </View>
     )

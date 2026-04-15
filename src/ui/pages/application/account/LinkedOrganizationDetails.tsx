@@ -515,8 +515,10 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.06,
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 2 },
-    elevation: 2,
+    elevation: 0,
     overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: colors.slate[100],
   },
   cardHeader: {
     flexDirection: 'row',

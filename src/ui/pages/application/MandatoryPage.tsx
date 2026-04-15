@@ -111,6 +111,7 @@ const MandatoryPage = () => {
                 }
                 showsVerticalScrollIndicator={false}
                 ItemSeparatorComponent={() => <View style={{ height: 5 }} />}
+                contentContainerStyle={{ paddingBottom: 100 }}
                 removeClippedSubviews={false}
                 ListEmptyComponent={<REmpty title='No Applications Found' subtitle={`when you have applications, they'll appear here`} />}
             />

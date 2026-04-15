@@ -16,6 +16,7 @@ import { UpdateProfileRequest } from '@/core/models/UserDto'
 import * as Yup from 'yup'
 import { useGetPersonByUserIdQuery } from '@/store/api/api'
 import { getDesignation } from '@/core/utils/designation'
+import { Ionicons } from '@expo/vector-icons';
 
 const validationSchema = Yup.object().shape({
     name: Yup.string().required('First name is required'),
@@ -106,6 +107,21 @@ const AccountSettingsPage = () => {
             </Animated.View>
 
             <Scroller contentContainerStyle={styles.scrollContent}>
+                {/* alert */}
+                <View style={styles.container}>
+                    <View style={styles.iconContainer}>
+                        <Ionicons
+                            name="warning-outline"
+                            size={16}
+                            color="#854d0e"
+                        />
+                    </View>
+
+                    <View style={styles.textContainer}>
+                        <Text style={styles.message}>Details can't be edited due to company policy.</Text>
+                    </View>
+                </View>
+
 
                 {!showForm && (
                     <>
@@ -307,7 +323,7 @@ const infoCardStyles = StyleSheet.create({
         shadowOpacity: 0.04,
         shadowRadius: 8,
         shadowOffset: { width: 0, height: 2 },
-        elevation: 2,
+        elevation: 0,
     },
     header: {
         flexDirection: 'row',
@@ -419,7 +435,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         shadowRadius: 12,
         shadowOffset: { width: 0, height: -4 },
-        elevation: 6,
+        elevation: 0,
     },
     editToggleBtn: {
         flexDirection: 'row',
@@ -460,7 +476,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.04,
         shadowRadius: 8,
         shadowOffset: { width: 0, height: 2 },
-        elevation: 2,
+        elevation: 0,
         padding: 16,
     },
     formSectionTitle: {
@@ -489,5 +505,48 @@ const styles = StyleSheet.create({
         backgroundColor: colors.primary[600],
         borderRadius: 10,
         marginTop: 8,
+    },
+    //alert
+    container: {
+        backgroundColor: colors.secondary[50],
+        borderLeftWidth: 5,
+        borderLeftColor: colors.secondary[500],
+        borderRadius: 12,
+        padding: 16,
+        flexDirection: 'row',
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 8,
+        elevation: 0,
+        marginVertical: 8,
+    },
+    iconContainer: {
+        marginRight: 12,
+        backgroundColor: colors.secondary[200],
+        width: 20,
+        height: 20,
+        borderRadius: 20,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    textContainer: {
+        flex: 1,
+    },
+    title: {
+        fontSize: 16,
+        fontWeight: '700',
+        color: '#854d0e',
+        marginBottom: 2,
+    },
+    message: {
+        fontSize: 15,
+        color: '#713f12',
+        lineHeight: 22,
+    },
+    closeButton: {
+        padding: 4,
+        marginLeft: 8,
     },
 })

@@ -19,9 +19,10 @@ import { navigationTypes } from '@/core/types/navigationTypes';
 import { RootState } from '@/store/store';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { generateMgApprovalPdf } from '@/core/helpers/pdfGenerator';
+import { generateMgApprovalPdf, generateSubmissionLetterPdf } from '@/core/helpers/pdfGenerator';
 import { GrantsMgApprovalTemplateParams } from '@/core/helpers/grantsTemplate';
 import useDocumentDownloader from '@/hooks/main/UseDocumentDownloader';
+import { ILetter } from '@/core/helpers/SubmissionLetter';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 const formatFileSize = (bytes: string): string => {
@@ -197,6 +198,10 @@ const ApplicationDetails = () => {
     // ── Per-document download tracking ────────────────────────────────────
     const [downloadingIds, setDownloadingIds] = useState<Set<number>>(new Set());
 
+    // ── Letter download loading states ────────────────────────────────────
+    const [approvalDownloading, setApprovalDownloading] = useState(false);
+    const [submissionDownloading, setSubmissionDownloading] = useState(false);
+
     // ── Document data via new endpoint ────────────────────────────────────
     const entityId = typeof appId === 'string' ? parseInt(appId, 10) : (appId ?? 0);
     const userId = user?.id ? parseInt(String(user.id), 10) : 0;
@@ -274,6 +279,8 @@ const ApplicationDetails = () => {
     };
 
     const handleApprovalDownload = async () => {
+        if (approvalDownloading) return;
+        setApprovalDownloading(true);
         try {
             const sdf: string = sdfData?.result?.person.title + ' ' + sdfData?.result?.person.first_Name + ' ' + sdfData?.result?.person.last_Name;
 
@@ -289,6 +296,28 @@ const ApplicationDetails = () => {
         } catch (error) {
             console.error("Error generating approval PDF:", error);
             showToast({ message: `Failed to generate Approval Letter`, title: "Error", type: "error", position: "top" });
+        } finally {
+            setApprovalDownloading(false);
+        }
+    }
+    const handleSubmissionLetterDownload = async () => {
+        if (submissionDownloading) return;
+        setSubmissionDownloading(true);
+        try {
+            const temp: ILetter = {
+                Organisation_Name: OrgData?.organisationName || 'N/A',
+                Trade_Name: OrgData?.organisationTradingName || 'N/A',
+                SDL: OrgData?.sdlNo || 'N/A',
+                Period: period,
+                downloadedDate: new Date().toLocaleDateString('en-za', { month: '2-digit', day: '2-digit', year: 'numeric' }),
+                isDG: false,
+            };
+            await generateSubmissionLetterPdf(temp);
+        } catch (error) {
+            console.error("Error generating submission letter PDF:", error);
+            showToast({ message: `Failed to generate Submission Letter`, title: "Error", type: "error", position: "top" });
+        } finally {
+            setSubmissionDownloading(false);
         }
     }
 
@@ -373,6 +402,7 @@ const ApplicationDetails = () => {
                                     title='No documents found'
                                     subtitle='No files have been uploaded for this application'
                                     icon='file'
+                                    style={{ minHeight: 200 }}
                                 />
                             )}
 
@@ -390,8 +420,25 @@ const ApplicationDetails = () => {
                             }
                         </Expandable>
 
-                        <Text variant='titleMedium' style={styles.sectionTitle}>Download Approval Letter</Text>
-                        <DownloadTemp fileName='Approval Letter Document' onPress={handleApprovalDownload} />
+                        {
+                            selectedApplication?.grantStatus.toLowerCase().includes('approved') && (
+                                <>
+                                    <Text variant='titleMedium' style={styles.sectionTitle}>Download Approval Letter</Text>
+                                    <DownloadTemp fileName='Approval Letter Document' onPress={handleApprovalDownload} isLoading={approvalDownloading} />
+                                </>
+                            )
+                        }
+
+                        {
+                            !selectedApplication?.grantStatus.toLowerCase().includes('application') && (
+                                <>
+                                    <Text variant='titleMedium' style={styles.sectionTitle}>Download Submission Letter</Text>
+                                    <DownloadTemp fileName='Submission Letter Document' onPress={handleSubmissionLetterDownload} isLoading={submissionDownloading} />
+                                </>
+                            )
+                        }
+
+
 
                     </>
                 )
@@ -400,18 +447,27 @@ const ApplicationDetails = () => {
     )
 }
 
-function DownloadTemp({ fileName, onPress }: { fileName: string, onPress?: () => void }) {
+export function DownloadTemp({ fileName, onPress, isLoading = false }: { fileName: string, onPress?: () => void, isLoading?: boolean }) {
     return (
         <TouchableOpacity
             activeOpacity={0.8}
             onPress={onPress}
-            style={styles.approvalBtn}
+            disabled={isLoading}
+            style={[styles.approvalBtn, isLoading && styles.approvalBtnBusy]}
         >
-            <View style={styles.approvalIconWrap}>
-                <FontAwesome name="cloud-download" size={18} color={colors.white} />
+            <View style={[styles.approvalIconWrap, isLoading && styles.approvalIconWrapBusy]}>
+                {isLoading
+                    ? <ActivityIndicator size={16} color={colors.white} />
+                    : <FontAwesome name="cloud-download" size={18} color={colors.white} />
+                }
             </View>
-            <Text variant='bodyMedium' style={styles.approvalBtnText}>{fileName}</Text>
-            <Ionicons name="chevron-forward" size={16} color={colors.blue[400]} />
+            <Text variant='bodyMedium' style={styles.approvalBtnText}>
+                {isLoading ? 'Preparing download…' : fileName}
+            </Text>
+            {isLoading
+                ? <ActivityIndicator size={14} color={colors.blue[400]} />
+                : <Ionicons name="chevron-forward" size={16} color={colors.blue[400]} />
+            }
         </TouchableOpacity>
     )
 }
@@ -459,6 +515,11 @@ const styles = StyleSheet.create({
         paddingHorizontal: 14,
         borderRadius: 12,
     },
+    approvalBtnBusy: {
+        backgroundColor: colors.blue[100],
+        borderColor: colors.blue[300],
+        opacity: 0.8,
+    },
     approvalIconWrap: {
         width: 34,
         height: 34,
@@ -466,6 +527,9 @@ const styles = StyleSheet.create({
         backgroundColor: colors.blue[600],
         alignItems: 'center',
         justifyContent: 'center',
+    },
+    approvalIconWrapBusy: {
+        backgroundColor: colors.blue[400],
     },
     approvalBtnText: {
         flex: 1,
