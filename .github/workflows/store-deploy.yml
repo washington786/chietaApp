@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - master
       - release/**
     paths:
       - "App.tsx"
@@ -28,6 +27,7 @@ concurrency:
   group: store-deploy-${{ github.ref }}
   cancel-in-progress: true
 
+# Per-platform concurrency is enforced at the build-and-submit job level.
 env:
   BUILD_PROFILE: ${{ github.event.inputs.build-profile || 'production' }}
 
@@ -60,6 +60,9 @@ jobs:
     name: Build & submit (${{ matrix.platform }})
     needs: test
     runs-on: ubuntu-latest
+    concurrency:
+      group: store-deploy-${{ matrix.platform }}
+      cancel-in-progress: true
     strategy:
       fail-fast: false
       matrix:

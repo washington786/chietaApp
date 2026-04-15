@@ -21,6 +21,7 @@ env:
 jobs:
   test:
     name: Run unit tests
+    if: false
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -45,6 +46,7 @@ jobs:
 
   build-ios:
     name: Build & submit iOS to TestFlight
+    if: false
     needs: test
     runs-on: ubuntu-latest
     env:
@@ -113,6 +115,7 @@ jobs:
 
   build-android:
     name: Build Android APK (no store submission)
+    if: false
     needs: test
     runs-on: ubuntu-latest
     env:
