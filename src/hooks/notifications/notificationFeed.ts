@@ -10,7 +10,7 @@ export type CombinedNotification = AppNotification & {
 };
 
 const deriveCategory = (notification: AppNotification): NotificationCategory =>
-    notification.source === 'system' ? 'system' : 'reminder';
+    notification.data?.reminderId ? 'reminder' : 'system';
 
 export function buildCombinedNotifications(
     localNotifications: AppNotification[],
