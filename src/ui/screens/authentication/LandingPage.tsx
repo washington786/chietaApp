@@ -85,7 +85,7 @@ export default function LandingScreen() {
               resizeMode="contain"
             />
 
-            <Text style={styles.title}>Welcome To{"\n"}CHIETA Portal</Text>
+            <Text style={styles.title}>Welcome To The{"\n"}CHIETA Portal</Text>
 
             <Animated.Text
               style={[styles.attentionMessage, { opacity: messageOpacity }]}
