@@ -323,7 +323,7 @@ const infoCardStyles = StyleSheet.create({
         shadowOpacity: 0.04,
         shadowRadius: 8,
         shadowOffset: { width: 0, height: 2 },
-        elevation: 2,
+        elevation: 0,
     },
     header: {
         flexDirection: 'row',
@@ -435,7 +435,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         shadowRadius: 12,
         shadowOffset: { width: 0, height: -4 },
-        elevation: 6,
+        elevation: 0,
     },
     editToggleBtn: {
         flexDirection: 'row',
@@ -476,7 +476,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.04,
         shadowRadius: 8,
         shadowOffset: { width: 0, height: 2 },
-        elevation: 2,
+        elevation: 0,
         padding: 16,
     },
     formSectionTitle: {
@@ -519,7 +519,7 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
         shadowRadius: 8,
-        elevation: 1,
+        elevation: 0,
         marginVertical: 8,
     },
     iconContainer: {

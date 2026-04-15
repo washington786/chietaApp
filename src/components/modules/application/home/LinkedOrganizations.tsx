@@ -14,6 +14,7 @@ import { loadLinkedOrganizationsAsync } from '@/store/slice/thunks/OrganizationT
 import { OrganisationDto } from '@/core/models/organizationDto';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useDelinkOrganizationMutation, useGetOrganizationsBySdfIdQuery } from '@/store/api/api';
+import useCommon from '@/hooks/main/helpers/useCommon';
 
 const LinkedOrganizations = () => {
     const { newOrg, discretionaryGrants, mandatoryGrants, linkOrgDoc } = usePageTransition();
@@ -37,6 +38,8 @@ const LinkedOrganizations = () => {
 
     const [visible, setVisible] = useState(false);
     const prevErrorRef = useRef<typeof error>(null);
+
+    const { isAndroid } = useCommon();
 
     useEffect(() => {
         dispatch(loadLinkedOrganizationsAsync());
@@ -101,7 +104,7 @@ const LinkedOrganizations = () => {
                             onDelink={handleDialog}
                             onCancel={close}
                             orgName={`${selectedOrg.organisationTradingName}`}
-                        />, { snapPoints: ["55%"] })} isLinkingRequired={false}
+                        />, { snapPoints: [isAndroid ? "60%" : "55%"] })} isLinkingRequired={false}
                     newOrgs={linkedOrganizations.filter(l => l.approvalStatus !== 'cancelled')}
                     isLinkingRequiredNew={true} />
             </RCol>
@@ -230,7 +233,7 @@ const styles = StyleSheet.create({
         shadowColor: '#000',
         shadowOpacity: 0.04,
         shadowRadius: 6,
-        elevation: 1,
+        elevation: 0,
     },
     delinkBtn: {
         position: 'absolute',
@@ -257,7 +260,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginTop: 4,
         borderWidth: StyleSheet.hairlineWidth,
-        borderColor: colors.slate[200],
+        borderColor: colors.slate[50],
     },
     cancelText: {
         color: colors.slate[400],

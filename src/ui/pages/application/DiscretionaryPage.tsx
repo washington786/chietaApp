@@ -166,6 +166,7 @@ const DiscretionaryPage = () => {
                 removeClippedSubviews={false}
                 initialNumToRender={10}
                 maxToRenderPerBatch={10}
+                contentContainerStyle={{ paddingBottom: 100 }}
                 windowSize={21}
                 ListEmptyComponent={
                     filteredProjects.length === 0 ? (
