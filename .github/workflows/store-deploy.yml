@@ -87,7 +87,7 @@ jobs:
       - name: Install Expo & EAS
         uses: expo/expo-github-action@v8
         with:
-          eas-version: latest
+          eas-version: 18.7.0
           token: ${{ secrets.EXPO_TOKEN }}
 
       - name: Configure Google Play credentials
@@ -134,11 +134,7 @@ jobs:
               --platform android \
               --profile "$BUILD_PROFILE" \
               --non-interactive \
-              --latest \
-              --service-account-key-path ./google-service-account.json \
-              --android-package com.danielkarabo.Chieta \
-              --track internal \
-              --release-status completed
+              --latest
           else
             if [ -z "$APP_STORE_CONNECT_KEY_ID" ] || [ -z "$APP_STORE_CONNECT_KEY_ISSUER_ID" ]; then
               echo "::error::App Store Connect key id/issuer id secrets are required"
@@ -152,11 +148,7 @@ jobs:
               --platform ios \
               --profile "$BUILD_PROFILE" \
               --non-interactive \
-              --latest \
-              --asc-app-identifier com.danielkarabo.Chieta \
-              --asc-api-key-id "$APP_STORE_CONNECT_KEY_ID" \
-              --asc-api-key-issuer-id "$APP_STORE_CONNECT_KEY_ISSUER_ID" \
-              --asc-api-key-path ./asc-api-key.p8
+              --latest
           fi
 
       - name: Clean up credential files

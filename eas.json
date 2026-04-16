@@ -56,16 +56,19 @@
   "submit": {
     "production": {
       "android": {
+        "serviceAccountKeyPath": "./google-service-account.json",
+        "applicationId": "com.danielkarabo.Chieta",
         "track": "internal",
         "releaseStatus": "completed"
       },
       "ios": {
-        "appName": "Chieta"
+        "ascAppId": "6761328087",
+        "ascApiKeyPath": "./asc-api-key.p8"
       }
     },
     "preview": {
       "ios": {
-        "appName": "Chieta"
+        "ascAppId": "6761328087"
       }
     }
   }

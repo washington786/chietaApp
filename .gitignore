@@ -41,6 +41,10 @@ endpoints.txt
 # EAS builds
 .eas/
 
+# Credential files generated at CI runtime — never commit these
+google-service-account.json
+asc-api-key.p8
+chieta-8e64d9e2614a.json
 # typescript
 *.tsbuildinfo
 
