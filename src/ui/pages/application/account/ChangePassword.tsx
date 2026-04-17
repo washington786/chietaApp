@@ -1,19 +1,21 @@
 import { StyleSheet, View } from 'react-native'
 import { scale } from '@/utils/responsive'
 import RHeader from '@/components/common/RHeader'
-import { RButton, RInput, Scroller, RErrorMessage } from '@/components/common'
+import { RButton, RInput, Scroller, RErrorMessage, SafeArea } from '@/components/common'
 import Animated, { FadeInDown } from 'react-native-reanimated'
 import colors from '@/config/colors'
-import { Formik } from 'formik'
+import { Formik, FormikHelpers } from 'formik'
 import { showToast } from '@/core'
 import UseAuth from '@/hooks/main/auth/UseAuth'
 import { useSelector } from 'react-redux'
 import { RootState } from '@/store/store'
 import { changePasswordSchema } from '@/core/validators/newPasswordValidator'
 import { useEffect, useRef } from 'react'
+import { useNavigation } from '@react-navigation/native'
 
 const ChangePassword = () => {
     const { changePassword } = UseAuth()
+    const navigation = useNavigation()
     const { isLoading, error } = useSelector(
         (state: RootState) => state.auth
     )
@@ -38,7 +40,10 @@ const ChangePassword = () => {
         prevErrorRef.current = error;
     }, [error])
 
-    const handleSubmit = async (values: any) => {
+    const handleSubmit = async (
+        values: typeof initialValues,
+        { resetForm }: FormikHelpers<typeof initialValues>
+    ) => {
         const result = await changePassword({
             oldPassword: values.oldPassword,
             password: values.password,
@@ -52,11 +57,13 @@ const ChangePassword = () => {
                 title: "Success",
                 position: "top",
             })
+            resetForm()
+            navigation.goBack()
         }
     }
 
     return (
-        <>
+        <SafeArea>
             <RHeader name='Change Password' />
             <Scroller style={styles.con}>
                 <Animated.View entering={FadeInDown.duration(600)} style={styles.anim}>
@@ -114,7 +121,7 @@ const ChangePassword = () => {
                     </Formik>
                 </Animated.View>
             </Scroller>
-        </>
+        </SafeArea>
     )
 }
 
