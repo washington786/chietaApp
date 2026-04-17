@@ -1,156 +1,36 @@
 name: Deploy mobile apps
 
+# DISABLED: Auto-deployment is disabled. Deploy manually with EAS CLI.
+# To re-enable, restore the original `on:` triggers:
+#   push:
+#     branches: [main, release/**]
+#     paths: [App.tsx, app.json, eas.json, package.json, package-lock.json, src/**, assets/**]
+#   workflow_dispatch:
+#     inputs:
+#       build-profile:
+#         description: "EAS build profile to use (default: production)"
+#         required: false
+#         default: "production"
 on:
-  push:
-    branches:
-      - main
-      - release/**
-    paths:
-      - "App.tsx"
-      - "app.json"
-      - "eas.json"
-      - "package.json"
-      - "package-lock.json"
-      - "src/**"
-      - "assets/**"
   workflow_dispatch:
     inputs:
-      build-profile:
-        description: "EAS build profile to use (default: production)"
+      _note:
+        description: "Disabled — deploy manually: eas build && eas submit"
         required: false
-        default: "production"
 
 permissions:
   contents: read
 
-concurrency:
-  group: store-deploy-${{ github.ref }}
-  cancel-in-progress: true
-
-# Per-platform concurrency is enforced at the build-and-submit job level.
-env:
-  BUILD_PROFILE: ${{ github.event.inputs.build-profile || 'production' }}
-
 jobs:
-  test:
-    name: Run unit tests
+  disabled:
+    name: Workflow disabled
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: "npm"
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run TypeScript check
-        run: npx tsc --noEmit
-
-      - name: Run tests
-        run: npm run test
-
-  build-and-submit:
-    name: Build & submit (${{ matrix.platform }})
-    needs: test
-    runs-on: ubuntu-latest
-    concurrency:
-      group: store-deploy-${{ matrix.platform }}
-      cancel-in-progress: true
-    strategy:
-      fail-fast: false
-      matrix:
-        platform: [android, ios]
-    env:
-      EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: "npm"
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Install Expo & EAS
-        uses: expo/expo-github-action@v8
-        with:
-          eas-version: 18.7.0
-          token: ${{ secrets.EXPO_TOKEN }}
-
-      - name: Configure Google Play credentials
-        if: matrix.platform == 'android'
-        env:
-          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+      - name: Notice
         run: |
-          if [ -z "$GOOGLE_SERVICE_ACCOUNT_JSON" ]; then
-            echo "::error::GOOGLE_SERVICE_ACCOUNT_JSON secret is required to submit to Google Play"
-            exit 1
-          fi
-          printf '%s' "$GOOGLE_SERVICE_ACCOUNT_JSON" > google-service-account.json
-
-      - name: Configure App Store Connect API key
-        if: matrix.platform == 'ios'
-        env:
-          APP_STORE_CONNECT_API_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY }}
-        run: |
-          if [ -z "$APP_STORE_CONNECT_API_KEY" ]; then
-            echo "::error::APP_STORE_CONNECT_API_KEY secret is required to submit to App Store Connect"
-            exit 1
-          fi
-          printf '%s' "$APP_STORE_CONNECT_API_KEY" > asc-api-key.p8
-
-      - name: Build ${{ matrix.platform }} artifact
-        run: |
-          eas build \
-            --platform ${{ matrix.platform }} \
-            --profile "$BUILD_PROFILE" \
-            --non-interactive \
-            --wait
-
-      - name: Submit ${{ matrix.platform }} build to stores
-        env:
-          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
-          APP_STORE_CONNECT_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ISSUER_ID }}
-        run: |
-          if [ "${{ matrix.platform }}" = "android" ]; then
-            if [ ! -f google-service-account.json ]; then
-              echo "::error::Google Play credentials were not generated"
-              exit 1
-            fi
-            eas submit \
-              --platform android \
-              --profile "$BUILD_PROFILE" \
-              --non-interactive \
-              --latest
-          else
-            if [ -z "$APP_STORE_CONNECT_KEY_ID" ] || [ -z "$APP_STORE_CONNECT_KEY_ISSUER_ID" ]; then
-              echo "::error::App Store Connect key id/issuer id secrets are required"
-              exit 1
-            fi
-            if [ ! -f asc-api-key.p8 ]; then
-              echo "::error::App Store Connect API key file missing"
-              exit 1
-            fi
-            eas submit \
-              --platform ios \
-              --profile "$BUILD_PROFILE" \
-              --non-interactive \
-              --latest
-          fi
-
-      - name: Clean up credential files
-        if: always()
-        run: rm -f google-service-account.json asc-api-key.p8
+          echo "Store deployment is disabled in CI."
+          echo "Deploy manually using EAS CLI:"
+          echo "  eas build --platform android --profile production"
+          echo "  eas build --platform ios --profile production"
+          echo "  eas submit --platform android --profile production"
+          echo "  eas submit --platform ios --profile production"
