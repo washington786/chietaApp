@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { View, StyleSheet, Dimensions } from 'react-native';
+import { scale, verticalScale } from '@/utils/responsive';
 import Animated, {
     useSharedValue,
     useAnimatedStyle,
@@ -61,24 +62,24 @@ const SkeletonLoader = () => {
 const styles = StyleSheet.create({
     cardContainer: {
         position: 'relative',
-        marginBottom: 16,
+        marginBottom: verticalScale(16),
     },
     cardStatic: {
         backgroundColor: '#f0f0f0',
-        borderRadius: 12,
-        padding: 16,
+        borderRadius: scale(12),
+        padding: scale(16),
         overflow: 'hidden',
     },
     shimmerOverlay: {
         ...StyleSheet.absoluteFillObject,
-        borderRadius: 12,
+        borderRadius: scale(12),
         transform: [{ skewX: '30deg' }],
     },
     line: {
-        height: 12,
+        height: scale(12),
         backgroundColor: '#e0e0e0',
-        borderRadius: 6,
-        marginBottom: 10,
+        borderRadius: scale(6),
+        marginBottom: verticalScale(10),
     },
     fullLine: {
         width: '100%',

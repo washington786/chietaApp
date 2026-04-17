@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { View, StyleSheet } from 'react-native'
+import { View, StyleSheet, Appearance } from 'react-native'
 import * as SplashScreen from 'expo-splash-screen'
 import { StatusBar } from 'expo-status-bar'
 
@@ -19,6 +19,9 @@ import { NotificationProvider } from '@/hooks/notifications'
 import { initializeReliabilityLayer } from '@/core/services/reliability'
 import AppErrorBoundary from '@/components/common/AppErrorBoundary'
 import { logger } from '@/utils/logger'
+
+// Force light mode at the system level
+Appearance.setColorScheme('light')
 
 SplashScreen.preventAutoHideAsync().catch(() => {
   let tm = setTimeout(() => SplashScreen.preventAutoHideAsync(), 100)
@@ -130,7 +133,7 @@ const AppContent = () => {
   const isLoading = !loadedApplicationFonts || !appIsReady;
 
   return (
-    <View style={{ flex: 1, backgroundColor: colors.primary[950] }} onLayout={onLayoutRootView}>
+    <View style={{ flex: 1, backgroundColor: '#FFFFFF' }} onLayout={onLayoutRootView}>
       <RMainAlerts
         visible={showAlert && activeWindowCount > 0}
         title='Discretionary Grants Open'
@@ -143,7 +146,7 @@ const AppContent = () => {
       <RNetworkAlert />
       <MainNavigation />
       <Toast />
-      <StatusBar style="dark" backgroundColor={colors.primary[950]} translucent={false} animated />
+      <StatusBar style="dark" backgroundColor="#FFFFFF" translucent={false} animated />
       {isLoading && (
         <View style={StyleSheet.absoluteFill}>
           <RSplash />

@@ -1,5 +1,6 @@
 import { RRow } from "@/components/common";
 import colors from "@/config/colors";
+import { moderateScale } from "@/utils/responsive";
 import { StyleSheet } from "react-native";
 import { Text } from "react-native-paper";
 
@@ -25,7 +26,7 @@ const styles = StyleSheet.create({
         justifyContent: "space-between"
     },
     appTitle: {
-        fontSize: 10
+        fontSize: moderateScale(10)
     },
     lbl: {
         color: colors.gray[400],

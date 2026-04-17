@@ -7,6 +7,7 @@ import {
 } from 'react-native';
 
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { moderateScale, scale } from '@/utils/responsive';
 import colors from '@/config/colors';
 import { RRow } from '@/components/common';
 import { DiscretionaryGrantApplication } from '@/core/models/DiscretionaryDto';
@@ -49,7 +50,7 @@ export function AppTrackingItem({ onPress, item }: Props) {
                 <RRow style={styles.orgRow}>
                     <MaterialCommunityIcons
                         name="domain"
-                        size={26}
+                        size={moderateScale(26)}
                         color={colors.slate[700] || '#6d28d9'}
                     />
                     <Text
@@ -69,7 +70,7 @@ export function AppTrackingItem({ onPress, item }: Props) {
             <RRow style={styles.detailRow}>
                 <MaterialCommunityIcons
                     name="lightbulb-outline"
-                    size={22}
+                    size={moderateScale(22)}
                     color="#6b7280"
                 />
                 <Text
@@ -85,7 +86,7 @@ export function AppTrackingItem({ onPress, item }: Props) {
             <RRow style={styles.detailRow}>
                 <MaterialCommunityIcons
                     name="calendar-clock-outline"
-                    size={22}
+                    size={moderateScale(22)}
                     color="#6b7280"
                 />
                 <Text style={styles.detailText}>
@@ -105,10 +106,10 @@ export function AppTrackingItem({ onPress, item }: Props) {
 
 const styles = StyleSheet.create({
     card: {
-        marginVertical: 8,
+        marginVertical: scale(8),
         backgroundColor: '#ffffff',
-        borderRadius: 5,
-        padding: 18,
+        borderRadius: scale(5),
+        padding: scale(18),
         borderWidth: 1,
         borderColor: '#e2e8f0',
         shadowColor: '#000',
@@ -123,47 +124,47 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 12,
+        marginBottom: scale(12),
     },
     orgRow: {
         flex: 1,
         alignItems: 'center',
-        gap: 12,
+        gap: scale(12),
     },
     orgName: {
-        fontSize: 17,
+        fontSize: moderateScale(17),
         fontWeight: '700',
         color: '#111827',
         flex: 1,
     },
     statusBadge: {
-        paddingHorizontal: 14,
-        paddingVertical: 6,
+        paddingHorizontal: scale(14),
+        paddingVertical: scale(6),
         borderRadius: 999,
-        minWidth: 110,
+        minWidth: scale(110),
         alignItems: 'center',
         position: 'absolute',
-        bottom: 10,
-        right: 10,
+        bottom: scale(10),
+        right: scale(10),
     },
     statusText: {
-        fontSize: 13,
+        fontSize: moderateScale(13),
         fontWeight: '600',
         textAlign: 'center',
     },
     divider: {
         height: 1,
         backgroundColor: '#e5e7eb',
-        marginVertical: 12,
+        marginVertical: scale(12),
     },
     detailRow: {
         alignItems: 'center',
-        gap: 12,
-        marginVertical: 6,
+        gap: scale(12),
+        marginVertical: scale(6),
     },
     detailText: {
         flex: 1,
-        fontSize: 14,
+        fontSize: moderateScale(14),
         color: '#374151',
         fontWeight: '500',
     },

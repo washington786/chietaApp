@@ -1,5 +1,5 @@
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import React, { useEffect, useRef, useState } from 'react'
 import colors from '@/config/colors'
 import appFonts from '@/config/fonts'
 import { RErrorMessage, RInput, RLoaderAnimation } from '@/components/common'
@@ -14,6 +14,7 @@ import AuthScreenLayout, { authScreenStyles } from '@/components/modules/authent
 import AuthGradientButton from '@/components/modules/authentication/AuthGradientButton'
 import { clearError } from '@/store/slice/AuthSlice'
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
+import { moderateScale, scale } from '@/utils/responsive'
 
 const formValues = {
     email: '',
@@ -27,6 +28,8 @@ const LoginScreen = () => {
     const { isLoading, error } = useSelector((state: RootState) => state.auth)
     const [showPassword, setShowPassword] = useState(false);
     const [rememberMe, setRememberMe] = useState(false);
+
+    const passwordRef = useRef<TextInput>(null);
 
     const handleSubmit = async (email: string, password: string) => {
         const result = await login({
@@ -75,6 +78,9 @@ const LoginScreen = () => {
                                 value={values.email}
                                 customStyle={authScreenStyles.inputField}
                                 style={styles.inputText}
+                                returnKeyType="next"
+                                onSubmitEditing={() => passwordRef.current?.focus()}
+                                blurOnSubmit={false}
                             />
                             {touched.email && errors.email && <RErrorMessage error={errors.email} />}
                         </View>
@@ -84,6 +90,7 @@ const LoginScreen = () => {
                             <Text style={styles.inputLabel}>Password</Text>
                             <View style={styles.passwordWrapper}>
                                 <RInput
+                                    ref={passwordRef}
                                     placeholder='Enter your password'
                                     icon='lock'
                                     iconColor={colors.primary[600]}
@@ -95,12 +102,14 @@ const LoginScreen = () => {
                                     secureTextEntry={!showPassword}
                                     customStyle={[authScreenStyles.inputField, styles.passwordInput]}
                                     style={styles.inputText}
+                                    returnKeyType="done"
+                                    onSubmitEditing={() => handleSubmit()}
                                 />
                                 <TouchableOpacity
                                     style={styles.togglePassword}
                                     onPress={() => setShowPassword(prev => !prev)}
                                 >
-                                    <Feather name={showPassword ? 'eye-off' : 'eye'} size={18} color='#9ca3af' />
+                                    <Feather name={showPassword ? 'eye-off' : 'eye'} size={moderateScale(18)} color='#9ca3af' />
                                 </TouchableOpacity>
                             </View>
                             {touched.password && errors.password && <RErrorMessage error={errors.password} />}
@@ -115,7 +124,7 @@ const LoginScreen = () => {
                             >
                                 <MaterialCommunityIcons
                                     name={rememberMe ? 'checkbox-marked' : 'checkbox-blank-outline'}
-                                    size={22}
+                                    size={moderateScale(22)}
                                     color={rememberMe ? colors.primary[700] : '#374151'}
                                 />
                                 <Text style={styles.rememberText}>Remember Me</Text>
@@ -138,11 +147,11 @@ const LoginScreen = () => {
 export default LoginScreen
 const styles = StyleSheet.create({
     inputGroup: {
-        gap: 6,
-        marginBottom: 20,
+        gap: scale(6),
+        marginBottom: scale(20),
     },
     inputLabel: {
-        fontSize: 14,
+        fontSize: moderateScale(14),
         fontFamily: `${appFonts.semiBold}`,
         color: '#111827',
     },
@@ -151,11 +160,11 @@ const styles = StyleSheet.create({
         position: 'relative',
     },
     passwordInput: {
-        paddingRight: 48,
+        paddingRight: scale(48),
     },
     togglePassword: {
         position: 'absolute',
-        right: 18,
+        right: scale(18),
         top: '35%',
     },
     inputText: {
@@ -165,17 +174,16 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 20,
-        marginTop: 4,
+        marginBottom: scale(20),
+        marginTop: scale(4),
     },
     rememberLeft: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 8,
+        gap: scale(8),
     },
     rememberText: {
-        fontSize: 14,
+        fontSize: moderateScale(14),
         color: '#374151',
-        fontFamily: `${appFonts.medium}`,
     },
 });

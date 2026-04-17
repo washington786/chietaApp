@@ -3,6 +3,7 @@ import React, { FC, useRef } from 'react'
 import { RCol, RDivider, RRow } from '@/components/common'
 import colors from '@/config/colors'
 import Feather from '@expo/vector-icons/Feather';
+import { moderateScale, scale } from '@/utils/responsive';
 import { Text } from 'react-native-paper';
 import { AppNotification } from '@/core/types/notifications';
 
@@ -46,16 +47,16 @@ const ItemNotification: FC<props> = ({ notification, onPress }) => {
                 onPressOut={handlePressOut}
                 style={{ flex: 1 }}
             >
-                <RRow style={{ position: "relative", padding: 16, alignItems: 'center' }}>
-                    <Feather name="bell" size={28} color={colors.primary[700]} />
-                    <Text variant='titleMedium' style={[styles.title, { flex: 1, marginRight: 80 }]}>{notification.title}</Text>
+                <RRow style={{ position: "relative", padding: scale(16), alignItems: 'center' }}>
+                    <Feather name="bell" size={moderateScale(28)} color={colors.primary[700]} />
+                    <Text variant='titleMedium' style={[styles.title, { flex: 1, marginRight: scale(80) }]}>{notification.title}</Text>
                     {isNew && (
                         <View style={styles.newBadge}>
                             <Text variant='labelSmall' style={styles.newBadgeText}>New</Text>
                         </View>
                     )}
                 </RRow>
-                <RCol style={{ paddingHorizontal: 16, paddingBottom: 16 }}>
+                <RCol style={{ paddingHorizontal: scale(16), paddingBottom: scale(16) }}>
                     <Text variant='labelSmall' style={styles.dteTxt}>{time}</Text>
                     <RDivider />
                     <Text variant='bodySmall' style={styles.messageTxt}>{notification.body}</Text>
@@ -70,8 +71,8 @@ export default ItemNotification
 const styles = StyleSheet.create({
     con: {
         backgroundColor: colors.white,
-        borderRadius: 16,
-        marginBottom: 16,
+        borderRadius: scale(16),
+        marginBottom: scale(16),
         overflow: "hidden",
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 4 },
@@ -82,35 +83,35 @@ const styles = StyleSheet.create({
         borderColor: colors.slate[300],
     },
     title: {
-        marginLeft: 12,
+        marginLeft: scale(12),
         color: colors.slate[800],
         fontWeight: '600',
-        fontSize: 18,
+        fontSize: moderateScale(18),
     },
     newBadge: {
         backgroundColor: colors.blue[600],
         position: "absolute",
-        top: 16,
-        right: 16,
-        borderRadius: 20,
-        paddingHorizontal: 12,
-        paddingVertical: 6,
+        top: scale(16),
+        right: scale(16),
+        borderRadius: scale(20),
+        paddingHorizontal: scale(12),
+        paddingVertical: scale(6),
     },
     newBadgeText: {
         color: "white",
         fontWeight: '700',
-        fontSize: 12,
+        fontSize: moderateScale(12),
         textTransform: 'uppercase',
     },
     dteTxt: {
         color: colors.slate[600],
-        fontSize: 13,
+        fontSize: moderateScale(13),
         fontWeight: '500',
-        marginBottom: 6,
+        marginBottom: scale(6),
     },
     messageTxt: {
         color: colors.slate[700],
-        fontSize: 15,
-        lineHeight: 22,
+        fontSize: moderateScale(15),
+        lineHeight: moderateScale(22),
     }
 })

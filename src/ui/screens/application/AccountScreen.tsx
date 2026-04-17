@@ -13,6 +13,7 @@ import { useSelector } from 'react-redux'
 import { RootState } from '@/store/store'
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
 import { useGetPersonByUserIdQuery } from '@/store/api/api'
+import { moderateScale, scale } from '@/utils/responsive'
 
 const AccountScreen = () => {
     const { account, privacy, support, changePassword, linkedOrganizations } = usePageTransition();
@@ -154,17 +155,17 @@ const styles = StyleSheet.create({
     heroCard: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 16,
-        paddingVertical: 18,
+        paddingHorizontal: scale(14),
+        paddingVertical: scale(16),
         backgroundColor: colors.white,
         borderBottomWidth: 1,
         borderBottomColor: colors.slate[100],
-        gap: 14,
+        gap: scale(12),
     },
     avatarRing: {
-        width: 68,
-        height: 68,
-        borderRadius: 34,
+        width: scale(64),
+        height: scale(64),
+        borderRadius: scale(32),
         borderWidth: 2,
         borderColor: colors.primary[300],
         padding: 3,
@@ -172,15 +173,15 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     avatar: {
-        width: 58,
-        height: 58,
-        borderRadius: 29,
+        width: scale(54),
+        height: scale(54),
+        borderRadius: scale(27),
         backgroundColor: colors.primary[600],
         justifyContent: 'center',
         alignItems: 'center',
     },
     avatarText: {
-        fontSize: 22,
+        fontSize: moderateScale(20),
         fontWeight: '700',
         color: colors.white,
         letterSpacing: 1,
@@ -188,14 +189,15 @@ const styles = StyleSheet.create({
     heroInfo: {
         flex: 1,
         gap: 3,
+        minWidth: 0,
     },
     heroName: {
-        fontSize: 17,
+        fontSize: moderateScale(16),
         fontWeight: '700',
         color: colors.slate[900],
     },
     heroEmail: {
-        fontSize: 12,
+        fontSize: moderateScale(12),
         color: colors.slate[500],
         fontWeight: '500',
     },
@@ -220,9 +222,9 @@ const styles = StyleSheet.create({
         letterSpacing: 0.4,
     },
     editBtn: {
-        width: 36,
-        height: 36,
-        borderRadius: 18,
+        width: scale(34),
+        height: scale(34),
+        borderRadius: scale(17),
         backgroundColor: colors.primary[50],
         borderWidth: 1,
         borderColor: colors.primary[200],

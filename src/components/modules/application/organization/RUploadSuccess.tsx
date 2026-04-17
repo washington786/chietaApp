@@ -20,7 +20,7 @@ export const RUploadSuccessFile: FC<props> = ({ file }) => {
     return (
         <RRow style={{ alignItems: "center", gap: 4 }}>
             <Ionicons name="checkmark-done-circle" size={24} color={colors.green[500]} />
-            <Text variant='titleMedium'>{file}</Text>
+            <Text variant='titleSmall' style={{ color: colors.green[500], paddingRight: 6 }}>{file}</Text>
         </RRow>
     )
 }

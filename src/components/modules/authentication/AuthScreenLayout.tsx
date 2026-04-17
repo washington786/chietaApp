@@ -6,6 +6,7 @@ import appFonts from '@/config/fonts';
 import { SafeArea, Scroller, RLogo } from '@/components/common';
 import { BackBtn } from '@/components/modules/authentication';
 import usePageEnterAnimation from '@/hooks/animations/usePageEnterAnimation';
+import { moderateScale, scale, verticalScale } from '@/utils/responsive';
 
 interface AuthScreenLayoutProps {
     title: string;
@@ -46,9 +47,12 @@ const AuthScreenLayout = ({
             </LinearGradient>
 
             <SafeArea>
-                <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.kbAvoider}>
+                <KeyboardAvoidingView
+                    behavior={Platform.OS === 'ios' ? 'padding' : 'padding'}
+                    style={styles.kbAvoider}
+                    keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
+                >
                     <Scroller contentContainerStyle={styles.scroller}>
-
                         {/* Transparent header — gradient shows through */}
                         <View style={styles.header}>
                             {showBackButton && (
@@ -85,9 +89,9 @@ export const authScreenStyles = StyleSheet.create({
         borderColor: '#e5e7eb',
         borderRadius: 0,
         backgroundColor: 'transparent',
-        paddingVertical: 14,
-        paddingHorizontal: 4,
-        minHeight: 52,
+        paddingVertical: verticalScale(13),
+        paddingHorizontal: scale(4),
+        minHeight: verticalScale(50),
     },
     formWrapper: {
         gap: 0,
@@ -96,25 +100,25 @@ export const authScreenStyles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
-        gap: 6,
-        paddingTop: 16,
+        gap: scale(6),
+        paddingTop: scale(14),
         borderTopWidth: 1,
         borderTopColor: '#f0f0f5',
     },
     footerText: {
         color: '#6b7280',
         fontFamily: `${appFonts.medium}`,
-        fontSize: 13,
+        fontSize: moderateScale(13),
     },
     footerLink: {
         color: colors.primary[700],
         fontFamily: `${appFonts.semiBold}`,
-        fontSize: 13,
+        fontSize: moderateScale(13),
     },
     forgotText: {
         color: colors.primary[700],
         fontFamily: `${appFonts.medium}`,
-        fontSize: 13,
+        fontSize: moderateScale(13),
     },
 });
 
@@ -132,29 +136,29 @@ const styles = StyleSheet.create({
         overflow: 'hidden',
     },
     kbAvoider: { flex: 1 },
-    scroller: { flexGrow: 1 },
+    scroller: { flexGrow: 1, paddingBottom: 40 },
     blob: { position: 'absolute', backgroundColor: 'rgba(255,255,255,0.08)', borderRadius: 200 },
-    blobTR: { width: 280, height: 280, top: -90, right: -90 },
-    blobBL: { width: 200, height: 200, top: 80, left: -80 },
+    blobTR: { width: scale(260), height: scale(260), top: -90, right: -90 },
+    blobBL: { width: scale(180), height: scale(180), top: 80, left: -80 },
     header: {
-        paddingTop: 16,
-        paddingBottom: 64,
-        paddingHorizontal: 28,
-        gap: 6,
+        paddingTop: scale(12),
+        paddingBottom: scale(56),
+        paddingHorizontal: scale(24),
+        gap: scale(6),
     },
     backRow: {
-        marginBottom: 4,
+        marginBottom: scale(4),
     },
     logoBadge: {
-        width: 80,
-        height: 80,
-        borderRadius: 40,
+        width: scale(72),
+        height: scale(72),
+        borderRadius: scale(36),
         backgroundColor: 'rgba(255,255,255,0.22)',
         borderWidth: 2,
         borderColor: 'rgba(255,255,255,0.55)',
         alignItems: 'center',
         justifyContent: 'center',
-        marginBottom: 16,
+        marginBottom: scale(12),
         shadowColor: '#fff',
         shadowOffset: { width: 0, height: 0 },
         shadowOpacity: 0.15,
@@ -162,27 +166,27 @@ const styles = StyleSheet.create({
         elevation: 4,
     },
     heading: {
-        fontSize: 28,
+        fontSize: moderateScale(28),
         fontFamily: `${appFonts.bold}`,
         color: '#fff',
-        lineHeight: 34,
+        lineHeight: moderateScale(34),
     },
     subHeading: {
-        fontSize: 14,
+        fontSize: moderateScale(14),
         color: 'rgba(255,255,255,0.78)',
-        lineHeight: 20,
+        lineHeight: moderateScale(20),
         fontFamily: `${appFonts.medium}`,
     },
     card: {
         backgroundColor: '#fff',
         borderRadius: 28,
-        marginHorizontal: 16,
-        marginTop: -36,
-        marginBottom: 24,
-        paddingHorizontal: 24,
-        paddingTop: 32,
-        paddingBottom: 40,
-        gap: 20,
+        marginHorizontal: scale(14),
+        marginTop: -scale(32),
+        marginBottom: scale(22),
+        paddingHorizontal: scale(20),
+        paddingTop: scale(28),
+        paddingBottom: scale(36),
+        gap: scale(18),
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.10,

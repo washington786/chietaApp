@@ -2,9 +2,9 @@
   "expo": {
     "name": "Chieta",
     "slug": "Chieta",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/icon-1024-1024.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
@@ -37,6 +37,10 @@
       ],
       "package": "com.danielkarabo.Chieta"
     },
+    "androidStatusBar": {
+      "barStyle": "dark-content",
+      "backgroundColor": "#FFFFFF"
+    },
     "web": {
       "favicon": "./assets/favicon.png"
     },
@@ -49,7 +53,13 @@
       ],
       "expo-secure-store",
       "expo-notifications",
-      "expo-file-system"
+      "expo-file-system",
+      [
+        "expo-system-ui",
+        {
+          "backgroundColor": "#ffffff"
+        }
+      ]
     ],
     "extra": {
       "eas": {

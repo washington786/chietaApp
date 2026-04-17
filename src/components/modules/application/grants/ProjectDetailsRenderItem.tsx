@@ -1,5 +1,6 @@
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { moderateScale, scale } from '@/utils/responsive';
 import { DGProjectDetailsAppItem } from '@/core/models/DiscretionaryDto';
 import colors from '@/config/colors';
 
@@ -94,9 +95,9 @@ const DetailRow = ({
 
 const styles = StyleSheet.create({
   cardContainer: {
-    marginHorizontal: 16,
-    marginVertical: 10,
-    borderRadius: 16,
+    marginHorizontal: scale(16),
+    marginVertical: scale(10),
+    borderRadius: scale(16),
     overflow: 'hidden',
     elevation: 3,
     shadowColor: '#000',
@@ -105,36 +106,36 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
   },
   gradientBackground: {
-    padding: 10,
+    padding: scale(10),
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: scale(12),
   },
   title: {
-    fontSize: 18,
+    fontSize: moderateScale(18),
     fontWeight: '700',
     color: '#1a1a1a',
     flex: 1,
   },
   statusBadge: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
+    paddingHorizontal: scale(12),
+    paddingVertical: scale(6),
+    borderRadius: scale(20),
   },
   statusText: {
-    fontSize: 13,
+    fontSize: moderateScale(13),
     fontWeight: '600',
   },
   divider: {
     height: 1,
     backgroundColor: '#e0e0e0',
-    marginVertical: 12,
+    marginVertical: scale(12),
   },
   detailsGrid: {
-    gap: 10,
+    gap: scale(10),
   },
   row: {
     flexDirection: 'row',
@@ -142,18 +143,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   rowCompact: {
-    marginTop: 4,
+    marginTop: scale(4),
   },
   label: {
-    fontSize: 14,
+    fontSize: moderateScale(14),
     color: '#555',
     flex: 1,
   },
   labelCompact: {
-    fontSize: 13,
+    fontSize: moderateScale(13),
   },
   value: {
-    fontSize: 14,
+    fontSize: moderateScale(14),
     color: '#222',
     fontWeight: '500',
     textAlign: 'right',
@@ -163,7 +164,7 @@ const styles = StyleSheet.create({
   },
   valueBold: {
     fontWeight: '700',
-    fontSize: 15,
+    fontSize: moderateScale(15),
   },
 });
 

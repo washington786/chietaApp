@@ -1,5 +1,6 @@
 import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React from 'react'
+import { moderateScale, scale as rScale, verticalScale } from '@/utils/responsive'
 import { DiscretionaryWindow } from '@/core/models/DiscretionaryDto'
 import colors from '@/config/colors'
 import { LinearGradient } from 'expo-linear-gradient'
@@ -7,7 +8,7 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import Animated, { useSharedValue, withSpring, useAnimatedStyle } from 'react-native-reanimated'
 
 const CARD_WIDTH = Dimensions.get('window').width * 0.7;
-const CARD_HEIGHT = 400;
+const CARD_HEIGHT = verticalScale(400);
 
 const ActiveWindowRenderItem = ({ item, onPress }: { item: DiscretionaryWindow; onPress: () => void }) => {
     const formatCurrency = (amount: number): string => {
@@ -87,7 +88,7 @@ const ActiveWindowRenderItem = ({ item, onPress }: { item: DiscretionaryWindow; 
                                 </Text>
                             </View>
                             <TouchableOpacity onPress={onPress} style={styles.infoIcon}>
-                                <MaterialIcons name="info" size={24} color={colors.white} />
+                                <MaterialIcons name="info" size={moderateScale(24)} color={colors.white} />
                             </TouchableOpacity>
                         </View>
                     </View>
@@ -139,7 +140,7 @@ export default ActiveWindowRenderItem
 
 const styles = StyleSheet.create({
     cardWrapper: {
-        borderRadius: 24,
+        borderRadius: rScale(24),
         overflow: 'hidden',
         shadowColor: '#6d28d9',
         shadowOffset: { width: 0, height: 16 },
@@ -151,8 +152,8 @@ const styles = StyleSheet.create({
     },
 
     card: {
-        borderRadius: 24,
-        padding: 20,
+        borderRadius: rScale(24),
+        padding: rScale(20),
         width: CARD_WIDTH,
         height: CARD_HEIGHT,
         borderWidth: 1,
@@ -163,11 +164,11 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'flex-start',
-        marginBottom: 16,
+        marginBottom: rScale(16),
     },
 
     availableLabel: {
-        fontSize: 12,
+        fontSize: moderateScale(12),
         fontWeight: '700',
         color: 'rgba(255, 255, 255, 0.85)',
         letterSpacing: 0.5,
@@ -177,14 +178,14 @@ const styles = StyleSheet.create({
     topRight: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 12,
+        gap: rScale(12),
     },
 
     budget: {
-        fontSize: 26,
+        fontSize: moderateScale(26),
         fontWeight: '900',
         color: '#fff',
-        marginBottom: 16,
+        marginBottom: rScale(16),
         textShadowColor: 'rgba(0, 0, 0, 0.3)',
         textShadowOffset: { width: 0, height: 2 },
         textShadowRadius: 4,
@@ -193,67 +194,67 @@ const styles = StyleSheet.create({
     datesContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        marginBottom: 16,
-        paddingBottom: 16,
+        marginBottom: rScale(16),
+        paddingBottom: rScale(16),
         borderBottomWidth: 1,
         borderBottomColor: 'rgba(255, 255, 255, 0.2)',
     },
 
     dateText: {
-        fontSize: 12,
+        fontSize: moderateScale(12),
         fontWeight: '600',
         color: 'rgba(255, 255, 255, 0.9)',
         letterSpacing: 0.3,
     },
 
     progressContainer: {
-        marginBottom: 18,
+        marginBottom: rScale(18),
     },
 
     progressBarBackground: {
-        height: 6,
+        height: verticalScale(6),
         backgroundColor: 'rgba(255, 255, 255, 0.2)',
-        borderRadius: 3,
+        borderRadius: rScale(3),
         overflow: 'hidden',
-        marginBottom: 8,
+        marginBottom: rScale(8),
     },
 
     progressBar: {
-        height: 6,
+        height: verticalScale(6),
         backgroundColor: 'rgba(255, 255, 255, 0.8)',
-        borderRadius: 3,
+        borderRadius: rScale(3),
     },
 
     progressText: {
-        fontSize: 12,
+        fontSize: moderateScale(12),
         fontWeight: '600',
         color: 'rgba(255, 255, 255, 0.85)',
         letterSpacing: 0.3,
     },
 
     footerSection: {
-        paddingTop: 14,
+        paddingTop: rScale(14),
         borderTopWidth: 1,
         borderTopColor: 'rgba(255, 255, 255, 0.15)',
     },
 
     title: {
-        fontSize: 16,
+        fontSize: moderateScale(16),
         fontWeight: '800',
         color: '#fff',
-        marginBottom: 4,
+        marginBottom: rScale(4),
     },
 
     reference: {
-        fontSize: 12,
+        fontSize: moderateScale(12),
         color: 'rgba(255, 255, 255, 0.8)',
         fontWeight: '600',
     },
 
     statusBadge: {
-        paddingHorizontal: 12,
-        paddingVertical: 6,
-        borderRadius: 999,
+        paddingHorizontal: rScale(12),
+        paddingVertical: rScale(6),
+        borderRadius: rScale(999),
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.15,
@@ -262,13 +263,13 @@ const styles = StyleSheet.create({
     },
 
     statusText: {
-        fontSize: 11,
+        fontSize: moderateScale(11),
         fontWeight: '800',
         color: '#FFF',
         letterSpacing: 0.5,
     },
 
     infoIcon: {
-        padding: 8,
+        padding: rScale(8),
     },
 })

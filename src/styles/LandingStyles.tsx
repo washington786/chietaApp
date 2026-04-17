@@ -1,22 +1,23 @@
 import colors from "@/config/colors";
 import { StyleSheet } from "react-native";
+import { moderateScale, scale, verticalScale } from "@/utils/responsive";
 
 export const landing_styles = StyleSheet.create({
     container: {
         flex: 1,
-        paddingTop: 15,
-        paddingHorizontal: 20,
+        paddingTop: scale(12),
+        paddingHorizontal: scale(16),
     },
 
     logo: {
-        width: 180,
-        height: 180,
+        width: scale(160),
+        height: scale(160),
         alignSelf: "center",
-        marginVertical: 30,
+        marginVertical: scale(24),
     },
 
     title: {
-        fontSize: 28,
+        fontSize: moderateScale(28),
         fontWeight: "700",
         color: colors.primary[700] || "#4c1d95",
         textAlign: "center",
@@ -24,24 +25,24 @@ export const landing_styles = StyleSheet.create({
     },
 
     subtitle: {
-        fontSize: 16,
+        fontSize: moderateScale(16),
         color: "#6b7280",
         textAlign: "center",
-        marginBottom: 40,
+        marginBottom: scale(32),
     },
 
     grid: {
         flexDirection: "row",
         flexWrap: "wrap",
         justifyContent: "space-between",
-        gap: 16,
+        gap: scale(12),
     },
 
     card: {
         width: "47%",
         backgroundColor: "white",
         borderRadius: 16,
-        padding: 20,
+        padding: scale(16),
         alignItems: "center",
         borderWidth: 1,
         borderColor: "#e5e7eb",
@@ -56,11 +57,11 @@ export const landing_styles = StyleSheet.create({
     },
 
     icon: {
-        marginBottom: 12,
+        marginBottom: scale(10),
     },
 
     cardTitle: {
-        fontSize: 18,
+        fontSize: moderateScale(17),
         fontWeight: "600",
         color: "#1f2937",
         marginBottom: 8,
@@ -71,18 +72,18 @@ export const landing_styles = StyleSheet.create({
 
     badge: {
         borderRadius: 20,
-        paddingHorizontal: 12,
-        paddingVertical: 6,
+        paddingHorizontal: scale(10),
+        paddingVertical: scale(5),
         marginVertical: 8,
     },
     badgeText: {
-        fontSize: 12,
+        fontSize: moderateScale(12),
         fontWeight: "600",
         color: colors.primary[700] || "#4c1d95",
     },
 
     cardDesc: {
-        fontSize: 13,
+        fontSize: moderateScale(13),
         color: "#4b5563",
         textAlign: "center",
     },
@@ -92,19 +93,19 @@ export const landing_styles = StyleSheet.create({
 
     footer: {
         color: "#6b7280",
-        fontSize: 12,
+        fontSize: moderateScale(12),
         textAlign: "center",
         marginTop: "auto",
-        marginBottom: 40,
+        marginBottom: scale(32),
     },
 
     fab: {
         position: "absolute",
-        bottom: 32,
-        right: 24,
-        width: 60,
-        height: 60,
-        borderRadius: 30,
+        bottom: scale(28),
+        right: scale(20),
+        width: scale(56),
+        height: scale(56),
+        borderRadius: scale(28),
         backgroundColor: colors.primary[700] || "#6d28d9",
         justifyContent: "center",
         alignItems: "center",
@@ -454,9 +455,9 @@ export const l_styles = StyleSheet.create({
     scrollWrapper: {
         width: '100%',
     },
-    logo: { width: 220, height: 120, marginBottom: 16 },
+    logo: { width: scale(200), height: scale(110), marginBottom: 16 },
     title: {
-        fontSize: 28,
+        fontSize: moderateScale(28),
         fontWeight: "800",
         textAlign: "center",
         color: colors.white || "#6d28d9",
@@ -465,7 +466,7 @@ export const l_styles = StyleSheet.create({
         letterSpacing: 1,
     },
     attentionMessage: {
-        fontSize: 14,
+        fontSize: moderateScale(14),
         fontWeight: "600",
         color: colors.secondary[400] || "#f97316",
         textAlign: "center",
@@ -483,11 +484,11 @@ export const l_styles = StyleSheet.create({
     },
     fab: {
         position: "absolute",
-        bottom: 20,
-        right: 20,
-        width: 50,
-        height: 50,
-        borderRadius: 25,
+        bottom: scale(20),
+        right: scale(20),
+        width: scale(48),
+        height: scale(48),
+        borderRadius: scale(24),
         backgroundColor: colors.primary[700] || "#6d28d9",
         justifyContent: "center",
         alignItems: "center",
@@ -499,11 +500,11 @@ export const l_styles = StyleSheet.create({
     card: {
         flexBasis: '48%',
         maxWidth: 320,
-        minWidth: 150,
+        minWidth: 140,
         backgroundColor: 'rgba(255,255,255,0.92)',
         borderRadius: 22,
-        paddingVertical: 22,
-        paddingHorizontal: 18,
+        paddingVertical: scale(18),
+        paddingHorizontal: scale(14),
         alignItems: 'center',
         shadowColor: '#2d1b4a',
         shadowOpacity: 0.12,
@@ -515,15 +516,15 @@ export const l_styles = StyleSheet.create({
     },
     cardDisabled: { opacity: 0.6 },
     iconWrapper: {
-        width: 48,
-        height: 48,
-        borderRadius: 24,
+        width: scale(44),
+        height: scale(44),
+        borderRadius: scale(22),
         alignItems: "center",
         justifyContent: "center",
         marginBottom: 8,
     },
     cardTitle: {
-        fontSize: 14,
+        fontSize: moderateScale(14),
         fontWeight: "700",
         marginBottom: 2,
         textAlign: "center",
@@ -531,15 +532,15 @@ export const l_styles = StyleSheet.create({
     },
     cardTitleDisabled: { color: "#9ca3af" },
     cardDesc: {
-        fontSize: 12,
+        fontSize: moderateScale(12),
         textAlign: 'center',
         color: '#6b7280',
         marginBottom: 8,
         lineHeight: 16,
     },
     cardDescDisabled: { color: "#9ca3af" },
-    badge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 10 },
-    badgeText: { fontSize: 10, fontWeight: '600' },
+    badge: { paddingHorizontal: scale(10), paddingVertical: scale(4), borderRadius: 10 },
+    badgeText: { fontSize: moderateScale(10), fontWeight: '600' },
     footerContainer: { paddingVertical: 16, alignItems: "center" },
-    footer: { fontSize: 12, color: colors.gray[100], textAlign: "center", marginTop: -30 },
+    footer: { fontSize: moderateScale(12), color: colors.gray[100], textAlign: "center", marginTop: -30 },
 });

@@ -1,4 +1,5 @@
 import { FlatList, Image, StyleSheet, TouchableOpacity, View } from 'react-native'
+import { moderateScale, scale } from '@/utils/responsive'
 import React, { useEffect, useState, useMemo } from 'react'
 import { RCol, REmpty, RListLoading, SafeArea, RText, RRow } from '@/components/common';
 import RHeader from '@/components/common/RHeader';
@@ -212,7 +213,7 @@ function LinkingApplicationError({ close }: { close: () => void }) {
                 </View>
 
                 <TouchableOpacity onPress={close}>
-                    <EvilIcons name="close" size={32} color="black" />
+                    <EvilIcons name="close" size={moderateScale(32)} color="black" />
                 </TouchableOpacity>
             </RRow>
 
@@ -236,8 +237,8 @@ export default AddNewDgApplicationPage
 
 const styles = StyleSheet.create({
     col: {
-        paddingVertical: 6,
-        paddingHorizontal: 12
+        paddingVertical: scale(6),
+        paddingHorizontal: scale(12)
     },
     searchBar: {
         backgroundColor: colors.zinc[100],
@@ -245,17 +246,17 @@ const styles = StyleSheet.create({
         borderColor: colors.zinc[300]
     },
     windowInfo: {
-        paddingHorizontal: 12,
-        paddingVertical: 10,
+        paddingHorizontal: scale(12),
+        paddingVertical: scale(10),
         backgroundColor: colors.slate[50],
         borderBottomWidth: 1,
         borderBottomColor: colors.slate[200]
     },
     windowBadge: {
-        paddingHorizontal: 12,
-        paddingVertical: 8,
+        paddingHorizontal: scale(12),
+        paddingVertical: scale(8),
         backgroundColor: colors.slate[100],
-        borderRadius: 6,
+        borderRadius: scale(6),
         borderWidth: 1,
         borderColor: colors.slate[300]
     },

@@ -11,8 +11,10 @@ import { showToast } from "@/core";
 import { RLoaderAnimation } from "@/components/common";
 import usePageTransition from "@/hooks/navigation/usePageTransition";
 
+import { Ionicons } from '@expo/vector-icons'
+import { moderateScale, scale } from "@/utils/responsive";
+
 const { width } = Dimensions.get("window");
-const cardWidth = width < 350 ? width - 40 : 140;
 
 //////////////////////////
 // DiscretionaryWindow Interface
@@ -254,7 +256,7 @@ const AppStats = () => {
           {
             !upcomingEventsLoading && <Text style={styles.statValue}>{upcomingEventsData?.items?.length || 0}</Text>
           }
-          <Text style={{ fontSize: 8, color: colors.primary[200], position: 'absolute', bottom: 8, right: 8, borderWidth: 1, borderColor: colors.primary[200], borderRadius: 4, paddingHorizontal: 2 }}>view</Text>
+          <Ionicons name="chevron-forward" size={12} color={colors.primary[200]} style={{ position: 'absolute', bottom: 8, right: 8 }} />
         </TouchableOpacity>
       </View>
     </ScrollView>
@@ -268,32 +270,32 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: 'transparent' },
   contentContainer: { paddingBottom: 24 },
   sectionContainer: {
-    marginHorizontal: 16,
-    marginTop: 16,
+    marginHorizontal: scale(12),
+    marginTop: scale(12),
     marginBottom: 8,
     borderRadius: 20,
-    padding: 18,
+    padding: scale(16),
     shadowColor: colors.primary[950],
     shadowOpacity: 0.25,
     shadowRadius: 12,
     shadowOffset: { width: 0, height: 6 },
     elevation: 8,
   },
-  sectionTitle: { fontSize: 20, fontWeight: '700', color: '#fff', marginBottom: 6, letterSpacing: 0.2 },
-  subtitle: { fontSize: 12, fontWeight: '600', color: 'rgba(255,255,255,0.55)', marginBottom: 8, textTransform: 'uppercase', letterSpacing: 0.8 },
+  sectionTitle: { fontSize: moderateScale(20), fontWeight: '700', color: '#fff', marginBottom: 6, letterSpacing: 0.2 },
+  subtitle: { fontSize: moderateScale(11), fontWeight: '600', color: 'rgba(255,255,255,0.55)', marginBottom: 8, textTransform: 'uppercase', letterSpacing: 0.8 },
   workflowItemWrapper: { marginBottom: 12 },
   contentWrapper: { flex: 1 },
-  title: { fontSize: 15, fontWeight: "700", color: "#fff", marginBottom: 2 },
+  title: { fontSize: moderateScale(15), fontWeight: "700", color: "#fff", marginBottom: 2 },
   smallCardsContainer: { flexDirection: "row", gap: 8, marginTop: 4 },
-  smallCard: { flex: 1, borderRadius: 12, paddingVertical: 7, paddingHorizontal: 8, alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.15)' },
-  smallCardTitle: { fontSize: 10, color: 'rgba(255,255,255,0.7)', fontWeight: '600', marginBottom: 2, letterSpacing: 0.4, textTransform: 'uppercase' },
-  smallCardValue: { fontSize: 12, fontWeight: '700', color: '#fff' },
-  quickStatsContainer: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 16, marginTop: 8, marginBottom: 4 },
+  smallCard: { flex: 1, borderRadius: 12, paddingVertical: scale(6), paddingHorizontal: scale(8), alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.15)' },
+  smallCardTitle: { fontSize: moderateScale(10), color: 'rgba(255,255,255,0.7)', fontWeight: '600', marginBottom: 2, letterSpacing: 0.4, textTransform: 'uppercase' },
+  smallCardValue: { fontSize: moderateScale(12), fontWeight: '700', color: '#fff' },
+  quickStatsContainer: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: scale(12), marginTop: 8, marginBottom: 4 },
   quickStatCard: {
-    flex: 1, marginHorizontal: 4, borderRadius: 16, paddingVertical: 14, alignItems: 'center', shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 6, elevation: 3, position: 'relative',
+    flex: 1, marginHorizontal: scale(3), borderRadius: 16, paddingVertical: scale(12), alignItems: 'center', shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 6, elevation: 3, position: 'relative',
   },
-  statTitle: { fontSize: 11, color: 'rgba(255,255,255,0.75)', fontWeight: '600', marginBottom: 5, textTransform: 'uppercase', letterSpacing: 0.4 },
-  statValue: { fontSize: 22, fontWeight: '800', color: '#fff' },
+  statTitle: { fontSize: moderateScale(10), color: 'rgba(255,255,255,0.75)', fontWeight: '600', marginBottom: 5, textTransform: 'uppercase', letterSpacing: 0.4 },
+  statValue: { fontSize: moderateScale(22), fontWeight: '800', color: '#fff' },
   loader: { backgroundColor: 'white', width: 4, height: 4 },
 });
 

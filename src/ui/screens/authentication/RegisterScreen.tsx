@@ -1,5 +1,5 @@
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import React, { useEffect } from "react";
+import { StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import React, { useEffect, useRef } from "react";
 import usePageTransition from "@/hooks/navigation/usePageTransition";
 import { RErrorMessage, RInput, RLoaderAnimation } from "@/components/common";
 import colors from "@/config/colors";
@@ -13,6 +13,7 @@ import AuthScreenLayout, { authScreenStyles } from "@/components/modules/authent
 import AuthGradientButton from "@/components/modules/authentication/AuthGradientButton";
 import { clearError } from "@/store/slice/AuthSlice";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import { moderateScale, scale } from '@/utils/responsive';
 
 const initialValues = {
     email: "",
@@ -56,14 +57,20 @@ function PasswordStrength({ password }: { password: string }) {
     );
 }
 const pStyles = StyleSheet.create({
-    wrap: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 6, marginHorizontal: 2 },
-    bars: { flexDirection: 'row', gap: 4, flex: 1 },
-    bar: { flex: 1, height: 3, borderRadius: 3 },
-    label: { fontSize: 11, fontWeight: '700', minWidth: 52, textAlign: 'right' },
+    wrap: { flexDirection: 'row', alignItems: 'center', gap: scale(8), marginTop: scale(6), marginHorizontal: scale(2) },
+    bars: { flexDirection: 'row', gap: scale(4), flex: 1 },
+    bar: { flex: 1, height: scale(3), borderRadius: 3 },
+    label: { fontSize: moderateScale(11), fontWeight: '700', minWidth: scale(52), textAlign: 'right' },
 });
 
 const RegisterScreen = () => {
     const { login, onAuth } = usePageTransition();
+
+    const lastNameRef = useRef<TextInput>(null);
+    const usernameRef = useRef<TextInput>(null);
+    const emailRef = useRef<TextInput>(null);
+    const passwordRef = useRef<TextInput>(null);
+    const confirmPasswordRef = useRef<TextInput>(null);
 
     const { register } = UseAuth();
     const dispatch = useDispatch<AppDispatch>();
@@ -133,7 +140,7 @@ const RegisterScreen = () => {
                     touched,
                     values,
                 }) => (
-                    <View style={[authScreenStyles.formWrapper, { gap: 16 }]}>
+                    <View style={[authScreenStyles.formWrapper, { gap: scale(16) }]}>
                         <View style={styles.nameRow}>
                             <View style={styles.halfWrap}>
                                 <RInput
@@ -144,11 +151,15 @@ const RegisterScreen = () => {
                                     placeholderTextColor="#9ca3af"
                                     customStyle={authScreenStyles.inputField}
                                     style={styles.inputText}
+                                    returnKeyType="next"
+                                    onSubmitEditing={() => lastNameRef.current?.focus()}
+                                    blurOnSubmit={false}
                                 />
                                 {errors.firstName && touched.firstName && <RErrorMessage error={errors.firstName} />}
                             </View>
                             <View style={styles.halfWrap}>
                                 <RInput
+                                    ref={lastNameRef}
                                     placeholder="Last name"
                                     onBlur={handleBlur("lastName")}
                                     onChangeText={handleChange("lastName")}
@@ -156,12 +167,16 @@ const RegisterScreen = () => {
                                     placeholderTextColor="#9ca3af"
                                     customStyle={authScreenStyles.inputField}
                                     style={styles.inputText}
+                                    returnKeyType="next"
+                                    onSubmitEditing={() => usernameRef.current?.focus()}
+                                    blurOnSubmit={false}
                                 />
                                 {errors.lastName && touched.lastName && <RErrorMessage error={errors.lastName} />}
                             </View>
                         </View>
 
                         <RInput
+                            ref={usernameRef}
                             placeholder="Username"
                             onBlur={handleBlur("username")}
                             onChangeText={handleChange("username")}
@@ -169,10 +184,14 @@ const RegisterScreen = () => {
                             placeholderTextColor="#9ca3af"
                             customStyle={authScreenStyles.inputField}
                             style={styles.inputText}
+                            returnKeyType="next"
+                            onSubmitEditing={() => emailRef.current?.focus()}
+                            blurOnSubmit={false}
                         />
                         {errors.username && touched.username && <RErrorMessage error={errors.username} />}
 
                         <RInput
+                            ref={emailRef}
                             placeholder="Email address"
                             icon={"mail"}
                             onBlur={handleBlur("email")}
@@ -182,11 +201,15 @@ const RegisterScreen = () => {
                             keyboardType="email-address"
                             customStyle={authScreenStyles.inputField}
                             style={styles.inputText}
+                            returnKeyType="next"
+                            onSubmitEditing={() => passwordRef.current?.focus()}
+                            blurOnSubmit={false}
                         />
                         {errors.email && touched.email && <RErrorMessage error={errors.email} />}
 
                         <View>
                             <RInput
+                                ref={passwordRef}
                                 placeholder="Password"
                                 icon={"lock"}
                                 secureTextEntry
@@ -196,6 +219,9 @@ const RegisterScreen = () => {
                                 placeholderTextColor="#9ca3af"
                                 customStyle={authScreenStyles.inputField}
                                 style={styles.inputText}
+                                returnKeyType="next"
+                                onSubmitEditing={() => confirmPasswordRef.current?.focus()}
+                                blurOnSubmit={false}
                             />
                             <PasswordStrength password={values.password} />
                         </View>
@@ -203,6 +229,7 @@ const RegisterScreen = () => {
 
                         <View>
                             <RInput
+                                ref={confirmPasswordRef}
                                 placeholder="Confirm password"
                                 icon={"lock"}
                                 secureTextEntry
@@ -212,12 +239,14 @@ const RegisterScreen = () => {
                                 placeholderTextColor="#9ca3af"
                                 customStyle={authScreenStyles.inputField}
                                 style={styles.inputText}
+                                returnKeyType="done"
+                                onSubmitEditing={() => handleSubmit()}
                             />
                             {values.confirmPassword.length > 0 && (
                                 <View style={styles.matchRow}>
                                     <MaterialCommunityIcons
                                         name={values.password === values.confirmPassword ? 'check-circle-outline' : 'close-circle-outline'}
-                                        size={13}
+                                        size={moderateScale(13)}
                                         color={values.password === values.confirmPassword ? '#22c55e' : '#ef4444'}
                                     />
                                     <Text style={[styles.matchText, { color: values.password === values.confirmPassword ? '#22c55e' : '#ef4444' }]}>
@@ -253,16 +282,16 @@ export default RegisterScreen;
 
 const styles = StyleSheet.create({
     inputText: { color: '#111827' },
-    nameRow: { flexDirection: 'row', gap: 10 },
+    nameRow: { flexDirection: 'row', gap: scale(10) },
     halfWrap: { flex: 1 },
-    matchRow: { flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 6, marginHorizontal: 2 },
-    matchText: { fontSize: 11, fontWeight: '600' },
+    matchRow: { flexDirection: 'row', alignItems: 'center', gap: scale(5), marginTop: scale(6), marginHorizontal: scale(2) },
+    matchText: { fontSize: moderateScale(11), fontWeight: '600' },
     popiaText: {
-        fontSize: 11,
+        fontSize: moderateScale(11),
         color: '#9ca3af',
         textAlign: 'center',
-        lineHeight: 17,
-        paddingHorizontal: 4,
+        lineHeight: moderateScale(17),
+        paddingHorizontal: scale(4),
     },
     popiaLink: {
         color: '#6b7280',

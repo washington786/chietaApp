@@ -1,5 +1,6 @@
 import colors from "@/config/colors";
 import { StyleSheet } from "react-native";
+import { moderateScale, scale, verticalScale } from "@/utils/responsive";
 
 export const dg_styles = StyleSheet.create({
     con: { paddingHorizontal: 12, paddingVertical: 6, flex: 1, flexGrow: 1, backgroundColor: "white", position: 'relative' },
@@ -52,9 +53,9 @@ export const dg_styles = StyleSheet.create({
         paddingHorizontal: 12
     },
     stepCircle: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
+        width: scale(38),
+        height: scale(38),
+        borderRadius: scale(19),
         backgroundColor: colors.slate[100],
         justifyContent: 'center',
         alignItems: 'center',
@@ -66,7 +67,7 @@ export const dg_styles = StyleSheet.create({
         borderColor: colors.primary[900]
     },
     stepNumber: {
-        fontSize: 16,
+        fontSize: moderateScale(15),
         fontWeight: '600',
         color: colors.slate[600]
     },
@@ -81,6 +82,48 @@ export const dg_styles = StyleSheet.create({
     },
     stepLineActive: {
         backgroundColor: colors.primary[900]
+    },
+    stepLineCompleted: {
+        backgroundColor: colors.green[600]
+    },
+    stepCircleCompleted: {
+        backgroundColor: colors.green[600],
+        borderColor: colors.green[600]
+    },
+    downloadBtn: {
+        backgroundColor: colors.primary[700],
+        borderRadius: 12,
+        flexDirection: 'row' as const,
+        alignItems: 'center' as const,
+        justifyContent: 'center' as const,
+        paddingVertical: 16,
+        paddingHorizontal: 20,
+        marginBottom: 20,
+        gap: 12,
+        shadowColor: colors.primary[950],
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.25,
+        shadowRadius: 8,
+        elevation: 5,
+    },
+    downloadBtnDisabled: {
+        backgroundColor: colors.primary[400],
+        shadowOpacity: 0,
+        elevation: 0,
+    },
+    downloadBtnTextGroup: {
+        flexDirection: 'column' as const,
+    },
+    downloadBtnText: {
+        color: 'white',
+        fontSize: moderateScale(13),
+        fontWeight: '700' as const,
+        letterSpacing: 0.4,
+    },
+    downloadBtnSubText: {
+        color: colors.primary[200],
+        fontSize: moderateScale(10),
+        marginTop: 2,
     },
     stepLabelsContainer: {
         flexDirection: 'row',
@@ -121,13 +164,13 @@ export const dg_styles = StyleSheet.create({
         left: 0,
         right: 0,
         backgroundColor: colors.slate[50],
-        paddingHorizontal: 12,
-        paddingVertical: 10,
+        paddingHorizontal: scale(12),
+        paddingVertical: scale(10),
         borderTopWidth: 1,
         borderTopColor: colors.slate[200],
         justifyContent: 'space-between',
         alignItems: 'center',
-        height: 70
+        minHeight: verticalScale(64),
     },
     stepText: {
         color: colors.slate[700],

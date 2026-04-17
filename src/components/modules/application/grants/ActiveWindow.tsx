@@ -1,5 +1,6 @@
 import { StyleSheet, View, FlatList, Dimensions, TouchableOpacity, Modal } from 'react-native'
 import React, { useEffect, useState, useRef } from 'react'
+import { moderateScale, scale } from '@/utils/responsive'
 import { Text } from 'react-native-paper'
 import colors from '@/config/colors'
 import { RCol, RListLoading, RRow } from '@/components/common'
@@ -11,7 +12,7 @@ import ActiveWindowDetails from './ActiveWindowDetails'
 import ActiveWindowRenderItem from './ActiveWindowRenderItem'
 
 const CARD_WIDTH = Dimensions.get('window').width * 0.7;
-const SPACING = 16;
+const SPACING = scale(16);
 
 const DgActiveWindow = () => {
     const { data: apiData, isLoading, error } = useGetActiveWindowsQuery(undefined);
@@ -81,7 +82,7 @@ const DgActiveWindow = () => {
                 </View>
             ) : (
                 <RCol style={styles.emptyState}>
-                    <MaterialIcons name='inbox' size={64} color={colors.zinc[300]} />
+                    <MaterialIcons name='inbox' size={moderateScale(64)} color={colors.zinc[300]} />
                     <Text variant='bodyLarge' style={styles.emptyText}>No discretionary windows available</Text>
                     <Text variant='bodySmall' style={styles.emptySubText}>Check back later for new opportunities</Text>
                 </RCol>
@@ -112,8 +113,8 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: colors.white,
-        marginBottom: 8,
-        borderRadius: 16,
+        marginBottom: scale(8),
+        borderRadius: scale(16),
         overflow: 'hidden',
         shadowColor: '#000',
         shadowOpacity: 0.05,
@@ -121,8 +122,8 @@ const styles = StyleSheet.create({
         elevation: 4,
     },
     header: {
-        paddingHorizontal: 20,
-        paddingVertical: 8,
+        paddingHorizontal: scale(20),
+        paddingVertical: scale(8),
         borderBottomWidth: 1,
         borderBottomColor: colors.zinc[100],
     },
@@ -136,17 +137,17 @@ const styles = StyleSheet.create({
         marginTop: 1,
     },
     carousel: {
-        paddingHorizontal: 20,
-        paddingVertical: 2,
+        paddingHorizontal: scale(20),
+        paddingVertical: scale(2),
         gap: SPACING,
     },
     emptyState: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        gap: 16,
-        paddingVertical: 48,
-        paddingHorizontal: 20,
+        gap: scale(16),
+        paddingVertical: scale(48),
+        paddingHorizontal: scale(20),
     },
     emptyText: {
         color: colors.zinc[700],
@@ -160,12 +161,12 @@ const styles = StyleSheet.create({
     pagination: {
         justifyContent: 'center',
         alignItems: 'center',
-        gap: 6,
-        paddingVertical: 16,
+        gap: scale(6),
+        paddingVertical: scale(16),
         backgroundColor: colors.white,
     },
     dot: {
-        height: 8,
-        borderRadius: 4,
+        height: scale(8),
+        borderRadius: scale(4),
     },
 });

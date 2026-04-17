@@ -12,6 +12,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { LinearGradient } from 'expo-linear-gradient';
+import { moderateScale, scale } from '@/utils/responsive';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '@/store/store';
 import { useGetOrganizationsBySdfIdQuery } from '@/store/api/api';
@@ -135,7 +136,7 @@ const IncompleteProfileGate: React.FC = () => {
                         <View style={styles.iconBadge}>
                             <MaterialCommunityIcons
                                 name="shield-account-outline"
-                                size={36}
+                                size={moderateScale(36)}
                                 color={colors.primary[200]}
                             />
                         </View>
@@ -193,13 +194,13 @@ const IncompleteProfileGate: React.FC = () => {
                         >
                             <MaterialCommunityIcons
                                 name="web"
-                                size={18}
+                                size={moderateScale(18)}
                                 color={colors.primary[700]}
                             />
                             <Text style={styles.portalUrl}>{WEB_APP_URL}</Text>
                             <MaterialCommunityIcons
                                 name="open-in-new"
-                                size={14}
+                                size={moderateScale(14)}
                                 color={colors.primary[400]}
                             />
                         </TouchableOpacity>
@@ -218,7 +219,7 @@ const IncompleteProfileGate: React.FC = () => {
                             >
                                 <MaterialCommunityIcons
                                     name="arrow-right-circle-outline"
-                                    size={20}
+                                    size={moderateScale(20)}
                                     color="#fff"
                                 />
                                 <Text style={styles.ctaText}>Go to CHIETA Web Portal</Text>
@@ -233,7 +234,7 @@ const IncompleteProfileGate: React.FC = () => {
                         >
                             <MaterialCommunityIcons
                                 name="refresh"
-                                size={17}
+                                size={moderateScale(17)}
                                 color={colors.primary[700]}
                             />
                             <Text style={styles.refreshText}>
@@ -246,7 +247,7 @@ const IncompleteProfileGate: React.FC = () => {
                             <View style={styles.pendingPill}>
                                 <MaterialCommunityIcons
                                     name="information-outline"
-                                    size={14}
+                                    size={moderateScale(14)}
                                     color={colors.primary[600]}
                                 />
                                 <Text style={styles.pendingPillText}>
@@ -265,7 +266,7 @@ const IncompleteProfileGate: React.FC = () => {
                     >
                         <MaterialCommunityIcons
                             name="logout"
-                            size={15}
+                            size={moderateScale(15)}
                             color={colors.slate[400]}
                         />
                         <Text style={styles.signOutText}>Sign out</Text>
@@ -314,7 +315,7 @@ const ChecklistRow: React.FC<ChecklistRowProps> = ({ item, isLast }) => {
             >
                 <MaterialCommunityIcons
                     name={item.done ? 'check' : item.icon}
-                    size={20}
+                    size={moderateScale(20)}
                     color={item.done ? colors.primary[700] : colors.primary[500]}
                 />
             </View>
@@ -363,7 +364,7 @@ const styles = StyleSheet.create({
     },
     scrollContent: {
         flexGrow: 1,
-        paddingBottom: 32,
+        paddingBottom: scale(32),
     },
     root: {
         flex: 1,
@@ -372,86 +373,86 @@ const styles = StyleSheet.create({
 
     // Banner
     banner: {
-        paddingTop: 40,
-        paddingBottom: 36,
-        paddingHorizontal: 24,
+        paddingTop: scale(40),
+        paddingBottom: scale(36),
+        paddingHorizontal: scale(24),
         overflow: 'hidden',
     },
     blobTopRight: {
         position: 'absolute',
-        width: 160,
-        height: 160,
-        borderRadius: 80,
+        width: scale(160),
+        height: scale(160),
+        borderRadius: scale(80),
         backgroundColor: 'rgba(255,255,255,0.05)',
-        top: -40,
-        right: -40,
+        top: scale(-40),
+        right: scale(-40),
     },
     blobBottomLeft: {
         position: 'absolute',
-        width: 120,
-        height: 120,
-        borderRadius: 60,
+        width: scale(120),
+        height: scale(120),
+        borderRadius: scale(60),
         backgroundColor: 'rgba(255,255,255,0.04)',
-        bottom: -30,
-        left: -20,
+        bottom: scale(-30),
+        left: scale(-20),
     },
     iconBadge: {
-        width: 68,
-        height: 68,
-        borderRadius: 34,
+        width: scale(68),
+        height: scale(68),
+        borderRadius: scale(34),
         backgroundColor: 'rgba(255,255,255,0.12)',
         alignItems: 'center',
         justifyContent: 'center',
-        marginBottom: 16,
+        marginBottom: scale(16),
         borderWidth: 1,
         borderColor: 'rgba(255,255,255,0.18)',
     },
     bannerTitle: {
-        fontSize: 24,
+        fontSize: moderateScale(24),
         fontWeight: '800',
         color: '#ffffff',
-        marginBottom: 8,
+        marginBottom: scale(8),
         letterSpacing: -0.4,
     },
     bannerSubtitle: {
-        fontSize: 14,
+        fontSize: moderateScale(14),
         fontWeight: '400',
         color: colors.primary[200],
-        lineHeight: 21,
-        marginBottom: 24,
+        lineHeight: moderateScale(21),
+        marginBottom: scale(24),
     },
 
     // Progress
     progressRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 12,
+        gap: scale(12),
     },
     progressTrack: {
         flex: 1,
-        height: 6,
-        borderRadius: 3,
+        height: scale(6),
+        borderRadius: scale(3),
         backgroundColor: 'rgba(255,255,255,0.18)',
         overflow: 'hidden',
     },
     progressFill: {
         height: '100%',
-        borderRadius: 3,
+        borderRadius: scale(3),
         backgroundColor: colors.primary[300],
     },
     progressLabel: {
-        fontSize: 12,
+        fontSize: moderateScale(12),
         fontWeight: '600',
         color: colors.primary[300],
     },
 
     // Card
     card: {
-        marginHorizontal: 16,
-        marginTop: -20,
+        marginHorizontal: scale(16),
+        marginTop: scale(-20),
         backgroundColor: '#ffffff',
-        borderRadius: 20,
-        padding: 20,
+        borderRadius: scale(20),
+        padding: scale(20),
         ...Platform.select({
             ios: {
                 shadowColor: colors.primary[950],
@@ -465,43 +466,43 @@ const styles = StyleSheet.create({
         }),
     },
     cardHeading: {
-        fontSize: 17,
+        fontSize: moderateScale(17),
         fontWeight: '700',
         color: colors.primary[950],
-        marginBottom: 4,
+        marginBottom: scale(4),
     },
     cardSubheading: {
-        fontSize: 13,
+        fontSize: moderateScale(13),
         fontWeight: '400',
         color: colors.slate[500],
-        lineHeight: 19,
-        marginBottom: 20,
+        lineHeight: moderateScale(19),
+        marginBottom: scale(20),
     },
 
     // Checklist
     checklist: {
-        borderRadius: 14,
+        borderRadius: scale(14),
         borderWidth: 1,
         borderColor: colors.slate[100],
         overflow: 'hidden',
-        marginBottom: 20,
+        marginBottom: scale(20),
     },
     checklistRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingVertical: 14,
-        paddingHorizontal: 14,
+        paddingVertical: scale(14),
+        paddingHorizontal: scale(14),
         backgroundColor: '#fff',
-        gap: 12,
+        gap: scale(12),
     },
     checklistRowBorder: {
         borderBottomWidth: StyleSheet.hairlineWidth,
         borderBottomColor: colors.slate[100],
     },
     checklistIconWrap: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
+        width: scale(40),
+        height: scale(40),
+        borderRadius: scale(20),
         alignItems: 'center',
         justifyContent: 'center',
         flexShrink: 0,
@@ -518,10 +519,10 @@ const styles = StyleSheet.create({
     },
     checklistTextWrap: {
         flex: 1,
-        gap: 2,
+        gap: scale(2),
     },
     checklistLabel: {
-        fontSize: 14,
+        fontSize: moderateScale(14),
         fontWeight: '600',
         color: colors.primary[950],
     },
@@ -529,15 +530,15 @@ const styles = StyleSheet.create({
         color: colors.slate[400],
     },
     checklistSublabel: {
-        fontSize: 12,
+        fontSize: moderateScale(12),
         fontWeight: '400',
         color: colors.slate[400],
-        lineHeight: 17,
+        lineHeight: moderateScale(17),
     },
     statusBadge: {
-        paddingHorizontal: 9,
-        paddingVertical: 4,
-        borderRadius: 20,
+        paddingHorizontal: scale(9),
+        paddingVertical: scale(4),
+        borderRadius: scale(20),
         flexShrink: 0,
     },
     statusBadgeDone: {
@@ -551,7 +552,7 @@ const styles = StyleSheet.create({
         borderColor: '#fde5c8',
     },
     statusBadgeText: {
-        fontSize: 11,
+        fontSize: moderateScale(11),
         fontWeight: '700',
     },
     statusBadgeTextDone: {
@@ -565,32 +566,32 @@ const styles = StyleSheet.create({
     divider: {
         height: StyleSheet.hairlineWidth,
         backgroundColor: colors.slate[100],
-        marginBottom: 16,
+        marginBottom: scale(16),
     },
 
     // Portal pill
     portalLabel: {
-        fontSize: 12,
+        fontSize: moderateScale(12),
         fontWeight: '500',
         color: colors.slate[400],
-        marginBottom: 8,
+        marginBottom: scale(8),
         textAlign: 'center',
     },
     portalPill: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 8,
+        gap: scale(8),
         backgroundColor: colors.primary[50],
         borderWidth: 1,
         borderColor: colors.primary[100],
-        borderRadius: 30,
-        paddingVertical: 10,
-        paddingHorizontal: 16,
-        marginBottom: 16,
+        borderRadius: scale(30),
+        paddingVertical: scale(10),
+        paddingHorizontal: scale(16),
+        marginBottom: scale(16),
         alignSelf: 'center',
     },
     portalUrl: {
-        fontSize: 13,
+        fontSize: moderateScale(13),
         fontWeight: '600',
         color: colors.primary[700],
         flex: 1,
@@ -598,20 +599,20 @@ const styles = StyleSheet.create({
 
     // CTA button
     ctaButton: {
-        borderRadius: 14,
+        borderRadius: scale(14),
         overflow: 'hidden',
-        marginBottom: 12,
+        marginBottom: scale(12),
     },
     ctaGradient: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: 10,
-        paddingVertical: 15,
-        paddingHorizontal: 20,
+        gap: scale(10),
+        paddingVertical: scale(15),
+        paddingHorizontal: scale(20),
     },
     ctaText: {
-        fontSize: 15,
+        fontSize: moderateScale(15),
         fontWeight: '700',
         color: '#ffffff',
         letterSpacing: 0.2,
@@ -622,16 +623,16 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: 6,
-        paddingVertical: 12,
-        borderRadius: 12,
+        gap: scale(6),
+        paddingVertical: scale(12),
+        borderRadius: scale(12),
         borderWidth: 1,
         borderColor: colors.primary[100],
         backgroundColor: colors.primary[50],
-        marginBottom: 16,
+        marginBottom: scale(16),
     },
     refreshText: {
-        fontSize: 13,
+        fontSize: moderateScale(13),
         fontWeight: '600',
         color: colors.primary[700],
     },
@@ -640,15 +641,15 @@ const styles = StyleSheet.create({
     pendingPill: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 6,
+        gap: scale(6),
         backgroundColor: colors.primary[50],
-        borderRadius: 8,
-        paddingVertical: 8,
-        paddingHorizontal: 12,
+        borderRadius: scale(8),
+        paddingVertical: scale(8),
+        paddingHorizontal: scale(12),
         alignSelf: 'center',
     },
     pendingPillText: {
-        fontSize: 12,
+        fontSize: moderateScale(12),
         fontWeight: '500',
         color: colors.primary[600],
     },
@@ -658,12 +659,12 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: 6,
-        marginTop: 20,
-        paddingVertical: 12,
+        gap: scale(6),
+        marginTop: scale(20),
+        paddingVertical: scale(12),
     },
     signOutText: {
-        fontSize: 13,
+        fontSize: moderateScale(13),
         fontWeight: '500',
         color: colors.slate[400],
     },

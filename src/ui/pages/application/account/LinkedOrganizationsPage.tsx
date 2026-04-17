@@ -1,4 +1,5 @@
 import { FlatList, StyleSheet, View } from 'react-native'
+import { scale } from '@/utils/responsive'
 import React, { useMemo, useState, useEffect, useRef } from 'react'
 import RHeader from '@/components/common/RHeader'
 import { RCol, REmpty, RListLoading } from '@/components/common'
@@ -120,6 +121,7 @@ const LinkedOrganizationsPage = () => {
                     initialNumToRender={10}
                     maxToRenderPerBatch={10}
                     windowSize={21}
+                    contentContainerStyle={{ paddingBottom: 60 }}
                     ListEmptyComponent={
                         <REmpty
                             title="No Organizations"
@@ -138,13 +140,13 @@ export default LinkedOrganizationsPage
 
 const styles = StyleSheet.create({
     con: {
-        paddingHorizontal: 12,
-        gap: 8,
-        marginVertical: 10,
+        paddingHorizontal: scale(12),
+        gap: scale(8),
+        marginVertical: scale(10),
 
     },
     anim: {
-        padding: 5,
+        padding: scale(5),
     },
     search: {
         backgroundColor: colors.slate[50],

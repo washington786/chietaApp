@@ -6,6 +6,7 @@ import {
   Text,
   Platform,
 } from "react-native";
+import { moderateScale, scale } from "@/utils/responsive";
 import WebView from "react-native-webview";
 import * as Print from "expo-print";
 import * as Sharing from "expo-sharing";
@@ -669,7 +670,7 @@ const PdfViewerPage = ({ route, navigation }: Props) => {
       {/* ── Header Bar ── */}
       <View style={styles.headerBar}>
         <TouchableOpacity onPress={onBack} hitSlop={12} style={styles.iconBtn}>
-          <Ionicons name="arrow-back" size={22} color="#1f2937" />
+          <Ionicons name="arrow-back" size={moderateScale(22)} color="#1f2937" />
         </TouchableOpacity>
 
         <View style={styles.headerCenter}>
@@ -680,7 +681,7 @@ const PdfViewerPage = ({ route, navigation }: Props) => {
         </View>
 
         <TouchableOpacity onPress={downloadPdf} hitSlop={12} style={styles.downloadBtn}>
-          <MaterialCommunityIcons name="export-variant" size={20} color={colors.primary[600] ?? "#5b21b6"} />
+          <MaterialCommunityIcons name="export-variant" size={moderateScale(20)} color={colors.primary[600] ?? "#5b21b6"} />
           <Text style={styles.downloadText}>Export</Text>
         </TouchableOpacity>
       </View>
@@ -707,8 +708,8 @@ const styles = StyleSheet.create({
   headerBar: {
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 16,
-    paddingVertical: Platform.OS === "ios" ? 10 : 8,
+    paddingHorizontal: scale(16),
+    paddingVertical: Platform.OS === "ios" ? scale(10) : scale(8),
     backgroundColor: "#ffffff",
     borderBottomWidth: 1,
     borderBottomColor: "#e5e7eb",
@@ -718,12 +719,12 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.07,
     shadowRadius: 6,
     zIndex: 10,
-    gap: 10,
+    gap: scale(10),
   },
   iconBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 10,
+    width: scale(36),
+    height: scale(36),
+    borderRadius: scale(10),
     backgroundColor: "#f3f4f6",
     alignItems: "center",
     justifyContent: "center",
@@ -732,27 +733,27 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   headerTitle: {
-    fontSize: 15,
+    fontSize: moderateScale(15),
     fontWeight: "700",
     color: "#111827",
-    lineHeight: 19,
+    lineHeight: moderateScale(19),
   },
   headerSub: {
-    fontSize: 12,
+    fontSize: moderateScale(12),
     color: "#6b7280",
     fontWeight: "500",
   },
   downloadBtn: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 5,
+    gap: scale(5),
     backgroundColor: "#f3e8ff",
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 10,
+    paddingHorizontal: scale(12),
+    paddingVertical: scale(8),
+    borderRadius: scale(10),
   },
   downloadText: {
-    fontSize: 13,
+    fontSize: moderateScale(13),
     fontWeight: "700",
     color: "#5b21b6",
   },
@@ -760,10 +761,10 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    padding: 32,
+    padding: scale(32),
   },
   emptyText: {
-    fontSize: 15,
+    fontSize: moderateScale(15),
     color: "#6b7280",
     textAlign: "center",
   },
@@ -772,12 +773,12 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255,255,255,0.95)",
     justifyContent: "center",
     alignItems: "center",
-    gap: 16,
+    gap: scale(16),
   },
   loaderText: {
-    fontSize: 15,
+    fontSize: moderateScale(15),
     color: "#4b5563",
-    marginTop: 8,
+    marginTop: scale(8),
   },
 });
 

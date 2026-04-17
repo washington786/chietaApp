@@ -2,6 +2,7 @@ import React, { FC } from "react";
 import { Dimensions, StyleSheet, TouchableOpacity, View } from "react-native";
 import { Text } from "react-native-paper";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import { moderateScale, scale } from "@/utils/responsive";
 import { RCol, RRow } from "@/components/common";
 import { OrganisationDto } from "@/core/models/organizationDto";
 import colors from "@/config/colors";
@@ -44,7 +45,7 @@ const ItemOrgs: FC<Props> = ({
           <View style={styles.iconWrap}>
             <MaterialIcons
               name="business"
-              size={30}
+              size={moderateScale(30)}
               color={colors.primary[600]}
             />
           </View>
@@ -59,7 +60,7 @@ const ItemOrgs: FC<Props> = ({
               {org?.status && (
                 <MaterialIcons
                   name="verified"
-                  size={18}
+                  size={moderateScale(18)}
                   color="#27ae60"
                 />
               )}
@@ -113,13 +114,13 @@ const styles = StyleSheet.create({
   touch: {
     width: width * 0.95,
     alignSelf: "center",
-    marginBottom: 14,
+    marginBottom: scale(14),
   },
 
   card: {
     backgroundColor: '#fff',
-    borderRadius: 16,
-    padding: 16,
+    borderRadius: scale(16),
+    padding: scale(16),
     shadowColor: colors.primary[950],
     shadowOpacity: 0.07,
     shadowRadius: 10,
@@ -131,14 +132,14 @@ const styles = StyleSheet.create({
   },
 
   row: {
-    gap: 12,
+    gap: scale(12),
     alignItems: 'flex-start',
   },
 
   iconWrap: {
-    width: 52,
-    height: 52,
-    borderRadius: 12,
+    width: scale(52),
+    height: scale(52),
+    borderRadius: scale(12),
     backgroundColor: colors.primary[50],
     borderWidth: 1,
     borderColor: colors.primary[100],
@@ -150,48 +151,48 @@ const styles = StyleSheet.create({
   titleRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 5,
-    marginBottom: 3,
+    gap: scale(5),
+    marginBottom: scale(3),
   },
 
   title: {
-    fontSize: 15,
+    fontSize: moderateScale(15),
     fontWeight: '700',
     color: colors.primary[950],
     flexShrink: 1,
   },
 
   reg: {
-    fontSize: 11,
+    fontSize: moderateScale(11),
     fontWeight: '600',
     color: colors.slate[400],
-    marginBottom: 4,
+    marginBottom: scale(4),
     letterSpacing: 0.2,
   },
 
   desc: {
-    fontSize: 13,
-    lineHeight: 19,
+    fontSize: moderateScale(13),
+    lineHeight: moderateScale(19),
     color: colors.slate[500],
   },
 
   badgesRow: {
-    gap: 6,
-    marginTop: 8,
+    gap: scale(6),
+    marginTop: scale(8),
     flexWrap: 'wrap',
   },
 
   chip: {
     backgroundColor: colors.primary[50],
     borderRadius: 999,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
+    paddingHorizontal: scale(10),
+    paddingVertical: scale(4),
     borderWidth: 1,
     borderColor: colors.primary[100],
   },
 
   chipText: {
-    fontSize: 10,
+    fontSize: moderateScale(10),
     fontWeight: '700',
     color: colors.primary[700],
     textTransform: 'uppercase',
@@ -200,17 +201,17 @@ const styles = StyleSheet.create({
 
   newChip: {
     position: 'absolute',
-    top: 12,
-    right: 12,
+    top: scale(12),
+    right: scale(12),
     backgroundColor: colors.primary[600],
-    paddingHorizontal: 10,
-    paddingVertical: 4,
+    paddingHorizontal: scale(10),
+    paddingVertical: scale(4),
     borderRadius: 999,
     zIndex: 10,
   },
 
   newChipText: {
-    fontSize: 10,
+    fontSize: moderateScale(10),
     fontWeight: "800",
     color: "#fff",
     letterSpacing: 0.6,

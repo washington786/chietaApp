@@ -1,5 +1,6 @@
 import { StyleSheet, View } from 'react-native'
 import React from 'react'
+import { scale, verticalScale } from '@/utils/responsive';
 
 import { Ionicons } from "@expo/vector-icons"
 import { Text } from 'react-native-paper'
@@ -19,11 +20,11 @@ export default RNotification
 const styles = StyleSheet.create({
     con: {
         backgroundColor: colors.slate[100],
-        minHeight: 40,
+        minHeight: verticalScale(40),
         alignItems: "center",
         flexDirection: "row",
-        gap: 8,
-        padding: 8,
-        borderRadius: 8
+        gap: scale(8),
+        padding: scale(8),
+        borderRadius: scale(8),
     }
 })

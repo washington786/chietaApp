@@ -12,6 +12,7 @@ import { MandatoryApplicationDto } from '@/core/models/MandatoryDto';
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from '@/store/store';
 import { setSelectedMandatoryApplication } from '@/store/slice/MandatorySlice';
+import { moderateScale, scale } from '@/utils/responsive';
 
 interface Props {
     item: MandatoryApplicationDto;
@@ -129,10 +130,10 @@ const DetailRow = ({ label, value }: { label: string; value: string }) => (
 
 const styles = StyleSheet.create({
     card: {
-        marginVertical: 10,
+        marginVertical: scale(8),
         backgroundColor: '#ffffff',
         borderRadius: 8,
-        padding: 20,
+        padding: scale(16),
         borderWidth: 1,
         borderColor: '#e2e8f0',
         shadowColor: '#000',
@@ -140,39 +141,39 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.08,
         shadowRadius: 10,
         elevation: 0,
-        position: 'relative', // for chevron
+        position: 'relative',
     },
     header: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 12,
+        gap: scale(10),
         marginBottom: 8,
     },
     title: {
-        fontSize: 17,
+        fontSize: moderateScale(16),
         fontWeight: '700',
         color: '#111827',
         flex: 1,
     },
     statusBadge: {
         alignSelf: 'flex-start',
-        paddingHorizontal: 14,
-        paddingVertical: 6,
+        paddingHorizontal: scale(12),
+        paddingVertical: scale(5),
         borderRadius: 999,
-        marginBottom: 16,
+        marginBottom: scale(14),
     },
     statusText: {
-        fontSize: 13,
+        fontSize: moderateScale(12),
         fontWeight: '600',
         textTransform: 'capitalize',
     },
     divider: {
         height: 1,
         backgroundColor: '#e5e7eb',
-        marginBottom: 16,
+        marginBottom: scale(14),
     },
     details: {
-        gap: 12,
+        gap: scale(10),
     },
     row: {
         flexDirection: 'row',
@@ -180,21 +181,21 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     label: {
-        fontSize: 13,
+        fontSize: moderateScale(13),
         color: '#6b7280',
         fontWeight: '500',
     },
     value: {
-        fontSize: 14,
+        fontSize: moderateScale(13),
         color: '#1f2937',
         fontWeight: '600',
         textAlign: 'right',
         flex: 1,
-        marginLeft: 16,
+        marginLeft: scale(12),
     },
     chevron: {
         position: 'absolute',
-        right: 16,
+        right: scale(14),
         top: '50%',
         transform: [{ translateY: -10 }],
     },

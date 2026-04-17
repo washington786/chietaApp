@@ -1,5 +1,6 @@
 import colors from "@/config/colors";
 import { StyleSheet } from "react-native";
+import { moderateScale, scale } from "@/utils/responsive";
 
 export const UpcomingStyles = StyleSheet.create({
     listContent: {
@@ -9,7 +10,7 @@ export const UpcomingStyles = StyleSheet.create({
 
     // Toggle
     toggleContainer: {
-        marginVertical: 14,
+        marginVertical: scale(12),
     },
     toggleHeader: {
         flexDirection: 'row',
@@ -19,7 +20,7 @@ export const UpcomingStyles = StyleSheet.create({
         paddingHorizontal: 2,
     },
     toggleHeaderText: {
-        fontSize: 11,
+        fontSize: moderateScale(11),
         fontWeight: '600',
         color: colors.primary[500],
         textTransform: 'uppercase',
@@ -62,8 +63,8 @@ export const UpcomingStyles = StyleSheet.create({
         opacity: 0.25,
     },
     toggleIconWrap: {
-        width: 36,
-        height: 36,
+        width: scale(34),
+        height: scale(34),
         borderRadius: 10,
         backgroundColor: colors.primary[100],
         alignItems: 'center',
@@ -76,7 +77,7 @@ export const UpcomingStyles = StyleSheet.create({
         flex: 1,
     },
     togglePillText: {
-        fontSize: 13,
+        fontSize: moderateScale(13),
         fontWeight: '700',
         color: colors.primary[700],
         marginBottom: 1,
@@ -145,11 +146,11 @@ export const UpcomingStyles = StyleSheet.create({
         color: '#fff',
     },
     cardTitle: {
-        fontSize: 16,
+        fontSize: moderateScale(16),
         fontWeight: '700',
         color: colors.primary[900],
         marginBottom: 6,
-        lineHeight: 22,
+        lineHeight: moderateScale(22),
     },
     refRow: {
         flexDirection: 'row',
@@ -163,9 +164,9 @@ export const UpcomingStyles = StyleSheet.create({
         fontWeight: '500',
     },
     cardDesc: {
-        fontSize: 13,
+        fontSize: moderateScale(13),
         color: '#6b7280',
-        lineHeight: 19,
+        lineHeight: moderateScale(19),
         marginBottom: 4,
     },
     divider: {

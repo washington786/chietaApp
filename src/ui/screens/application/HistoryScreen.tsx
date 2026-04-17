@@ -15,6 +15,7 @@ import { Searchbar, Text } from 'react-native-paper'
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
 import { useGlobalBottomSheet, BottomSheetFlatList } from '@/hooks/navigation/BottomSheet'
 import AntDesign from '@expo/vector-icons/AntDesign';
+import { moderateScale, scale } from '@/utils/responsive';
 
 const HistoryScreen = () => {
     const { historyItemDetails } = usePageTransition();
@@ -200,11 +201,11 @@ const HistoryScreen = () => {
             {/* Org context bar: org pill + grant type toggle */}
             <View style={styles.contextBar}>
                 <TouchableOpacity style={styles.orgPill} onPress={handleOrgFilter} activeOpacity={0.75}>
-                    <MaterialCommunityIcons name="office-building-outline" size={14} color={colors.primary[600]} />
+                    <MaterialCommunityIcons name="office-building-outline" size={moderateScale(14)} color={colors.primary[600]} />
                     <NativeText style={styles.orgPillText} numberOfLines={1}>
                         {selectedOrg?.organisationTradingName || selectedOrg?.organisationName || 'Select Organization'}
                     </NativeText>
-                    <MaterialCommunityIcons name="chevron-down" size={14} color={colors.primary[400]} />
+                    <MaterialCommunityIcons name="chevron-down" size={moderateScale(14)} color={colors.primary[400]} />
                 </TouchableOpacity>
                 <View style={styles.grantTypeToggle}>
                     <TouchableOpacity
@@ -290,7 +291,7 @@ const HistoryScreen = () => {
                         onChangeText={setSearchQuery}
                         value={searchQuery}
                         style={styles.searchBar}
-                        inputStyle={{ fontSize: 13 }}
+                        inputStyle={{ fontSize: moderateScale(13) }}
                     />
                 </View>
             )}
@@ -299,11 +300,11 @@ const HistoryScreen = () => {
             {grantType === 'discretionary' ? (
                 <FlatList data={filteredTimelineItems}
                     keyExtractor={(item) => `${item.projectId}`}
-                    style={{ paddingHorizontal: 12, paddingVertical: 5, flex: 1, flexGrow: 1 }}
-                    contentContainerStyle={{ paddingBottom: 24 }}
+                    style={{ paddingHorizontal: scale(12), paddingVertical: scale(5), flex: 1, flexGrow: 1 }}
+                    contentContainerStyle={{ paddingBottom: scale(24) }}
                     renderItem={renderList}
                     showsVerticalScrollIndicator={false}
-                    ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
+                    ItemSeparatorComponent={() => <View style={{ height: scale(12) }} />}
                     removeClippedSubviews={false}
                     initialNumToRender={10}
                     maxToRenderPerBatch={10}
@@ -314,8 +315,8 @@ const HistoryScreen = () => {
                 <FlatList
                     data={filteredMandatoryItems}
                     keyExtractor={(item: MandatoryApplicationDto) => `mg-${item.id}`}
-                    style={{ paddingHorizontal: 12, paddingVertical: 5, flex: 1, flexGrow: 1 }}
-                    contentContainerStyle={{ paddingBottom: 24 }}
+                    style={{ paddingHorizontal: scale(12), paddingVertical: scale(5), flex: 1, flexGrow: 1 }}
+                    contentContainerStyle={{ paddingBottom: scale(24) }}
                     renderItem={({ item }: { item: MandatoryApplicationDto }) => (
                         <MandatoryTimelineItem
                             item={item}
@@ -323,7 +324,7 @@ const HistoryScreen = () => {
                         />
                     )}
                     showsVerticalScrollIndicator={false}
-                    ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
+                    ItemSeparatorComponent={() => <View style={{ height: scale(12) }} />}
                     removeClippedSubviews={false}
                     initialNumToRender={10}
                     maxToRenderPerBatch={10}
@@ -515,7 +516,7 @@ const ProgressDot = ({ completed, active }: { completed: boolean; active?: boole
     if (completed) {
         return (
             <View style={[styles.progressDot, styles.progressDotCompleted]}>
-                <MaterialCommunityIcons name="check" size={12} color="white" />
+                <MaterialCommunityIcons name="check" size={moderateScale(12)} color="white" />
             </View>
         );
     }
@@ -567,13 +568,13 @@ function OrganizationBottomSheet({ organizations, selectedOrgId, onSelectOrg, cl
     };
 
     return (
-        <View style={{ flex: 1, paddingHorizontal: 16, paddingTop: 12 }}>
+        <View style={{ flex: 1, paddingHorizontal: scale(16), paddingTop: scale(12) }}>
             {/* Header */}
             <Text variant='headlineMedium' style={styles.orgBottomSheetTitle}>Switch Organization</Text>
-            <Text variant='bodySmall' style={{ fontSize: 12 }}>choose the entity for your application view.</Text>
+            <Text variant='bodySmall' style={{ fontSize: moderateScale(12) }}>choose the entity for your application view.</Text>
 
-            <TouchableOpacity onPress={close} style={{ position: "absolute", top: 5, right: 8, backgroundColor: colors.red[100], borderRadius: 100, padding: 5 }}>
-                <AntDesign name="close" size={24} color={colors.gray[600]} />
+            <TouchableOpacity onPress={close} style={{ position: "absolute", top: scale(5), right: scale(8), backgroundColor: colors.red[100], borderRadius: scale(100), padding: scale(5) }}>
+                <AntDesign name="close" size={moderateScale(24)} color={colors.gray[600]} />
             </TouchableOpacity>
 
             {/* Search Bar */}
@@ -597,8 +598,8 @@ function OrganizationBottomSheet({ organizations, selectedOrgId, onSelectOrg, cl
                 )}
                 keyboardShouldPersistTaps="handled"
                 showsVerticalScrollIndicator={false}
-                contentContainerStyle={{ gap: 12, paddingBottom: 36 }}
-                ListFooterComponent={<View style={{ height: 8 }} />}
+                contentContainerStyle={{ gap: scale(12), paddingBottom: scale(36) }}
+                ListFooterComponent={<View style={{ height: scale(8) }} />}
                 bounces={false}
                 overScrollMode="never"
             />
@@ -633,7 +634,7 @@ const SwitchOrgItem = ({ item, isSelected, onPress }: { item: OrgItem; isSelecte
                         </Text>
                         <MaterialCommunityIcons
                             name="check-decagram"
-                            size={14}
+                            size={moderateScale(14)}
                             color={colors.primary[600]}
                         />
                     </RRow>
@@ -646,7 +647,7 @@ const SwitchOrgItem = ({ item, isSelected, onPress }: { item: OrgItem; isSelecte
                 <View style={styles.orgItemCheckmark}>
                     <MaterialCommunityIcons
                         name="check-circle"
-                        size={24}
+                        size={moderateScale(24)}
                         color={colors.primary[600]}
                     />
                 </View>

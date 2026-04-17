@@ -1,4 +1,5 @@
 import { FlatList, StyleSheet, View } from 'react-native'
+import { scale } from '@/utils/responsive'
 import React, { useEffect, useState } from 'react'
 import { RCol, REmpty, RListLoading, SafeArea } from '@/components/common';
 import RHeader from '@/components/common/RHeader';
@@ -111,8 +112,8 @@ export default AddNewApplicationPage
 
 const styles = StyleSheet.create({
     col: {
-        paddingVertical: 6,
-        paddingHorizontal: 12
+        paddingVertical: scale(6),
+        paddingHorizontal: scale(12)
     },
     searchBar: {
         backgroundColor: colors.slate[100]

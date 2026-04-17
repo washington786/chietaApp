@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, useWindowDimensions, ViewStyle } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import Animated, { FadeInDown } from 'react-native-reanimated';
+import { moderateScale, scale } from '@/utils/responsive';
 
 type EmptyScreenProps = {
     icon?: keyof typeof Feather.glyphMap;
@@ -24,7 +25,7 @@ const REmpty = ({
         <View style={[styles.container, { backgroundColor, minHeight: height - 200 }, style]}>
             <Animated.View entering={FadeInDown.duration(600)} style={styles.content}>
                 <View style={styles.iconCircle}>
-                    <Feather name={icon} size={48} color="#6c5ce7" />
+                    <Feather name={icon} size={moderateScale(44)} color="#6c5ce7" />
                 </View>
 
                 <Text style={styles.title}>{title}</Text>
@@ -46,26 +47,26 @@ const styles = StyleSheet.create({
         maxWidth: 400,
     },
     iconCircle: {
-        width: 120,
-        height: 120,
-        borderRadius: 60,
+        width: scale(100),
+        height: scale(100),
+        borderRadius: scale(50),
         backgroundColor: '#6c5ce7' + '15',
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: 32,
+        marginBottom: scale(28),
     },
     title: {
-        fontSize: 22,
+        fontSize: moderateScale(22),
         fontWeight: '700',
         color: '#2d3436',
         textAlign: 'center',
         marginBottom: 12,
     },
     subtitle: {
-        fontSize: 16,
+        fontSize: moderateScale(15),
         color: '#636e72',
         textAlign: 'center',
-        lineHeight: 24,
+        lineHeight: moderateScale(22),
     },
 });
 

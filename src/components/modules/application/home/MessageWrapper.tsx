@@ -2,6 +2,7 @@ import { StyleSheet, View } from 'react-native'
 import React, { FC } from 'react'
 import colors from '@/config/colors'
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { moderateScale, scale } from '@/utils/responsive';
 import { Text } from 'react-native-paper';
 
 interface props {
@@ -10,7 +11,7 @@ interface props {
 const MessageWrapper: FC<props> = ({ text }) => {
     return (
         <View style={styles.con}>
-            <Ionicons name="information-circle-outline" size={24} color="black" />
+            <Ionicons name="information-circle-outline" size={moderateScale(24)} color="black" />
             <Text variant='bodySmall' style={styles.txt} numberOfLines={2}>{text}</Text>
         </View>
     )
@@ -21,12 +22,12 @@ export default MessageWrapper
 const styles = StyleSheet.create({
     con: {
         backgroundColor: colors.primary[50],
-        paddingHorizontal: 4,
-        paddingVertical: 10,
+        paddingHorizontal: scale(4),
+        paddingVertical: scale(10),
         alignItems: 'center',
         flexDirection: 'row',
-        gap: 2,
-        borderRadius: 6,
+        gap: scale(2),
+        borderRadius: scale(6),
         overflow: 'hidden',
         borderColor: colors.yellow[700],
         borderWidth: 0.3,
@@ -36,6 +37,6 @@ const styles = StyleSheet.create({
     },
     txt: {
         width: '100%',
-        paddingHorizontal: 2
+        paddingHorizontal: scale(2)
     }
 })

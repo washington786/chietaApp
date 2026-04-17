@@ -1,5 +1,6 @@
 import colors from '@/config/colors';
 import React, { useEffect } from 'react';
+import { scale } from '@/utils/responsive';
 import { ViewStyle } from 'react-native';
 import { View, StyleSheet } from 'react-native';
 import Animated, {
@@ -61,14 +62,14 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
-        padding: 12,
+        padding: scale(12),
     },
     square: {
-        width: 8,
-        height: 8,
+        width: scale(8),
+        height: scale(8),
         backgroundColor: colors.primary[500],
-        borderRadius: 2,
-        marginHorizontal: 2,
+        borderRadius: scale(2),
+        marginHorizontal: scale(2),
     },
 });
 

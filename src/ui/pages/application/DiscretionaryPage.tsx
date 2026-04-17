@@ -1,4 +1,5 @@
 import { FlatList, StyleSheet, View, ScrollView, TouchableOpacity } from 'react-native'
+import { moderateScale, scale, verticalScale } from '@/utils/responsive'
 import React, { useEffect, useMemo, useState } from 'react'
 import { RCol, REmpty, RListLoading, SafeArea } from '@/components/common'
 import RHeader from '@/components/common/RHeader'
@@ -193,20 +194,20 @@ export default DiscretionaryPage
 const styles = StyleSheet.create({
     fab: {
         position: 'absolute',
-        margin: 16,
+        margin: scale(16),
         right: 0,
         bottom: 0,
-        borderRadius: 100,
+        borderRadius: scale(100),
         backgroundColor: colors.primary[900],
     },
     filterButton: {
-        paddingHorizontal: 14,
-        paddingVertical: 12,
-        borderRadius: 50,
+        paddingHorizontal: scale(14),
+        paddingVertical: scale(12),
+        borderRadius: scale(50),
         borderWidth: 1.5,
         borderColor: colors.zinc[300],
         backgroundColor: 'transparent',
-        minHeight: 44,
+        minHeight: verticalScale(44),
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -215,7 +216,7 @@ const styles = StyleSheet.create({
         backgroundColor: colors.primary[800],
     },
     filterText: {
-        fontSize: 13,
+        fontSize: moderateScale(13),
         color: colors.zinc[400],
         fontWeight: '500',
     },

@@ -4,6 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
 import colors from '@/config/colors';
 import appFonts from '@/config/fonts';
+import { moderateScale, scale } from '@/utils/responsive';
 
 interface AuthGradientButtonProps {
     title: string;
@@ -88,7 +89,7 @@ const AuthGradientButton = ({ title, onPress, loading = false, disabled = false,
                     <Text style={styles.text}>{title}</Text>
                     {iconName && (
                         <Animated.View style={animatedIconStyle}>
-                            <Feather name={iconName} size={18} color={'#fff'} />
+                            <Feather name={iconName} size={moderateScale(18)} color={'#fff'} />
                         </Animated.View>
                     )}
                 </View>
@@ -100,21 +101,21 @@ const AuthGradientButton = ({ title, onPress, loading = false, disabled = false,
 const styles = StyleSheet.create({
     wrapper: {
         width: '100%',
-        borderRadius: 30,
+        borderRadius: scale(30),
         overflow: 'hidden',
     },
     disabled: {
         opacity: 0.8,
     },
     gradientButton: {
-        paddingVertical: 16,
-        borderRadius: 30,
+        paddingVertical: scale(16),
+        borderRadius: scale(30),
         alignItems: 'center',
     },
     content: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 8,
+        gap: scale(8),
     },
     loading: {
         opacity: 0.6,
@@ -122,7 +123,7 @@ const styles = StyleSheet.create({
     text: {
         color: '#fff',
         fontFamily: `${appFonts.semiBold}`,
-        fontSize: 16,
+        fontSize: moderateScale(16),
         letterSpacing: 0.5,
     },
 });

@@ -1,5 +1,6 @@
 import { View, Text, TouchableOpacity, StyleSheet, Dimensions, ImageBackground } from 'react-native'
 import React, { FC } from 'react'
+import { moderateScale, scale, verticalScale } from '@/utils/responsive';
 import { LinearGradient } from 'expo-linear-gradient'
 import colors from '@/config/colors'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
@@ -31,7 +32,7 @@ const RMainAlerts: FC<RMainAlertsProps> = ({
 
     return (
         <ImageBackground
-            source={require("../../../assets/bg.jpg") || backgroundImage}
+            source={backgroundImage ?? require("../../../assets/bg_landing.png")}
             style={[styles.container]}
             imageStyle={styles.backgroundImage}
         >
@@ -95,12 +96,12 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        paddingHorizontal: 20,
+        paddingHorizontal: scale(20),
     },
     closeBtn: {
         position: 'absolute',
-        top: 50,
-        right: 20,
+        top: verticalScale(50),
+        right: scale(20),
         zIndex: 10000,
     },
     content: {
@@ -108,47 +109,47 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     iconContainer: {
-        marginBottom: 24,
-        width: 100,
-        height: 100,
-        borderRadius: 50,
+        marginBottom: verticalScale(24),
+        width: scale(100),
+        height: scale(100),
+        borderRadius: scale(50),
         backgroundColor: 'rgba(255, 255, 255, 0.2)',
         justifyContent: 'center',
         alignItems: 'center',
     },
     title: {
-        fontSize: 32,
+        fontSize: moderateScale(32),
         fontWeight: 'bold',
         color: 'white',
         textAlign: 'center',
-        marginBottom: 16,
+        marginBottom: verticalScale(16),
     },
     description: {
-        fontSize: 16,
+        fontSize: moderateScale(16),
         color: 'rgba(255, 255, 255, 0.85)',
         textAlign: 'center',
-        marginBottom: 32,
-        lineHeight: 24,
-        maxWidth: 300,
+        marginBottom: verticalScale(32),
+        lineHeight: moderateScale(24),
+        maxWidth: scale(300),
     },
     actionBtn: {
         backgroundColor: 'rgba(255, 255, 255, 0.9)',
-        paddingHorizontal: 32,
-        paddingVertical: 14,
-        borderRadius: 25,
-        marginBottom: 24,
-        minWidth: 200,
+        paddingHorizontal: scale(32),
+        paddingVertical: verticalScale(14),
+        borderRadius: scale(25),
+        marginBottom: verticalScale(24),
+        minWidth: scale(200),
         alignItems: 'center',
     },
     actionBtnText: {
-        fontSize: 14,
+        fontSize: moderateScale(14),
         fontWeight: '600',
         color: colors.primary[900],
         textTransform: 'uppercase',
         letterSpacing: 0.5,
     },
     dismissText: {
-        fontSize: 16,
+        fontSize: moderateScale(16),
         color: 'white',
         fontWeight: '500',
     },

@@ -5,6 +5,7 @@ import {
   View,
   Text
 } from 'react-native';
+import { moderateScale, scale } from '@/utils/responsive';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import colors from '@/config/colors'; // your color config
 import usePageTransition from '@/hooks/navigation/usePageTransition';
@@ -51,7 +52,7 @@ const DgApplicationItem: FC<Props> = ({ item }) => {
       <View style={styles.header}>
         <MaterialCommunityIcons
           name="application-outline"
-          size={20}
+          size={moderateScale(20)}
           color={colors.primary[400] || '#6366f1'}
         />
         <Text style={styles.title} numberOfLines={2} ellipsizeMode="tail">
@@ -96,10 +97,10 @@ const DetailRow = ({ label, value }: { label: string; value: string }) => (
 
 const styles = StyleSheet.create({
   card: {
-    marginVertical: 10,
+    marginVertical: scale(10),
     backgroundColor: '#ffffff',
-    borderRadius: 8,
-    padding: 20,
+    borderRadius: scale(8),
+    padding: scale(20),
     borderWidth: 1,
     borderColor: colors.slate?.[200] || '#e2e8f0',
     shadowColor: '#000',
@@ -111,35 +112,35 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
-    marginBottom: 8,
+    gap: scale(10),
+    marginBottom: scale(8),
   },
   title: {
-    fontSize: 17,
+    fontSize: moderateScale(17),
     fontWeight: '700',
     color: '#111827',
     flex: 1,
   },
   statusBadge: {
     alignSelf: 'flex-start',
-    paddingHorizontal: 12,
-    paddingVertical: 5,
-    borderRadius: 20,
-    marginTop: 4,
-    marginBottom: 12,
+    paddingHorizontal: scale(12),
+    paddingVertical: scale(5),
+    borderRadius: scale(20),
+    marginTop: scale(4),
+    marginBottom: scale(12),
   },
   statusText: {
-    fontSize: 13,
+    fontSize: moderateScale(13),
     fontWeight: '600',
     textTransform: 'capitalize',
   },
   divider: {
     height: 1,
     backgroundColor: colors.slate?.[200] || '#e2e8f0',
-    marginVertical: 12,
+    marginVertical: scale(12),
   },
   details: {
-    gap: 10,
+    gap: scale(10),
   },
   row: {
     flexDirection: 'row',
@@ -147,12 +148,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   label: {
-    fontSize: 13,
+    fontSize: moderateScale(13),
     color: '#6b7280',
     fontWeight: '500',
   },
   value: {
-    fontSize: 14,
+    fontSize: moderateScale(14),
     color: '#1f2937',
     fontWeight: '600',
     textAlign: 'right',

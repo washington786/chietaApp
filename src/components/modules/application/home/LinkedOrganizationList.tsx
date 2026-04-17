@@ -4,6 +4,7 @@ import { FlatList, StyleSheet, View, useWindowDimensions } from "react-native";
 import { RCol, RDivider } from "@/components/common";
 import { Text } from "react-native-paper";
 import Feather from '@expo/vector-icons/Feather';
+import { moderateScale, scale } from '@/utils/responsive';
 import { FC } from "react";
 import colors from "@/config/colors";
 
@@ -58,7 +59,7 @@ export const LinkedOrganizationList: FC<linkedProps> = ({ org, isLinkingRequired
                     maxToRenderPerBatch={10}
                     ListEmptyComponent={<>
                         <RCol style={{ alignItems: 'center', justifyContent: 'center', paddingVertical: 20, flex: 1 }}>
-                            <Feather name="box" size={40} color="gray" style={{ marginLeft: 6 }} />
+                            <Feather name="box" size={moderateScale(40)} color="gray" style={{ marginLeft: scale(6) }} />
                             <Text variant='bodyMedium' style={{ color: colors.slate[400] }}>No linked organizations found.</Text>
                         </RCol>
                     </>}
@@ -98,10 +99,10 @@ const listStyles = StyleSheet.create({
     newOrgHeader: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingVertical: 4,
+        paddingVertical: scale(4),
     },
     newOrgCount: {
-        fontSize: 13,
+        fontSize: moderateScale(13),
         fontWeight: '600',
         color: colors.primary[700],
         letterSpacing: 0.2,

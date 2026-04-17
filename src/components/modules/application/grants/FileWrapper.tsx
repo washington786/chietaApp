@@ -5,6 +5,7 @@ import {
     View,
     Text
 } from 'react-native';
+import { moderateScale, scale } from '@/utils/responsive';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import colors from '@/config/colors';
 import { RRow } from '@/components/common';
@@ -33,7 +34,7 @@ export function FileWrapper({
                 <RRow style={styles.leftContent}>
                     <MaterialCommunityIcons
                         name="file-pdf-box"
-                        size={32}
+                        size={moderateScale(32)}
                         color={colors.red[600] || '#dc2626'}
                     />
 
@@ -60,7 +61,7 @@ export function FileWrapper({
                 {/* Right: Download icon */}
                 <MaterialCommunityIcons
                     name="download-circle-outline"
-                    size={28}
+                    size={moderateScale(28)}
                     color={colors.primary[600] || '#6366f1'}
                 />
             </View>
@@ -70,17 +71,17 @@ export function FileWrapper({
 
 const styles = StyleSheet.create({
     container: {
-        marginVertical: 6,
-        marginHorizontal: 4,
+        marginVertical: scale(6),
+        marginHorizontal: scale(4),
     },
     card: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
         backgroundColor: '#ffffff',
-        borderRadius: 8,
-        padding: 14,
-        paddingHorizontal: 16,
+        borderRadius: scale(8),
+        padding: scale(14),
+        paddingHorizontal: scale(16),
         borderWidth: 1,
         borderColor: '#e5e7eb',
         shadowColor: '#000',
@@ -92,13 +93,13 @@ const styles = StyleSheet.create({
     leftContent: {
         flex: 1,
         alignItems: 'center',
-        gap: 12,
+        gap: scale(12),
     },
     textContainer: {
         flex: 1,
     },
     fileName: {
-        fontSize: 15,
+        fontSize: moderateScale(15),
         fontWeight: '600',
         color: '#1f2937',
     },
@@ -107,9 +108,9 @@ const styles = StyleSheet.create({
         color: '#6b7280',
     },
     meta: {
-        fontSize: 12,
+        fontSize: moderateScale(12),
         color: '#9ca3af',
-        marginTop: 2,
+        marginTop: scale(2),
     },
 });
 

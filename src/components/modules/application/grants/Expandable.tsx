@@ -1,5 +1,6 @@
 import { RCol, RDivider, RRow } from "@/components/common";
 import colors from "@/config/colors";
+import { moderateScale } from "@/utils/responsive";
 import { ReactNode } from "react";
 import { StyleSheet, TouchableOpacity } from "react-native";
 import { Text } from "react-native-paper";
@@ -18,7 +19,7 @@ export function Expandable({ onPress, isExpanded = true, children, title }: prop
             <TouchableOpacity onPress={onPress}>
                 <RRow style={{ alignItems: 'center', justifyContent: "space-between", paddingVertical: 12 }}>
                     <Text variant='titleMedium' style={styles.capText}>{title}</Text>
-                    <Entypo name={!isExpanded ? "chevron-down" : "chevron-up"} size={24} color="black" />
+                    <Entypo name={!isExpanded ? "chevron-down" : "chevron-up"} size={moderateScale(24)} color="black" />
                 </RRow>
             </TouchableOpacity>
             {
@@ -45,7 +46,7 @@ const styles = StyleSheet.create({
         justifyContent: "space-between"
     },
     appTitle: {
-        fontSize: 10
+        fontSize: moderateScale(10)
     },
     lbl: {
         color: colors.gray[400],

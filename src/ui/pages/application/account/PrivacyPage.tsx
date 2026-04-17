@@ -1,4 +1,5 @@
 import { StyleSheet, Text, View } from 'react-native'
+import { moderateScale, scale } from '@/utils/responsive'
 import React from 'react'
 import RHeader from '@/components/common/RHeader'
 import { Scroller } from '@/components/common'
@@ -47,16 +48,16 @@ export default PrivacyPage
 const styles = StyleSheet.create({
     header: {
         alignItems: 'center',
-        marginBottom: 40,
-        marginTop: 10,
+        marginBottom: scale(40),
+        marginTop: scale(10),
     },
-    mainTitle: { fontSize: 28, fontWeight: '800', textAlign: 'center' },
-    updated: { fontSize: 14, marginTop: 8 },
-    section: { marginBottom: 28 },
-    sectionTitle: { fontSize: 19, fontWeight: '700', marginBottom: 10 },
-    sectionContent: { fontSize: 10, lineHeight: 26, opacity: 0.9, fontWeight: "thin", color: colors.gray[600], textAlign: "justify" },
-    footer: { marginTop: 30, alignItems: 'center' },
+    mainTitle: { fontSize: moderateScale(28), fontWeight: '800', textAlign: 'center' },
+    updated: { fontSize: moderateScale(14), marginTop: scale(8) },
+    section: { marginBottom: scale(28) },
+    sectionTitle: { fontSize: moderateScale(19), fontWeight: '700', marginBottom: scale(10) },
+    sectionContent: { fontSize: moderateScale(10), lineHeight: moderateScale(26), opacity: 0.9, fontWeight: "thin", color: colors.gray[600], textAlign: "justify" },
+    footer: { marginTop: scale(30), alignItems: 'center' },
     footerText: {
-        fontSize: 8, color: colors.gray[600]
+        fontSize: moderateScale(8), color: colors.gray[600]
     }
 })

@@ -1,4 +1,5 @@
-import { FlatList, TouchableOpacity, View } from 'react-native'
+import { ActivityIndicator, FlatList, TouchableOpacity, View } from 'react-native'
+import { moderateScale } from '@/utils/responsive'
 import React, { useEffect } from 'react'
 import colors from '@/config/colors'
 import { Text, IconButton, Tooltip } from 'react-native-paper'
@@ -13,7 +14,7 @@ import { RootState } from '@/store/store'
 import { useGlobalBottomSheet } from '@/hooks/navigation/BottomSheet'
 import ProjectDetailsItem from '@/components/modules/application/grants/ProjectDetailsItem'
 import useDg from '@/hooks/main/useDg'
-import { EvilIcons } from '@expo/vector-icons';
+import { EvilIcons, MaterialCommunityIcons } from '@expo/vector-icons';
 
 const DgApplicationDetails = () => {
     const { appId: projectId } = useRoute<RouteProp<navigationTypes, "applicationDetails">>().params;
@@ -62,6 +63,9 @@ const DgApplicationDetails = () => {
         declarationInterest,
         bankingDetailsProof,
         hasSubmitted,
+        step1Complete,
+        step2Complete,
+        step3Complete,
 
         setDocs,
         setProv,
@@ -132,6 +136,7 @@ const DgApplicationDetails = () => {
         getDocument,
         getSelectedLabel,
         generate,
+        isGenerating,
     } = useDg({ projectId: projectIdStr, appId, userId });
 
     //validation
@@ -178,26 +183,74 @@ const DgApplicationDetails = () => {
                 ListFooterComponent={() => {
                     return (
                         <>
+                            {/* Pending Submission Tag */}
+                            {!(step1Complete && step2Complete && step3Complete) && (
+                                <View style={{
+                                    alignSelf: 'center',
+                                    backgroundColor: '#FEF3C7',
+                                    borderWidth: 1,
+                                    borderColor: '#F59E0B',
+                                    borderRadius: 16,
+                                    paddingHorizontal: 14,
+                                    paddingVertical: 5,
+                                    marginBottom: 6,
+                                    marginTop: 4,
+                                }}>
+                                    <Text style={{ color: '#92400E', fontSize: 11, fontWeight: '600' }}>
+                                        Pending Submission
+                                    </Text>
+                                </View>
+                            )}
+
                             {/* Stepper Header */}
                             <View style={styles.stepperContainer}>
-                                <View style={[styles.stepCircle, currentStep >= 1 && styles.stepCircleActive]}>
-                                    <Text style={[styles.stepNumber, currentStep >= 1 && styles.stepNumberActive]}>1</Text>
+                                <View style={[
+                                    styles.stepCircle,
+                                    currentStep === 1 && !step1Complete && styles.stepCircleActive,
+                                    step1Complete && styles.stepCircleCompleted
+                                ]}>
+                                    {step1Complete
+                                        ? <MaterialCommunityIcons name="check" size={moderateScale(16)} color="white" />
+                                        : <Text style={[styles.stepNumber, currentStep === 1 && styles.stepNumberActive]}>1</Text>
+                                    }
                                 </View>
-                                <View style={[styles.stepLine, currentStep >= 2 && styles.stepLineActive]} />
-                                <View style={[styles.stepCircle, currentStep >= 2 && styles.stepCircleActive]}>
-                                    <Text style={[styles.stepNumber, currentStep >= 2 && styles.stepNumberActive]}>2</Text>
+                                <View style={[
+                                    styles.stepLine,
+                                    (currentStep >= 2 || step1Complete) && styles.stepLineActive,
+                                    (step1Complete && step2Complete) && styles.stepLineCompleted
+                                ]} />
+                                <View style={[
+                                    styles.stepCircle,
+                                    currentStep === 2 && !step2Complete && styles.stepCircleActive,
+                                    step2Complete && styles.stepCircleCompleted
+                                ]}>
+                                    {step2Complete
+                                        ? <MaterialCommunityIcons name="check" size={moderateScale(16)} color="white" />
+                                        : <Text style={[styles.stepNumber, currentStep === 2 && styles.stepNumberActive]}>2</Text>
+                                    }
                                 </View>
-                                <View style={[styles.stepLine, currentStep >= 3 && styles.stepLineActive]} />
-                                <View style={[styles.stepCircle, currentStep >= 3 && styles.stepCircleActive]}>
-                                    <Text style={[styles.stepNumber, currentStep >= 3 && styles.stepNumberActive]}>3</Text>
+                                <View style={[
+                                    styles.stepLine,
+                                    (currentStep >= 3 || step2Complete) && styles.stepLineActive,
+                                    (step2Complete && step3Complete) && styles.stepLineCompleted
+                                ]} />
+                                <View style={[
+                                    styles.stepCircle,
+                                    currentStep === 3 && !step3Complete && styles.stepCircleActive,
+                                    step3Complete && styles.stepCircleCompleted
+                                ]}>
+                                    {step3Complete
+                                        ? <MaterialCommunityIcons name="check" size={moderateScale(16)} color="white" />
+                                        : <Text style={[styles.stepNumber, currentStep === 3 && styles.stepNumberActive]}>3</Text>
+                                    }
                                 </View>
                             </View>
 
                             {/* Step Labels */}
                             <View style={styles.stepLabelsContainer}>
-                                <Text style={[styles.stepLabel, currentStep === 1 && styles.stepLabelActive]}>Program & Application</Text>
-                                <Text style={[styles.stepLabel, currentStep === 2 && styles.stepLabelActive]}>Upload Files</Text>
-                                <Text style={[styles.stepLabel, currentStep === 3 && styles.stepLabelActive]}>Application Form</Text>
+                                <Text style={[styles.stepLabel, currentStep === 1 && styles.stepLabelActive, step1Complete && { color: colors.green[600], fontWeight: '600' }]}>Program</Text>
+                                <Text style={[styles.stepLabel, currentStep === 2 && styles.stepLabelActive, step2Complete && { color: colors.green[600], fontWeight: '600' }]}>Upload Files</Text>
+                                <Text style={[styles.stepLabel, currentStep === 3 && styles.stepLabelActive, step3Complete && { color: colors.green[600], fontWeight: '600' }]}>Application Form</Text>
                             </View>
 
                             {/* Step 1: Program and Capture Application */}
@@ -415,11 +468,25 @@ const DgApplicationDetails = () => {
                                 <>
                                     {/* <MessageWrapper text="Ensure all uploaded documents are accurate and complete before submission." /> */}
                                     <View style={styles.formSection}>
-                                        <RButton
-                                            onPressButton={generate}
-                                            title='Download Application Form'
-                                            styleBtn={styles.btnSecondary}
-                                        />
+                                        <TouchableOpacity
+                                            onPress={generate}
+                                            disabled={isGenerating}
+                                            style={[styles.downloadBtn, isGenerating && styles.downloadBtnDisabled]}
+                                            activeOpacity={0.85}
+                                        >
+                                            {isGenerating
+                                                ? <ActivityIndicator size={moderateScale(22)} color="white" />
+                                                : <MaterialCommunityIcons name="file-pdf-box" size={moderateScale(26)} color="white" />
+                                            }
+                                            <View style={styles.downloadBtnTextGroup}>
+                                                <Text style={styles.downloadBtnText}>
+                                                    {isGenerating ? 'Generating PDF...' : 'Download Application Form'}
+                                                </Text>
+                                                {!isGenerating && (
+                                                    <Text style={styles.downloadBtnSubText}>Tap to generate &amp; save your PDF</Text>
+                                                )}
+                                            </View>
+                                        </TouchableOpacity>
                                         <RUpload title='Upload Signed Application' onPress={handleApplicationFormUpload} />
                                         {applicationForm && applicationForm.assets && <RUploadSuccess file={applicationForm} />}
                                         {!applicationForm && getDocument(signedAppQuery)?.filename && <RUploadSuccessFile file={getDocument(signedAppQuery)?.filename} />}
@@ -436,7 +503,7 @@ const DgApplicationDetails = () => {
                 <IconButton
                     icon="chevron-left"
                     iconColor={colors.primary[900]}
-                    size={32}
+                    size={moderateScale(32)}
                     onPress={handlePrev}
                     disabled={currentStep === 1}
                 />
@@ -446,15 +513,15 @@ const DgApplicationDetails = () => {
                         <IconButton
                             icon={"check"}
                             iconColor={colors.green[600]}
-                            size={32}
-                            onPress={() => open(<SubmitSheet close={close} submit={() => { handleSubmitApplication(); close(); }} />, { snapPoints: ["40%"] })}
+                            size={moderateScale(32)}
+                            onPress={() => open(<SubmitSheet close={close} submit={() => { handleSubmitApplication(); close(); }} />, { snapPoints: ["48%"] })}
                         />
                     </Tooltip>
                 ) : (
                     <IconButton
                         icon={"chevron-right"}
                         iconColor={colors.primary[900]}
-                        size={32}
+                        size={moderateScale(32)}
                         onPress={handleNext}
                     />
                 )}
@@ -477,17 +544,23 @@ function SubmitSheet({ close, submit }: { close: () => void, submit: () => void 
                     <Text variant="titleMedium">Application Submission</Text>
                 </View>
 
-                <TouchableOpacity onPress={close} activeOpacity={0.8} style={{ backgroundColor: colors.red[100], borderRadius: 100, padding: 8 }}>
-                    <EvilIcons name="close" size={32} color="gray" />
+                <TouchableOpacity onPress={close} activeOpacity={0.8} style={{ backgroundColor: colors.red[600], borderRadius: 100, padding: 2, height: 32, width: 32, alignItems: "center", justifyContent: "center" }}>
+                    <EvilIcons name="close" size={moderateScale(24)} color="white" />
                 </TouchableOpacity>
             </RRow>
 
             <RCol style={{ alignItems: "center", gap: 16 }}>
                 <Text
-                    variant="bodyMedium"
-                    style={{ textAlign: "center", color: "#666", lineHeight: 24 }}
+                    variant="bodySmall"
+                    style={{ textAlign: "justify", color: "#666" }}
                 >
-                    By submitting this application, you confirm that all information provided is accurate and complete to the best of your knowledge. You understand that any false information may lead to disqualification from the application process.
+                    I certify that the information that I have submitted to the CHIETA is true, current, and accurate. I agree to the unreserved processing of the submitted information by the CHIETA, and I accept that any incorrect, incomplete, or false information will constitute unreserved grounds for the disqualification of my application or submission by the CHIETA.
+                </Text>
+                <Text
+                    variant="bodySmall"
+                    style={{ textAlign: "justify", color: "#803e3e", borderWidth: 1, borderColor: colors.red[200], backgroundColor: colors.red[50], padding: 6, borderRadius: 5 }}
+                >
+                    Disclaimer: The CHIETA reserves all its rights, and it retains its unrepudiated discretion to reject, disqualify, appoint, award, or approve grant applications or appointments.
                 </Text>
                 <TouchableOpacity style={{ padding: 10, backgroundColor: colors.green[600], borderRadius: 5, width: "100%", alignItems: "center", paddingVertical: 12 }} activeOpacity={0.8} onPress={submit}>
                     <Text style={{ color: "white", fontWeight: "bold" }}>Submit Application</Text>

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
+import { moderateScale, scale, verticalScale } from '@/utils/responsive';
 import { Button, Text } from 'react-native-paper';
 import colors from '@/config/colors';
 
@@ -42,17 +43,6 @@ const RToggleInfo = ({
             {/* Button Toggle */}
             <View style={[styles.buttonContainer, buttonContainerStyle]}>
                 <Button
-                    mode={activeButton === 2 ? 'contained' : 'outlined'}
-                    onPress={() => handleToggle(2)}
-                    style={[
-                        styles.button,
-                        activeButton === 2 ? styles.buttonActive : styles.inactiveBtn,
-                    ]}
-                    labelStyle={styles.buttonLabel}
-                >
-                    {button2Label}
-                </Button>
-                <Button
                     mode={activeButton === 1 ? 'contained' : 'outlined'}
                     onPress={() => handleToggle(1)}
                     style={[
@@ -62,6 +52,17 @@ const RToggleInfo = ({
                     labelStyle={styles.buttonLabel}
                 >
                     {button1Label}
+                </Button>
+                <Button
+                    mode={activeButton === 2 ? 'contained' : 'outlined'}
+                    onPress={() => handleToggle(2)}
+                    style={[
+                        styles.button,
+                        activeButton === 2 ? styles.buttonActive : styles.inactiveBtn,
+                    ]}
+                    labelStyle={styles.buttonLabel}
+                >
+                    {button2Label}
                 </Button>
             </View>
 
@@ -80,12 +81,12 @@ const styles = StyleSheet.create({
     },
     buttonContainer: {
         flexDirection: 'row',
-        gap: 8,
-        marginBottom: 16,
+        gap: scale(8),
+        marginBottom: verticalScale(16),
     },
     button: {
         flex: 1,
-        borderRadius: 8,
+        borderRadius: scale(8),
     },
     buttonActive: {
         backgroundColor: colors.primary[700],
@@ -95,12 +96,12 @@ const styles = StyleSheet.create({
         borderWidth: 0.4,
     },
     buttonLabel: {
-        fontSize: 12,
+        fontSize: moderateScale(12),
         fontWeight: '600',
     },
     contentContainer: {
         flex: 1,
-        paddingVertical: 8,
+        paddingVertical: verticalScale(8),
     },
 });
 

@@ -5,6 +5,7 @@ import { BottomTabStyles as styles } from '@/styles/BottomTabStyles';
 
 import { Ionicons } from "@expo/vector-icons"
 import colors from '@/config/colors';
+import { moderateScale } from '@/utils/responsive';
 
 const RTabBarIcon = ({
     focused,
@@ -19,7 +20,7 @@ const RTabBarIcon = ({
         <View style={[styles.iconContainer, focused && styles.activeTab]}>
             <Ionicons
                 name={focused ? iconName : (`${iconName}-outline` as IonIconName)}
-                size={28}
+                size={moderateScale(26)}
                 color={focused ? colors.primary[800] : colors.slate[500]}
             />
             {focused && <Text style={styles.label}>{label}</Text>}

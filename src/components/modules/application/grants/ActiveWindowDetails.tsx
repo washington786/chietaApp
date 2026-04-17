@@ -1,5 +1,6 @@
 import { StyleSheet, View, ScrollView, TouchableOpacity, Animated } from 'react-native'
 import React, { useEffect, useRef } from 'react'
+import { moderateScale, scale } from '@/utils/responsive'
 import { Text } from 'react-native-paper'
 import colors from '@/config/colors'
 import { RCol, RRow, SafeArea } from '@/components/common'
@@ -66,7 +67,7 @@ const ActiveWindowDetails: React.FC<ActiveWindowDetailsProps> = ({ window, onClo
                             <Text style={styles.headerReference}>{window.reference}</Text>
                         </RCol>
                         <TouchableOpacity onPress={onClose} style={styles.closeButton} activeOpacity={0.7}>
-                            <MaterialIcons name="close" size={28} color={colors.white} />
+                            <MaterialIcons name="close" size={moderateScale(28)} color={colors.white} />
                         </TouchableOpacity>
                     </RRow>
 
@@ -74,7 +75,7 @@ const ActiveWindowDetails: React.FC<ActiveWindowDetailsProps> = ({ window, onClo
                         styles.statusBadgeHeader,
                         { backgroundColor: window.activeYN ? colors.green[500] : colors.red[500] }
                     ]}>
-                        <MaterialIcons name={window.activeYN ? 'check-circle' : 'cancel'} size={16} color={colors.white} />
+                        <MaterialIcons name={window.activeYN ? 'check-circle' : 'cancel'} size={moderateScale(16)} color={colors.white} />
                         <Text style={styles.statusTextHeader}>{window.activeYN ? 'Active' : 'Inactive'}</Text>
                     </View>
                 </LinearGradient>
@@ -85,7 +86,7 @@ const ActiveWindowDetails: React.FC<ActiveWindowDetailsProps> = ({ window, onClo
                     {window.description && (
                         <View style={styles.section}>
                             <View style={styles.sectionHeader}>
-                                <MaterialIcons name="description" size={20} color={colors.primary[900]} />
+                                <MaterialIcons name="description" size={moderateScale(20)} color={colors.primary[900]} />
                                 <Text style={styles.sectionTitle}>Description</Text>
                             </View>
                             <Text style={styles.description}>{window.description}</Text>
@@ -95,7 +96,7 @@ const ActiveWindowDetails: React.FC<ActiveWindowDetailsProps> = ({ window, onClo
                     {/* Budget Section */}
                     <View style={styles.section}>
                         <View style={styles.sectionHeader}>
-                            <MaterialIcons name="attach-money" size={20} color={colors.primary[900]} />
+                            <MaterialIcons name="attach-money" size={moderateScale(20)} color={colors.primary[900]} />
                             <Text style={styles.sectionTitle}>Budget</Text>
                         </View>
                         <Text style={styles.budgetAmount}>{formatCurrency(window.totBdgt)}</Text>
@@ -104,7 +105,7 @@ const ActiveWindowDetails: React.FC<ActiveWindowDetailsProps> = ({ window, onClo
                     {/* Timeline Section */}
                     <View style={styles.section}>
                         <View style={styles.sectionHeader}>
-                            <MaterialIcons name="timeline" size={20} color={colors.primary[900]} />
+                            <MaterialIcons name="timeline" size={moderateScale(20)} color={colors.primary[900]} />
                             <Text style={styles.sectionTitle}>Timeline</Text>
                         </View>
 
@@ -124,7 +125,7 @@ const ActiveWindowDetails: React.FC<ActiveWindowDetailsProps> = ({ window, onClo
 
                         {isExpiringSoon && days > 0 && (
                             <View style={styles.daysRemaining}>
-                                <MaterialIcons name="schedule" size={16} color={colors.red[500]} />
+                                <MaterialIcons name="schedule" size={moderateScale(16)} color={colors.red[500]} />
                                 <Text style={styles.daysRemainingText}>
                                     {days} {days === 1 ? 'day' : 'days'} remaining
                                 </Text>
@@ -151,7 +152,7 @@ const ActiveWindowDetails: React.FC<ActiveWindowDetailsProps> = ({ window, onClo
                     {/* Program Information */}
                     <View style={styles.section}>
                         <View style={styles.sectionHeader}>
-                            <MaterialIcons name="info" size={20} color={colors.primary[900]} />
+                            <MaterialIcons name="info" size={moderateScale(20)} color={colors.primary[900]} />
                             <Text style={styles.sectionTitle}>Program Information</Text>
                         </View>
 
@@ -175,7 +176,7 @@ function DetailRow({ icon, label, value, highlight, highlightColor }: DetailRowP
     return (
         <View style={[styles.detailRow, highlight && { borderLeftColor: highlightColor, borderLeftWidth: 4 }]}>
             <View style={styles.detailIconContainer}>
-                <MaterialIcons name={icon as any} size={20} color={colors.primary[900]} />
+                <MaterialIcons name={icon as any} size={moderateScale(20)} color={colors.primary[900]} />
             </View>
             <RCol style={{ flex: 1 }}>
                 <Text style={styles.detailLabel}>{label}</Text>
@@ -195,11 +196,11 @@ const styles = StyleSheet.create({
         backgroundColor: colors.white,
     },
     headerGradient: {
-        paddingTop: 20,
-        paddingBottom: 32,
-        paddingHorizontal: 20,
-        borderBottomLeftRadius: 30,
-        borderBottomRightRadius: 30,
+        paddingTop: scale(20),
+        paddingBottom: scale(32),
+        paddingHorizontal: scale(20),
+        borderBottomLeftRadius: scale(30),
+        borderBottomRightRadius: scale(30),
         shadowColor: '#000',
         shadowOpacity: 0.1,
         shadowRadius: 16,
@@ -208,32 +209,32 @@ const styles = StyleSheet.create({
     headerTop: {
         justifyContent: 'space-between',
         alignItems: 'flex-start',
-        marginBottom: 20,
+        marginBottom: scale(20),
     },
     headerTitle: {
-        fontSize: 24,
+        fontSize: moderateScale(24),
         fontWeight: '800',
         color: colors.white,
-        marginBottom: 6,
+        marginBottom: scale(6),
     },
     headerReference: {
-        fontSize: 14,
+        fontSize: moderateScale(14),
         color: 'rgba(255, 255, 255, 0.85)',
         fontWeight: '500',
     },
     closeButton: {
-        padding: 12,
+        padding: scale(12),
         backgroundColor: 'rgba(255,255,255,0.2)',
-        borderRadius: 12,
+        borderRadius: scale(12),
     },
     statusBadgeHeader: {
         flexDirection: 'row',
         alignItems: 'center',
         alignSelf: 'flex-start',
-        paddingHorizontal: 14,
-        paddingVertical: 8,
-        borderRadius: 24,
-        gap: 8,
+        paddingHorizontal: scale(14),
+        paddingVertical: scale(8),
+        borderRadius: scale(24),
+        gap: scale(8),
         shadowColor: '#000',
         shadowOpacity: 0.1,
         shadowRadius: 4,
@@ -241,41 +242,41 @@ const styles = StyleSheet.create({
     },
     statusTextHeader: {
         color: colors.white,
-        fontSize: 13,
+        fontSize: moderateScale(13),
         fontWeight: '600',
     },
     content: {
-        paddingHorizontal: 12,
-        paddingVertical: 24,
-        gap: 16,
+        paddingHorizontal: scale(12),
+        paddingVertical: scale(24),
+        gap: scale(16),
     },
     section: {
-        gap: 16,
+        gap: scale(16),
         backgroundColor: colors.white,
         borderWidth: 1,
         borderColor: colors.zinc[200],
-        borderRadius: 8,
-        padding: 6
+        borderRadius: scale(8),
+        padding: scale(6),
     },
     sectionHeader: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 10,
-        marginBottom: 12,
+        gap: scale(10),
+        marginBottom: scale(12),
     },
     sectionTitle: {
-        fontSize: 18,
+        fontSize: moderateScale(18),
         fontWeight: '700',
         color: colors.primary[900],
     },
     description: {
-        fontSize: 15,
+        fontSize: moderateScale(15),
         color: colors.zinc[700],
-        lineHeight: 22,
-        paddingVertical: 12,
-        paddingHorizontal: 16,
+        lineHeight: moderateScale(22),
+        paddingVertical: scale(12),
+        paddingHorizontal: scale(16),
         backgroundColor: colors.primary[50],
-        borderRadius: 12,
+        borderRadius: scale(12),
         borderLeftWidth: 4,
         borderLeftColor: colors.primary[900],
         shadowColor: '#000',
@@ -284,49 +285,49 @@ const styles = StyleSheet.create({
         elevation: 2,
     },
     budgetAmount: {
-        fontSize: 32,
+        fontSize: moderateScale(32),
         fontWeight: '800',
         color: colors.primary[900],
-        paddingVertical: 8,
+        paddingVertical: scale(8),
     },
     detailRow: {
         flexDirection: 'row',
         alignItems: 'flex-start',
-        paddingVertical: 16,
-        paddingHorizontal: 16,
+        paddingVertical: scale(16),
+        paddingHorizontal: scale(16),
         backgroundColor: colors.zinc[50],
-        borderRadius: 12,
-        gap: 16,
+        borderRadius: scale(12),
+        gap: scale(16),
         shadowColor: '#000',
         shadowOpacity: 0.05,
         shadowRadius: 8,
         elevation: 2,
     },
     detailIconContainer: {
-        paddingTop: 2,
+        paddingTop: scale(2),
         backgroundColor: colors.primary[100],
-        borderRadius: 8,
-        padding: 8,
+        borderRadius: scale(8),
+        padding: scale(8),
     },
     detailLabel: {
-        fontSize: 13,
+        fontSize: moderateScale(13),
         color: colors.zinc[600],
         fontWeight: '600',
-        marginBottom: 4,
+        marginBottom: scale(4),
     },
     detailValue: {
-        fontSize: 16,
+        fontSize: moderateScale(16),
         color: colors.zinc[900],
         fontWeight: '600',
     },
     daysRemaining: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 10,
-        paddingVertical: 16,
-        paddingHorizontal: 16,
+        gap: scale(10),
+        paddingVertical: scale(16),
+        paddingHorizontal: scale(16),
         backgroundColor: 'rgba(211, 47, 47, 0.08)',
-        borderRadius: 12,
+        borderRadius: scale(12),
         borderLeftWidth: 4,
         borderLeftColor: colors.red[500],
         shadowColor: '#000',
@@ -335,29 +336,29 @@ const styles = StyleSheet.create({
         elevation: 2,
     },
     daysRemainingText: {
-        fontSize: 14,
+        fontSize: moderateScale(14),
         fontWeight: '600',
         color: colors.red[500],
     },
     metaSection: {
-        paddingVertical: 16,
-        paddingHorizontal: 16,
+        paddingVertical: scale(16),
+        paddingHorizontal: scale(16),
         backgroundColor: colors.zinc[100],
-        borderRadius: 12,
+        borderRadius: scale(12),
         shadowColor: '#000',
         shadowOpacity: 0.05,
         shadowRadius: 8,
         elevation: 2,
     },
     metaLabel: {
-        fontSize: 13,
+        fontSize: moderateScale(13),
         color: colors.zinc[600],
         fontWeight: '600',
     },
     metaValue: {
-        fontSize: 14,
+        fontSize: moderateScale(14),
         color: colors.zinc[800],
         fontWeight: '500',
-        marginTop: 6,
+        marginTop: scale(6),
     },
 })

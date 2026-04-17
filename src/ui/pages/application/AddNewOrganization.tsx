@@ -2,6 +2,7 @@ import {
     FlatList, StyleSheet, View, ActivityIndicator,
     TouchableOpacity, Image, ScrollView,
 } from 'react-native'
+import { moderateScale, scale, verticalScale } from '@/utils/responsive'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { REmpty, RInput, RListLoading, RRow, SafeArea } from '@/components/common'
 import RHeader from '@/components/common/RHeader'
@@ -202,8 +203,7 @@ const AddNewOrganization = () => {
                             >
                                 <Ionicons
                                     name={f.icon}
-                                    size={14}
-                                    color={active ? colors.white : colors.primary[600]}
+                                    size={moderateScale(14)}
                                 />
                                 <Text style={[styles.chipLabel, active && styles.chipLabelActive]}>
                                     {f.label}
@@ -289,12 +289,12 @@ function AlreadyLinked({ close, orgName }: AlreadyLinkedProps) {
             <RRow style={sheet.header}>
                 <View style={sheet.titleRow}>
                     <View style={sheet.iconCircle}>
-                        <Ionicons name='link' size={20} color={colors.primary[600]} />
+                        <Ionicons name='link' size={moderateScale(20)} color={colors.primary[600]} />
                     </View>
                     <Text variant='titleMedium' style={sheet.title}>Already Linked</Text>
                 </View>
                 <TouchableOpacity onPress={close} hitSlop={8}>
-                    <EvilIcons name='close' size={32} color={colors.gray[600]} />
+                    <EvilIcons name='close' size={moderateScale(32)} color={colors.gray[600]} />
                 </TouchableOpacity>
             </RRow>
 
@@ -314,46 +314,46 @@ function AlreadyLinked({ close, orgName }: AlreadyLinkedProps) {
 }
 
 const sheet = StyleSheet.create({
-    wrap: { flex: 1, backgroundColor: 'white', padding: 20 },
-    header: { justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
-    titleRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-    iconCircle: { width: 36, height: 36, borderRadius: 18, backgroundColor: colors.primary[50], alignItems: 'center', justifyContent: 'center' },
+    wrap: { flex: 1, backgroundColor: 'white', padding: scale(20) },
+    header: { justifyContent: 'space-between', alignItems: 'center', marginBottom: scale(20) },
+    titleRow: { flexDirection: 'row', alignItems: 'center', gap: scale(10) },
+    iconCircle: { width: scale(36), height: scale(36), borderRadius: scale(18), backgroundColor: colors.primary[50], alignItems: 'center', justifyContent: 'center' },
     title: { color: colors.gray[800] },
-    body: { alignItems: 'center', gap: 12, paddingVertical: 8 },
-    img: { width: 64, height: 64 },
+    body: { alignItems: 'center', gap: scale(12), paddingVertical: scale(8) },
+    img: { width: scale(64), height: scale(64) },
     heading: { textAlign: 'center', color: colors.gray[800], fontFamily: `${appFonts.semiBold}` },
-    msg: { textAlign: 'center', color: colors.gray[500], lineHeight: 20 },
-    closeBtn: { marginTop: 20, backgroundColor: colors.primary[600], borderRadius: 12, paddingVertical: 13, alignItems: 'center' },
-    closeBtnText: { color: 'white', fontFamily: `${appFonts.semiBold}`, fontSize: 14 },
+    msg: { textAlign: 'center', color: colors.gray[500], lineHeight: moderateScale(20) },
+    closeBtn: { marginTop: scale(20), backgroundColor: colors.primary[600], borderRadius: scale(12), paddingVertical: scale(13), alignItems: 'center' },
+    closeBtnText: { color: 'white', fontFamily: `${appFonts.semiBold}`, fontSize: moderateScale(14) },
 });
 
 const styles = StyleSheet.create({
     searchWrap: {
-        marginHorizontal: 16,
-        marginTop: 10,
-        marginBottom: 6,
+        marginHorizontal: scale(16),
+        marginTop: scale(10),
+        marginBottom: scale(6),
     },
     searchInput: {
-        borderRadius: 12,
+        borderRadius: scale(12),
         borderColor: colors.primary[200],
         backgroundColor: colors.primary[50],
     },
     filterContainer: {
-        height: 52,
+        height: verticalScale(52),
         justifyContent: 'center',
     },
     filterRow: {
-        paddingHorizontal: 16,
+        paddingHorizontal: scale(16),
         alignItems: 'center',
-        gap: 8,
+        gap: scale(8),
     },
     chip: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 5,
-        paddingHorizontal: 13,
-        paddingVertical: 8,
-        borderRadius: 20,
+        gap: scale(5),
+        paddingHorizontal: scale(13),
+        paddingVertical: scale(8),
+        borderRadius: scale(20),
         backgroundColor: colors.slate[100],
         borderWidth: 1,
         borderColor: colors.slate[200],
@@ -363,60 +363,60 @@ const styles = StyleSheet.create({
         borderColor: colors.primary[950],
     },
     chipLabel: {
-        fontSize: 12,
+        fontSize: moderateScale(12),
         fontFamily: `${appFonts.medium}`,
         color: colors.slate[600],
-        lineHeight: 16,
+        lineHeight: moderateScale(16),
     },
     chipLabelActive: { color: colors.white },
     chipBadge: {
-        borderRadius: 10,
+        borderRadius: scale(10),
         backgroundColor: colors.slate[200],
         alignItems: 'center',
         justifyContent: 'center',
-        paddingHorizontal: 6,
-        paddingVertical: 2,
+        paddingHorizontal: scale(6),
+        paddingVertical: scale(2),
     },
     chipBadgeActive: { backgroundColor: colors.primary[400] },
     chipBadgeText: {
-        fontSize: 10,
+        fontSize: moderateScale(10),
         fontFamily: `${appFonts.bold}`,
         color: colors.slate[600],
-        lineHeight: 14,
+        lineHeight: moderateScale(14),
     },
     chipBadgeTextActive: { color: colors.white },
     resultMeta: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 4,
-        paddingHorizontal: 18,
-        paddingBottom: 6,
+        gap: scale(4),
+        paddingHorizontal: scale(18),
+        paddingBottom: scale(6),
     },
     resultCount: {
-        fontSize: 12,
+        fontSize: moderateScale(12),
         fontFamily: `${appFonts.semiBold}`,
         color: colors.slate[600],
     },
     resultQuery: {
-        fontSize: 12,
+        fontSize: moderateScale(12),
         fontFamily: `${appFonts.regular}`,
         color: colors.slate[400],
     },
     list: { flex: 1 },
     listContent: {
-        paddingHorizontal: 16,
-        paddingTop: 4,
-        paddingBottom: 32,
+        paddingHorizontal: scale(16),
+        paddingTop: scale(4),
+        paddingBottom: scale(32),
     },
     loadMoreIndicator: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: 8,
-        paddingVertical: 16,
+        gap: scale(8),
+        paddingVertical: scale(16),
     },
     loadMoreText: {
-        fontSize: 12,
+        fontSize: moderateScale(12),
         fontFamily: `${appFonts.regular}`,
         color: colors.slate[500],
     },

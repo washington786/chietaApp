@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { generateApplicationPdf } from '@/core/helpers/pdfGenerator';
 import { showToast } from '@/core';
 import { useGetOrganizationByProjectQuery, useGetPersonByUserIdQuery, useGetOrganizationPhysicalAddressQuery, useGetDGProjectDetailsAppQuery } from '@/store/api/api';
@@ -42,7 +43,11 @@ const useGenerate = ({ appId, programmeType, learningProgramme, subCategory, int
 
     const { data: entries } = useGetDGProjectDetailsAppQuery(appId, { skip: !appId });
 
+    const [isGenerating, setIsGenerating] = useState(false);
+
     const generate = async () => {
+        if (isGenerating) return;
+        setIsGenerating(true);
         try {
             // Extract organization data from result
             const org = dgOrgData?.result?.organisation;
@@ -131,9 +136,11 @@ const useGenerate = ({ appId, programmeType, learningProgramme, subCategory, int
         } catch (error) {
             console.error("Download error:", error);
             showToast({ message: "Failed to download template", title: "Error", type: "error", position: "top" });
+        } finally {
+            setIsGenerating(false);
         }
     }
-    return { generate }
+    return { generate, isGenerating }
 }
 
 export default useGenerate
