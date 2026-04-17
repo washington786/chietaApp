@@ -197,7 +197,7 @@ const DgApplicationDetails = () => {
                                     marginTop: 4,
                                 }}>
                                     <Text style={{ color: '#92400E', fontSize: 11, fontWeight: '600' }}>
-                                        ⏳ Pending Submission
+                                        Pending Submission
                                     </Text>
                                 </View>
                             )}
