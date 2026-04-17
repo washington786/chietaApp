@@ -1,5 +1,5 @@
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import { DocumentPickerResult } from 'expo-document-picker';
 import { Province } from '@/core/types/provTypes';
@@ -472,6 +472,23 @@ const useDg = ({ projectId, appId, userId }: UseDgParams) => {
     const canProceedFromStep1 = () => entries.length > 0;
     const canProceedFromStep2 = () => missingDocuments.length === 0;
 
+    const step1Complete = entries.length > 0;
+    const step2Complete = allDocumentsUploaded;
+    const step3Complete = Boolean(applicationForm?.assets) || Boolean(getDocument(signedAppQuery)?.filename);
+
+    // Auto-advance to the furthest incomplete step on initial data load
+    const hasAutoAdvanced = useRef(false);
+    useEffect(() => {
+        if (hasAutoAdvanced.current) return;
+        if (!step1Complete) return;
+        hasAutoAdvanced.current = true;
+        if (step1Complete && step2Complete) {
+            setCurrentStep(3);
+        } else if (step1Complete) {
+            setCurrentStep(2);
+        }
+    }, [step1Complete, step2Complete]);
+
     const handleNext = () => {
         if (currentStep === 1 && !canProceedFromStep1()) {
             showToast({
@@ -746,6 +763,9 @@ const useDg = ({ projectId, appId, userId }: UseDgParams) => {
         declarationInterest,
         bankingDetailsProof,
         hasSubmitted,
+        step1Complete,
+        step2Complete,
+        step3Complete,
 
         // Setters
         setCurrentStep,

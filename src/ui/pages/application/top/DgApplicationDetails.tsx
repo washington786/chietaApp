@@ -63,6 +63,9 @@ const DgApplicationDetails = () => {
         declarationInterest,
         bankingDetailsProof,
         hasSubmitted,
+        step1Complete,
+        step2Complete,
+        step3Complete,
 
         setDocs,
         setProv,
@@ -180,55 +183,74 @@ const DgApplicationDetails = () => {
                 ListFooterComponent={() => {
                     return (
                         <>
+                            {/* Pending Submission Tag */}
+                            {!(step1Complete && step2Complete && step3Complete) && (
+                                <View style={{
+                                    alignSelf: 'center',
+                                    backgroundColor: '#FEF3C7',
+                                    borderWidth: 1,
+                                    borderColor: '#F59E0B',
+                                    borderRadius: 16,
+                                    paddingHorizontal: 14,
+                                    paddingVertical: 5,
+                                    marginBottom: 6,
+                                    marginTop: 4,
+                                }}>
+                                    <Text style={{ color: '#92400E', fontSize: 11, fontWeight: '600' }}>
+                                        ⏳ Pending Submission
+                                    </Text>
+                                </View>
+                            )}
+
                             {/* Stepper Header */}
                             <View style={styles.stepperContainer}>
                                 <View style={[
                                     styles.stepCircle,
-                                    currentStep === 1 && styles.stepCircleActive,
-                                    currentStep > 1 && styles.stepCircleCompleted
+                                    currentStep === 1 && !step1Complete && styles.stepCircleActive,
+                                    step1Complete && styles.stepCircleCompleted
                                 ]}>
-                                    {currentStep > 1
+                                    {step1Complete
                                         ? <MaterialCommunityIcons name="check" size={moderateScale(16)} color="white" />
-                                        : <Text style={[styles.stepNumber, currentStep >= 1 && styles.stepNumberActive]}>1</Text>
+                                        : <Text style={[styles.stepNumber, currentStep === 1 && styles.stepNumberActive]}>1</Text>
                                     }
                                 </View>
                                 <View style={[
                                     styles.stepLine,
-                                    currentStep >= 2 && styles.stepLineActive,
-                                    currentStep > 2 && styles.stepLineCompleted
+                                    (currentStep >= 2 || step1Complete) && styles.stepLineActive,
+                                    (step1Complete && step2Complete) && styles.stepLineCompleted
                                 ]} />
                                 <View style={[
                                     styles.stepCircle,
-                                    currentStep === 2 && styles.stepCircleActive,
-                                    currentStep > 2 && styles.stepCircleCompleted
+                                    currentStep === 2 && !step2Complete && styles.stepCircleActive,
+                                    step2Complete && styles.stepCircleCompleted
                                 ]}>
-                                    {currentStep > 2
+                                    {step2Complete
                                         ? <MaterialCommunityIcons name="check" size={moderateScale(16)} color="white" />
-                                        : <Text style={[styles.stepNumber, currentStep >= 2 && styles.stepNumberActive]}>2</Text>
+                                        : <Text style={[styles.stepNumber, currentStep === 2 && styles.stepNumberActive]}>2</Text>
                                     }
                                 </View>
                                 <View style={[
                                     styles.stepLine,
-                                    currentStep >= 3 && styles.stepLineActive,
-                                    currentStep > 3 && styles.stepLineCompleted
+                                    (currentStep >= 3 || step2Complete) && styles.stepLineActive,
+                                    (step2Complete && step3Complete) && styles.stepLineCompleted
                                 ]} />
                                 <View style={[
                                     styles.stepCircle,
-                                    currentStep === 3 && styles.stepCircleActive,
-                                    currentStep > 3 && styles.stepCircleCompleted
+                                    currentStep === 3 && !step3Complete && styles.stepCircleActive,
+                                    step3Complete && styles.stepCircleCompleted
                                 ]}>
-                                    {currentStep > 3
+                                    {step3Complete
                                         ? <MaterialCommunityIcons name="check" size={moderateScale(16)} color="white" />
-                                        : <Text style={[styles.stepNumber, currentStep >= 3 && styles.stepNumberActive]}>3</Text>
+                                        : <Text style={[styles.stepNumber, currentStep === 3 && styles.stepNumberActive]}>3</Text>
                                     }
                                 </View>
                             </View>
 
                             {/* Step Labels */}
                             <View style={styles.stepLabelsContainer}>
-                                <Text style={[styles.stepLabel, currentStep === 1 && styles.stepLabelActive]}>Program</Text>
-                                <Text style={[styles.stepLabel, currentStep === 2 && styles.stepLabelActive]}>Upload Files</Text>
-                                <Text style={[styles.stepLabel, currentStep === 3 && styles.stepLabelActive]}>Application Form</Text>
+                                <Text style={[styles.stepLabel, currentStep === 1 && styles.stepLabelActive, step1Complete && { color: colors.green[600], fontWeight: '600' }]}>Program</Text>
+                                <Text style={[styles.stepLabel, currentStep === 2 && styles.stepLabelActive, step2Complete && { color: colors.green[600], fontWeight: '600' }]}>Upload Files</Text>
+                                <Text style={[styles.stepLabel, currentStep === 3 && styles.stepLabelActive, step3Complete && { color: colors.green[600], fontWeight: '600' }]}>Application Form</Text>
                             </View>
 
                             {/* Step 1: Program and Capture Application */}

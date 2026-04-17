@@ -32,7 +32,7 @@ const RMainAlerts: FC<RMainAlertsProps> = ({
 
     return (
         <ImageBackground
-            source={require("../../../assets/bg.jpg") || backgroundImage}
+            source={backgroundImage ?? require("../../../assets/bg_landing.png")}
             style={[styles.container]}
             imageStyle={styles.backgroundImage}
         >
