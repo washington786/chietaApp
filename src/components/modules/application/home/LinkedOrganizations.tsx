@@ -3,6 +3,7 @@ import React, { useEffect, useState, useRef } from 'react'
 import { RCol, RDialog, RListLoading, RRow } from '@/components/common'
 import { Text } from 'react-native-paper'
 import Feather from '@expo/vector-icons/Feather';
+import { moderateScale, scale } from '@/utils/responsive';
 import colors from '@/config/colors';
 import usePageTransition from '@/hooks/navigation/usePageTransition';
 import { useGlobalBottomSheet } from '@/hooks/navigation/BottomSheet';
@@ -125,22 +126,22 @@ interface OrgDetailsProps {
 }
 
 export function OrgDetails({ onDelink, onMandatoryGrants, onDiscretionaryGrants, orgName, onCancel }: OrgDetailsProps) {
-    return <RCol style={{ alignItems: 'center', paddingVertical: 20, paddingHorizontal: 10, gap: 16 }}>
+    return <RCol style={{ alignItems: 'center', paddingVertical: scale(20), paddingHorizontal: scale(10), gap: scale(16) }}>
         {/* Header with org icon and name */}
-        <View style={{ alignItems: 'center', width: '100%', marginBottom: 8 }}>
+        <View style={{ alignItems: 'center', width: '100%', marginBottom: scale(8) }}>
             <TouchableOpacity style={styles.delinkBtn} onPress={onDelink}>
                 <Text style={styles.delinkText}>Delink</Text>
-                <Feather name="x" size={16} color={colors.red[600]} />
+                <Feather name="x" size={moderateScale(16)} color={colors.red[600]} />
             </TouchableOpacity>
             <View style={styles.iconContainer}>
-                <MaterialCommunityIcons name="office-building" size={38} color={colors.primary[400]} />
+                <MaterialCommunityIcons name="office-building" size={moderateScale(38)} color={colors.primary[400]} />
             </View>
-            <Text variant='headlineSmall' style={{ marginTop: 12, fontWeight: '700', color: colors.primary[950], textAlign: 'center' }}>{orgName}</Text>
-            <Text variant='bodySmall' style={{ color: colors.slate[400], marginTop: 6, textAlign: 'center', lineHeight: 18, paddingHorizontal: 8 }}>Select a grant type to view and manage your active applications for this organisation.</Text>
+            <Text variant='headlineSmall' style={{ marginTop: scale(12), fontWeight: '700', color: colors.primary[950], textAlign: 'center' }}>{orgName}</Text>
+            <Text variant='bodySmall' style={{ color: colors.slate[400], marginTop: scale(6), textAlign: 'center', lineHeight: moderateScale(18), paddingHorizontal: scale(8) }}>Select a grant type to view and manage your active applications for this organisation.</Text>
         </View>
 
         {/* Grant type options */}
-        <View style={{ width: '100%', gap: 12 }}>
+        <View style={{ width: '100%', gap: scale(12) }}>
             <TypeDetails
                 icon="file-document"
                 title='Mandatory Grants'
@@ -171,16 +172,16 @@ interface TypeDetailsProps {
 
 function TypeDetails({ title, description, icon = "file-document", onpress }: TypeDetailsProps) {
     return <TouchableOpacity style={styles.grantBtn} onPress={onpress}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, gap: 12 }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, gap: scale(12) }}>
             <View style={styles.iconBg}>
-                <MaterialCommunityIcons name={icon as any} size={28} color={colors.primary[600]} />
+                <MaterialCommunityIcons name={icon as any} size={moderateScale(28)} color={colors.primary[600]} />
             </View>
             <View style={{ flex: 1 }}>
                 <Text variant='titleMedium' style={{ fontWeight: '600', color: colors.slate[900] }}>{title}</Text>
                 <Text variant='bodySmall' style={{ color: colors.slate[400], marginTop: 2 }}>{description}</Text>
             </View>
         </View>
-        <Feather name="chevron-right" size={20} color={colors.slate[600]} />
+        <Feather name="chevron-right" size={moderateScale(20)} color={colors.slate[600]} />
     </TouchableOpacity>
 }
 
@@ -189,21 +190,21 @@ export default LinkedOrganizations
 const styles = StyleSheet.create({
     btn: {
         backgroundColor: colors.primary[900],
-        paddingHorizontal: 12,
-        paddingVertical: 10,
-        borderRadius: 20,
+        paddingHorizontal: scale(12),
+        paddingVertical: scale(10),
+        borderRadius: scale(20),
         alignItems: "center",
         flexDirection: "row",
-        gap: 3,
+        gap: scale(3),
     },
     text: {
         flex: 1,
         textTransform: 'capitalize'
     },
     iconContainer: {
-        width: 80,
-        height: 80,
-        borderRadius: 40,
+        width: scale(80),
+        height: scale(80),
+        borderRadius: scale(40),
         backgroundColor: colors.primary[50],
         borderWidth: 1,
         borderColor: colors.primary[100],
@@ -211,9 +212,9 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     iconBg: {
-        width: 52,
-        height: 52,
-        borderRadius: 12,
+        width: scale(52),
+        height: scale(52),
+        borderRadius: scale(12),
         backgroundColor: colors.primary[50],
         borderWidth: 1,
         borderColor: colors.primary[100],
@@ -222,14 +223,14 @@ const styles = StyleSheet.create({
     },
     grantBtn: {
         backgroundColor: '#fff',
-        paddingHorizontal: 16,
-        paddingVertical: 15,
-        borderRadius: 14,
+        paddingHorizontal: scale(16),
+        paddingVertical: scale(15),
+        borderRadius: scale(14),
         alignItems: 'center',
         flexDirection: 'row',
         borderWidth: 1,
         borderColor: colors.slate[200],
-        gap: 8,
+        gap: scale(8),
         shadowColor: '#000',
         shadowOpacity: 0.04,
         shadowRadius: 6,
@@ -241,35 +242,35 @@ const styles = StyleSheet.create({
         right: 0,
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 4,
-        paddingHorizontal: 10,
-        paddingVertical: 6,
+        gap: scale(4),
+        paddingHorizontal: scale(10),
+        paddingVertical: scale(6),
         borderWidth: 0.4,
         borderColor: colors.red[300],
-        borderRadius: 20,
+        borderRadius: scale(20),
     },
     delinkText: {
         color: colors.red[600],
-        fontSize: 12,
+        fontSize: moderateScale(12),
         fontWeight: '600',
     },
     cancelBtn: {
         width: '100%',
-        paddingVertical: 12,
-        borderRadius: 10,
+        paddingVertical: scale(12),
+        borderRadius: scale(10),
         alignItems: 'center',
-        marginTop: 4,
+        marginTop: scale(4),
         borderWidth: StyleSheet.hairlineWidth,
         borderColor: colors.slate[50],
     },
     cancelText: {
         color: colors.slate[400],
-        fontSize: 14,
+        fontSize: moderateScale(14),
         fontWeight: '600',
         textTransform: 'uppercase',
         letterSpacing: 0.5,
     },
-    linkedOrgsHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
-    linkedOrgsTitle: { fontSize: 15, fontWeight: '600', color: '#222' },
+    linkedOrgsHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: scale(8) },
+    linkedOrgsTitle: { fontSize: moderateScale(15), fontWeight: '600', color: '#222' },
     viewAll: { color: '#4F8CFF', fontWeight: '500' },
 });

@@ -1,5 +1,6 @@
 import { StyleSheet, Text, TouchableOpacity } from "react-native";
 import React, { FC } from "react";
+import { moderateScale, scale, verticalScale } from '@/utils/responsive';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import colors from "../../config/colors";
 import RRow from "./RRow";
@@ -30,14 +31,14 @@ export default RDownload;
 
 const styles = StyleSheet.create({
     con: {
-        minHeight: 80,
-        borderRadius: 15,
+        minHeight: verticalScale(80),
+        borderRadius: scale(15),
         borderWidth: 1,
         borderColor: colors.blue[400],
         borderStyle: "dashed",
         alignItems: "center",
         justifyContent: "center",
-        gap: 4,
+        gap: scale(4),
         backgroundColor: colors.blue[50],
         overflow: "hidden",
         width: "100%",
@@ -45,11 +46,11 @@ const styles = StyleSheet.create({
     title: {
         color: colors.slate[700],
         fontWeight: 'bold',
-        fontSize: 15,
+        fontSize: moderateScale(15),
     },
     fileName: {
         color: colors.slate[500],
-        fontSize: 10,
-        marginTop: 2,
+        fontSize: moderateScale(10),
+        marginTop: verticalScale(2),
     },
 });

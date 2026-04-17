@@ -1,5 +1,6 @@
 import { StyleSheet, TouchableOpacity } from 'react-native'
 import React, { FC } from 'react'
+import { moderateScale, scale } from '@/utils/responsive'
 import colors from '@/config/colors'
 import { RCol, RDivider, RRow } from '@/components/common';
 import { Text } from 'react-native-paper';
@@ -24,7 +25,7 @@ const AddMgApplicationItem: FC<props> = ({ onPress, item }) => {
     return (
         <RCol style={styles.con}>
             <RRow style={styles.title}>
-                <MaterialCommunityIcons name="application-outline" size={18} color="black" />
+                <MaterialCommunityIcons name="application-outline" size={moderateScale(18)} color="black" />
                 <Text>{description}</Text>
             </RRow>
             <RDivider />
@@ -41,7 +42,7 @@ const AddMgApplicationItem: FC<props> = ({ onPress, item }) => {
                 <Text variant='titleMedium' style={[styles.text, styles.appTitle]}>{fmDate}</Text>
             </RRow>
             <TouchableOpacity style={styles.abBtn} onPress={() => onPress(item?.id)}>
-                <Feather name={"plus"} size={20} color={colors.slate[50]} />
+                <Feather name={"plus"} size={moderateScale(20)} color={colors.slate[50]} />
             </TouchableOpacity>
         </RCol>
     )
@@ -51,56 +52,56 @@ export default AddMgApplicationItem
 
 const styles = StyleSheet.create({
     con: {
-        backgroundColor: colors.slate[100], flex: 1, borderRadius: 10,
-        paddingVertical: 6,
-        paddingHorizontal: 4,
-        marginBottom: 6,
-        gap: 4,
+        backgroundColor: colors.slate[100], flex: 1, borderRadius: scale(10),
+        paddingVertical: scale(6),
+        paddingHorizontal: scale(4),
+        marginBottom: scale(6),
+        gap: scale(4),
         borderWidth: 1,
         borderColor: colors.slate[200],
         position: "relative",
-        marginTop: 10
+        marginTop: scale(10),
     },
     itemText: {
         color: colors.slate[600],
-        fontSize: 18
+        fontSize: moderateScale(18),
     },
     regTxt: {
-        fontSize: 14
+        fontSize: moderateScale(14),
     },
     txt: {
         color: colors.gray[400],
-        fontSize: 12,
-        fontWeight: "thin"
+        fontSize: moderateScale(12),
+        fontWeight: "thin",
     },
     row: {
         alignItems: "center",
-        gap: 4,
-        marginVertical: 4
+        gap: scale(4),
+        marginVertical: scale(4),
     },
     abBtn: {
-        position: "absolute", top: -15, right: -6, backgroundColor: colors.violet[900], padding: 10, borderRadius: 100
+        position: "absolute", top: scale(-15), right: scale(-6), backgroundColor: colors.violet[900], padding: scale(10), borderRadius: scale(100),
     },
     trdeName: {
-        fontSize: 11,
+        fontSize: moderateScale(11),
     },
     title: {
         alignItems: "center",
-        gap: 4
+        gap: scale(4),
     },
     text: {
-        textTransform: "capitalize"
+        textTransform: "capitalize",
     },
     wrap: {
         alignItems: "center",
-        justifyContent: "space-between"
+        justifyContent: "space-between",
     },
     appTitle: {
-        fontSize: 12
+        fontSize: moderateScale(12),
     },
     statusTxt: {
         backgroundColor: colors.emerald[100],
-        borderRadius: 5,
-        padding: 4
+        borderRadius: scale(5),
+        padding: scale(4),
     }
 })

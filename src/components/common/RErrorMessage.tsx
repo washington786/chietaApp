@@ -1,5 +1,6 @@
 import { StyleSheet, View } from 'react-native'
 import React from 'react'
+import { verticalScale } from '@/utils/responsive';
 import { Text } from 'react-native-paper'
 import colors from '../../config/colors'
 
@@ -15,7 +16,7 @@ export default RErrorMessage
 
 const styles = StyleSheet.create({
     con: {
-        minHeight: 40,
+        minHeight: verticalScale(40),
         alignItems: "flex-start",
         justifyContent: "flex-start",
     },

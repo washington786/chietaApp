@@ -1,4 +1,5 @@
 import { StyleSheet, View } from 'react-native'
+import { scale } from '@/utils/responsive'
 import RHeader from '@/components/common/RHeader'
 import { RButton, RInput, Scroller, RErrorMessage } from '@/components/common'
 import Animated, { FadeInDown } from 'react-native-reanimated'
@@ -121,22 +122,22 @@ export default ChangePassword
 
 const styles = StyleSheet.create({
     con: {
-        paddingHorizontal: 12,
-        gap: 8,
-        marginTop: 10
+        paddingHorizontal: scale(12),
+        gap: scale(8),
+        marginTop: scale(10)
     },
     btn: {
         backgroundColor: colors.primary[900],
-        borderRadius: 5,
-        marginTop: 30
+        borderRadius: scale(5),
+        marginTop: scale(30)
     },
     col: {
-        marginVertical: 10
+        marginVertical: scale(10)
     },
     anim: {
-        gap: 8
+        gap: scale(8)
     },
     form: {
-        gap: 12
+        gap: scale(12)
     }
 })

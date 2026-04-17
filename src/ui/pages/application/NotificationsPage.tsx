@@ -12,6 +12,7 @@ import { useMarkNotificationAsReadMutation } from '@/store/api/api'
 import { showToast } from '@/core'
 import { StyleSheet } from 'react-native'
 import colors from '@/config/colors'
+import { moderateScale, scale } from '@/utils/responsive'
 
 const NotificationsPage = () => {
 
@@ -173,10 +174,10 @@ export default NotificationsPage
 
 const styles = StyleSheet.create({
     sectionHeader: {
-        fontSize: 14,
+        fontSize: moderateScale(14),
         fontWeight: '600',
         color: colors.slate[600],
-        marginTop: 12,
-        marginBottom: 8,
+        marginTop: scale(12),
+        marginBottom: scale(8),
     },
 });

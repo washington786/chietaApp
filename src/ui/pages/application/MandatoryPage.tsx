@@ -1,4 +1,5 @@
 import { FlatList, StyleSheet, View } from 'react-native'
+import { scale } from '@/utils/responsive'
 import React, { useEffect, useMemo, useState } from 'react'
 import { RCol, REmpty, RListLoading, SafeArea } from '@/components/common'
 import RHeader from '@/components/common/RHeader'
@@ -133,10 +134,10 @@ export default MandatoryPage
 const styles = StyleSheet.create({
     fab: {
         position: 'absolute',
-        margin: 16,
+        margin: scale(16),
         right: 0,
         bottom: 0,
-        borderRadius: 100,
+        borderRadius: scale(100),
         backgroundColor: colors.primary[900]
     },
 })

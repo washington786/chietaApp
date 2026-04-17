@@ -1,5 +1,6 @@
 import { StyleSheet, Text, View } from 'react-native'
 import React, { useCallback } from 'react'
+import { moderateScale, scale } from '@/utils/responsive'
 import { Button, IconButton, Surface, Divider } from 'react-native-paper'
 import { useGlobalBottomSheet, BottomSheetScrollView } from '@/hooks/navigation/BottomSheet'
 import colors from '@/config/colors'
@@ -106,7 +107,7 @@ const DgApplicationEntryItem: React.FC<DgApplicationEntryItemProps> = ({
             <RRow style={styles.actionsContainer}>
                 <IconButton
                     icon="eye"
-                    size={20}
+                    size={moderateScale(20)}
                     iconColor={colors.primary[600]}
                     onPress={handleView}
                     style={styles.iconButton}
@@ -114,7 +115,7 @@ const DgApplicationEntryItem: React.FC<DgApplicationEntryItemProps> = ({
                 {onEdit && (
                     <IconButton
                         icon="pencil"
-                        size={20}
+                        size={moderateScale(20)}
                         iconColor={colors.gray[600]}
                         onPress={() => onEdit(data)}
                         style={styles.iconButton}
@@ -123,7 +124,7 @@ const DgApplicationEntryItem: React.FC<DgApplicationEntryItemProps> = ({
                 {onDelete && (
                     <IconButton
                         icon="trash-can"
-                        size={20}
+                        size={moderateScale(20)}
                         iconColor={colors.red[500]}
                         onPress={() => onDelete(data.id)}
                         style={styles.iconButton}
@@ -184,7 +185,7 @@ const EntryDetailsSheet = ({
                 <Text style={styles.bottomSheetTitle}>Application Details</Text>
                 <IconButton
                     icon="close"
-                    size={24}
+                    size={moderateScale(24)}
                     iconColor={colors.gray[600]}
                     onPress={onClose}
                     style={styles.closeButton}
@@ -283,10 +284,10 @@ export default DgApplicationEntryItem
 const styles = StyleSheet.create({
     card: {
         backgroundColor: colors.white,
-        borderRadius: 16,
-        padding: 16,
-        marginHorizontal: 8,
-        width: 250,
+        borderRadius: scale(16),
+        padding: scale(16),
+        marginHorizontal: scale(8),
+        width: scale(250),
         elevation: 1,
         shadowColor: colors.gray[100],
         shadowOffset: { width: 0, height: 1 },
@@ -294,58 +295,58 @@ const styles = StyleSheet.create({
         shadowRadius: 1,
     },
     content: {
-        marginBottom: 12,
+        marginBottom: scale(12),
     },
     programType: {
-        fontSize: 15,
+        fontSize: moderateScale(15),
         fontWeight: '700',
         color: colors.slate[900],
-        marginBottom: 4,
+        marginBottom: scale(4),
     },
     learningProgramme: {
-        fontSize: 13,
+        fontSize: moderateScale(13),
         color: colors.gray[700],
-        marginBottom: 4,
+        marginBottom: scale(4),
     },
     intervention: {
-        fontSize: 12,
+        fontSize: moderateScale(12),
         color: colors.gray[500],
     },
     divider: {
-        marginBottom: 12,
+        marginBottom: scale(12),
         backgroundColor: colors.gray[200],
     },
     statsContainer: {
         alignItems: 'center',
         justifyContent: 'space-between',
-        marginBottom: 12,
+        marginBottom: scale(12),
     },
     stat: {
-        fontSize: 13,
+        fontSize: moderateScale(13),
         color: colors.primary[600],
         fontWeight: '600',
     },
     actionsContainer: {
         alignItems: 'center',
         justifyContent: 'flex-end',
-        gap: 4,
+        gap: scale(4),
     },
     iconButton: {
         margin: 0,
-        borderRadius: 20,
+        borderRadius: scale(20),
     },
     bottomSheetHeader: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 16,
-        paddingBottom: 12,
+        marginBottom: scale(16),
+        paddingBottom: scale(12),
         borderBottomWidth: 1,
         borderBottomColor: colors.gray[200],
-        paddingHorizontal: 12
+        paddingHorizontal: scale(12),
     },
     bottomSheetTitle: {
-        fontSize: 20,
+        fontSize: moderateScale(20),
         fontWeight: 'bold',
         color: colors.slate[900],
     },
@@ -353,10 +354,10 @@ const styles = StyleSheet.create({
         margin: 0,
     },
     detailSection: {
-        marginBottom: 24,
+        marginBottom: scale(24),
         backgroundColor: colors.white,
-        borderRadius: 12,
-        padding: 16,
+        borderRadius: scale(12),
+        padding: scale(16),
         elevation: 1,
         shadowColor: colors.black,
         shadowOffset: { width: 0, height: 1 },
@@ -364,39 +365,39 @@ const styles = StyleSheet.create({
         shadowRadius: 2,
     },
     sectionTitle: {
-        fontSize: 16,
+        fontSize: moderateScale(16),
         fontWeight: '600',
         color: colors.slate[900],
-        marginBottom: 12,
+        marginBottom: scale(12),
     },
     detailRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'flex-start',
-        paddingVertical: 10,
+        paddingVertical: scale(10),
         borderBottomWidth: 1,
         borderBottomColor: colors.gray[100],
     },
     highlightedRow: {
         backgroundColor: colors.primary[50],
-        borderRadius: 8,
-        paddingHorizontal: 8,
-        marginHorizontal: -8,
-        marginVertical: 4,
+        borderRadius: scale(8),
+        paddingHorizontal: scale(8),
+        marginHorizontal: scale(-8),
+        marginVertical: scale(4),
     },
     label: {
-        fontSize: 14,
+        fontSize: moderateScale(14),
         color: colors.gray[600],
         width: '38%',
-        minWidth: 96,
-        marginRight: 10,
+        minWidth: scale(96),
+        marginRight: scale(10),
     },
     highlightedLabel: {
         fontWeight: '600',
         color: colors.primary[700],
     },
     value: {
-        fontSize: 14,
+        fontSize: moderateScale(14),
         fontWeight: '500',
         color: colors.slate[900],
         flex: 1,
@@ -408,26 +409,26 @@ const styles = StyleSheet.create({
     },
     actionButtons: {
         flexDirection: 'row',
-        gap: 12,
-        marginTop: 16,
-        paddingHorizontal: 16,
+        gap: scale(12),
+        marginTop: scale(16),
+        paddingHorizontal: scale(16),
     },
     editButton: {
         flex: 1,
         backgroundColor: colors.blue[600],
-        borderRadius: 8,
+        borderRadius: scale(8),
     },
     deleteButton: {
         flex: 1,
         backgroundColor: colors.red[600],
-        borderRadius: 8,
+        borderRadius: scale(8),
     },
     buttonText: {
         color: colors.white,
         fontWeight: '600',
     },
     bottomSheetContentContainer: {
-        paddingHorizontal: 12,
-        paddingBottom: 48,
+        paddingHorizontal: scale(12),
+        paddingBottom: scale(48),
     },
 })

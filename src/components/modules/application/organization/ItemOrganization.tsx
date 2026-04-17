@@ -4,6 +4,7 @@ import colors from '@/config/colors'
 import appFonts from '@/config/fonts'
 import { Text } from 'react-native-paper'
 import Ionicons from '@expo/vector-icons/Ionicons'
+import { moderateScale, scale } from '@/utils/responsive'
 import { OrganisationDto } from '@/core/models/organizationDto'
 
 interface props {
@@ -48,7 +49,7 @@ const ItemOrganization: FC<props> = ({ onPress, item, isLinked = false, isLinkin
                 )}
                 <View style={styles.metaRow}>
                     <View style={styles.regChip}>
-                        <Ionicons name='barcode-outline' size={11} color={colors.slate[400]} />
+                        <Ionicons name='barcode-outline' size={moderateScale(11)} color={colors.slate[400]} />
                         <Text style={styles.regText}>{organisationRegistrationNumber ?? 'N/A'}</Text>
                     </View>
                     <View style={[styles.statusBadge, isActive ? styles.statusActive : styles.statusInactive]}>
@@ -59,7 +60,7 @@ const ItemOrganization: FC<props> = ({ onPress, item, isLinked = false, isLinkin
                     </View>
                     {isLinked && (
                         <View style={styles.linkedBadge}>
-                            <Ionicons name='link' size={11} color={colors.primary[600]} />
+                            <Ionicons name='link' size={moderateScale(11)} color={colors.primary[600]} />
                             <Text style={styles.linkedText}>Linked</Text>
                         </View>
                     )}
@@ -80,11 +81,11 @@ const ItemOrganization: FC<props> = ({ onPress, item, isLinked = false, isLinkin
                 ]}
             >
                 {isLinking ? (
-                    <ActivityIndicator size={18} color={colors.white} />
+                    <ActivityIndicator size={moderateScale(18)} color={colors.white} />
                 ) : isLinked ? (
-                    <Ionicons name='checkmark' size={20} color={colors.primary[600]} />
+                    <Ionicons name='checkmark' size={moderateScale(20)} color={colors.primary[600]} />
                 ) : (
-                    <Ionicons name='add' size={22} color={colors.white} />
+                    <Ionicons name='add' size={moderateScale(22)} color={colors.white} />
                 )}
             </TouchableOpacity>
         </Animated.View>
@@ -98,46 +99,46 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         backgroundColor: colors.white,
-        borderRadius: 14,
+        borderRadius: scale(14),
         overflow: 'hidden',
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.07,
         shadowRadius: 8,
         elevation: 3,
-        gap: 12,
-        paddingRight: 14,
-        paddingVertical: 12,
+        gap: scale(12),
+        paddingRight: scale(14),
+        paddingVertical: scale(12),
     },
     accent: {
-        width: 4,
+        width: scale(4),
         alignSelf: 'stretch',
-        borderTopLeftRadius: 14,
-        borderBottomLeftRadius: 14,
+        borderTopLeftRadius: scale(14),
+        borderBottomLeftRadius: scale(14),
     },
     avatar: {
-        width: 44,
-        height: 44,
-        borderRadius: 22,
+        width: scale(44),
+        height: scale(44),
+        borderRadius: scale(22),
         alignItems: 'center',
         justifyContent: 'center',
         flexShrink: 0,
     },
     avatarText: {
-        fontSize: 15,
+        fontSize: moderateScale(15),
         fontFamily: `${appFonts.bold}`,
     },
     info: {
         flex: 1,
-        gap: 4,
+        gap: scale(4),
     },
     tradeName: {
-        fontSize: 14,
+        fontSize: moderateScale(14),
         fontFamily: `${appFonts.semiBold}`,
         color: colors.gray[800],
     },
     orgName: {
-        fontSize: 12,
+        fontSize: moderateScale(12),
         fontFamily: `${appFonts.regular}`,
         color: colors.slate[500],
     },
@@ -145,56 +146,56 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         flexWrap: 'wrap',
         alignItems: 'center',
-        gap: 6,
-        marginTop: 2,
+        gap: scale(6),
+        marginTop: scale(2),
     },
     regChip: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 3,
+        gap: scale(3),
     },
     regText: {
-        fontSize: 11,
+        fontSize: moderateScale(11),
         fontFamily: `${appFonts.regular}`,
         color: colors.slate[400],
     },
     statusBadge: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 4,
-        paddingHorizontal: 7,
-        paddingVertical: 2,
-        borderRadius: 20,
+        gap: scale(4),
+        paddingHorizontal: scale(7),
+        paddingVertical: scale(2),
+        borderRadius: scale(20),
     },
     statusActive: { backgroundColor: colors.emerald[50] },
     statusInactive: { backgroundColor: colors.red[50] },
     dot: {
-        width: 6,
-        height: 6,
-        borderRadius: 3,
+        width: scale(6),
+        height: scale(6),
+        borderRadius: scale(3),
     },
     statusText: {
-        fontSize: 10,
+        fontSize: moderateScale(10),
         fontFamily: `${appFonts.semiBold}`,
     },
     linkedBadge: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 3,
+        gap: scale(3),
         backgroundColor: colors.primary[50],
-        paddingHorizontal: 7,
-        paddingVertical: 2,
-        borderRadius: 20,
+        paddingHorizontal: scale(7),
+        paddingVertical: scale(2),
+        borderRadius: scale(20),
     },
     linkedText: {
-        fontSize: 10,
+        fontSize: moderateScale(10),
         fontFamily: `${appFonts.semiBold}`,
         color: colors.primary[600],
     },
     action: {
-        width: 38,
-        height: 38,
-        borderRadius: 19,
+        width: scale(38),
+        height: scale(38),
+        borderRadius: scale(19),
         backgroundColor: colors.primary[950],
         alignItems: 'center',
         justifyContent: 'center',

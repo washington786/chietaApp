@@ -13,6 +13,7 @@ import AuthScreenLayout, { authScreenStyles } from "@/components/modules/authent
 import AuthGradientButton from "@/components/modules/authentication/AuthGradientButton";
 import { clearError } from "@/store/slice/AuthSlice";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import { moderateScale, scale } from '@/utils/responsive';
 
 const initialValues = {
     email: "",
@@ -56,10 +57,10 @@ function PasswordStrength({ password }: { password: string }) {
     );
 }
 const pStyles = StyleSheet.create({
-    wrap: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 6, marginHorizontal: 2 },
-    bars: { flexDirection: 'row', gap: 4, flex: 1 },
-    bar: { flex: 1, height: 3, borderRadius: 3 },
-    label: { fontSize: 11, fontWeight: '700', minWidth: 52, textAlign: 'right' },
+    wrap: { flexDirection: 'row', alignItems: 'center', gap: scale(8), marginTop: scale(6), marginHorizontal: scale(2) },
+    bars: { flexDirection: 'row', gap: scale(4), flex: 1 },
+    bar: { flex: 1, height: scale(3), borderRadius: 3 },
+    label: { fontSize: moderateScale(11), fontWeight: '700', minWidth: scale(52), textAlign: 'right' },
 });
 
 const RegisterScreen = () => {
@@ -133,7 +134,7 @@ const RegisterScreen = () => {
                     touched,
                     values,
                 }) => (
-                    <View style={[authScreenStyles.formWrapper, { gap: 16 }]}>
+                    <View style={[authScreenStyles.formWrapper, { gap: scale(16) }]}>
                         <View style={styles.nameRow}>
                             <View style={styles.halfWrap}>
                                 <RInput
@@ -217,7 +218,7 @@ const RegisterScreen = () => {
                                 <View style={styles.matchRow}>
                                     <MaterialCommunityIcons
                                         name={values.password === values.confirmPassword ? 'check-circle-outline' : 'close-circle-outline'}
-                                        size={13}
+                                        size={moderateScale(13)}
                                         color={values.password === values.confirmPassword ? '#22c55e' : '#ef4444'}
                                     />
                                     <Text style={[styles.matchText, { color: values.password === values.confirmPassword ? '#22c55e' : '#ef4444' }]}>
@@ -253,16 +254,16 @@ export default RegisterScreen;
 
 const styles = StyleSheet.create({
     inputText: { color: '#111827' },
-    nameRow: { flexDirection: 'row', gap: 10 },
+    nameRow: { flexDirection: 'row', gap: scale(10) },
     halfWrap: { flex: 1 },
-    matchRow: { flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 6, marginHorizontal: 2 },
-    matchText: { fontSize: 11, fontWeight: '600' },
+    matchRow: { flexDirection: 'row', alignItems: 'center', gap: scale(5), marginTop: scale(6), marginHorizontal: scale(2) },
+    matchText: { fontSize: moderateScale(11), fontWeight: '600' },
     popiaText: {
-        fontSize: 11,
+        fontSize: moderateScale(11),
         color: '#9ca3af',
         textAlign: 'center',
-        lineHeight: 17,
-        paddingHorizontal: 4,
+        lineHeight: moderateScale(17),
+        paddingHorizontal: scale(4),
     },
     popiaLink: {
         color: '#6b7280',

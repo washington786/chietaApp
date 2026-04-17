@@ -1,5 +1,6 @@
 import { StyleSheet, Text, View } from 'react-native'
 import React, { FC, memo, useMemo } from 'react'
+import { moderateScale, scale, verticalScale } from '@/utils/responsive';
 import { Feather } from '@expo/vector-icons'
 import colors from '@/config/colors'
 import appFonts from '@/config/fonts'
@@ -56,36 +57,36 @@ const styles = StyleSheet.create({
         width: '100%',
     },
     label: {
-        fontSize: 12,
+        fontSize: moderateScale(12),
         color: colors.gray[400],
-        marginBottom: 6,
+        marginBottom: verticalScale(6),
         fontFamily: `${appFonts.medium}`,
     },
     selectBox: {
-        borderRadius: 8,
+        borderRadius: scale(8),
         borderWidth: 1,
         borderColor: colors.zinc[200],
         backgroundColor: colors.zinc[100],
-        paddingHorizontal: 16,
-        paddingVertical: 14,
+        paddingHorizontal: scale(16),
+        paddingVertical: verticalScale(14),
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
     },
     value: {
         flex: 1,
-        fontSize: 16,
+        fontSize: moderateScale(16),
         color: colors.gray[400],
         fontFamily: `${appFonts.semiBold}`,
-        marginRight: 12,
+        marginRight: scale(12),
     },
     placeholder: {
         color: colors.slate[300],
         fontFamily: `${appFonts.medium}`,
     },
     helper: {
-        marginTop: 6,
-        fontSize: 11,
+        marginTop: verticalScale(6),
+        fontSize: moderateScale(11),
         color: colors.slate[300],
         fontFamily: `${appFonts.medium}`,
     },

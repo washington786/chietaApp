@@ -18,6 +18,7 @@ import {
     resendOtpCode,
 } from '@/store/slice/PasswordResetSlice';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { moderateScale, scale, verticalScale } from '@/utils/responsive';
 
 interface OtpFormValues {
     otp: string
@@ -37,7 +38,7 @@ function StepFlow({ current }: { current: number }) {
                     <View style={sfStyles.step}>
                         <View style={[sfStyles.circle, step.n <= current && sfStyles.circleActive]}>
                             {step.n < current
-                                ? <MaterialCommunityIcons name='check' size={12} color='#fff' />
+                                ? <MaterialCommunityIcons name='check' size={moderateScale(12)} color='#fff' />
                                 : <Text style={[sfStyles.num, step.n === current && sfStyles.numActive]}>{step.n}</Text>
                             }
                         </View>
@@ -52,15 +53,15 @@ function StepFlow({ current }: { current: number }) {
     );
 }
 const sfStyles = StyleSheet.create({
-    row: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'center', marginVertical: 8 },
-    step: { alignItems: 'center', gap: 6, width: 56 },
-    circle: { width: 30, height: 30, borderRadius: 15, backgroundColor: '#f3f4f6', borderWidth: 1.5, borderColor: '#e5e7eb', justifyContent: 'center', alignItems: 'center' },
+    row: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'center', marginVertical: scale(8) },
+    step: { alignItems: 'center', gap: scale(6), width: scale(56) },
+    circle: { width: scale(30), height: scale(30), borderRadius: scale(15), backgroundColor: '#f3f4f6', borderWidth: 1.5, borderColor: '#e5e7eb', justifyContent: 'center', alignItems: 'center' },
     circleActive: { backgroundColor: colors.primary[700], borderColor: colors.primary[600] },
-    num: { fontSize: 12, fontWeight: '700', color: '#9ca3af' },
+    num: { fontSize: moderateScale(12), fontWeight: '700', color: '#9ca3af' },
     numActive: { color: '#fff' },
-    label: { fontSize: 10, fontWeight: '600', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: 0.4 },
+    label: { fontSize: moderateScale(10), fontWeight: '600', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: 0.4 },
     labelActive: { color: colors.primary[700] },
-    connector: { flex: 1, height: 1.5, backgroundColor: '#e5e7eb', marginTop: 14 },
+    connector: { flex: 1, height: 1.5, backgroundColor: '#e5e7eb', marginTop: scale(14) },
     connectorDone: { backgroundColor: colors.primary[600] },
 });
 
@@ -170,7 +171,7 @@ const OtpScreen = () => {
         return (
             <AuthScreenLayout title='Session Expired' subtitle='Your reset session could not be found.'>
                 <View style={styles.centeredState}>
-                    <MaterialCommunityIcons name='email-alert-outline' size={48} color='rgba(255,255,255,0.5)' />
+                    <MaterialCommunityIcons name='email-alert-outline' size={moderateScale(48)} color='rgba(255,255,255,0.5)' />
                     <Text style={styles.stateText}>Please go back and enter your email again to start the password reset process.</Text>
                     <RErrorMessage error='Email not found. Please start the reset process again.' />
                 </View>
@@ -184,7 +185,7 @@ const OtpScreen = () => {
             <AuthScreenLayout title='Account Locked' subtitle='Too many failed attempts.'>
                 <View style={styles.centeredState}>
                     <View style={styles.lockIconWrap}>
-                        <MaterialCommunityIcons name='lock-alert-outline' size={40} color={colors.red[400]} />
+                        <MaterialCommunityIcons name='lock-alert-outline' size={moderateScale(40)} color={colors.red[400]} />
                     </View>
                     <Text style={styles.lockText}>
                         Please wait <Text style={styles.lockCountdown}>{lockoutTimeRemaining}s</Text> before trying again.
@@ -244,19 +245,19 @@ const OtpScreen = () => {
                             type='numeric'
                             disabled={isLoading}
                             theme={{
-                                containerStyle: { marginVertical: 4 },
-                                inputsContainerStyle: { gap: 8 },
+                                containerStyle: { marginVertical: scale(4) },
+                                inputsContainerStyle: { gap: scale(8) },
                                 pinCodeContainerStyle: {
                                     backgroundColor: '#f9fafb',
-                                    borderRadius: 14,
+                                    borderRadius: scale(14),
                                     borderWidth: 1.5,
                                     borderColor: '#e5e7eb',
-                                    height: 54,
-                                    width: 44,
+                                    height: verticalScale(54),
+                                    width: scale(44),
                                 },
                                 pinCodeTextStyle: {
                                     color: '#111827',
-                                    fontSize: 22,
+                                    fontSize: moderateScale(22),
                                     fontWeight: '700',
                                 },
                                 focusedPinCodeContainerStyle: {
@@ -271,7 +272,7 @@ const OtpScreen = () => {
                         {/* Attempts warning */}
                         {failedAttempts > 0 && failedAttempts < maxAttempts && (
                             <View style={styles.statusRow}>
-                                <MaterialCommunityIcons name='alert-circle-outline' size={13} color={colors.yellow[500]} />
+                                <MaterialCommunityIcons name='alert-circle-outline' size={moderateScale(13)} color={colors.yellow[500]} />
                                 <Text style={[styles.statusText, { color: colors.yellow[500] }]}>
                                     {maxAttempts - failedAttempts} attempt{maxAttempts - failedAttempts !== 1 ? 's' : ''} remaining
                                 </Text>
@@ -281,7 +282,7 @@ const OtpScreen = () => {
                         {/* OTP expiry warning */}
                         {timeRemaining !== null && timeRemaining < 60 && timeRemaining > 0 && (
                             <View style={styles.statusRow}>
-                                <MaterialCommunityIcons name='clock-alert-outline' size={13} color={colors.yellow[500]} />
+                                <MaterialCommunityIcons name='clock-alert-outline' size={moderateScale(13)} color={colors.yellow[500]} />
                                 <Text style={[styles.statusText, { color: colors.yellow[500] }]}>
                                     Code expires in {Math.floor(timeRemaining / 60)}:{String(timeRemaining % 60).padStart(2, '0')}
                                 </Text>
@@ -291,7 +292,7 @@ const OtpScreen = () => {
                         {/* OTP expired */}
                         {timeRemaining === 0 && (
                             <View style={styles.statusRow}>
-                                <MaterialCommunityIcons name='clock-remove-outline' size={13} color={colors.red[400]} />
+                                <MaterialCommunityIcons name='clock-remove-outline' size={moderateScale(13)} color={colors.red[400]} />
                                 <Text style={[styles.statusText, { color: colors.red[400] }]}>
                                     Code has expired. Please request a new one.
                                 </Text>
@@ -318,32 +319,32 @@ const styles = StyleSheet.create({
     statusRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 6,
+        gap: scale(6),
     },
     statusText: {
-        fontSize: 12,
+        fontSize: moderateScale(12),
         fontFamily: `${appFonts.medium}`,
     },
     errorWrap: {
-        marginBottom: 4,
+        marginBottom: scale(4),
     },
     // Resend footer
     resendRow: {
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
-        gap: 6,
-        marginTop: 18,
+        gap: scale(6),
+        marginTop: scale(18),
     },
     resendHint: {
         color: '#6b7280',
         fontFamily: `${appFonts.medium}`,
-        fontSize: 13,
+        fontSize: moderateScale(13),
     },
     resendLink: {
         color: colors.primary[700],
         fontFamily: `${appFonts.semiBold}`,
-        fontSize: 13,
+        fontSize: moderateScale(13),
     },
     resendLinkDisabled: {
         color: '#d1d5db',
@@ -351,20 +352,20 @@ const styles = StyleSheet.create({
     // Error / lockout states
     centeredState: {
         alignItems: 'center',
-        gap: 14,
-        paddingVertical: 8,
+        gap: scale(14),
+        paddingVertical: scale(8),
     },
     stateText: {
         color: 'rgba(255,255,255,0.65)',
-        fontSize: 13,
+        fontSize: moderateScale(13),
         fontFamily: `${appFonts.medium}`,
         textAlign: 'center',
-        lineHeight: 20,
+        lineHeight: moderateScale(20),
     },
     lockIconWrap: {
-        width: 72,
-        height: 72,
-        borderRadius: 36,
+        width: scale(72),
+        height: scale(72),
+        borderRadius: scale(36),
         backgroundColor: 'rgba(255,255,255,0.08)',
         alignItems: 'center',
         justifyContent: 'center',
@@ -373,7 +374,7 @@ const styles = StyleSheet.create({
     },
     lockText: {
         color: 'rgba(255,255,255,0.75)',
-        fontSize: 14,
+        fontSize: moderateScale(14),
         fontFamily: `${appFonts.medium}`,
         textAlign: 'center',
     },

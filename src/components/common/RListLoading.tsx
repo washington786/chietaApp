@@ -1,5 +1,6 @@
 import { FlatList, StyleSheet } from 'react-native'
 import React, { FC, useMemo } from 'react'
+import { scale, verticalScale } from '@/utils/responsive';
 import SkeletonLoader from './SkeletonLoader'
 
 interface props {
@@ -25,6 +26,6 @@ export default RListLoading
 
 const styles = StyleSheet.create({
     con: {
-        flex: 1, flexGrow: 1, paddingHorizontal: 12, paddingVertical: 8
+        flex: 1, flexGrow: 1, paddingHorizontal: scale(12), paddingVertical: verticalScale(8),
     }
 })

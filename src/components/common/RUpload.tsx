@@ -1,5 +1,6 @@
 import { StyleSheet, Text, TouchableOpacity } from "react-native";
 import React, { FC } from "react";
+import { scale, verticalScale } from '@/utils/responsive';
 
 
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -22,13 +23,13 @@ export default RUpload;
 
 const styles = StyleSheet.create({
   con: {
-    minHeight: 80,
-    borderRadius: 15,
+    minHeight: verticalScale(80),
+    borderRadius: scale(15),
     borderWidth: 1,
     borderColor: colors.blue[400],
     borderStyle: "dashed",
     alignItems: "center",
     justifyContent: "center",
-    gap: 4,
+    gap: scale(4),
   },
 });

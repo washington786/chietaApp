@@ -5,6 +5,7 @@ import { Animated, TouchableOpacity } from 'react-native';
 import { View } from 'react-native';
 import { StyleSheet } from 'react-native';
 import { Text } from 'react-native-paper';
+import { moderateScale, scale } from '@/utils/responsive';
 
 interface HeaderProps {
     currentDayTime: string;
@@ -95,28 +96,29 @@ const styles = StyleSheet.create({
         borderBottomColor: colors.slate[200],
     },
     greeting: {
-        fontSize: 14,
+        fontSize: moderateScale(14),
         fontWeight: '400',
         color: colors.slate[500],
         textTransform: 'capitalize',
         letterSpacing: 0.3,
     },
     userName: {
-        fontSize: 22,
+        fontSize: moderateScale(21),
         fontWeight: '800',
         color: colors.primary[950],
         marginTop: 2,
+        flexShrink: 1,
     },
     linkButtonContainer: {
         position: 'absolute',
         top: 20,
-        right: 60,
+        right: scale(56),
         zIndex: 1,
     },
     linkButton: {
         backgroundColor: colors.primary[950],
-        height: 40,
-        paddingHorizontal: 16,
+        height: scale(38),
+        paddingHorizontal: scale(14),
         borderRadius: 20,
         alignItems: 'center',
         justifyContent: 'center',
@@ -127,14 +129,14 @@ const styles = StyleSheet.create({
     },
     linkButtonText: {
         color: colors.zinc[50],
-        fontSize: 14,
+        fontSize: moderateScale(13),
         fontWeight: '600',
         textTransform: 'capitalize',
     },
     headerActions: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 16,
+        gap: scale(12),
     },
     iconButton: {
         position: 'relative',
@@ -144,9 +146,9 @@ const styles = StyleSheet.create({
         position: 'absolute',
         top: 2,
         right: 2,
-        width: 11,
-        height: 11,
-        borderRadius: 6,
+        width: scale(10),
+        height: scale(10),
+        borderRadius: scale(5),
         backgroundColor: colors.red[500],
         borderWidth: 2,
         borderColor: '#fff',
@@ -154,9 +156,9 @@ const styles = StyleSheet.create({
     },
     addButton: {
         backgroundColor: colors.primary[900],
-        borderRadius: 12,
-        height: 42,
-        width: 42,
+        borderRadius: scale(12),
+        height: scale(40),
+        width: scale(40),
         alignItems: 'center',
         justifyContent: 'center',
         shadowColor: colors.primary[950],

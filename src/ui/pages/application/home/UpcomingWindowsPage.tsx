@@ -6,6 +6,7 @@ import {
     TouchableOpacity,
     View,
 } from 'react-native'
+import { moderateScale } from '@/utils/responsive'
 import Animated, { FadeInDown } from 'react-native-reanimated'
 import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons'
 import { REmpty, RListLoading, SafeArea } from '@/components/common'
@@ -28,7 +29,7 @@ const EventCard = memo(({ item, index }: EventCardProps) => {
                         <Text style={styles.progBadgeText}>{item.progCd}</Text>
                     </View>
                     <View style={[styles.daysChip, { backgroundColor: daysChipColor(days) }]}>
-                        <MaterialCommunityIcons name="clock-outline" size={12} color="#fff" style={{ marginRight: 4 }} />
+                        <MaterialCommunityIcons name="clock-outline" size={moderateScale(12)} color="#fff" style={{ marginRight: 4 }} />
                         <Text style={styles.daysChipText}>{daysLabel(days)}</Text>
                     </View>
                 </View>
@@ -38,7 +39,7 @@ const EventCard = memo(({ item, index }: EventCardProps) => {
 
                 {/* Reference */}
                 <View style={styles.refRow}>
-                    <MaterialCommunityIcons name="tag-outline" size={13} color={colors.primary[400]} />
+                    <MaterialCommunityIcons name="tag-outline" size={moderateScale(13)} color={colors.primary[400]} />
                     <Text style={styles.refText}>{item.reference}</Text>
                 </View>
 
@@ -51,7 +52,7 @@ const EventCard = memo(({ item, index }: EventCardProps) => {
                 {/* Dates row */}
                 <View style={styles.datesRow}>
                     <View style={styles.dateBlock}>
-                        <MaterialCommunityIcons name="rocket-launch-outline" size={14} color={colors.primary[400]} />
+                        <MaterialCommunityIcons name="rocket-launch-outline" size={moderateScale(14)} color={colors.primary[400]} />
                         <View style={styles.dateTexts}>
                             <Text style={styles.dateLbl}>Launch Date</Text>
                             <Text style={styles.dateVal}>{fmtDate(item.launchDte)}</Text>
@@ -59,7 +60,7 @@ const EventCard = memo(({ item, index }: EventCardProps) => {
                     </View>
                     <View style={styles.dateSep} />
                     <View style={styles.dateBlock}>
-                        <MaterialCommunityIcons name="flag-checkered" size={14} color={colors.primary[400]} />
+                        <MaterialCommunityIcons name="flag-checkered" size={moderateScale(14)} color={colors.primary[400]} />
                         <View style={styles.dateTexts}>
                             <Text style={styles.dateLbl}>Deadline</Text>
                             <Text style={styles.dateVal}>{fmtDate(item.deadlineTime)}</Text>
@@ -75,7 +76,7 @@ const EventCard = memo(({ item, index }: EventCardProps) => {
 const GrantToggle = memo(({ value, onChange }: ToggleProps) => (
     <View style={styles.toggleContainer}>
         <View style={styles.toggleHeader}>
-            <Ionicons name="calendar-outline" size={14} color={colors.primary[500]} />
+            <Ionicons name="calendar-outline" size={moderateScale(14)} color={colors.primary[500]} />
             <Text style={styles.toggleHeaderText}>Grant Type</Text>
         </View>
         <View style={styles.toggle}>
@@ -92,7 +93,7 @@ const GrantToggle = memo(({ value, onChange }: ToggleProps) => (
                         <View style={[styles.toggleIconWrap, active && styles.toggleIconWrapActive]}>
                             <Ionicons
                                 name={active ? opt.iconActive : opt.icon}
-                                size={18}
+                                size={moderateScale(18)}
                                 color={active ? '#fff' : colors.primary[500]}
                             />
                         </View>

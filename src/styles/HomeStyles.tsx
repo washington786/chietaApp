@@ -1,5 +1,6 @@
 import colors from "@/config/colors";
 import { StyleSheet } from "react-native";
+import { moderateScale, scale, verticalScale } from "@/utils/responsive";
 
 export const home_styles = StyleSheet.create({
     container: {
@@ -23,19 +24,19 @@ export const home_styles = StyleSheet.create({
         position: "relative"
     },
     greeting: {
-        fontSize: 30,
+        fontSize: moderateScale(30),
         fontWeight: '300',
         color: '#374151',
         textTransform: "capitalize"
     },
     userName: {
-        fontSize: 28,
+        fontSize: moderateScale(28),
         fontWeight: '800',
         color: '#111827',
         marginTop: 4,
     },
     subtitle: {
-        fontSize: 15,
+        fontSize: moderateScale(15),
         color: colors.slate[50],
         paddingLeft: 16,
         paddingVertical: 10
@@ -87,14 +88,14 @@ export const home_styles = StyleSheet.create({
     },
 
     statValue: {
-        fontSize: 36,
+        fontSize: moderateScale(36),
         fontWeight: '800',
         color: '#fff',
         marginTop: 8,
     },
 
     statLabel: {
-        fontSize: 14,
+        fontSize: moderateScale(14),
         fontWeight: '600',
         color: '#fff',
         marginTop: 4,
@@ -112,7 +113,7 @@ export const home_styles = StyleSheet.create({
         elevation: 1,
     },
     sectionTitle: {
-        fontSize: 18,
+        fontSize: moderateScale(18),
         fontWeight: '700',
         color: colors.primary[950],
         letterSpacing: 0.1,
@@ -127,34 +128,34 @@ export const home_styles = StyleSheet.create({
         flex: 1,
         backgroundColor: colors.primary[950],
         borderRadius: 10,
-        padding: 26,
+        padding: scale(20),
         alignItems: 'center',
     },
     timelineLabel: {
         color: colors.zinc[50],
         fontWeight: '600',
         marginBottom: 5,
-        fontSize: 12,
+        fontSize: moderateScale(12),
         textAlign: "center"
     },
     countdownContainer: {
         alignItems: 'center',
     },
     countdownValue: {
-        fontSize: 16,
+        fontSize: moderateScale(16),
         fontWeight: '800',
         color: colors.secondary[200],
         letterSpacing: 2,
         marginVertical: 10,
     },
     countdownUnit: {
-        fontSize: 12,
+        fontSize: moderateScale(12),
         color: colors.secondary[400],
     },
     statusBadge: {
-        marginTop: 18,
-        paddingHorizontal: 18,
-        paddingVertical: 8,
+        marginTop: scale(14),
+        paddingHorizontal: scale(16),
+        paddingVertical: scale(6),
         backgroundColor: colors.red[600],
         borderRadius: 20,
         justifyContent: "center",
@@ -162,7 +163,7 @@ export const home_styles = StyleSheet.create({
     },
     statusText: {
         color: colors.zinc[50],
-        fontSize: 12,
+        fontSize: moderateScale(12),
         fontWeight: '700',
         letterSpacing: 1,
         textTransform: 'uppercase',
@@ -180,17 +181,17 @@ export const home_styles = StyleSheet.create({
     viewAllText: {
         color: colors.primary[700],
         fontWeight: '600',
-        fontSize: 13,
+        fontSize: moderateScale(13),
     },
 
     /* Chatbot FAB */
     fab: {
         position: 'absolute',
-        bottom: 32,
-        right: 24,
-        width: 60,
-        height: 60,
-        borderRadius: 30,
+        bottom: scale(28),
+        right: scale(20),
+        width: scale(56),
+        height: scale(56),
+        borderRadius: scale(28),
         backgroundColor: colors.primary[800],
         justifyContent: 'center',
         alignItems: 'center',

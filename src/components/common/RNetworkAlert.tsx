@@ -1,4 +1,5 @@
 import { StyleSheet, Animated, Dimensions } from "react-native";
+import { moderateScale, scale, verticalScale } from '@/utils/responsive';
 import React, { useEffect, useRef } from "react";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text, useTheme } from "react-native-paper";
@@ -71,8 +72,8 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     width,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
+    paddingVertical: verticalScale(8),
+    paddingHorizontal: scale(16),
     alignItems: 'center',
     zIndex: 1000,
     elevation: 5,
@@ -80,11 +81,11 @@ const styles = StyleSheet.create({
   text: {
     color: '#fff',
     fontWeight: 'bold',
-    fontSize: 14,
+    fontSize: moderateScale(14),
   },
   subText: {
     color: '#fff',
-    fontSize: 12,
-    marginTop: 2,
+    fontSize: moderateScale(12),
+    marginTop: verticalScale(2),
   },
 });

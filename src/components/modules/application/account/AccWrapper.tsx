@@ -2,6 +2,7 @@ import { RRow } from "@/components/common";
 import { StyleSheet, TextStyle, TouchableOpacity, View, ViewStyle } from "react-native";
 import { Text } from "react-native-paper";
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { moderateScale, scale } from '@/utils/responsive';
 import colors from "@/config/colors";
 interface props {
     title?: string;
@@ -24,7 +25,7 @@ export function AccWrapper({ icon, title, onPress, dangerStyle, dangerTextStyle,
                     ]}>
                         <Ionicons
                             name={icon}
-                            size={20}
+                            size={moderateScale(20)}
                             color={isDanger ? colors.red[600] : colors.primary[700]}
                         />
                     </View>
@@ -37,7 +38,7 @@ export function AccWrapper({ icon, title, onPress, dangerStyle, dangerTextStyle,
                 </RRow>
                 <Ionicons
                     name="chevron-forward"
-                    size={18}
+                    size={moderateScale(18)}
                     color={isDanger ? colors.red[400] : colors.slate[400]}
                 />
             </RRow>
@@ -48,18 +49,18 @@ const styles = StyleSheet.create({
     wrap: {
         alignItems: "center",
         justifyContent: "space-between",
-        paddingHorizontal: 16,
-        paddingVertical: 14,
+        paddingHorizontal: scale(16),
+        paddingVertical: scale(14),
     },
     rw: {
         alignItems: "center",
-        gap: 12,
+        gap: scale(12),
         flex: 1,
     },
     iconWrap: {
-        width: 38,
-        height: 38,
-        borderRadius: 10,
+        width: scale(38),
+        height: scale(38),
+        borderRadius: scale(10),
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -70,7 +71,7 @@ const styles = StyleSheet.create({
         backgroundColor: colors.red[100],
     },
     label: {
-        fontSize: 15,
+        fontSize: moderateScale(15),
         fontWeight: '500',
         color: colors.slate[800],
         textTransform: 'capitalize',

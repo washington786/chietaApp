@@ -1,4 +1,5 @@
 import { StyleSheet, View, TouchableOpacity } from 'react-native'
+import { moderateScale, scale } from '@/utils/responsive'
 import React, { ReactNode, useEffect, useRef } from 'react'
 import { RButton, RErrorMessage, RInput, RListLoading, RRow, Scroller } from '@/components/common'
 import RHeader from '@/components/common/RHeader'
@@ -95,7 +96,7 @@ const AccountSettingsPage = () => {
                         <View style={[styles.verifiedBadge, !user.isEmailConfirmed && styles.unverifiedBadge]}>
                             <MaterialIcons
                                 name={user.isEmailConfirmed ? 'verified' : 'cancel'}
-                                size={12}
+                                size={moderateScale(12)}
                                 color={user.isEmailConfirmed ? colors.emerald[600] : colors.red[500]}
                             />
                             <Text style={[styles.verifiedText, !user.isEmailConfirmed && styles.unverifiedText]}>
@@ -112,7 +113,7 @@ const AccountSettingsPage = () => {
                     <View style={styles.iconContainer}>
                         <Ionicons
                             name="warning-outline"
-                            size={16}
+                            size={moderateScale(16)}
                             color="#854d0e"
                         />
                     </View>
@@ -159,7 +160,7 @@ const AccountSettingsPage = () => {
                     <TouchableOpacity style={styles.editToggleBtn} onPress={() => setShowForm(v => !v)} activeOpacity={0.75}>
                         <MaterialCommunityIcons
                             name={showForm ? 'chevron-up' : 'pencil-outline'}
-                            size={18}
+                            size={moderateScale(18)}
                             color={colors.primary[600]}
                         />
                         <Text style={styles.editToggleText}>
@@ -217,7 +218,7 @@ const AccountSettingsPage = () => {
                                             <View style={[styles.verifiedBadge, !user?.isEmailConfirmed && styles.unverifiedBadge]}>
                                                 <MaterialIcons
                                                     name={user?.isEmailConfirmed ? 'verified' : 'cancel'}
-                                                    size={11}
+                                                    size={moderateScale(11)}
                                                     color={user?.isEmailConfirmed ? colors.emerald[600] : colors.red[500]}
                                                 />
                                                 <Text style={[styles.verifiedText, !user?.isEmailConfirmed && styles.unverifiedText]}>
@@ -268,18 +269,18 @@ const fieldRowStyles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        paddingVertical: 11,
-        paddingHorizontal: 16,
-        gap: 12,
+        paddingVertical: scale(11),
+        paddingHorizontal: scale(16),
+        gap: scale(12),
     },
     label: {
-        fontSize: 13,
+        fontSize: moderateScale(13),
         color: colors.slate[500],
         fontWeight: '500',
         flex: 1,
     },
     value: {
-        fontSize: 13,
+        fontSize: moderateScale(13),
         color: colors.slate[900],
         fontWeight: '600',
         flex: 1,
@@ -289,7 +290,7 @@ const fieldRowStyles = StyleSheet.create({
     divider: {
         height: 1,
         backgroundColor: colors.slate[100],
-        marginLeft: 16,
+        marginLeft: scale(16),
     },
 })
 
@@ -302,7 +303,7 @@ function InfoCard({ children, title, icon, delay = 0 }: InfoCardProps) {
                 <View style={infoCardStyles.header}>
                     {icon && (
                         <View style={infoCardStyles.iconWrap}>
-                            <MaterialIcons name={icon as any} size={16} color={colors.primary[600]} />
+                            <MaterialIcons name={icon as any} size={moderateScale(16)} color={colors.primary[600]} />
                         </View>
                     )}
                     <Text style={infoCardStyles.title}>{title}</Text>
@@ -315,7 +316,7 @@ function InfoCard({ children, title, icon, delay = 0 }: InfoCardProps) {
 const infoCardStyles = StyleSheet.create({
     card: {
         backgroundColor: colors.white,
-        borderRadius: 14,
+        borderRadius: scale(14),
         borderWidth: 1,
         borderColor: colors.slate[100],
         overflow: 'hidden',
@@ -328,23 +329,23 @@ const infoCardStyles = StyleSheet.create({
     header: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 10,
-        paddingHorizontal: 16,
-        paddingVertical: 12,
+        gap: scale(10),
+        paddingHorizontal: scale(16),
+        paddingVertical: scale(12),
         borderBottomWidth: 1,
         borderBottomColor: colors.slate[100],
         backgroundColor: colors.slate[50],
     },
     iconWrap: {
-        width: 30,
-        height: 30,
-        borderRadius: 8,
+        width: scale(30),
+        height: scale(30),
+        borderRadius: scale(8),
         backgroundColor: colors.primary[100],
         justifyContent: 'center',
         alignItems: 'center',
     },
     title: {
-        fontSize: 14,
+        fontSize: moderateScale(14),
         fontWeight: '700',
         color: colors.slate[800],
     },
@@ -357,17 +358,17 @@ const styles = StyleSheet.create({
     heroBanner: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 14,
-        paddingHorizontal: 16,
-        paddingVertical: 16,
+        gap: scale(14),
+        paddingHorizontal: scale(16),
+        paddingVertical: scale(16),
         backgroundColor: colors.white,
         borderBottomWidth: 1,
         borderBottomColor: colors.slate[100],
     },
     heroAvatar: {
-        width: 52,
-        height: 52,
-        borderRadius: 26,
+        width: scale(52),
+        height: scale(52),
+        borderRadius: scale(26),
         backgroundColor: colors.primary[600],
         justifyContent: 'center',
         alignItems: 'center',
@@ -375,44 +376,44 @@ const styles = StyleSheet.create({
         borderColor: colors.primary[300],
     },
     heroInitials: {
-        fontSize: 18,
+        fontSize: moderateScale(18),
         fontWeight: '700',
         color: colors.white,
         letterSpacing: 1,
     },
     heroInfo: {
         flex: 1,
-        gap: 3,
+        gap: scale(3),
     },
     heroName: {
-        fontSize: 16,
+        fontSize: moderateScale(16),
         fontWeight: '700',
         color: colors.slate[900],
     },
     heroEmail: {
-        fontSize: 12,
+        fontSize: moderateScale(12),
         color: colors.slate[500],
         fontWeight: '500',
     },
     verifiedBadge: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 4,
+        gap: scale(4),
         alignSelf: 'flex-start',
         backgroundColor: colors.emerald[50],
         borderWidth: 1,
         borderColor: colors.emerald[200],
-        borderRadius: 20,
-        paddingHorizontal: 7,
-        paddingVertical: 2,
-        marginTop: 4,
+        borderRadius: scale(20),
+        paddingHorizontal: scale(7),
+        paddingVertical: scale(2),
+        marginTop: scale(4),
     },
     unverifiedBadge: {
         backgroundColor: colors.red[50],
         borderColor: colors.red[200],
     },
     verifiedText: {
-        fontSize: 10,
+        fontSize: moderateScale(10),
         fontWeight: '700',
         color: colors.emerald[600],
         textTransform: 'uppercase',
@@ -423,14 +424,14 @@ const styles = StyleSheet.create({
     },
     // Scroll
     scrollContent: {
-        paddingHorizontal: 16,
-        paddingTop: 16,
-        paddingBottom: 40,
-        gap: 12,
+        paddingHorizontal: scale(16),
+        paddingTop: scale(16),
+        paddingBottom: scale(40),
+        gap: scale(12),
     },
     // Edit toggle button
     editToggleOverlay: {
-        marginTop: 16,
+        marginTop: scale(16),
         shadowColor: colors.slate[900],
         shadowOpacity: 0.1,
         shadowRadius: 12,
@@ -441,16 +442,16 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: 8,
-        paddingVertical: 14,
-        borderRadius: 12,
+        gap: scale(8),
+        paddingVertical: scale(14),
+        borderRadius: scale(12),
         borderWidth: 1.5,
         borderColor: colors.primary[300],
         borderStyle: 'dashed',
         backgroundColor: colors.primary[50],
     },
     editToggleText: {
-        fontSize: 14,
+        fontSize: moderateScale(14),
         fontWeight: '600',
         color: colors.primary[600],
     },
@@ -460,15 +461,15 @@ const styles = StyleSheet.create({
         opacity: 0.7,
     },
     disabledHint: {
-        fontSize: 11,
+        fontSize: moderateScale(11),
         color: colors.slate[400],
-        marginTop: 4,
+        marginTop: scale(4),
         fontStyle: 'italic',
     },
     // Form section
     formSection: {
         backgroundColor: colors.white,
-        borderRadius: 14,
+        borderRadius: scale(14),
         borderWidth: 1,
         borderColor: colors.slate[100],
         overflow: 'hidden',
@@ -477,42 +478,42 @@ const styles = StyleSheet.create({
         shadowRadius: 8,
         shadowOffset: { width: 0, height: 2 },
         elevation: 0,
-        padding: 16,
+        padding: scale(16),
     },
     formSectionTitle: {
-        fontSize: 14,
+        fontSize: moderateScale(14),
         fontWeight: '700',
         color: colors.slate[800],
-        marginBottom: 16,
+        marginBottom: scale(16),
     },
     formFields: {
-        gap: 12,
+        gap: scale(12),
     },
     fieldLabel: {
-        fontSize: 12,
+        fontSize: moderateScale(12),
         fontWeight: '600',
         color: colors.slate[500],
-        marginBottom: 6,
+        marginBottom: scale(6),
         textTransform: 'uppercase',
         letterSpacing: 0.4,
     },
     emailLabelRow: {
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 6,
+        marginBottom: scale(6),
     },
     saveBtn: {
         backgroundColor: colors.primary[600],
-        borderRadius: 10,
-        marginTop: 8,
+        borderRadius: scale(10),
+        marginTop: scale(8),
     },
     //alert
     container: {
         backgroundColor: colors.secondary[50],
         borderLeftWidth: 5,
         borderLeftColor: colors.secondary[500],
-        borderRadius: 12,
-        padding: 16,
+        borderRadius: scale(12),
+        padding: scale(16),
         flexDirection: 'row',
         alignItems: 'center',
         shadowColor: '#000',
@@ -520,14 +521,14 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         shadowRadius: 8,
         elevation: 0,
-        marginVertical: 8,
+        marginVertical: scale(8),
     },
     iconContainer: {
-        marginRight: 12,
+        marginRight: scale(12),
         backgroundColor: colors.secondary[200],
-        width: 20,
-        height: 20,
-        borderRadius: 20,
+        width: scale(20),
+        height: scale(20),
+        borderRadius: scale(20),
         alignItems: 'center',
         justifyContent: 'center',
     },
@@ -535,18 +536,18 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     title: {
-        fontSize: 16,
+        fontSize: moderateScale(16),
         fontWeight: '700',
         color: '#854d0e',
-        marginBottom: 2,
+        marginBottom: scale(2),
     },
     message: {
-        fontSize: 15,
+        fontSize: moderateScale(15),
         color: '#713f12',
-        lineHeight: 22,
+        lineHeight: moderateScale(22),
     },
     closeButton: {
-        padding: 4,
-        marginLeft: 8,
+        padding: scale(4),
+        marginLeft: scale(8),
     },
 })

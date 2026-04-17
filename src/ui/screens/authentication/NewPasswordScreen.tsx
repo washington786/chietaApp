@@ -15,6 +15,7 @@ import { RootState, AppDispatch } from '@/store/store'
 import { clearResetState } from '@/store/slice/PasswordResetSlice'
 import { clearError } from '@/store/slice/AuthSlice'
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
+import { moderateScale, scale } from '@/utils/responsive'
 
 interface NewPasswordFormValues {
     password: string
@@ -36,7 +37,7 @@ function StepFlow({ current }: { current: number }) {
                     <View style={sfStyles.step}>
                         <View style={[sfStyles.circle, step.n <= current && sfStyles.circleActive]}>
                             {step.n < current
-                                ? <MaterialCommunityIcons name='check' size={12} color='#fff' />
+                                ? <MaterialCommunityIcons name='check' size={moderateScale(12)} color='#fff' />
                                 : <Text style={[sfStyles.num, step.n === current && sfStyles.numActive]}>{step.n}</Text>
                             }
                         </View>
@@ -52,14 +53,14 @@ function StepFlow({ current }: { current: number }) {
 }
 const sfStyles = StyleSheet.create({
     row: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'center' },
-    step: { alignItems: 'center', gap: 6, width: 56 },
-    circle: { width: 30, height: 30, borderRadius: 15, backgroundColor: '#f3f4f6', borderWidth: 1.5, borderColor: '#e5e7eb', justifyContent: 'center', alignItems: 'center' },
+    step: { alignItems: 'center', gap: scale(6), width: scale(56) },
+    circle: { width: scale(30), height: scale(30), borderRadius: scale(15), backgroundColor: '#f3f4f6', borderWidth: 1.5, borderColor: '#e5e7eb', justifyContent: 'center', alignItems: 'center' },
     circleActive: { backgroundColor: colors.primary[700], borderColor: colors.primary[600] },
-    num: { fontSize: 12, fontWeight: '700', color: '#9ca3af' },
+    num: { fontSize: moderateScale(12), fontWeight: '700', color: '#9ca3af' },
     numActive: { color: '#fff' },
-    label: { fontSize: 10, fontWeight: '600', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: 0.4 },
+    label: { fontSize: moderateScale(10), fontWeight: '600', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: 0.4 },
     labelActive: { color: colors.primary[700] },
-    connector: { flex: 1, height: 1.5, backgroundColor: '#e5e7eb', marginTop: 14 },
+    connector: { flex: 1, height: 1.5, backgroundColor: '#e5e7eb', marginTop: scale(14) },
     connectorDone: { backgroundColor: colors.primary[600] },
 });
 
@@ -107,7 +108,7 @@ function PasswordHints({ password }: { password: string }) {
                         <View key={req.label} style={phStyles.reqRow}>
                             <MaterialCommunityIcons
                                 name={met ? 'check-circle-outline' : 'circle-outline'}
-                                size={13}
+                                size={moderateScale(13)}
                                 color={met ? '#22c55e' : '#d1d5db'}
                             />
                             <Text style={[phStyles.reqText, { color: met ? '#374151' : '#9ca3af' }]}>{req.label}</Text>
@@ -119,14 +120,14 @@ function PasswordHints({ password }: { password: string }) {
     );
 }
 const phStyles = StyleSheet.create({
-    wrap: { marginTop: 8, gap: 6 },
-    barsRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-    bars: { flexDirection: 'row', gap: 4, flex: 1 },
-    bar: { flex: 1, height: 3, borderRadius: 3 },
-    strengthLabel: { fontSize: 11, fontWeight: '700', minWidth: 52, textAlign: 'right' },
-    reqs: { gap: 5 },
-    reqRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-    reqText: { fontSize: 11, fontWeight: '500' },
+    wrap: { marginTop: scale(8), gap: scale(6) },
+    barsRow: { flexDirection: 'row', alignItems: 'center', gap: scale(8) },
+    bars: { flexDirection: 'row', gap: scale(4), flex: 1 },
+    bar: { flex: 1, height: scale(3), borderRadius: 3 },
+    strengthLabel: { fontSize: moderateScale(11), fontWeight: '700', minWidth: scale(52), textAlign: 'right' },
+    reqs: { gap: scale(5) },
+    reqRow: { flexDirection: 'row', alignItems: 'center', gap: scale(6) },
+    reqText: { fontSize: moderateScale(11), fontWeight: '500' },
 });
 
 const NewPasswordScreen = () => {
@@ -243,7 +244,7 @@ const NewPasswordScreen = () => {
                                 <View style={styles.matchRow}>
                                     <MaterialCommunityIcons
                                         name={values.password === values.confirmPassword ? 'check-circle-outline' : 'close-circle-outline'}
-                                        size={13}
+                                        size={moderateScale(13)}
                                         color={values.password === values.confirmPassword ? '#22c55e' : '#ef4444'}
                                     />
                                     <Text style={[styles.matchText, { color: values.password === values.confirmPassword ? '#22c55e' : '#ef4444' }]}>
@@ -274,6 +275,6 @@ export default NewPasswordScreen
 
 const styles = StyleSheet.create({
     inputText: { color: '#111827' },
-    matchRow: { flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 6, marginHorizontal: 2 },
-    matchText: { fontSize: 11, fontWeight: '600' },
+    matchRow: { flexDirection: 'row', alignItems: 'center', gap: scale(5), marginTop: scale(6), marginHorizontal: scale(2) },
+    matchText: { fontSize: moderateScale(11), fontWeight: '600' },
 })

@@ -1,5 +1,6 @@
 import { StyleSheet, View, FlatList, Text, ListRenderItem } from 'react-native'
 import React, { useCallback } from 'react'
+import { moderateScale, scale, verticalScale } from '@/utils/responsive'
 import DgApplicationEntryItem, { ApplicationEntry } from './DgApplicationEntryItem'
 import colors from '@/config/colors'
 
@@ -69,19 +70,19 @@ const styles = StyleSheet.create({
         backgroundColor: colors.zinc[50],
     },
     listContent: {
-        paddingHorizontal: 12,
-        paddingVertical: 8,
+        paddingHorizontal: scale(12),
+        paddingVertical: scale(8),
         flexGrow: 1,
     },
     emptyContainer: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        minHeight: 100,
-        paddingHorizontal: 24,
+        minHeight: verticalScale(100),
+        paddingHorizontal: scale(24),
     },
     emptyText: {
-        fontSize: 14,
+        fontSize: moderateScale(14),
         color: colors.gray[500],
         textAlign: 'center',
     },

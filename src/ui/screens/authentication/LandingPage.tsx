@@ -10,6 +10,7 @@ import {
   Animated,
   ImageBackground,
 } from "react-native";
+import { moderateScale } from "@/utils/responsive";
 import { Ionicons as Icon } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useGlobalBottomSheet } from "@/hooks/navigation/BottomSheet";
@@ -96,7 +97,7 @@ export default function LandingScreen() {
             <Animated.View style={{ transform: [{ translateY: exploreTranslateY }] }}>
               <Icon
                 name="chevron-down"
-                size={24}
+                size={moderateScale(24)}
                 color={colors.secondary[400] || "#6d28d9"}
               />
             </Animated.View>
@@ -152,7 +153,7 @@ export default function LandingScreen() {
 
         {/* Floating action button */}
         <TouchableOpacity style={styles.fab} onPress={openInfoSheet}>
-          <Icon name="chatbubble-ellipses" size={26} color="white" />
+          <Icon name="chatbubble-ellipses" size={moderateScale(26)} color="white" />
         </TouchableOpacity>
       </LinearGradient>
     </ImageBackground>
@@ -184,7 +185,7 @@ function Card({ icon, title, badge, desc, onPress, disabled = false, color }: Ca
         colors={disabled ? ["#e5e7eb", "#d1d5db"] : [`${color}22`, `${color}10`]}
         style={styles.iconWrapper}
       >
-        <Icon name={icon as any} size={26} color={disabled ? "#9ca3af" : color} />
+        <Icon name={icon as any} size={moderateScale(26)} color={disabled ? "#9ca3af" : color} />
       </LinearGradient>
 
       <Text style={[styles.cardTitle, disabled && styles.cardTitleDisabled]}>

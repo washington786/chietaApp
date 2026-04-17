@@ -1,5 +1,6 @@
 import { Image, StyleSheet } from "react-native";
 import React, { FC } from "react";
+import { scale } from '@/utils/responsive';
 import RWrapper from "./RWrapper";
 import { Button, Text } from "react-native-paper";
 import colors from "../../config/colors";
@@ -32,6 +33,6 @@ const styles = StyleSheet.create({
   con: {
     justifyContent: "center",
     alignItems: "center",
-    gap: 8,
+    gap: scale(8),
   },
 });

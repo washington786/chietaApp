@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react'
 import { View, Image, StyleSheet } from 'react-native'
+import { moderateScale, scale, verticalScale } from '@/utils/responsive';
 import Animated, {
     FadeIn,
     FadeInDown,
@@ -61,40 +62,40 @@ const styles = StyleSheet.create({
     },
     content: {
         alignItems: 'center',
-        paddingHorizontal: 40,
+        paddingHorizontal: scale(40),
     },
     logo: {
-        width: 140,
-        height: 140,
-        marginBottom: 32,
+        width: scale(140),
+        height: scale(140),
+        marginBottom: verticalScale(32),
     },
     loaderContainer: {
-        marginTop: 60,
-        width: 200,
-        height: 4,
+        marginTop: verticalScale(60),
+        width: scale(200),
+        height: scale(4),
         backgroundColor: colors.primary[900],
-        borderRadius: 2,
+        borderRadius: scale(2),
         overflow: 'hidden',
     },
     loaderBar: {
         height: '100%',
         width: '60%',
         backgroundColor: colors.primary[500],
-        borderRadius: 2,
+        borderRadius: scale(2),
     },
     footer: {
         position: 'absolute',
-        bottom: 50,
+        bottom: verticalScale(50),
         alignItems: 'center',
     },
     version: {
         color: colors.primary[900],
-        fontSize: 13,
+        fontSize: moderateScale(13),
     },
     copyright: {
         color: colors.primary[900],
-        fontSize: 12,
-        marginTop: 6,
+        fontSize: moderateScale(12),
+        marginTop: verticalScale(6),
     },
 })
 

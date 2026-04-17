@@ -1,4 +1,5 @@
 import { ActivityIndicator, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { moderateScale, scale } from '@/utils/responsive'
 import React, { useState } from 'react'
 import { RListLoading, REmpty } from '@/components/common'
 import { useRoute, RouteProp } from '@react-navigation/native'
@@ -72,7 +73,7 @@ function DocumentCard({ doc, downloading, onDownload }: DocumentCardProps) {
     return (
         <View style={[cardStyles.card, { borderLeftColor: palette.accent }]}>
             <View style={[cardStyles.iconWrap, { backgroundColor: palette.bg }]}>
-                <Ionicons name={iconName} size={22} color={palette.accent} />
+                <Ionicons name={iconName} size={moderateScale(22)} color={palette.accent} />
             </View>
             <View style={cardStyles.info}>
                 <Text style={cardStyles.filename} numberOfLines={2} ellipsizeMode='middle'>
@@ -96,7 +97,7 @@ function DocumentCard({ doc, downloading, onDownload }: DocumentCardProps) {
             >
                 {downloading
                     ? <ActivityIndicator size={16} color={colors.blue[600]} />
-                    : <Ionicons name='cloud-download-outline' size={20} color={colors.blue[600]} />
+                    : <Ionicons name='cloud-download-outline' size={moderateScale(20)} color={colors.blue[600]} />
                 }
             </TouchableOpacity>
         </View>
@@ -108,11 +109,11 @@ const cardStyles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         backgroundColor: colors.white,
-        borderRadius: 12,
+        borderRadius: scale(12),
         borderLeftWidth: 4,
-        paddingVertical: 11,
-        paddingHorizontal: 12,
-        marginVertical: 4,
+        paddingVertical: scale(11),
+        paddingHorizontal: scale(12),
+        marginVertical: scale(4),
         shadowColor: colors.slate[800],
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.07,
@@ -120,28 +121,28 @@ const cardStyles = StyleSheet.create({
         elevation: 2,
     },
     iconWrap: {
-        width: 40,
-        height: 40,
-        borderRadius: 10,
+        width: scale(40),
+        height: scale(40),
+        borderRadius: scale(10),
         alignItems: 'center',
         justifyContent: 'center',
-        marginRight: 10,
+        marginRight: scale(10),
     },
-    info: { flex: 1, gap: 5 },
-    filename: { fontSize: 13, fontWeight: '600', color: colors.gray[800], lineHeight: 17 },
-    metaRow: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 5 },
-    badge: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: 20 },
-    badgeText: { fontSize: 10, fontWeight: '700' },
-    metaText: { fontSize: 11, color: colors.slate[500] },
-    metaDot: { fontSize: 11, color: colors.slate[300] },
+    info: { flex: 1, gap: scale(5) },
+    filename: { fontSize: moderateScale(13), fontWeight: '600', color: colors.gray[800], lineHeight: moderateScale(17) },
+    metaRow: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: scale(5) },
+    badge: { paddingHorizontal: scale(8), paddingVertical: scale(2), borderRadius: scale(20) },
+    badgeText: { fontSize: moderateScale(10), fontWeight: '700' },
+    metaText: { fontSize: moderateScale(11), color: colors.slate[500] },
+    metaDot: { fontSize: moderateScale(11), color: colors.slate[300] },
     dlBtn: {
-        width: 38,
-        height: 38,
-        borderRadius: 19,
+        width: scale(38),
+        height: scale(38),
+        borderRadius: scale(19),
         backgroundColor: colors.blue[50],
         alignItems: 'center',
         justifyContent: 'center',
-        marginLeft: 6,
+        marginLeft: scale(6),
     },
     dlBtnBusy: { backgroundColor: colors.blue[100] },
 });
@@ -271,7 +272,7 @@ const FileManagementPage = () => {
 
                         {!docsLoading && docsError && (
                             <View style={styles.errorBox}>
-                                <Ionicons name='alert-circle-outline' size={28} color={colors.red[500]} />
+                                <Ionicons name='alert-circle-outline' size={moderateScale(28)} color={colors.red[500]} />
                                 <Text style={styles.errorText}>Failed to load documents</Text>
                                 <TouchableOpacity onPress={refetchDocs} style={styles.retryBtn}>
                                     <Text style={styles.retryText}>Retry</Text>
@@ -315,7 +316,7 @@ const FileManagementPage = () => {
                                 showsVerticalScrollIndicator={false}
                                 ListEmptyComponent={
                                     <View style={styles.emptyGrant}>
-                                        <MaterialCommunityIcons name='cash-clock' size={32} color={colors.gray[300]} />
+                                        <MaterialCommunityIcons name='cash-clock' size={moderateScale(32)} color={colors.gray[300]} />
                                         <Text style={styles.emptyGrantText}>No grant details available</Text>
                                     </View>
                                 }
@@ -345,41 +346,41 @@ const styles = StyleSheet.create({
         backgroundColor: colors.gray[50],
     },
     sectionTitle: {
-        fontSize: 15,
+        fontSize: moderateScale(15),
         fontWeight: '700',
         color: colors.gray[700],
-        marginTop: 14,
-        marginBottom: 4,
+        marginTop: scale(14),
+        marginBottom: scale(4),
     },
     content: {
-        paddingHorizontal: 12,
-        paddingTop: 6,
-        paddingBottom: 32,
-        gap: 8,
+        paddingHorizontal: scale(12),
+        paddingTop: scale(6),
+        paddingBottom: scale(32),
+        gap: scale(8),
     },
     errorBox: {
         alignItems: 'center',
-        paddingVertical: 20,
-        gap: 8,
+        paddingVertical: scale(20),
+        gap: scale(8),
     },
     errorText: {
         color: colors.red[500],
-        fontSize: 13,
+        fontSize: moderateScale(13),
     },
     retryBtn: {
-        paddingHorizontal: 20,
-        paddingVertical: 7,
-        borderRadius: 20,
+        paddingHorizontal: scale(20),
+        paddingVertical: scale(7),
+        borderRadius: scale(20),
         backgroundColor: colors.blue[600],
     },
     retryText: {
         color: colors.white,
-        fontSize: 13,
+        fontSize: moderateScale(13),
         fontWeight: '600',
     },
     section: {
         backgroundColor: '#fff',
-        borderRadius: 16,
+        borderRadius: scale(16),
         overflow: 'hidden',
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
@@ -389,11 +390,11 @@ const styles = StyleSheet.create({
     },
     emptyGrant: {
         alignItems: 'center' as const,
-        paddingVertical: 28,
-        gap: 8,
+        paddingVertical: scale(28),
+        gap: scale(8),
     },
     emptyGrantText: {
-        fontSize: 13,
+        fontSize: moderateScale(13),
         fontFamily: `${appFonts.regular}`,
         color: colors.gray[400],
     },

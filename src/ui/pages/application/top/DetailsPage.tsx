@@ -1,4 +1,5 @@
 import { FlatList, StyleSheet, View } from 'react-native'
+import { moderateScale, scale } from '@/utils/responsive'
 import React, { useState } from 'react'
 import { RListLoading } from '@/components/common'
 import { Text } from 'react-native-paper'
@@ -41,13 +42,13 @@ const rowStyles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'flex-start',
-        paddingVertical: 8,
-        paddingHorizontal: 4,
+        paddingVertical: scale(8),
+        paddingHorizontal: scale(4),
         borderBottomWidth: 1,
         borderBottomColor: colors.gray[100],
     },
     label: {
-        fontSize: 12,
+        fontSize: moderateScale(12),
         color: colors.slate[400],
         textTransform: 'uppercase',
         letterSpacing: 0.4,
@@ -55,7 +56,7 @@ const rowStyles = StyleSheet.create({
         fontWeight: '500',
     },
     value: {
-        fontSize: 13,
+        fontSize: moderateScale(13),
         color: colors.gray[800],
         fontWeight: '600',
         flex: 1.4,
@@ -64,9 +65,9 @@ const rowStyles = StyleSheet.create({
     dividerRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginTop: 14,
-        marginBottom: 4,
-        gap: 8,
+        marginTop: scale(14),
+        marginBottom: scale(4),
+        gap: scale(8),
     },
     dividerLine: {
         flex: 1,
@@ -74,7 +75,7 @@ const rowStyles = StyleSheet.create({
         backgroundColor: colors.gray[200],
     },
     dividerText: {
-        fontSize: 11,
+        fontSize: moderateScale(11),
         fontWeight: '700',
         color: colors.slate[400],
         textTransform: 'uppercase',
@@ -87,7 +88,7 @@ function SectionHeader({ icon, label, color }: { icon: keyof typeof Ionicons.gly
     return (
         <View style={headerStyles.wrap}>
             <View style={[headerStyles.iconWrap, { backgroundColor: color + '22' }]}>
-                <Ionicons name={icon} size={16} color={color} />
+                <Ionicons name={icon} size={moderateScale(16)} color={color} />
             </View>
             <Text style={[headerStyles.label, { color }]}>{label}</Text>
         </View>
@@ -95,9 +96,9 @@ function SectionHeader({ icon, label, color }: { icon: keyof typeof Ionicons.gly
 }
 
 const headerStyles = StyleSheet.create({
-    wrap: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 },
-    iconWrap: { width: 30, height: 30, borderRadius: 8, alignItems: 'center', justifyContent: 'center' },
-    label: { fontSize: 13, fontWeight: '700', textTransform: 'capitalize' },
+    wrap: { flexDirection: 'row', alignItems: 'center', gap: scale(8), marginBottom: scale(4) },
+    iconWrap: { width: scale(30), height: scale(30), borderRadius: scale(8), alignItems: 'center', justifyContent: 'center' },
+    label: { fontSize: moderateScale(13), fontWeight: '700', textTransform: 'capitalize' },
 });
 
 
@@ -256,11 +257,11 @@ export default DetailsPage;
 
 const styles = StyleSheet.create({
     con: {
-        paddingHorizontal: 12,
-        paddingVertical: 6,
+        paddingHorizontal: scale(12),
+        paddingVertical: scale(6),
         flex: 1,
         flexGrow: 1,
         backgroundColor: colors.gray[50],
     },
-    footer: { paddingBottom: 30 },
+    footer: { paddingBottom: scale(30) },
 });

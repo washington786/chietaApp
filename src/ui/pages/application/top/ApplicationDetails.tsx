@@ -1,4 +1,5 @@
 import { FlatList, StyleSheet, TouchableOpacity, View, ActivityIndicator } from 'react-native'
+import { moderateScale, scale } from '@/utils/responsive'
 import React, { useState } from 'react'
 import { useSelector } from 'react-redux';
 import { Expandable } from '@/components/modules/application'
@@ -83,7 +84,7 @@ function DocumentCard({ doc, downloading, onDownload }: DocumentCardProps) {
     return (
         <View style={[cardStyles.card, { borderLeftColor: palette.accent }]}>
             <View style={[cardStyles.iconWrap, { backgroundColor: palette.bg }]}>
-                <Ionicons name={iconName} size={22} color={palette.accent} />
+                <Ionicons name={iconName} size={moderateScale(22)} color={palette.accent} />
             </View>
             <View style={cardStyles.info}>
                 <Text style={cardStyles.filename} numberOfLines={2} ellipsizeMode="middle">
@@ -109,7 +110,7 @@ function DocumentCard({ doc, downloading, onDownload }: DocumentCardProps) {
             >
                 {downloading
                     ? <ActivityIndicator size={16} color={colors.blue[600]} />
-                    : <Ionicons name="cloud-download-outline" size={20} color={colors.blue[600]} />
+                    : <Ionicons name="cloud-download-outline" size={moderateScale(20)} color={colors.blue[600]} />
                 }
             </TouchableOpacity>
         </View>
@@ -121,11 +122,11 @@ const cardStyles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         backgroundColor: colors.white,
-        borderRadius: 12,
+        borderRadius: scale(12),
         borderLeftWidth: 4,
-        paddingVertical: 11,
-        paddingHorizontal: 12,
-        marginVertical: 4,
+        paddingVertical: scale(11),
+        paddingHorizontal: scale(12),
+        marginVertical: scale(4),
         shadowColor: colors.slate[800],
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.07,
@@ -133,42 +134,42 @@ const cardStyles = StyleSheet.create({
         elevation: 2,
     },
     iconWrap: {
-        width: 40,
-        height: 40,
-        borderRadius: 10,
+        width: scale(40),
+        height: scale(40),
+        borderRadius: scale(10),
         alignItems: 'center',
         justifyContent: 'center',
-        marginRight: 10,
+        marginRight: scale(10),
     },
-    info: { flex: 1, gap: 5 },
+    info: { flex: 1, gap: scale(5) },
     filename: {
-        fontSize: 13,
+        fontSize: moderateScale(13),
         fontWeight: '600',
         color: colors.gray[800],
-        lineHeight: 17,
+        lineHeight: moderateScale(17),
     },
     metaRow: {
         flexDirection: 'row',
         alignItems: 'center',
         flexWrap: 'wrap',
-        gap: 5,
+        gap: scale(5),
     },
     badge: {
-        paddingHorizontal: 8,
-        paddingVertical: 2,
-        borderRadius: 20,
+        paddingHorizontal: scale(8),
+        paddingVertical: scale(2),
+        borderRadius: scale(20),
     },
-    badgeText: { fontSize: 10, fontWeight: '700' },
-    metaText: { fontSize: 11, color: colors.slate[500] },
-    metaDot: { fontSize: 11, color: colors.slate[300] },
+    badgeText: { fontSize: moderateScale(10), fontWeight: '700' },
+    metaText: { fontSize: moderateScale(11), color: colors.slate[500] },
+    metaDot: { fontSize: moderateScale(11), color: colors.slate[300] },
     dlBtn: {
-        width: 38,
-        height: 38,
-        borderRadius: 19,
+        width: scale(38),
+        height: scale(38),
+        borderRadius: scale(19),
         backgroundColor: colors.blue[50],
         alignItems: 'center',
         justifyContent: 'center',
-        marginLeft: 6,
+        marginLeft: scale(6),
     },
     dlBtnBusy: { backgroundColor: colors.blue[100] },
 });
@@ -389,7 +390,7 @@ const ApplicationDetails = () => {
 
                             {!docsLoading && docsError && (
                                 <View style={styles.errorBox}>
-                                    <Ionicons name="alert-circle-outline" size={28} color={colors.red[500]} />
+                                    <Ionicons name="alert-circle-outline" size={moderateScale(28)} color={colors.red[500]} />
                                     <Text style={styles.errorText}>Failed to load documents</Text>
                                     <TouchableOpacity onPress={refetchDocs} style={styles.retryBtn}>
                                         <Text style={styles.retryText}>Retry</Text>
@@ -458,7 +459,7 @@ export function DownloadTemp({ fileName, onPress, isLoading = false }: { fileNam
             <View style={[styles.approvalIconWrap, isLoading && styles.approvalIconWrapBusy]}>
                 {isLoading
                     ? <ActivityIndicator size={16} color={colors.white} />
-                    : <FontAwesome name="cloud-download" size={18} color={colors.white} />
+                    : <FontAwesome name="cloud-download" size={moderateScale(18)} color={colors.white} />
                 }
             </View>
             <Text variant='bodyMedium' style={styles.approvalBtnText}>
@@ -466,7 +467,7 @@ export function DownloadTemp({ fileName, onPress, isLoading = false }: { fileNam
             </Text>
             {isLoading
                 ? <ActivityIndicator size={14} color={colors.blue[400]} />
-                : <Ionicons name="chevron-forward" size={16} color={colors.blue[400]} />
+                : <Ionicons name="chevron-forward" size={moderateScale(16)} color={colors.blue[400]} />
             }
         </TouchableOpacity>
     )
@@ -475,45 +476,45 @@ export function DownloadTemp({ fileName, onPress, isLoading = false }: { fileNam
 export default ApplicationDetails
 
 const styles = StyleSheet.create({
-    con: { paddingHorizontal: 12, paddingVertical: 6, flex: 1, flexGrow: 1, backgroundColor: colors.gray[50] },
+    con: { paddingHorizontal: scale(12), paddingVertical: scale(6), flex: 1, flexGrow: 1, backgroundColor: colors.gray[50] },
     sectionTitle: {
-        fontSize: 15,
+        fontSize: moderateScale(15),
         fontWeight: '700',
         color: colors.gray[700],
-        marginTop: 14,
-        marginBottom: 4,
+        marginTop: scale(14),
+        marginBottom: scale(4),
     },
     errorBox: {
         alignItems: 'center',
-        paddingVertical: 20,
-        gap: 8,
+        paddingVertical: scale(20),
+        gap: scale(8),
     },
     errorText: {
         color: colors.red[500],
-        fontSize: 13,
+        fontSize: moderateScale(13),
     },
     retryBtn: {
-        paddingHorizontal: 20,
-        paddingVertical: 7,
-        borderRadius: 20,
+        paddingHorizontal: scale(20),
+        paddingVertical: scale(7),
+        borderRadius: scale(20),
         backgroundColor: colors.blue[600],
     },
     retryText: {
         color: colors.white,
-        fontSize: 13,
+        fontSize: moderateScale(13),
         fontWeight: '600',
     },
     approvalBtn: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 10,
-        marginVertical: 6,
+        gap: scale(10),
+        marginVertical: scale(6),
         borderWidth: 1,
         borderColor: colors.blue[200],
         backgroundColor: colors.blue[50],
-        paddingVertical: 10,
-        paddingHorizontal: 14,
-        borderRadius: 12,
+        paddingVertical: scale(10),
+        paddingHorizontal: scale(14),
+        borderRadius: scale(12),
     },
     approvalBtnBusy: {
         backgroundColor: colors.blue[100],
@@ -521,9 +522,9 @@ const styles = StyleSheet.create({
         opacity: 0.8,
     },
     approvalIconWrap: {
-        width: 34,
-        height: 34,
-        borderRadius: 17,
+        width: scale(34),
+        height: scale(34),
+        borderRadius: scale(17),
         backgroundColor: colors.blue[600],
         alignItems: 'center',
         justifyContent: 'center',

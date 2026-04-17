@@ -3,6 +3,7 @@ import React, { FC } from "react";
 
 import { Feather } from "@expo/vector-icons";
 import colors from "../../config/colors";
+import { moderateScale, scale, verticalScale } from "@/utils/responsive";
 
 interface props extends TextInputProps {
   icon?: any;
@@ -24,19 +25,20 @@ export default RInput;
 
 const styles = StyleSheet.create({
   inputCon: {
-    paddingHorizontal: 10,
-    paddingVertical: 12,
-    minHeight: 60,
+    paddingHorizontal: scale(10),
+    paddingVertical: verticalScale(12),
+    minHeight: verticalScale(54),
     borderWidth: 1,
     borderColor: colors.gray[300],
     flexDirection: "row",
     alignItems: "center",
-    gap: 5,
+    gap: scale(6),
     borderRadius: 5,
   },
   input: {
     height: "100%",
     flex: 1,
     width: "100%",
+    fontSize: moderateScale(14),
   },
 });

@@ -1,5 +1,6 @@
 import { StyleSheet } from 'react-native'
 import colors from '@/config/colors'
+import { moderateScale, scale, verticalScale } from '@/utils/responsive'
 
 
 export const PickerStyle = StyleSheet.create({
@@ -7,16 +8,16 @@ export const PickerStyle = StyleSheet.create({
         borderWidth: 1,
         borderColor: colors.slate[200],
         borderRadius: 6,
-        marginBottom: 16,
+        marginBottom: scale(14),
         overflow: 'hidden',
-        minHeight: 60,
+        minHeight: verticalScale(54),
     },
     btn: {
-        minHeight: 45,
+        minHeight: verticalScale(42),
         borderRadius: 5,
         alignItems: "center",
         justifyContent: "center",
-        marginVertical: 8
+        marginVertical: scale(6)
     },
     outline: {
         borderColor: colors.primary[500]

@@ -1,5 +1,6 @@
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import React, { FC } from 'react';
+import { moderateScale, scale } from '@/utils/responsive';
 import { Text } from 'react-native-paper';
 import Feather from '@expo/vector-icons/Feather';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
@@ -32,7 +33,7 @@ const AddDgApplicationItem: FC<AddDgApplicationItemProps> = ({ onPress, item }) 
     <RCol style={styles.container}>
       {/* Header */}
       <RRow style={styles.header}>
-        <MaterialCommunityIcons name="application-outline" size={20} color={colors.slate[700]} />
+        <MaterialCommunityIcons name="application-outline" size={moderateScale(20)} color={colors.slate[700]} />
         <Text variant="titleMedium" style={styles.headerText}>
           {title || 'Unnamed Application'}
         </Text>
@@ -50,7 +51,7 @@ const AddDgApplicationItem: FC<AddDgApplicationItemProps> = ({ onPress, item }) 
 
       {/* Status */}
       <RRow style={styles.statusRow}>
-        <Feather name={statusIcon} size={16} color={statusColor} />
+        <Feather name={statusIcon} size={moderateScale(16)} color={statusColor} />
         <Text variant="labelMedium" style={[styles.statusText, { color: statusColor }]}>
           {statusText}
         </Text>
@@ -62,7 +63,7 @@ const AddDgApplicationItem: FC<AddDgApplicationItemProps> = ({ onPress, item }) 
         activeOpacity={0.8}
         onPress={() => onPress(id)}
       >
-        <Feather name="plus" size={22} color="white" />
+        <Feather name="plus" size={moderateScale(22)} color="white" />
       </TouchableOpacity>
     </RCol>
   );
@@ -98,24 +99,24 @@ const Field: FC<FieldProps> = ({ label, value, last }) => (
 const styles = StyleSheet.create({
   container: {
     backgroundColor: colors.white,
-    borderRadius: 12,
+    borderRadius: scale(12),
     borderWidth: 1,
     borderColor: colors.slate[200],
-    padding: 14,
-    paddingTop: 16,
-    marginBottom: 12,
+    padding: scale(14),
+    paddingTop: scale(16),
+    marginBottom: scale(12),
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.06,
     shadowRadius: 4,
     elevation: 2,
     position: 'relative',
-    marginTop: 8
+    marginTop: scale(8),
   },
 
   header: {
     alignItems: 'center',
-    gap: 8,
+    gap: scale(8),
   },
   headerText: {
     color: colors.slate[800],
@@ -124,24 +125,24 @@ const styles = StyleSheet.create({
   },
 
   fields: {
-    gap: 8,
+    gap: scale(8),
   },
   fieldRow: {
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 2,
+    paddingVertical: scale(2),
   },
   lastField: {
-    marginBottom: 4,
+    marginBottom: scale(4),
   },
   label: {
     color: colors.slate[500],
-    fontSize: 13,
+    fontSize: moderateScale(13),
     letterSpacing: 0.2,
   },
   value: {
     color: colors.slate[800],
-    fontSize: 13.5,
+    fontSize: moderateScale(13.5),
     fontWeight: '500',
     textAlign: 'right',
     flexShrink: 1,
@@ -150,9 +151,9 @@ const styles = StyleSheet.create({
 
   statusRow: {
     alignItems: 'center',
-    gap: 6,
-    marginTop: 8,
-    paddingTop: 8,
+    gap: scale(6),
+    marginTop: scale(8),
+    paddingTop: scale(8),
     borderTopWidth: 1,
     borderTopColor: colors.slate[100],
   },
@@ -163,12 +164,12 @@ const styles = StyleSheet.create({
 
   addButton: {
     position: 'absolute',
-    top: -18,
-    right: -12,
+    top: scale(-18),
+    right: scale(-12),
     backgroundColor: colors.primary[700],
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: scale(44),
+    height: scale(44),
+    borderRadius: scale(22),
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 3,

@@ -7,6 +7,7 @@ import {
   View,
   Text as NativeText,
 } from 'react-native'
+import { moderateScale, scale } from '@/utils/responsive'
 import { SafeArea, RRow } from '@/components/common'
 import RHeader from '@/components/common/RHeader'
 import { RouteProp, useRoute } from '@react-navigation/native'
@@ -105,7 +106,7 @@ const LinkedOrganizationDetails = () => {
           onPress={() => discretionaryGrants({ orgId: String(orgId) })}
           activeOpacity={0.82}
         >
-          <MaterialCommunityIcons name='file-chart-outline' size={18} color={colors.white} />
+          <MaterialCommunityIcons name='file-chart-outline' size={moderateScale(18)} color={colors.white} />
           <NativeText style={styles.actionBtnText}>Discretionary Grants</NativeText>
         </TouchableOpacity>
         <TouchableOpacity
@@ -113,7 +114,7 @@ const LinkedOrganizationDetails = () => {
           onPress={() => mandatoryGrants({ orgId: String(orgId) })}
           activeOpacity={0.82}
         >
-          <MaterialCommunityIcons name='clipboard-list-outline' size={18} color={colors.white} />
+          <MaterialCommunityIcons name='clipboard-list-outline' size={moderateScale(18)} color={colors.white} />
           <NativeText style={styles.actionBtnText}>Mandatory Grants</NativeText>
         </TouchableOpacity>
       </Animated.View>
@@ -129,7 +130,7 @@ const LinkedOrganizationDetails = () => {
           >
             <MaterialCommunityIcons
               name={tab.icon as any}
-              size={16}
+              size={moderateScale(16)}
               color={activeTab === tab.key ? colors.primary[600] : colors.slate[400]}
             />
             <NativeText style={[styles.tabText, activeTab === tab.key && styles.tabTextActive]}>
@@ -172,7 +173,7 @@ const InfoCard = ({
   <Animated.View entering={FadeInDown.delay(delay).duration(380).springify()} style={styles.card}>
     <View style={styles.cardHeader}>
       <View style={styles.cardIconChip}>
-        <MaterialCommunityIcons name={icon as any} size={15} color={colors.primary[600]} />
+        <MaterialCommunityIcons name={icon as any} size={moderateScale(15)} color={colors.primary[600]} />
       </View>
       <NativeText style={styles.cardTitle}>{title}</NativeText>
     </View>
@@ -208,7 +209,7 @@ const TabLoader = () => (
 
 const EmptyState = ({ label }: { label: string }) => (
   <View style={styles.emptyState}>
-    <MaterialCommunityIcons name='folder-open-outline' size={48} color={colors.slate[300]} />
+    <MaterialCommunityIcons name='folder-open-outline' size={moderateScale(48)} color={colors.slate[300]} />
     <NativeText style={styles.emptyStateText}>{label}</NativeText>
   </View>
 )
@@ -327,10 +328,10 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    gap: 12,
+    gap: scale(12),
   },
   loadingText: {
-    fontSize: 14,
+    fontSize: moderateScale(14),
     color: colors.slate[400],
     fontStyle: 'italic',
   },
@@ -338,18 +339,18 @@ const styles = StyleSheet.create({
   /* Hero banner */
   heroBanner: {
     backgroundColor: colors.primary[800],
-    paddingHorizontal: 20,
-    paddingVertical: 18,
+    paddingHorizontal: scale(20),
+    paddingVertical: scale(18),
   },
   heroLeft: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 16,
+    gap: scale(16),
   },
   heroAvatar: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    width: scale(60),
+    height: scale(60),
+    borderRadius: scale(30),
     backgroundColor: 'rgba(255,255,255,0.18)',
     borderWidth: 2,
     borderColor: 'rgba(255,255,255,0.35)',
@@ -358,37 +359,37 @@ const styles = StyleSheet.create({
     flexShrink: 0,
   },
   heroAvatarText: {
-    fontSize: 20,
+    fontSize: moderateScale(20),
     fontWeight: '800',
     color: colors.white,
     letterSpacing: 1,
   },
   heroInfo: {
     flex: 1,
-    gap: 3,
+    gap: scale(3),
   },
   heroName: {
-    fontSize: 16,
+    fontSize: moderateScale(16),
     fontWeight: '700',
     color: colors.white,
-    lineHeight: 21,
+    lineHeight: moderateScale(21),
   },
   heroSdl: {
-    fontSize: 11,
+    fontSize: moderateScale(11),
     color: 'rgba(255,255,255,0.65)',
     fontWeight: '500',
     letterSpacing: 0.3,
   },
   heroBadges: {
     flexDirection: 'row',
-    gap: 6,
-    marginTop: 6,
+    gap: scale(6),
+    marginTop: scale(6),
     flexWrap: 'wrap',
   },
   badge: {
-    borderRadius: 20,
-    paddingHorizontal: 9,
-    paddingVertical: 3,
+    borderRadius: scale(20),
+    paddingHorizontal: scale(9),
+    paddingVertical: scale(3),
   },
   badgeActive: {
     backgroundColor: colors.emerald[500],
@@ -397,33 +398,33 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.18)',
   },
   badgeText: {
-    fontSize: 10,
+    fontSize: moderateScale(10),
     fontWeight: '700',
     color: colors.white,
     letterSpacing: 0.5,
   },
   badgeBbbee: {
-    borderRadius: 20,
-    paddingHorizontal: 9,
-    paddingVertical: 3,
+    borderRadius: scale(20),
+    paddingHorizontal: scale(9),
+    paddingVertical: scale(3),
     backgroundColor: colors.primary[500],
   },
   badgeBbbeeText: {
-    fontSize: 10,
+    fontSize: moderateScale(10),
     fontWeight: '700',
     color: colors.white,
     letterSpacing: 0.4,
   },
   badgeEntity: {
-    borderRadius: 20,
-    paddingHorizontal: 9,
-    paddingVertical: 3,
+    borderRadius: scale(20),
+    paddingHorizontal: scale(9),
+    paddingVertical: scale(3),
     backgroundColor: 'rgba(255,255,255,0.12)',
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.25)',
   },
   badgeEntityText: {
-    fontSize: 10,
+    fontSize: moderateScale(10),
     fontWeight: '600',
     color: 'rgba(255,255,255,0.85)',
   },
@@ -431,9 +432,9 @@ const styles = StyleSheet.create({
   /* Action buttons */
   actionBar: {
     flexDirection: 'row',
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    gap: 10,
+    paddingHorizontal: scale(14),
+    paddingVertical: scale(12),
+    gap: scale(10),
     backgroundColor: colors.white,
     borderBottomWidth: 1,
     borderBottomColor: colors.slate[100],
@@ -443,9 +444,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 7,
-    paddingVertical: 11,
-    borderRadius: 12,
+    gap: scale(7),
+    paddingVertical: scale(11),
+    borderRadius: scale(12),
   },
   actionBtnDG: {
     backgroundColor: colors.primary[600],
@@ -454,7 +455,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary[800],
   },
   actionBtnText: {
-    fontSize: 12,
+    fontSize: moderateScale(12),
     fontWeight: '700',
     color: colors.white,
     letterSpacing: 0.2,
@@ -471,15 +472,15 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 11,
-    gap: 3,
+    paddingVertical: scale(11),
+    gap: scale(3),
     position: 'relative',
   },
   tabActive: {
     backgroundColor: colors.primary[50],
   },
   tabText: {
-    fontSize: 10,
+    fontSize: moderateScale(10),
     fontWeight: '600',
     color: colors.slate[400],
   },
@@ -489,10 +490,10 @@ const styles = StyleSheet.create({
   tabIndicator: {
     position: 'absolute',
     bottom: 0,
-    left: 8,
-    right: 8,
+    left: scale(8),
+    right: scale(8),
     height: 2,
-    borderRadius: 2,
+    borderRadius: scale(2),
     backgroundColor: colors.primary[600],
   },
 
@@ -502,15 +503,15 @@ const styles = StyleSheet.create({
     backgroundColor: colors.slate[50],
   },
   scrollContent: {
-    padding: 14,
-    paddingBottom: 32,
-    gap: 12,
+    padding: scale(14),
+    paddingBottom: scale(32),
+    gap: scale(12),
   },
 
   /* Info card */
   card: {
     backgroundColor: colors.white,
-    borderRadius: 14,
+    borderRadius: scale(14),
     shadowColor: colors.slate[900],
     shadowOpacity: 0.06,
     shadowRadius: 8,
@@ -523,32 +524,32 @@ const styles = StyleSheet.create({
   cardHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
+    gap: scale(10),
     backgroundColor: colors.slate[50],
-    paddingHorizontal: 14,
-    paddingVertical: 12,
+    paddingHorizontal: scale(14),
+    paddingVertical: scale(12),
     borderBottomWidth: 1,
     borderBottomColor: colors.slate[100],
   },
   cardIconChip: {
-    width: 28,
-    height: 28,
-    borderRadius: 8,
+    width: scale(28),
+    height: scale(28),
+    borderRadius: scale(8),
     backgroundColor: colors.primary[50],
     justifyContent: 'center',
     alignItems: 'center',
   },
   cardTitle: {
-    fontSize: 12,
+    fontSize: moderateScale(12),
     fontWeight: '700',
     color: colors.slate[700],
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
   cardBody: {
-    paddingHorizontal: 14,
-    paddingTop: 4,
-    paddingBottom: 8,
+    paddingHorizontal: scale(14),
+    paddingTop: scale(4),
+    paddingBottom: scale(8),
   },
 
   /* Info rows */
@@ -556,17 +557,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    paddingVertical: 11,
-    gap: 8,
+    paddingVertical: scale(11),
+    gap: scale(8),
   },
   infoLabel: {
-    fontSize: 12,
+    fontSize: moderateScale(12),
     color: colors.slate[400],
     fontWeight: '500',
     flex: 0.42,
   },
   infoValue: {
-    fontSize: 13,
+    fontSize: moderateScale(13),
     color: colors.slate[800],
     fontWeight: '600',
     flex: 0.58,
@@ -579,7 +580,7 @@ const styles = StyleSheet.create({
 
   /* Tab states */
   tabLoader: {
-    paddingVertical: 48,
+    paddingVertical: scale(48),
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -587,14 +588,14 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 48,
-    gap: 12,
+    paddingVertical: scale(48),
+    gap: scale(12),
   },
   emptyStateText: {
-    fontSize: 13,
+    fontSize: moderateScale(13),
     color: colors.slate[400],
     textAlign: 'center',
     fontStyle: 'italic',
-    lineHeight: 20,
+    lineHeight: moderateScale(20),
   },
 })

@@ -692,7 +692,7 @@ const useDg = ({ projectId, appId, userId }: UseDgParams) => {
     };
 
     // ========== useGenerate Integration ==========
-    const { generate } = useGenerate({
+    const { generate, isGenerating } = useGenerate({
         appId,
         programmeType: getSelectedLabel(programmeType, projectTypes)?.value,
         learningProgramme: getSelectedLabel(learningProgramme, focusAreas)?.value,
@@ -841,6 +841,7 @@ const useDg = ({ projectId, appId, userId }: UseDgParams) => {
         canProceedFromStep1,
         canProceedFromStep2,
         generate,
+        isGenerating,
     };
 };
 

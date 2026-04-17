@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { DataTable, Text, IconButton } from 'react-native-paper';
 import { ScrollView, StyleSheet, View } from 'react-native';
+import { moderateScale, scale, verticalScale } from '@/utils/responsive';
 import colors from '@/config/colors';
 import { RButton } from '@/components/common';
 import { useGlobalBottomSheet, BottomSheetScrollView } from '@/hooks/navigation/BottomSheet';
@@ -190,14 +191,14 @@ const DgTable: React.FC<DgTableProps> = ({ data, onEdit, onDelete, isLoading = f
                                     <View style={styles.actionsContainer}>
                                         <IconButton
                                             icon="information"
-                                            size={16}
+                                            size={moderateScale(16)}
                                             onPress={() => handleViewDetails(row)}
                                             style={styles.iconBtn}
                                         />
                                         {onEdit && (
                                             <IconButton
                                                 icon="pencil"
-                                                size={16}
+                                                size={moderateScale(16)}
                                                 onPress={() => onEdit(row)}
                                                 style={styles.iconBtn}
                                             />
@@ -205,7 +206,7 @@ const DgTable: React.FC<DgTableProps> = ({ data, onEdit, onDelete, isLoading = f
                                         {onDelete && (
                                             <IconButton
                                                 icon="trash-can"
-                                                size={16}
+                                                size={moderateScale(16)}
                                                 iconColor="#EF4444"
                                                 onPress={() => onDelete(row.id)}
                                                 style={styles.iconBtn}
@@ -252,9 +253,9 @@ const DetailRow: React.FC<DetailRowProps> = ({ label, value, highlight = false }
 
 const styles = StyleSheet.create({
     tableScrollContainer: {
-        marginVertical: 12,
+        marginVertical: scale(12),
         backgroundColor: 'white',
-        borderRadius: 8,
+        borderRadius: scale(8),
         overflow: 'hidden',
         borderWidth: 1,
         borderColor: colors.slate[200],
@@ -273,23 +274,23 @@ const styles = StyleSheet.create({
     row: {
         borderBottomWidth: 1,
         borderBottomColor: colors.slate[100],
-        minHeight: 60,
-        paddingVertical: 8,
+        minHeight: verticalScale(60),
+        paddingVertical: scale(8),
     },
     col12: {
-        width: 120,
-        paddingHorizontal: 8,
+        width: scale(120),
+        paddingHorizontal: scale(8),
     },
     col10: {
-        width: 100,
-        paddingHorizontal: 6,
+        width: scale(100),
+        paddingHorizontal: scale(6),
     },
     col8: {
-        width: 80,
-        paddingHorizontal: 6,
+        width: scale(80),
+        paddingHorizontal: scale(6),
     },
     cellText: {
-        fontSize: 12,
+        fontSize: moderateScale(12),
         color: colors.slate[700],
     },
     boldText: {
@@ -303,28 +304,28 @@ const styles = StyleSheet.create({
     },
     iconBtn: {
         margin: 0,
-        padding: 4,
+        padding: scale(4),
     },
     pagination: {
         borderTopWidth: 1,
         borderTopColor: colors.slate[200],
-        paddingVertical: 8,
+        paddingVertical: scale(8),
         backgroundColor: colors.slate[50],
     },
     container: {
-        padding: 20,
+        padding: scale(20),
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: 'white',
-        borderRadius: 8,
-        marginVertical: 12,
+        borderRadius: scale(8),
+        marginVertical: scale(12),
     },
     loadingText: {
-        fontSize: 14,
+        fontSize: moderateScale(14),
         color: colors.slate[600],
     },
     emptyText: {
-        fontSize: 14,
+        fontSize: moderateScale(14),
         color: colors.slate[600],
         fontWeight: '500',
     },
@@ -334,47 +335,47 @@ const styles = StyleSheet.create({
     bottomSheetContent: {
         flex: 1,
         backgroundColor: 'white',
-        paddingHorizontal: 16,
+        paddingHorizontal: scale(16),
     },
     bottomSheetContentContainer: {
-        paddingBottom: 48,
+        paddingBottom: scale(48),
     },
     bottomSheetHeader: {
-        paddingVertical: 16,
+        paddingVertical: scale(16),
         borderBottomWidth: 1,
         borderBottomColor: colors.slate[200],
-        marginBottom: 16,
+        marginBottom: scale(16),
     },
     bottomSheetTitle: {
-        fontSize: 18,
+        fontSize: moderateScale(18),
         fontWeight: '600',
         color: colors.primary[950],
     },
     detailsContainer: {
-        marginBottom: 20,
+        marginBottom: scale(20),
     },
     detailRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        paddingVertical: 12,
+        paddingVertical: scale(12),
         borderBottomWidth: 1,
         borderBottomColor: colors.slate[100],
     },
     detailRowHighlight: {
         backgroundColor: colors.primary[50],
-        paddingHorizontal: 12,
-        borderRadius: 4,
-        marginVertical: 4,
+        paddingHorizontal: scale(12),
+        borderRadius: scale(4),
+        marginVertical: scale(4),
         borderBottomWidth: 0,
     },
     detailLabel: {
-        fontSize: 13,
+        fontSize: moderateScale(13),
         color: colors.slate[600],
         fontWeight: '500',
     },
     detailValue: {
-        fontSize: 13,
+        fontSize: moderateScale(13),
         color: colors.primary[950],
         fontWeight: '500',
     },
@@ -384,8 +385,8 @@ const styles = StyleSheet.create({
     },
     bottomSheetActions: {
         flexDirection: 'row',
-        gap: 12,
-        marginTop: 16,
+        gap: scale(12),
+        marginTop: scale(16),
     },
     editBtn: {
         backgroundColor: colors.primary[900],

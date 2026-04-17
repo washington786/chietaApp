@@ -1,13 +1,14 @@
 import {
     Platform,
     StyleSheet,
+    Text,
     TouchableOpacity,
     View,
 } from "react-native";
+import { moderateScale, scale, verticalScale } from '@/utils/responsive';
 import React, { FC } from "react";
 
 import { Feather } from "@expo/vector-icons";
-import { Text } from "react-native-paper";
 import usePageTransition from "@/hooks/navigation/usePageTransition";
 import RRow from "./RRow";
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -42,9 +43,10 @@ const RHeader: FC<prop> = ({ name, hasRightIcon = false, onPressRight, iconRight
 
             <View style={styles.titleSlot}>
                 <Text
-                    variant="titleLarge"
                     style={styles.title}
                     numberOfLines={1}
+                    adjustsFontSizeToFit
+                    minimumFontScale={0.72}
                 >
                     {name}
                 </Text>
@@ -74,48 +76,48 @@ const styles = StyleSheet.create({
     con: {
         flexDirection: "row",
         alignItems: "center",
-        paddingVertical: 13,
-        paddingHorizontal: 12,
+        paddingVertical: verticalScale(13),
+        paddingHorizontal: scale(12),
     },
     leftSlot: {
-        minWidth: 56,
+        minWidth: scale(56),
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'flex-start',
         flexShrink: 0,
     },
     rightSlot: {
-        minWidth: 56,
+        minWidth: scale(56),
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'flex-end',
         flexShrink: 0,
     },
     backBtn: {
-        padding: 6,
+        padding: scale(6),
         borderRadius: 999,
     },
     titleSlot: {
         flex: 1,
-        paddingHorizontal: 8,
+        paddingHorizontal: scale(8),
     },
     title: {
+        fontSize: moderateScale(20),
         fontWeight: '700',
         textAlign: 'left',
-        alignSelf: 'stretch',
     },
     actions: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 8,
+        gap: scale(8),
     },
     iconBtn: {
-        padding: 6,
-        borderRadius: 8,
+        padding: scale(6),
+        borderRadius: scale(8),
     },
     secondaryIcon: {
         backgroundColor: colors.primary[600],
         borderRadius: 999,
-        padding: 7,
+        padding: scale(7),
     },
 });

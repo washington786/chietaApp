@@ -1,4 +1,5 @@
 import { StyleSheet } from 'react-native'
+import { moderateScale, scale } from '@/utils/responsive'
 import React, { useState } from 'react'
 import RHeader from '@/components/common/RHeader'
 import { RButton, RCol, RDialog, RRow, RUpload, Scroller } from '@/components/common'
@@ -197,15 +198,15 @@ const LinkOrgPage = () => {
                             <Text variant='titleSmall' style={styles.orgTitle}>{foundOrg?.organisationTradingName}</Text>
                             <Text variant='bodySmall' style={styles.orgTitle}>{foundOrg?.organisationRegistrationNumber}</Text>
                             <RRow style={[styles.rowtFlex, styles.center, styles.gap, styles.row]}>
-                                <Feather name="mail" size={18} color="black" />
+                                <Feather name="mail" size={moderateScale(18)} color="black" />
                                 <Text variant='labelMedium'>{foundOrg?.organisationContactEmailAddress}</Text>
                             </RRow>
                             <RRow style={[styles.rowtFlex, styles.center, styles.gap, styles.row]}>
-                                <Feather name="phone" size={18} color="black" />
+                                <Feather name="phone" size={moderateScale(18)} color="black" />
                                 <Text variant='labelMedium'>{foundOrg?.organisationContactCellNumber}</Text>
                             </RRow>
                             <RRow style={[styles.rowtFlex, styles.center, styles.gap, styles.row]}>
-                                <Feather name="calendar" size={18} color="black" />
+                                <Feather name="calendar" size={moderateScale(18)} color="black" />
                                 <Text variant='labelMedium'>{foundOrg?.dateBusinessCommenced.toString()}</Text>
                             </RRow>
                         </RCol>
@@ -230,15 +231,15 @@ const LinkOrgPage = () => {
                                 <Text variant='titleSmall' style={styles.orgTitle}>{foundOrg.organisationTradingName}</Text>
                                 <Text variant='bodySmall' style={styles.orgTitle}>{foundOrg.organisationRegistrationNumber}</Text>
                                 <RRow style={[styles.rowtFlex, styles.center, styles.gap, styles.row]}>
-                                    <Feather name="mail" size={18} color="black" />
+                                    <Feather name="mail" size={moderateScale(18)} color="black" />
                                     <Text variant='labelMedium'>{foundOrg.organisationContactEmailAddress}</Text>
                                 </RRow>
                                 <RRow style={[styles.rowtFlex, styles.center, styles.gap, styles.row]}>
-                                    <Feather name="phone" size={18} color="black" />
+                                    <Feather name="phone" size={moderateScale(18)} color="black" />
                                     <Text variant='labelMedium'>{foundOrg.organisationContactCellNumber}</Text>
                                 </RRow>
                                 <RRow style={[styles.rowtFlex, styles.center, styles.gap, styles.row]}>
-                                    <Feather name="calendar" size={18} color="black" />
+                                    <Feather name="calendar" size={moderateScale(18)} color="black" />
                                     <Text variant='labelMedium'>{foundOrg.dateBusinessCommenced.toString()}</Text>
                                 </RRow>
                             </RCol>
@@ -302,7 +303,7 @@ const LinkOrgPage = () => {
 function InfoWrapper() {
     return (
         <RRow style={styles.con}>
-            <AntDesign name="info-circle" size={24} color="white" />
+            <AntDesign name="info-circle" size={moderateScale(24)} color="white" />
             <Text variant='bodySmall' style={styles.txt}>Upload a signed grant application/sdf appointment letter on a company letter head.</Text>
         </RRow>
     )
@@ -312,60 +313,60 @@ export default LinkOrgPage
 
 const styles = StyleSheet.create({
     con: {
-        paddingHorizontal: 6,
-        paddingVertical: 8,
+        paddingHorizontal: scale(6),
+        paddingVertical: scale(8),
         backgroundColor: colors.yellow[600],
-        borderRadius: 100,
+        borderRadius: scale(100),
         alignItems: "center",
         justifyContent: "flex-start",
-        gap: 4
+        gap: scale(4)
     },
     txt: {
         color: colors.blue[50],
         fontFamily: `${appFonts.extaLight}`,
-        marginHorizontal: 8
+        marginHorizontal: scale(8)
     },
     rowtFlex: {
         flex: 1
     },
     row: {
-        marginTop: 5,
-        paddingVertical: 4
+        marginTop: scale(5),
+        paddingVertical: scale(4)
     },
     center: {
         alignItems: "center"
     },
     gap: {
-        gap: 8
+        gap: scale(8)
     },
     orgTitle: {
         textTransform: "capitalize"
     },
     wrap: {
-        marginVertical: 16
+        marginVertical: scale(16)
     },
     btn: {
-        marginTop: 8,
+        marginTop: scale(8),
         backgroundColor: colors.primary[900]
     },
     rmbtn: {
-        marginTop: 8,
+        marginTop: scale(8),
         backgroundColor: colors.red[600]
     },
     fab: {
         position: 'absolute',
-        margin: 16,
+        margin: scale(16),
         right: 0,
         bottom: 0,
-        borderRadius: 100,
+        borderRadius: scale(100),
         backgroundColor: colors.red[500]
     },
     wrapper: {
         backgroundColor: colors.primary[50],
-        borderRadius: 10,
-        paddingHorizontal: 8,
-        paddingVertical: 10,
-        marginVertical: 10,
+        borderRadius: scale(10),
+        paddingHorizontal: scale(8),
+        paddingVertical: scale(10),
+        marginVertical: scale(10),
         position: "relative"
     }
 })

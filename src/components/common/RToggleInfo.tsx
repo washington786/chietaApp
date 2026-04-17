@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
+import { moderateScale, scale, verticalScale } from '@/utils/responsive';
 import { Button, Text } from 'react-native-paper';
 import colors from '@/config/colors';
 
@@ -80,12 +81,12 @@ const styles = StyleSheet.create({
     },
     buttonContainer: {
         flexDirection: 'row',
-        gap: 8,
-        marginBottom: 16,
+        gap: scale(8),
+        marginBottom: verticalScale(16),
     },
     button: {
         flex: 1,
-        borderRadius: 8,
+        borderRadius: scale(8),
     },
     buttonActive: {
         backgroundColor: colors.primary[700],
@@ -95,12 +96,12 @@ const styles = StyleSheet.create({
         borderWidth: 0.4,
     },
     buttonLabel: {
-        fontSize: 12,
+        fontSize: moderateScale(12),
         fontWeight: '600',
     },
     contentContainer: {
         flex: 1,
-        paddingVertical: 8,
+        paddingVertical: verticalScale(8),
     },
 });
 

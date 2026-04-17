@@ -15,6 +15,7 @@ import AuthScreenLayout, { authScreenStyles } from '@/components/modules/authent
 import AuthGradientButton from '@/components/modules/authentication/AuthGradientButton';
 import { clearError } from '@/store/slice/AuthSlice';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { moderateScale, scale } from '@/utils/responsive';
 
 const initialValues = {
     email: ''
@@ -30,7 +31,7 @@ function StepFlow({ current }: { current: number }) {
                     <View style={sfStyles.step}>
                         <View style={[sfStyles.circle, step.n <= current && sfStyles.circleActive]}>
                             {step.n < current
-                                ? <MaterialCommunityIcons name='check' size={12} color='#fff' />
+                                ? <MaterialCommunityIcons name='check' size={moderateScale(12)} color='#fff' />
                                 : <Text style={[sfStyles.num, step.n === current && sfStyles.numActive]}>{step.n}</Text>
                             }
                         </View>
@@ -46,14 +47,14 @@ function StepFlow({ current }: { current: number }) {
 }
 const sfStyles = StyleSheet.create({
     row: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'center' },
-    step: { alignItems: 'center', gap: 6, width: 56 },
-    circle: { width: 30, height: 30, borderRadius: 15, backgroundColor: '#f3f4f6', borderWidth: 1.5, borderColor: '#e5e7eb', justifyContent: 'center', alignItems: 'center' },
+    step: { alignItems: 'center', gap: scale(6), width: scale(56) },
+    circle: { width: scale(30), height: scale(30), borderRadius: scale(15), backgroundColor: '#f3f4f6', borderWidth: 1.5, borderColor: '#e5e7eb', justifyContent: 'center', alignItems: 'center' },
     circleActive: { backgroundColor: colors.primary[700], borderColor: colors.primary[600] },
-    num: { fontSize: 12, fontWeight: '700', color: '#9ca3af' },
+    num: { fontSize: moderateScale(12), fontWeight: '700', color: '#9ca3af' },
     numActive: { color: '#fff' },
-    label: { fontSize: 10, fontWeight: '600', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: 0.4 },
+    label: { fontSize: moderateScale(10), fontWeight: '600', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: 0.4 },
     labelActive: { color: colors.primary[700] },
-    connector: { flex: 1, height: 1.5, backgroundColor: '#e5e7eb', marginTop: 14 },
+    connector: { flex: 1, height: 1.5, backgroundColor: '#e5e7eb', marginTop: scale(14) },
     connectorDone: { backgroundColor: colors.primary[600] },
 });
 
@@ -144,11 +145,11 @@ export default ForgotPasswordScreen;
 
 const styles = StyleSheet.create({
     inputGroup: {
-        gap: 6,
-        marginBottom: 20,
+        gap: scale(6),
+        marginBottom: scale(20),
     },
     inputLabel: {
-        fontSize: 14,
+        fontSize: moderateScale(14),
         fontFamily: `${appFonts.semiBold}`,
         color: '#111827',
     },

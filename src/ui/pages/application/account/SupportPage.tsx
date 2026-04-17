@@ -1,4 +1,5 @@
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { moderateScale, scale } from '@/utils/responsive'
 import React, { useState } from 'react'
 import RHeader from '@/components/common/RHeader'
 import { RCol, RDivider, RToggleInfo, Scroller } from '@/components/common'
@@ -19,7 +20,7 @@ const SupportPage = () => {
                     {/* Header */}
                     <View style={styles.header}>
                         <View style={styles.iconCircle}>
-                            <Feather name="headphones" size={42} color={colors.primary[800]} />
+                            <Feather name="headphones" size={moderateScale(42)} color={colors.primary[800]} />
                         </View>
                         <Text style={styles.mainTitle}>Help & Support</Text>
                         <Text style={styles.subtitle}>We're here to help you</Text>
@@ -41,13 +42,13 @@ const SupportPage = () => {
                                     >
                                         <TouchableOpacity style={styles.contactCard} onPress={item.action}>
                                             <View style={styles.contactLeft}>
-                                                <Feather name={item.icon} size={14} color={colors.primary[800]} />
+                                                <Feather name={item.icon} size={moderateScale(14)} color={colors.primary[800]} />
                                                 <View style={{ marginLeft: 16 }}>
                                                     <Text style={styles.contactTitle}>{item.title}</Text>
                                                     <Text style={styles.contactSubtitle}>{item.subtitle}</Text>
                                                 </View>
                                             </View>
-                                            <MaterialIcons name="arrow-forward-ios" size={18} color="#aaa" />
+                                            <MaterialIcons name="arrow-forward-ios" size={moderateScale(18)} color="#aaa" />
                                         </TouchableOpacity>
                                     </Animated.View>
                                 ))}
@@ -84,38 +85,38 @@ const SupportPage = () => {
 export default SupportPage
 
 const styles = StyleSheet.create({
-    header: { alignItems: 'center', marginBottom: 30 },
+    header: { alignItems: 'center', marginBottom: scale(30) },
     iconCircle: {
-        width: 90,
-        height: 90,
-        borderRadius: 45,
+        width: scale(90),
+        height: scale(90),
+        borderRadius: scale(45),
         backgroundColor: '#6c5ce7' + '20',
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: 20,
+        marginBottom: scale(20),
     },
-    mainTitle: { fontSize: 28, fontWeight: '800', color: '#2d3436' },
-    subtitle: { fontSize: 16, color: '#636e72', marginTop: 6 },
-    sectionHeader: { fontSize: 20, fontWeight: '700', color: '#2d3436', marginBottom: 16 },
+    mainTitle: { fontSize: moderateScale(28), fontWeight: '800', color: '#2d3436' },
+    subtitle: { fontSize: moderateScale(16), color: '#636e72', marginTop: scale(6) },
+    sectionHeader: { fontSize: moderateScale(20), fontWeight: '700', color: '#2d3436', marginBottom: scale(16) },
     contactCard: {
         backgroundColor: colors.slate[100],
-        padding: 18,
-        borderRadius: 16,
+        padding: scale(18),
+        borderRadius: scale(16),
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        marginBottom: 12,
+        marginBottom: scale(12),
     },
     contactLeft: { flexDirection: 'row', alignItems: 'center' },
-    contactTitle: { fontSize: 17, fontWeight: '600', color: '#2d3436' },
-    contactSubtitle: { fontSize: 15, color: '#636e72', marginTop: 2 },
+    contactTitle: { fontSize: moderateScale(17), fontWeight: '600', color: '#2d3436' },
+    contactSubtitle: { fontSize: moderateScale(15), color: '#636e72', marginTop: scale(2) },
     faqCard: {
-        padding: 18,
-        borderRadius: 16,
-        marginBottom: 12,
+        padding: scale(18),
+        borderRadius: scale(16),
+        marginBottom: scale(12),
     },
-    faqQuestion: { fontSize: 16, fontWeight: '700', color: '#2d3436', marginBottom: 6 },
-    faqAnswer: { fontSize: 12, color: colors.slate[600], lineHeight: 22 },
-    footer: { marginTop: 30, alignItems: 'center' },
-    footerText: { fontSize: 8, color: '#636e72' },
+    faqQuestion: { fontSize: moderateScale(16), fontWeight: '700', color: '#2d3436', marginBottom: scale(6) },
+    faqAnswer: { fontSize: moderateScale(12), color: colors.slate[600], lineHeight: moderateScale(22) },
+    footer: { marginTop: scale(30), alignItems: 'center' },
+    footerText: { fontSize: moderateScale(8), color: '#636e72' },
 })

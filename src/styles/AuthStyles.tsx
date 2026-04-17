@@ -1,6 +1,7 @@
 import colors from "@/config/colors";
 import appFonts from "@/config/fonts";
 import { StyleSheet } from "react-native";
+import { moderateScale } from "@/utils/responsive";
 
 export const Authstyles = StyleSheet.create({
     content: {
@@ -8,13 +9,13 @@ export const Authstyles = StyleSheet.create({
         gap: 12,
     },
     title: {
-        fontSize: 28,
+        fontSize: moderateScale(28),
         color: colors.primary['900'],
         textAlign: 'center',
         fontWeight: "black"
     },
     description: {
-        fontSize: 16,
+        fontSize: moderateScale(16),
         color: colors.slate['600'],
         textAlign: 'center',
         marginBottom: 8,

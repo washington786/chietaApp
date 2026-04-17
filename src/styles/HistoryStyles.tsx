@@ -1,5 +1,6 @@
 import colors from "@/config/colors";
 import { StyleSheet } from "react-native";
+import { moderateScale, scale } from "@/utils/responsive";
 
 export const history_styles = StyleSheet.create({
     conWrap: {
@@ -76,7 +77,7 @@ export const history_styles = StyleSheet.create({
     card: {
         backgroundColor: colors.white,
         borderRadius: 12,
-        padding: 16,
+        padding: scale(14),
         shadowColor: colors.slate[900],
         shadowOpacity: 0.08,
         shadowRadius: 6,
@@ -91,12 +92,12 @@ export const history_styles = StyleSheet.create({
         gap: 12,
     },
     projectTitle: {
-        fontSize: 15,
+        fontSize: moderateScale(15),
         fontWeight: '700',
         color: colors.slate[900],
     },
     projectSubtitle: {
-        fontSize: 12,
+        fontSize: moderateScale(12),
         color: colors.slate[600],
         marginTop: 3,
         fontWeight: '500',
@@ -122,9 +123,9 @@ export const history_styles = StyleSheet.create({
         gap: 3,
     },
     progressDot: {
-        width: 28,
-        height: 28,
-        borderRadius: 14,
+        width: scale(26),
+        height: scale(26),
+        borderRadius: scale(13),
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: colors.slate[200],
@@ -141,9 +142,9 @@ export const history_styles = StyleSheet.create({
         borderWidth: 2,
     },
     progressDotActivePulse: {
-        width: 10,
-        height: 10,
-        borderRadius: 5,
+        width: scale(9),
+        height: scale(9),
+        borderRadius: scale(5),
         backgroundColor: colors.primary[600],
     },
     progressDotPending: {
@@ -152,7 +153,7 @@ export const history_styles = StyleSheet.create({
     },
     progressLine: {
         height: 2,
-        width: 16,
+        width: scale(14),
         backgroundColor: colors.slate[300],
     },
     progressLineCompleted: {
@@ -263,7 +264,7 @@ export const history_styles = StyleSheet.create({
     orgBottomSheetTitle: {
         color: colors.slate[900],
         fontWeight: '700',
-        fontSize: 24,
+        fontSize: moderateScale(22),
     },
     orgSearchBar: {
         flexDirection: 'row',

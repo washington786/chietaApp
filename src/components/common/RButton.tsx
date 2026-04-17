@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import React, { FC } from "react";
 import RLoaderAnimation from "./RLoaderAnimation";
+import { moderateScale, scale, verticalScale } from '@/utils/responsive';
 
 interface IButton extends TouchableOpacityProps {
   title: string;
@@ -42,17 +43,17 @@ export default RButton;
 
 const styles = StyleSheet.create({
   btnCon: {
-    borderRadius: 10,
+    borderRadius: scale(10),
     width: "100%",
-    minHeight: 55,
-    padding: 10,
+    minHeight: verticalScale(55),
+    padding: scale(10),
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "green",
   },
   txt: {
     color: "white",
-    fontSize: 20,
+    fontSize: moderateScale(20),
     fontWeight: "500",
     textTransform: "uppercase",
   },

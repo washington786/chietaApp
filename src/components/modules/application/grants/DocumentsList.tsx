@@ -1,5 +1,6 @@
 import { StyleSheet, View, FlatList, Linking, ActivityIndicator } from 'react-native'
 import React from 'react'
+import { moderateScale, scale } from '@/utils/responsive'
 import { Text, IconButton } from 'react-native-paper'
 import colors from '@/config/colors'
 import { RRow } from '@/components/common'
@@ -65,7 +66,7 @@ const DocumentsList: React.FC<DocumentsListProps> = ({
                 </View>
                 <IconButton
                     icon="download"
-                    size={20}
+                    size={moderateScale(20)}
                     iconColor={colors.primary[500]}
                     onPress={() => handleDownload(item)}
                     style={styles.downloadButton}
@@ -110,60 +111,60 @@ export default DocumentsList;
 const styles = StyleSheet.create({
     container: {
         backgroundColor: colors.zinc[50],
-        borderRadius: 8,
+        borderRadius: scale(8),
         overflow: 'hidden',
     },
     documentItem: {
-        paddingVertical: 12,
-        paddingHorizontal: 12,
+        paddingVertical: scale(12),
+        paddingHorizontal: scale(12),
         borderBottomWidth: 1,
         borderBottomColor: colors.zinc[200],
     },
     fileIconContainer: {
-        width: 40,
-        height: 40,
+        width: scale(40),
+        height: scale(40),
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: colors.zinc[100],
-        borderRadius: 6,
+        borderRadius: scale(6),
     },
     fileIcon: {
-        fontSize: 20,
+        fontSize: moderateScale(20),
     },
     documentInfo: {
         justifyContent: 'center',
     },
     filename: {
-        fontSize: 14,
+        fontSize: moderateScale(14),
         fontWeight: '600',
         color: colors.slate[900],
     },
     meta: {
-        fontSize: 12,
+        fontSize: moderateScale(12),
         color: colors.slate[500],
     },
     downloadButton: {
         margin: 0,
     },
     loadingContainer: {
-        paddingVertical: 24,
-        paddingHorizontal: 12,
+        paddingVertical: scale(24),
+        paddingHorizontal: scale(12),
         justifyContent: 'center',
         alignItems: 'center',
-        gap: 8,
+        gap: scale(8),
     },
     loadingText: {
-        fontSize: 14,
+        fontSize: moderateScale(14),
         color: colors.slate[500],
     },
     emptyContainer: {
-        paddingVertical: 24,
-        paddingHorizontal: 12,
+        paddingVertical: scale(24),
+        paddingHorizontal: scale(12),
         justifyContent: 'center',
         alignItems: 'center',
     },
     emptyText: {
-        fontSize: 14,
+        fontSize: moderateScale(14),
         color: colors.slate[500],
     },
 });
