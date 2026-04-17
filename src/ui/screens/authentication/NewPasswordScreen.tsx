@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react'
-import { StyleSheet, Text, View } from 'react-native'
+import React, { useEffect, useRef, useState } from 'react'
+import { StyleSheet, Text, TextInput, View } from 'react-native'
 import { Formik } from 'formik'
 import { useSelector, useDispatch } from 'react-redux'
 
@@ -137,6 +137,7 @@ const NewPasswordScreen = () => {
     const { verifyOtp } = UseAuth()
     const { isLoading, error } = useSelector((state: RootState) => state.auth)
     const [success, setSuccess] = useState(false)
+    const confirmPasswordRef = useRef<TextInput>(null)
 
     const handleSubmit = async (values: NewPasswordFormValues) => {
         const { password } = values
@@ -223,6 +224,9 @@ const NewPasswordScreen = () => {
                                 placeholderTextColor='#9ca3af'
                                 customStyle={authScreenStyles.inputField}
                                 style={styles.inputText}
+                                returnKeyType='next'
+                                onSubmitEditing={() => confirmPasswordRef.current?.focus()}
+                                blurOnSubmit={false}
                             />
                             <PasswordHints password={values.password} />
                         </View>
@@ -230,6 +234,7 @@ const NewPasswordScreen = () => {
 
                         <View>
                             <RInput
+                                ref={confirmPasswordRef}
                                 placeholder='Confirm Password'
                                 icon='lock'
                                 secureTextEntry
@@ -239,6 +244,8 @@ const NewPasswordScreen = () => {
                                 placeholderTextColor='#9ca3af'
                                 customStyle={authScreenStyles.inputField}
                                 style={styles.inputText}
+                                returnKeyType='done'
+                                onSubmitEditing={() => handleSubmit()}
                             />
                             {values.confirmPassword.length > 0 && (
                                 <View style={styles.matchRow}>

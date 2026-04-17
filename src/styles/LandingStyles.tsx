@@ -484,8 +484,8 @@ export const l_styles = StyleSheet.create({
     },
     fab: {
         position: "absolute",
-        bottom: scale(16),
-        right: scale(16),
+        bottom: scale(20),
+        right: scale(20),
         width: scale(48),
         height: scale(48),
         borderRadius: scale(24),

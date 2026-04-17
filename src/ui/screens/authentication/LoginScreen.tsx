@@ -1,5 +1,5 @@
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import React, { useEffect, useRef, useState } from 'react'
 import colors from '@/config/colors'
 import appFonts from '@/config/fonts'
 import { RErrorMessage, RInput, RLoaderAnimation } from '@/components/common'
@@ -28,6 +28,8 @@ const LoginScreen = () => {
     const { isLoading, error } = useSelector((state: RootState) => state.auth)
     const [showPassword, setShowPassword] = useState(false);
     const [rememberMe, setRememberMe] = useState(false);
+
+    const passwordRef = useRef<TextInput>(null);
 
     const handleSubmit = async (email: string, password: string) => {
         const result = await login({
@@ -76,6 +78,9 @@ const LoginScreen = () => {
                                 value={values.email}
                                 customStyle={authScreenStyles.inputField}
                                 style={styles.inputText}
+                                returnKeyType="next"
+                                onSubmitEditing={() => passwordRef.current?.focus()}
+                                blurOnSubmit={false}
                             />
                             {touched.email && errors.email && <RErrorMessage error={errors.email} />}
                         </View>
@@ -85,6 +90,7 @@ const LoginScreen = () => {
                             <Text style={styles.inputLabel}>Password</Text>
                             <View style={styles.passwordWrapper}>
                                 <RInput
+                                    ref={passwordRef}
                                     placeholder='Enter your password'
                                     icon='lock'
                                     iconColor={colors.primary[600]}
@@ -96,6 +102,8 @@ const LoginScreen = () => {
                                     secureTextEntry={!showPassword}
                                     customStyle={[authScreenStyles.inputField, styles.passwordInput]}
                                     style={styles.inputText}
+                                    returnKeyType="done"
+                                    onSubmitEditing={() => handleSubmit()}
                                 />
                                 <TouchableOpacity
                                     style={styles.togglePassword}

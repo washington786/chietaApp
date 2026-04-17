@@ -47,9 +47,12 @@ const AuthScreenLayout = ({
             </LinearGradient>
 
             <SafeArea>
-                <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.kbAvoider}>
+                <KeyboardAvoidingView
+                    behavior={Platform.OS === 'ios' ? 'padding' : 'padding'}
+                    style={styles.kbAvoider}
+                    keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
+                >
                     <Scroller contentContainerStyle={styles.scroller}>
-
                         {/* Transparent header — gradient shows through */}
                         <View style={styles.header}>
                             {showBackButton && (
@@ -133,7 +136,7 @@ const styles = StyleSheet.create({
         overflow: 'hidden',
     },
     kbAvoider: { flex: 1 },
-    scroller: { flexGrow: 1 },
+    scroller: { flexGrow: 1, paddingBottom: 40 },
     blob: { position: 'absolute', backgroundColor: 'rgba(255,255,255,0.08)', borderRadius: 200 },
     blobTR: { width: scale(260), height: scale(260), top: -90, right: -90 },
     blobBL: { width: scale(180), height: scale(180), top: 80, left: -80 },

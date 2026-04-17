@@ -121,6 +121,9 @@ const ForgotPasswordScreen = () => {
                                 onBlur={handleBlur('email')}
                                 value={values.email}
                                 keyboardType='email-address'
+                                autoComplete='email'
+                                returnKeyType='done'
+                                onSubmitEditing={() => handleSubmit()}
                                 customStyle={authScreenStyles.inputField}
                                 style={styles.inputText}
                             />

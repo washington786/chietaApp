@@ -1,5 +1,5 @@
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import React, { useEffect } from "react";
+import { StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import React, { useEffect, useRef } from "react";
 import usePageTransition from "@/hooks/navigation/usePageTransition";
 import { RErrorMessage, RInput, RLoaderAnimation } from "@/components/common";
 import colors from "@/config/colors";
@@ -65,6 +65,12 @@ const pStyles = StyleSheet.create({
 
 const RegisterScreen = () => {
     const { login, onAuth } = usePageTransition();
+
+    const lastNameRef = useRef<TextInput>(null);
+    const usernameRef = useRef<TextInput>(null);
+    const emailRef = useRef<TextInput>(null);
+    const passwordRef = useRef<TextInput>(null);
+    const confirmPasswordRef = useRef<TextInput>(null);
 
     const { register } = UseAuth();
     const dispatch = useDispatch<AppDispatch>();
@@ -145,11 +151,15 @@ const RegisterScreen = () => {
                                     placeholderTextColor="#9ca3af"
                                     customStyle={authScreenStyles.inputField}
                                     style={styles.inputText}
+                                    returnKeyType="next"
+                                    onSubmitEditing={() => lastNameRef.current?.focus()}
+                                    blurOnSubmit={false}
                                 />
                                 {errors.firstName && touched.firstName && <RErrorMessage error={errors.firstName} />}
                             </View>
                             <View style={styles.halfWrap}>
                                 <RInput
+                                    ref={lastNameRef}
                                     placeholder="Last name"
                                     onBlur={handleBlur("lastName")}
                                     onChangeText={handleChange("lastName")}
@@ -157,12 +167,16 @@ const RegisterScreen = () => {
                                     placeholderTextColor="#9ca3af"
                                     customStyle={authScreenStyles.inputField}
                                     style={styles.inputText}
+                                    returnKeyType="next"
+                                    onSubmitEditing={() => usernameRef.current?.focus()}
+                                    blurOnSubmit={false}
                                 />
                                 {errors.lastName && touched.lastName && <RErrorMessage error={errors.lastName} />}
                             </View>
                         </View>
 
                         <RInput
+                            ref={usernameRef}
                             placeholder="Username"
                             onBlur={handleBlur("username")}
                             onChangeText={handleChange("username")}
@@ -170,10 +184,14 @@ const RegisterScreen = () => {
                             placeholderTextColor="#9ca3af"
                             customStyle={authScreenStyles.inputField}
                             style={styles.inputText}
+                            returnKeyType="next"
+                            onSubmitEditing={() => emailRef.current?.focus()}
+                            blurOnSubmit={false}
                         />
                         {errors.username && touched.username && <RErrorMessage error={errors.username} />}
 
                         <RInput
+                            ref={emailRef}
                             placeholder="Email address"
                             icon={"mail"}
                             onBlur={handleBlur("email")}
@@ -183,11 +201,15 @@ const RegisterScreen = () => {
                             keyboardType="email-address"
                             customStyle={authScreenStyles.inputField}
                             style={styles.inputText}
+                            returnKeyType="next"
+                            onSubmitEditing={() => passwordRef.current?.focus()}
+                            blurOnSubmit={false}
                         />
                         {errors.email && touched.email && <RErrorMessage error={errors.email} />}
 
                         <View>
                             <RInput
+                                ref={passwordRef}
                                 placeholder="Password"
                                 icon={"lock"}
                                 secureTextEntry
@@ -197,6 +219,9 @@ const RegisterScreen = () => {
                                 placeholderTextColor="#9ca3af"
                                 customStyle={authScreenStyles.inputField}
                                 style={styles.inputText}
+                                returnKeyType="next"
+                                onSubmitEditing={() => confirmPasswordRef.current?.focus()}
+                                blurOnSubmit={false}
                             />
                             <PasswordStrength password={values.password} />
                         </View>
@@ -204,6 +229,7 @@ const RegisterScreen = () => {
 
                         <View>
                             <RInput
+                                ref={confirmPasswordRef}
                                 placeholder="Confirm password"
                                 icon={"lock"}
                                 secureTextEntry
@@ -213,6 +239,8 @@ const RegisterScreen = () => {
                                 placeholderTextColor="#9ca3af"
                                 customStyle={authScreenStyles.inputField}
                                 style={styles.inputText}
+                                returnKeyType="done"
+                                onSubmitEditing={() => handleSubmit()}
                             />
                             {values.confirmPassword.length > 0 && (
                                 <View style={styles.matchRow}>
