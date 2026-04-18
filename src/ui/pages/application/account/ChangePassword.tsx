@@ -12,6 +12,8 @@ import { RootState } from '@/store/store'
 import { changePasswordSchema } from '@/core/validators/newPasswordValidator'
 import { useEffect, useRef } from 'react'
 import { useNavigation } from '@react-navigation/native'
+import { Ionicons } from '@expo/vector-icons';
+import { Text } from 'react-native-paper'
 
 const ChangePassword = () => {
     const { changePassword } = UseAuth()
@@ -67,6 +69,12 @@ const ChangePassword = () => {
             <RHeader name='Change Password' />
             <Scroller style={styles.con}>
                 <Animated.View entering={FadeInDown.duration(600)} style={styles.anim}>
+
+                    <View style={{ alignItems: 'center', gap: scale(8), backgroundColor: colors.secondary[100], borderRadius: scale(5), flexDirection: 'row', overflow: 'hidden', marginHorizontal: scale(0), padding: scale(12),marginBottom:scale(10) }}>
+                        <Ionicons name='information-circle' size={24} color={colors.secondary[700]} />
+                        <Text variant='bodySmall' style={{ color: colors.secondary[700], paddingRight: scale(12), width: '97%' }}>Please note once you've reset your password. You'll need to start using the new password to login to the IMS Portal</Text>
+                    </View>
+
                     <Formik
                         initialValues={initialValues}
                         onSubmit={handleSubmit}

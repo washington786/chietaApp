@@ -109,18 +109,10 @@ const AccountSettingsPage = () => {
 
             <Scroller contentContainerStyle={styles.scrollContent}>
                 {/* alert */}
-                <View style={styles.container}>
-                    <View style={styles.iconContainer}>
-                        <Ionicons
-                            name="warning-outline"
-                            size={moderateScale(16)}
-                            color="#854d0e"
-                        />
-                    </View>
 
-                    <View style={styles.textContainer}>
-                        <Text style={styles.message}>Details can't be edited due to company policy.</Text>
-                    </View>
+                <View style={{ alignItems: 'center', gap: scale(8), backgroundColor: colors.secondary[100], borderRadius: scale(5), flexDirection: 'row', overflow: 'hidden', marginHorizontal: scale(0), padding: scale(12), marginBottom: scale(10) }}>
+                    <Ionicons name='information-circle' size={24} color={colors.secondary[700]} />
+                    <Text variant='bodySmall' style={{ color: colors.secondary[700], paddingRight: scale(12), width: '97%' }}>Details can't be edited due to company policy.</Text>
                 </View>
 
 
