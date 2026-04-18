@@ -12,9 +12,11 @@ import Animated, {
 import RText from './RText'
 import colors from '@/config/colors'
 import RLoaderAnimation from './RLoaderAnimation'
+import Constants from 'expo-constants'
 
 const RSplash = () => {
     const logoScale = useSharedValue(0.8);
+    const version = Constants.expoConfig?.version ?? '—'
 
     useEffect(() => {
         logoScale.value = withTiming(1, { duration: 800 })
@@ -42,8 +44,8 @@ const RSplash = () => {
             </Animated.View>
 
             <Animated.View entering={FadeIn.delay(1200)} style={styles.footer} pointerEvents="none">
-                <RText title="Version 1.0.0" style={styles.version} />
-                <RText title="© 2025 CHIETA" style={styles.copyright} />
+                <RText title={`Version ${version}`} style={styles.version} />
+                <RText title={`© copyright at CHIETA ${new Date().getFullYear()}`} style={styles.copyright} />
             </Animated.View>
         </View>
     )
