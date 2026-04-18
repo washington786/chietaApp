@@ -1,16 +1,15 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, useCallback } from "react";
 import {
     View,
     Text,
     TouchableOpacity,
-    ScrollView,
-    FlatList,
     TextInput,
     KeyboardAvoidingView,
     Platform,
     Image,
     Animated,
 } from "react-native";
+import { BottomSheetScrollView, BottomSheetFlatList } from "@/hooks/navigation/BottomSheet";
 import { Ionicons as Icon } from "@expo/vector-icons";
 import { Feather } from "@expo/vector-icons";
 import * as DocumentPicker from 'expo-document-picker';
@@ -34,50 +33,6 @@ interface ChatMessage {
     attachments?: ChatAttachment[];
     timestamp: Date;
 }
-
-// const SUGGESTIONS = [
-//   { icon: 'help-circle', label: 'What is CHIETA?' },
-//   { icon: 'file-text', label: 'How do I apply for a grant?' },
-//   { icon: 'award', label: 'Skills training programmes' },
-//   { icon: 'briefcase', label: 'Career opportunities' },
-//   { icon: 'phone', label: 'Contact & support' },
-// ] as const;
-
-// const QUICK_CHIPS = [
-//   'Tell me more',
-//   'Eligibility requirements',
-//   'Application deadlines',
-//   'Required documents',
-//   'Track my application',
-// ];
-
-// function getBotReply(input: string, hasAttachments: boolean): string {
-//   const q = input.toLowerCase();
-//   if (hasAttachments)
-//     return "Thank you for sharing that file. Our team will review it and get back to you. For urgent queries please contact info@chieta.org.za.";
-//   if (q.includes('chieta'))
-//     return "CHIETA (Chemical Industries Education & Training Authority) is a SETA responsible for skills development in the chemical industries sector in South Africa. We facilitate training, grant funding, and learnerships to upskill workers across the sector.";
-//   if (q.includes('grant') || q.includes('apply') || q.includes('application'))
-//     return "To apply for a grant, log into the IMS Portal from this app. You need to be registered as an employer or training provider. Mandatory grants cover 20% of your Skills Development Levy (SDL), while discretionary grants are competitive and project-based.\n\nTap 'Login to IMS Portal' on the home screen to get started.";
-//   if (q.includes('skill') || q.includes('training') || q.includes('learner'))
-//     return "CHIETA funds a wide range of skills programmes including learnerships, apprenticeships, skills programmes, and bursaries. These are accessible to employed and unemployed individuals in the chemical sector. Visit our SSC portal for more details.";
-//   if (q.includes('career') || q.includes('job') || q.includes('vacanc'))
-//     return "CHIETA regularly posts career opportunities on our website. Browse vacancies via the Careers card on the home screen, which links directly to live listings at chieta.org.za/careers/vacancies.";
-//   if (q.includes('contact') || q.includes('support') || q.includes('phone'))
-//     return "You can reach us at:\n\u{1F4E7} info@chieta.org.za\n\u{1F4DE} 011 628 7000\n\u{1F550} Mon\u2013Fri, 08:00\u201316:30\n\nFor application queries, use the IMS Portal in-app support form for the fastest response.";
-//   if (q.includes('hi') || q.includes('hello') || q.includes('hey') || q.includes('good morning') || q.includes('good day'))
-//     return "Hello! \uD83D\uDC4B I am the CHIETA Assistant. I can help you with information about grants, skills programmes, career opportunities, and more. How can I assist you today?";
-//   if (q.includes('deadline') || q.includes('when'))
-//     return "Annual Mandatory Grant applications close on 30 April each year. Discretionary Grant windows vary by project \u2014 check the IMS Portal Notifications section or follow @CHIETA_ZA on social media for announcements.";
-//   if (q.includes('document') || q.includes('require'))
-//     return "Grant applications typically require: a valid B-BBEE certificate, updated WSP/ATR, tax clearance pin, company registration documents, and signed SDL proof. Specific requirements are listed per grant type in the IMS Portal.";
-//   if (q.includes('track') || q.includes('status') || q.includes('progress'))
-//     return "Track your application status in the IMS Portal under 'My Applications'. Status updates are sent via email and also appear as notifications in this app.";
-//   if (q.includes('tell me more') || q.includes('more info'))
-//     return "I can tell you more about any of these topics: grants, skills programmes, career opportunities, contact details, or application requirements. Which would you like to explore?";
-//   return "Thank you for your question. For queries I cannot yet answer here, please contact info@chieta.org.za or call 011 628 7000, Mon\u2013Fri 08:00\u201316:30. You can also access detailed self-service support through the IMS Portal.";
-// }
-
 // ================= TYPING INDICATOR =================
 function TypingIndicator() {
     const dot0 = useRef(new Animated.Value(0.35)).current;
@@ -240,10 +195,13 @@ export function ChatBot({ close }: { close: () => void }) {
     const [inputText, setInputText] = useState('');
     const [isTyping, setIsTyping] = useState(false);
     const [pending, setPending] = useState<ChatAttachment[]>([]);
-    const listRef = useRef<FlatList<ChatMessage>>(null);
+    const listRef = useRef<any>(null);
 
     const isEmpty = messages.length === 0;
     const showQuickChips = messages.length > 0 && !isTyping;
+
+    const keyExtractor = useCallback((m: ChatMessage) => m.id, []);
+    const renderMessage = useCallback(({ item }: { item: ChatMessage }) => <MessageBubble msg={item} />, []);
 
     function pushBotReply(userText: string, attachments: ChatAttachment[] = []) {
         setIsTyping(true);
@@ -340,7 +298,7 @@ export function ChatBot({ close }: { close: () => void }) {
 
             {/* Empty state or message list */}
             {isEmpty ? (
-                <ScrollView
+                <BottomSheetScrollView
                     contentContainerStyle={cs.emptyState}
                     showsVerticalScrollIndicator={false}
                     keyboardShouldPersistTaps="handled"
@@ -367,14 +325,14 @@ export function ChatBot({ close }: { close: () => void }) {
                             </TouchableOpacity>
                         ))}
                     </View>
-                </ScrollView>
+                </BottomSheetScrollView>
             ) : (
-                <FlatList
+                <BottomSheetFlatList
                     ref={listRef}
                     style={{ flexGrow: 1 }}
                     data={messages}
-                    keyExtractor={m => m.id}
-                    renderItem={({ item }) => <MessageBubble msg={item} />}
+                    keyExtractor={keyExtractor}
+                    renderItem={renderMessage}
                     contentContainerStyle={cs.msgList}
                     showsVerticalScrollIndicator={false}
                     keyboardShouldPersistTaps="handled"
@@ -385,7 +343,7 @@ export function ChatBot({ close }: { close: () => void }) {
 
             {/* Quick-reply chips */}
             {showQuickChips && (
-                <ScrollView
+                <BottomSheetScrollView
                     horizontal
                     showsHorizontalScrollIndicator={false}
                     style={cs.chipsBar}
@@ -397,12 +355,12 @@ export function ChatBot({ close }: { close: () => void }) {
                             <Text style={cs.chipText}>{c}</Text>
                         </TouchableOpacity>
                     ))}
-                </ScrollView>
+                </BottomSheetScrollView>
             )}
 
             {/* Pending attachments */}
             {pending.length > 0 && (
-                <ScrollView
+                <BottomSheetScrollView
                     horizontal
                     showsHorizontalScrollIndicator={false}
                     style={cs.pendingBar}
@@ -418,7 +376,7 @@ export function ChatBot({ close }: { close: () => void }) {
                             </TouchableOpacity>
                         </View>
                     ))}
-                </ScrollView>
+                </BottomSheetScrollView>
             )}
 
             {/* Input bar */}
