@@ -94,6 +94,7 @@ const BankDetailsPage = () => {
             removeClippedSubviews={false}
             initialNumToRender={10}
             maxToRenderPerBatch={10}
+            contentContainerStyle={{ paddingBottom: 40 }}
             windowSize={21}
             ListEmptyComponent={<REmpty title='No Payments Found' subtitle={`when you have payments, they'll appear here`} icon='credit-card' />}
             ListHeaderComponent={
