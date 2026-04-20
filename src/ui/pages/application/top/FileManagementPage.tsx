@@ -314,6 +314,7 @@ const FileManagementPage = () => {
                                 )}
                                 scrollEnabled={false}
                                 showsVerticalScrollIndicator={false}
+                                contentContainerStyle={{ paddingVertical: scale(8) }}
                                 ListEmptyComponent={
                                     <View style={styles.emptyGrant}>
                                         <MaterialCommunityIcons name='cash-clock' size={moderateScale(32)} color={colors.gray[300]} />

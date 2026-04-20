@@ -13,7 +13,7 @@ import { newPasswordSchema, showToast } from '@/core'
 import colors from '@/config/colors'
 import { RootState, AppDispatch } from '@/store/store'
 import { clearResetState } from '@/store/slice/PasswordResetSlice'
-import { clearError } from '@/store/slice/AuthSlice'
+import { clearVerifyOtpError } from '@/store/slice/AuthSlice'
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
 import { moderateScale, scale } from '@/utils/responsive'
 
@@ -135,7 +135,7 @@ const NewPasswordScreen = () => {
     const dispatch = useDispatch<AppDispatch>()
     const { email, otp } = useSelector((state: RootState) => state.passwordReset)
     const { verifyOtp } = UseAuth()
-    const { isLoading, error } = useSelector((state: RootState) => state.auth)
+    const { loading: isLoading, error } = useSelector((state: RootState) => state.auth.verifyOtpOp)
     const [success, setSuccess] = useState(false)
     const confirmPasswordRef = useRef<TextInput>(null)
 
@@ -171,26 +171,21 @@ const NewPasswordScreen = () => {
     }
 
     useEffect(() => {
+        dispatch(clearVerifyOtpError());
+        return () => { dispatch(clearVerifyOtpError()); };
+    }, [dispatch]);
+
+    useEffect(() => {
         if (error) {
             showToast({
                 message: error.message,
                 type: 'error',
-                title: 'Error',
+                title: 'Password Reset Error',
                 position: 'top'
             })
-            dispatch(clearError())
+            dispatch(clearVerifyOtpError())
         }
     }, [error, dispatch])
-
-    if (!email || !otp) {
-        return (
-            <AuthScreenLayout title='Error' subtitle='Email or OTP not found. Please start the reset process again.'>
-                <View>
-                    <RErrorMessage error='Email or OTP not found. Please start the reset process again.' />
-                </View>
-            </AuthScreenLayout>
-        )
-    }
 
     if (success) {
         return (
@@ -200,6 +195,16 @@ const NewPasswordScreen = () => {
                 title='Password Updated!'
                 description='Your password has been reset successfully. You can now log in with your new password.'
             />
+        )
+    }
+
+    if (!email || !otp) {
+        return (
+            <AuthScreenLayout title='Error' subtitle='Email or OTP not found. Please start the reset process again.'>
+                <View>
+                    <RErrorMessage error='Email or OTP not found. Please start the reset process again.' />
+                </View>
+            </AuthScreenLayout>
         )
     }
 

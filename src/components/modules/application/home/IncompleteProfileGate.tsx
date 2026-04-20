@@ -182,66 +182,6 @@ const IncompleteProfileGate: React.FC = () => {
                             ))}
                         </View>
 
-                        {/* Divider */}
-                        <View style={styles.divider} />
-
-                        {/* Web portal pill */}
-                        <Text style={styles.portalLabel}>Open the web portal to continue</Text>
-                        <TouchableOpacity
-                            style={styles.portalPill}
-                            onPress={handleOpenWebApp}
-                            activeOpacity={0.75}
-                        >
-                            <MaterialCommunityIcons
-                                name="web"
-                                size={moderateScale(18)}
-                                color={colors.primary[700]}
-                            />
-                            <Text style={styles.portalUrl}>{WEB_APP_URL}</Text>
-                            <MaterialCommunityIcons
-                                name="open-in-new"
-                                size={moderateScale(14)}
-                                color={colors.primary[400]}
-                            />
-                        </TouchableOpacity>
-
-                        {/* Primary CTA */}
-                        <TouchableOpacity
-                            style={styles.ctaButton}
-                            onPress={handleOpenWebApp}
-                            activeOpacity={0.85}
-                        >
-                            <LinearGradient
-                                colors={[colors.primary[700], colors.primary[900]]}
-                                start={{ x: 0, y: 0 }}
-                                end={{ x: 1, y: 0 }}
-                                style={styles.ctaGradient}
-                            >
-                                <MaterialCommunityIcons
-                                    name="arrow-right-circle-outline"
-                                    size={moderateScale(20)}
-                                    color="#fff"
-                                />
-                                <Text style={styles.ctaText}>Go to CHIETA Web Portal</Text>
-                            </LinearGradient>
-                        </TouchableOpacity>
-
-                        {/* Secondary: I've completed the steps */}
-                        <TouchableOpacity
-                            style={styles.refreshButton}
-                            onPress={handleRefresh}
-                            activeOpacity={0.7}
-                        >
-                            <MaterialCommunityIcons
-                                name="refresh"
-                                size={moderateScale(17)}
-                                color={colors.primary[700]}
-                            />
-                            <Text style={styles.refreshText}>
-                                {"I've completed the steps — check again"}
-                            </Text>
-                        </TouchableOpacity>
-
                         {/* Pending summary pill (only when items still pending) */}
                         {pendingItems.length > 0 && (
                             <View style={styles.pendingPill}>
@@ -257,20 +197,6 @@ const IncompleteProfileGate: React.FC = () => {
                             </View>
                         )}
                     </View>
-
-                    {/* Sign out */}
-                    <TouchableOpacity
-                        style={styles.signOutRow}
-                        onPress={handleSignOut}
-                        activeOpacity={0.6}
-                    >
-                        <MaterialCommunityIcons
-                            name="logout"
-                            size={moderateScale(15)}
-                            color={colors.slate[400]}
-                        />
-                        <Text style={styles.signOutText}>Sign out</Text>
-                    </TouchableOpacity>
                 </Animated.View>
             </ScrollView>
         </SafeAreaView>

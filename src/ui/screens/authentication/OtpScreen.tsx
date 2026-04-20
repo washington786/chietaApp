@@ -14,7 +14,6 @@ import { RootState, AppDispatch } from '@/store/store';
 import {
     setOtp,
     checkLockoutExpiry,
-    verifyOtpBackend,
     resendOtpCode,
 } from '@/store/slice/PasswordResetSlice';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
@@ -135,16 +134,10 @@ const OtpScreen = () => {
             return;
         }
 
-        const result = await dispatch(verifyOtpBackend({ email, otp: values.otp }));
-
-        if (result.type === 'passwordReset/verifyOtp/fulfilled') {
-            dispatch(setOtp(values.otp));
-            showToast({ message: "OTP verified. Please enter your new password.", type: "success", title: "Success", position: "top" });
-            newPassword();
-        } else {
-            const errorMsg = typeof result.payload === 'string' ? result.payload : "Invalid OTP. Please try again.";
-            showToast({ message: errorMsg, type: "error", title: "Verification Failed", position: "top" });
-        }
+        // Store OTP locally and proceed to password entry.
+        // The backend verifies the code atomically in the ResetPassword call (email + resetCode + password).
+        dispatch(setOtp(values.otp));
+        newPassword();
     };
 
     const handleResendOtp = async () => {
@@ -243,7 +236,7 @@ const OtpScreen = () => {
                             onBlur={() => handleBlur('otp')}
                             focusColor={colors.primary[400]}
                             type='numeric'
-                            disabled={isLoading}
+                            disabled={false}
                             theme={{
                                 containerStyle: { marginVertical: scale(4) },
                                 inputsContainerStyle: { gap: scale(8) },
@@ -302,8 +295,8 @@ const OtpScreen = () => {
                         <AuthGradientButton
                             title='Verify Code'
                             onPress={handleSubmit}
-                            loading={isLoading}
-                            disabled={isLoading || timeRemaining === 0}
+                            loading={false}
+                            disabled={timeRemaining === 0}
                         />
                     </View>
                 )}

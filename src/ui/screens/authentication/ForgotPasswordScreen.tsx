@@ -13,7 +13,7 @@ import { ResetPasswordRequest } from '@/core/models/UserDto';
 import { initializeReset } from '@/store/slice/PasswordResetSlice';
 import AuthScreenLayout, { authScreenStyles } from '@/components/modules/authentication/AuthScreenLayout';
 import AuthGradientButton from '@/components/modules/authentication/AuthGradientButton';
-import { clearError } from '@/store/slice/AuthSlice';
+import { clearResetPasswordError } from '@/store/slice/AuthSlice';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { moderateScale, scale } from '@/utils/responsive';
 
@@ -63,19 +63,24 @@ const ForgotPasswordScreen = () => {
     const dispatch = useDispatch<AppDispatch>();
 
     const { resetPassword } = UseAuth();
-    const { isLoading, error } = useSelector(
-        (state: RootState) => state.auth
+    const { loading: isLoading, error } = useSelector(
+        (state: RootState) => state.auth.resetPasswordOp
     );
+
+    useEffect(() => {
+        dispatch(clearResetPasswordError());
+        return () => { dispatch(clearResetPasswordError()); };
+    }, [dispatch]);
 
     useEffect(() => {
         if (error) {
             showToast({
                 message: error.message,
                 type: "error",
-                title: "Login Error",
+                title: "Reset Password Error",
                 position: "top",
             });
-            dispatch(clearError());
+            dispatch(clearResetPasswordError());
         }
     }, [error, dispatch]);
 

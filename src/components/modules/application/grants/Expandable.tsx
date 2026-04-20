@@ -1,6 +1,6 @@
 import { RCol, RDivider, RRow } from "@/components/common";
 import colors from "@/config/colors";
-import { moderateScale } from "@/utils/responsive";
+import { moderateScale, scale } from "@/utils/responsive";
 import { ReactNode } from "react";
 import { StyleSheet, TouchableOpacity } from "react-native";
 import { Text } from "react-native-paper";
@@ -15,9 +15,9 @@ interface props {
 
 export function Expandable({ onPress, isExpanded = true, children, title }: props) {
     return (
-        <RCol style={{ backgroundColor: "#ffffff", marginVertical: 10, padding: 4, borderColor: colors.gray[200], borderWidth: 0.5, borderRadius: 6 }}>
+        <RCol style={{ backgroundColor: "#ffffff", marginVertical: scale(10), padding: scale(4), borderColor: colors.gray[200], borderWidth: 0.5, borderRadius: scale(6) }}>
             <TouchableOpacity onPress={onPress}>
-                <RRow style={{ alignItems: 'center', justifyContent: "space-between", paddingVertical: 12 }}>
+                <RRow style={{ alignItems: 'center', justifyContent: "space-between", paddingVertical: scale(12) }}>
                     <Text variant='titleMedium' style={styles.capText}>{title}</Text>
                     <Entypo name={!isExpanded ? "chevron-down" : "chevron-up"} size={moderateScale(24)} color="black" />
                 </RRow>
@@ -26,7 +26,7 @@ export function Expandable({ onPress, isExpanded = true, children, title }: prop
                 isExpanded && (
                     <>
                         <RDivider />
-                        <RCol style={{paddingHorizontal:6}}>
+                        <RCol style={{ paddingHorizontal: scale(6), paddingVertical: scale(8) }}>
                             {children}
                         </RCol>
 
@@ -53,6 +53,7 @@ const styles = StyleSheet.create({
         textTransform: "capitalize"
     },
     capText: {
-        textTransform: "capitalize"
+        textTransform: "capitalize",
+        fontSize: moderateScale(14)
     }
 })

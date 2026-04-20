@@ -3,6 +3,7 @@ import React from 'react'
 import { useGetDGProjectDetailsAppQuery } from '@/store/api/api'
 import { REmpty, RLoader } from '@/components/common'
 import ProjectDetailRenderItem from './ProjectDetailsRenderItem'
+import { scale } from '@/utils/responsive'
 
 interface ProjectDetailsItemProps {
     projectId: number
@@ -34,6 +35,7 @@ const ProjectDetailsItem: React.FC<ProjectDetailsItemProps> = ({ projectId }) =>
                 showsVerticalScrollIndicator={false}
                 ListEmptyComponent={<REmpty title='No Project Entry' subtitle='You do not have any project entries yet for this project..' icon='archive' />}
                 scrollEnabled={true}
+                contentContainerStyle={{ paddingBottom: scale(40) }}
             />
         </View>
     )

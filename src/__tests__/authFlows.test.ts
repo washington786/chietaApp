@@ -8,6 +8,9 @@ import authReducer, {
     changePassword,
     deleteAccount,
     setCredentials,
+    clearResetPasswordError,
+    clearVerifyOtpError,
+    clearChangePasswordError,
 } from '@/store/slice/AuthSlice'
 
 const secureStoreMocks = vi.hoisted(() => ({
@@ -222,7 +225,7 @@ describe('authentication thunks', () => {
             expect(action.payload).toMatchObject({
                 message: 'Reset code sent',
             })
-            expect(store.getState().auth.error).toBeNull()
+            expect(store.getState().auth.resetPasswordOp.error).toBeNull()
         })
 
         it('gracefully reports reset failures', async () => {
@@ -244,7 +247,49 @@ describe('authentication thunks', () => {
             )
 
             expect(action.meta.requestStatus).toBe('rejected')
-            expect(store.getState().auth.error?.code).toBe('RESET_PASSWORD_ERROR')
+            expect(store.getState().auth.resetPasswordOp.error?.code).toBe('RESET_PASSWORD_ERROR')
+        })
+
+        it('extracts ABP nested error details for reset failures', async () => {
+            const store = buildStore()
+
+            fetchMock.mockResolvedValueOnce(
+                mockResponse(
+                    {
+                        error: {
+                            message: 'Generic error',
+                            details: 'The email address does not exist.',
+                        },
+                    },
+                    { ok: false, status: 500 }
+                )
+            )
+
+            const action = await store.dispatch(
+                resetPassword({ email: 'bad@example.com' })
+            )
+
+            expect(action.meta.requestStatus).toBe('rejected')
+            expect(store.getState().auth.resetPasswordOp.error?.message).toBe(
+                'The email address does not exist.'
+            )
+        })
+
+        it('does not contaminate shared auth error state', async () => {
+            const store = buildStore()
+
+            fetchMock.mockResolvedValueOnce(
+                mockResponse(
+                    { error: { message: 'Reset failed' } },
+                    { ok: false, status: 500 }
+                )
+            )
+
+            await store.dispatch(resetPassword({ email: 'x@example.com' }))
+
+            expect(store.getState().auth.resetPasswordOp.error).not.toBeNull()
+            expect(store.getState().auth.error).toBeNull()
+            expect(store.getState().auth.isLoading).toBe(false)
         })
 
         it('submits OTP and new password successfully', async () => {
@@ -265,7 +310,7 @@ describe('authentication thunks', () => {
             )
 
             expect(action.meta.requestStatus).toBe('fulfilled')
-            expect(store.getState().auth.error).toBeNull()
+            expect(store.getState().auth.verifyOtpOp.error).toBeNull()
         })
 
         it('captures OTP verification errors', async () => {
@@ -289,7 +334,36 @@ describe('authentication thunks', () => {
             )
 
             expect(action.meta.requestStatus).toBe('rejected')
-            expect(store.getState().auth.error?.code).toBe('OTP_VERIFICATION_ERROR')
+            expect(store.getState().auth.verifyOtpOp.error?.code).toBe('OTP_VERIFICATION_ERROR')
+        })
+
+        it('extracts ABP nested error for OTP verification', async () => {
+            const store = buildStore()
+
+            fetchMock.mockResolvedValueOnce(
+                mockResponse(
+                    {
+                        error: {
+                            message: 'Invalid reset code',
+                            details: 'The reset code you entered is invalid or expired.',
+                        },
+                    },
+                    { ok: false, status: 400 }
+                )
+            )
+
+            const action = await store.dispatch(
+                verifyOtp({
+                    email: 'otp@example.com',
+                    otp: '000000',
+                    newPassword: 'new-pass',
+                })
+            )
+
+            expect(action.meta.requestStatus).toBe('rejected')
+            expect(store.getState().auth.verifyOtpOp.error?.message).toBe(
+                'The reset code you entered is invalid or expired.'
+            )
         })
     })
 
@@ -334,7 +408,7 @@ describe('authentication thunks', () => {
             expect(action.meta.requestStatus).toBe('fulfilled')
             const [, request] = fetchMock.mock.calls[0]
             expect((request?.headers as Record<string, string>)?.Authorization).toBe('Bearer token-abc')
-            expect(store.getState().auth.error).toBeNull()
+            expect(store.getState().auth.changePasswordOp.error).toBeNull()
         })
 
         it('surfaces errors when change password fails', async () => {
@@ -359,7 +433,50 @@ describe('authentication thunks', () => {
             )
 
             expect(action.meta.requestStatus).toBe('rejected')
-            expect(store.getState().auth.error?.code).toBe('CHANGE_PASSWORD_ERROR')
+            expect(store.getState().auth.changePasswordOp.error?.code).toBe('CHANGE_PASSWORD_ERROR')
+        })
+
+        it('extracts ABP nested error for change password', async () => {
+            const store = buildStore()
+            seedAuthenticatedUser(store)
+
+            fetchMock.mockResolvedValueOnce(
+                mockResponse(
+                    {
+                        error: {
+                            message: 'Incorrect password',
+                            details: 'The current password you entered is incorrect.',
+                        },
+                    },
+                    { ok: false, status: 400 }
+                )
+            )
+
+            const action = await store.dispatch(
+                changePassword({
+                    oldPassword: 'wrong-pass',
+                    password: 'new-pass',
+                    confirmPassword: 'new-pass',
+                })
+            )
+
+            expect(action.meta.requestStatus).toBe('rejected')
+            expect(store.getState().auth.changePasswordOp.error?.message).toBe(
+                'The current password you entered is incorrect.'
+            )
+        })
+
+        it('clears per-operation error independently', async () => {
+            const store = buildStore()
+
+            fetchMock.mockResolvedValueOnce(
+                mockResponse({ error: { message: 'fail' } }, { ok: false, status: 500 })
+            )
+            await store.dispatch(resetPassword({ email: 'a@b.com' }))
+            expect(store.getState().auth.resetPasswordOp.error).not.toBeNull()
+
+            store.dispatch(clearResetPasswordError())
+            expect(store.getState().auth.resetPasswordOp.error).toBeNull()
         })
 
         it('blocks password change when token is missing', async () => {

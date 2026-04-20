@@ -226,7 +226,7 @@ const GrantDetails: FC<GrantDetailsProps> = ({ data, appId }) => {
     return (
         <View style={styles.card}>
             <Expandable
-                title={focusAreaLabel}
+                title={intervention !== 'Other' ? focusAreaLabel : data.otherIntervention || focusAreaLabel}
                 isExpanded={showDetails}
                 onPress={() => setShowDetails(v => !v)}
             >

@@ -16,6 +16,13 @@ import {
 import * as SecureStore from 'expo-secure-store'
 import { fetchPersonBySdfId } from './thunks/OrganizationThunks';
 
+interface OperationState {
+    loading: boolean
+    error: AuthError | null
+}
+
+const OPERATION_INITIAL: OperationState = { loading: false, error: null }
+
 interface AuthState {
     user: UserDto | null
     token: string | null
@@ -24,6 +31,9 @@ interface AuthState {
     isLoading: boolean
     error: AuthError | null
     isAuthenticated: boolean
+    resetPasswordOp: OperationState
+    verifyOtpOp: OperationState
+    changePasswordOp: OperationState
 }
 
 const initialState: AuthState = {
@@ -34,6 +44,9 @@ const initialState: AuthState = {
     isLoading: false,
     error: null,
     isAuthenticated: false,
+    resetPasswordOp: { ...OPERATION_INITIAL },
+    verifyOtpOp: { ...OPERATION_INITIAL },
+    changePasswordOp: { ...OPERATION_INITIAL },
 }
 
 const resetAuthState = (state: AuthState) => {
@@ -44,10 +57,29 @@ const resetAuthState = (state: AuthState) => {
     state.isAuthenticated = false
     state.error = null
     state.isLoading = false
+    state.resetPasswordOp = { loading: false, error: null }
+    state.verifyOtpOp = { loading: false, error: null }
+    state.changePasswordOp = { loading: false, error: null }
 }
 
 const API_BASE_URL = 'https://ims.chieta.org.za:22743'
 const ABP_TENANT_ID = '2' // tenancyName: "chieta"
+
+/**
+ * Extract user-friendly error message from ABP error responses.
+ * ABP wraps errors in { error: { message, details, validationErrors } }.
+ */
+function extractAbpError(errorData: any, fallback: string): string {
+    return (
+        errorData?.error?.details ||
+        errorData?.error?.message ||
+        errorData?.message ||
+        fallback
+    )
+}
+
+/** Consistent network/connection error shown to users. */
+const MSG_NETWORK = 'Unable to connect. Please check your internet connection and try again.'
 
 /**
  * Login with email and password
@@ -94,7 +126,7 @@ const login = createAsyncThunk<
             const errorMessage = data?.error?.details ||
                 data?.error?.message ||
                 data?.message ||
-                `Login failed with status ${response.status}`;
+                'Your email or password is incorrect. Please try again.';
 
             return rejectWithValue({
                 code: 'LOGIN_ERROR',
@@ -126,7 +158,7 @@ const login = createAsyncThunk<
         if (!accessToken) {
             return rejectWithValue({
                 code: 'LOGIN_ERROR',
-                message: 'No access token received from server',
+                message: 'Sign-in failed. Please try again.',
             })
         }
 
@@ -154,7 +186,7 @@ const login = createAsyncThunk<
         console.error('[AUTH] Login error:', error)
         return rejectWithValue({
             code: 'NETWORK_ERROR',
-            message: error instanceof Error ? error.message : 'Network error occurred',
+            message: MSG_NETWORK,
         })
     }
 })
@@ -209,7 +241,7 @@ const register = createAsyncThunk<
                 abpError?.details ||
                 abpError?.message ||
                 regData?.message ||
-                `Registration failed (${regResponse.status})`;
+                'Registration failed. Please check your details and try again.';
 
             console.log('[Register] Step 1 FAILED — error:', errorMessage);
             return rejectWithValue({
@@ -296,7 +328,7 @@ const register = createAsyncThunk<
     } catch (error) {
         return rejectWithValue({
             code: 'NETWORK_ERROR',
-            message: error instanceof Error ? error.message : 'Network error occurred',
+            message: MSG_NETWORK,
         });
     }
 })
@@ -326,13 +358,10 @@ const resetPassword = createAsyncThunk<
         )
 
         if (!response.ok) {
-            const errorData = await response.json().catch(() => ({
-                message: 'Password reset failed',
-            }))
+            const errorData = await response.json().catch(() => null)
             return rejectWithValue({
                 code: 'RESET_PASSWORD_ERROR',
-                message: errorData.message || `Password reset failed with status ${response.status}`,
-                details: errorData.details,
+                message: extractAbpError(errorData, "We couldn't send the reset code. Please check your email address and try again."),
             })
         }
 
@@ -341,7 +370,7 @@ const resetPassword = createAsyncThunk<
     } catch (error) {
         return rejectWithValue({
             code: 'NETWORK_ERROR',
-            message: error instanceof Error ? error.message : 'Network error occurred',
+            message: MSG_NETWORK,
         })
     }
 })
@@ -373,13 +402,10 @@ const verifyOtp = createAsyncThunk<
         )
 
         if (!response.ok) {
-            const errorData = await response.json().catch(() => ({
-                message: 'OTP verification failed',
-            }))
+            const errorData = await response.json().catch(() => null)
             return rejectWithValue({
                 code: 'OTP_VERIFICATION_ERROR',
-                message: errorData.message || `OTP verification failed with status ${response.status}`,
-                details: errorData.details,
+                message: extractAbpError(errorData, 'The code you entered is incorrect or has expired. Please try again.'),
             })
         }
 
@@ -388,7 +414,7 @@ const verifyOtp = createAsyncThunk<
     } catch (error) {
         return rejectWithValue({
             code: 'NETWORK_ERROR',
-            message: error instanceof Error ? error.message : 'Network error occurred',
+            message: MSG_NETWORK,
         })
     }
 })
@@ -410,7 +436,7 @@ const changePassword = createAsyncThunk<
             if (!token) {
                 return rejectWithValue({
                     code: 'UNAUTHORIZED',
-                    message: 'User not authenticated',
+                    message: 'Please sign in again to change your password.',
                 })
             }
 
@@ -431,13 +457,10 @@ const changePassword = createAsyncThunk<
             )
 
             if (!response.ok) {
-                const errorData = await response.json().catch(() => ({
-                    message: 'Password change failed',
-                }))
+                const errorData = await response.json().catch(() => null)
                 return rejectWithValue({
                     code: 'CHANGE_PASSWORD_ERROR',
-                    message: errorData.message || `Password change failed with status ${response.status}`,
-                    details: errorData.details,
+                    message: extractAbpError(errorData, "We couldn't update your password. Please check your current password and try again."),
                 })
             }
 
@@ -446,7 +469,7 @@ const changePassword = createAsyncThunk<
         } catch (error) {
             return rejectWithValue({
                 code: 'NETWORK_ERROR',
-                message: error instanceof Error ? error.message : 'Network error occurred',
+                message: MSG_NETWORK,
             })
         }
     }
@@ -470,14 +493,14 @@ const updateProfile = createAsyncThunk<
             if (!token) {
                 return rejectWithValue({
                     code: 'UNAUTHORIZED',
-                    message: 'User not authenticated',
+                    message: 'Please sign in again to update your profile.',
                 })
             }
 
             if (!user) {
                 return rejectWithValue({
                     code: 'NO_USER',
-                    message: 'No user data found',
+                    message: 'Your session appears to be invalid. Please sign in again.',
                 })
             }
 
@@ -502,13 +525,10 @@ const updateProfile = createAsyncThunk<
             )
 
             if (!response.ok) {
-                const errorData = await response.json().catch(() => ({
-                    message: 'Profile update failed',
-                }))
+                const errorData = await response.json().catch(() => null)
                 return rejectWithValue({
                     code: 'UPDATE_PROFILE_ERROR',
-                    message: errorData.message || `Profile update failed with status ${response.status}`,
-                    details: errorData.details,
+                    message: extractAbpError(errorData, "We couldn't save your profile changes. Please try again."),
                 })
             }
 
@@ -532,7 +552,7 @@ const updateProfile = createAsyncThunk<
         } catch (error) {
             return rejectWithValue({
                 code: 'NETWORK_ERROR',
-                message: error instanceof Error ? error.message : 'Network error occurred',
+                message: MSG_NETWORK,
             })
         }
     }
@@ -557,14 +577,14 @@ const deleteAccount = createAsyncThunk<
             if (!token) {
                 return rejectWithValue({
                     code: 'UNAUTHORIZED',
-                    message: 'User not authenticated',
+                    message: 'Please sign in again to delete your account.',
                 })
             }
 
             if (!user) {
                 return rejectWithValue({
                     code: 'NO_USER',
-                    message: 'No user data found',
+                    message: 'Your session appears to be invalid. Please sign in again.',
                 })
             }
 
@@ -581,13 +601,10 @@ const deleteAccount = createAsyncThunk<
             )
 
             if (!response.ok) {
-                const errorData = await response.json().catch(() => ({
-                    message: 'Account deletion failed',
-                }))
+                const errorData = await response.json().catch(() => null)
                 return rejectWithValue({
                     code: 'DELETE_ACCOUNT_ERROR',
-                    message: errorData.message || `Account deletion failed with status ${response.status}`,
-                    details: errorData.details,
+                    message: extractAbpError(errorData, "We couldn't delete your account. Please try again."),
                 })
             }
 
@@ -597,7 +614,7 @@ const deleteAccount = createAsyncThunk<
         } catch (error) {
             return rejectWithValue({
                 code: 'NETWORK_ERROR',
-                message: error instanceof Error ? error.message : 'Network error occurred',
+                message: MSG_NETWORK,
             })
         }
     }
@@ -753,6 +770,15 @@ const authSlice = createSlice({
         clearError: (state) => {
             state.error = null
         },
+        clearResetPasswordError: (state) => {
+            state.resetPasswordOp.error = null
+        },
+        clearVerifyOtpError: (state) => {
+            state.verifyOtpOp.error = null
+        },
+        clearChangePasswordError: (state) => {
+            state.changePasswordOp.error = null
+        },
     },
     extraReducers: (builder) => {
         // Login
@@ -810,54 +836,54 @@ const authSlice = createSlice({
         // Reset Password
         builder
             .addCase(resetPassword.pending, (state) => {
-                state.isLoading = true
-                state.error = null
+                state.resetPasswordOp = { loading: true, error: null }
             })
             .addCase(resetPassword.fulfilled, (state) => {
-                state.isLoading = false
-                state.error = null
+                state.resetPasswordOp = { loading: false, error: null }
             })
             .addCase(resetPassword.rejected, (state, action) => {
-                state.isLoading = false
-                state.error = action.payload || {
-                    code: 'RESET_PASSWORD_ERROR',
-                    message: 'Password reset failed',
+                state.resetPasswordOp = {
+                    loading: false,
+                    error: action.payload || {
+                        code: 'RESET_PASSWORD_ERROR',
+                        message: 'Password reset failed',
+                    },
                 }
             })
 
         // Verify OTP
         builder
             .addCase(verifyOtp.pending, (state) => {
-                state.isLoading = true
-                state.error = null
+                state.verifyOtpOp = { loading: true, error: null }
             })
             .addCase(verifyOtp.fulfilled, (state) => {
-                state.isLoading = false
-                state.error = null
+                state.verifyOtpOp = { loading: false, error: null }
             })
             .addCase(verifyOtp.rejected, (state, action) => {
-                state.isLoading = false
-                state.error = action.payload || {
-                    code: 'OTP_VERIFICATION_ERROR',
-                    message: 'OTP verification failed',
+                state.verifyOtpOp = {
+                    loading: false,
+                    error: action.payload || {
+                        code: 'OTP_VERIFICATION_ERROR',
+                        message: 'OTP verification failed',
+                    },
                 }
             })
 
         // Change Password
         builder
             .addCase(changePassword.pending, (state) => {
-                state.isLoading = true
-                state.error = null
+                state.changePasswordOp = { loading: true, error: null }
             })
             .addCase(changePassword.fulfilled, (state) => {
-                state.isLoading = false
-                state.error = null
+                state.changePasswordOp = { loading: false, error: null }
             })
             .addCase(changePassword.rejected, (state, action) => {
-                state.isLoading = false
-                state.error = action.payload || {
-                    code: 'CHANGE_PASSWORD_ERROR',
-                    message: 'Password change failed',
+                state.changePasswordOp = {
+                    loading: false,
+                    error: action.payload || {
+                        code: 'CHANGE_PASSWORD_ERROR',
+                        message: 'Password change failed',
+                    },
                 }
             })
 
@@ -973,7 +999,13 @@ const authSlice = createSlice({
     },
 })
 
-export const { setCredentials, clearError } = authSlice.actions
+export const {
+    setCredentials,
+    clearError,
+    clearResetPasswordError,
+    clearVerifyOtpError,
+    clearChangePasswordError,
+} = authSlice.actions
 
 const AuthReducer = authSlice.reducer
 

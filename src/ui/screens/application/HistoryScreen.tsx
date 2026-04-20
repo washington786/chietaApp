@@ -568,13 +568,13 @@ function OrganizationBottomSheet({ organizations, selectedOrgId, onSelectOrg, cl
     };
 
     return (
-        <View style={{ flex: 1, paddingHorizontal: scale(16), paddingTop: scale(12) }}>
+        <View style={{ flex: 1, paddingHorizontal: scale(16), paddingTop: scale(12), gap: scale(8) }}>
             {/* Header */}
             <Text variant='headlineMedium' style={styles.orgBottomSheetTitle}>Switch Organization</Text>
             <Text variant='bodySmall' style={{ fontSize: moderateScale(12) }}>choose the entity for your application view.</Text>
 
-            <TouchableOpacity onPress={close} style={{ position: "absolute", top: scale(5), right: scale(8), backgroundColor: colors.red[100], borderRadius: scale(100), padding: scale(5) }}>
-                <AntDesign name="close" size={moderateScale(24)} color={colors.gray[600]} />
+            <TouchableOpacity onPress={close} style={{ position: "absolute", top: scale(5), right: scale(8), backgroundColor: colors.red[600], borderRadius: scale(100), padding: scale(5) }}>
+                <AntDesign name="close" size={moderateScale(24)} color={colors.gray[50]} />
             </TouchableOpacity>
 
             {/* Search Bar */}
@@ -582,7 +582,7 @@ function OrganizationBottomSheet({ organizations, selectedOrgId, onSelectOrg, cl
                 placeholder='Search for organization or SDL...'
                 value={searchQuery}
                 onChangeText={setSearchQuery}
-                style={{ borderRadius: 10, backgroundColor: colors.white, borderWidth: 1, borderColor: colors.slate[200] }}
+                style={{ borderRadius: scale(10), backgroundColor: colors.white, borderWidth: 1, borderColor: colors.slate[200] }}
             />
 
             {/* Organization List — BottomSheetFlatList is required for FlatList inside a bottomsheet */}

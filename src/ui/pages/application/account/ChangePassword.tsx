@@ -7,10 +7,11 @@ import colors from '@/config/colors'
 import { Formik, FormikHelpers } from 'formik'
 import { showToast } from '@/core'
 import UseAuth from '@/hooks/main/auth/UseAuth'
-import { useSelector } from 'react-redux'
-import { RootState } from '@/store/store'
+import { useSelector, useDispatch } from 'react-redux'
+import { RootState, AppDispatch } from '@/store/store'
+import { clearChangePasswordError } from '@/store/slice/AuthSlice'
 import { changePasswordSchema } from '@/core/validators/newPasswordValidator'
-import { useEffect, useRef } from 'react'
+import { useEffect } from 'react'
 import { useNavigation } from '@react-navigation/native'
 import { Ionicons } from '@expo/vector-icons';
 import { Text } from 'react-native-paper'
@@ -18,10 +19,15 @@ import { Text } from 'react-native-paper'
 const ChangePassword = () => {
     const { changePassword } = UseAuth()
     const navigation = useNavigation()
-    const { isLoading, error } = useSelector(
-        (state: RootState) => state.auth
+    const dispatch = useDispatch<AppDispatch>()
+    const { loading: isLoading, error } = useSelector(
+        (state: RootState) => state.auth.changePasswordOp
     )
-    const prevErrorRef = useRef<typeof error>(null);
+    // Clear stale errors on mount and unmount
+    useEffect(() => {
+        dispatch(clearChangePasswordError());
+        return () => { dispatch(clearChangePasswordError()); };
+    }, [dispatch]);
 
     const initialValues = {
         oldPassword: '',
@@ -29,17 +35,16 @@ const ChangePassword = () => {
         confirmPassword: ''
     }
 
-    // Handle errors via useEffect
+    // Handle errors
     useEffect(() => {
-        if (error && !prevErrorRef.current) {
+        if (error) {
             showToast({
                 message: error.message,
                 type: "error",
-                title: "Error",
+                title: "Change Password Error",
                 position: "top",
             })
         }
-        prevErrorRef.current = error;
     }, [error])
 
     const handleSubmit = async (
