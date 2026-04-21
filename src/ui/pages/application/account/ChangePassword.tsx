@@ -85,7 +85,7 @@ const ChangePassword = () => {
                         onSubmit={handleSubmit}
                         validationSchema={changePasswordSchema}
                     >
-                        {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
+                        {({ handleChange, handleBlur, handleSubmit, values, errors, touched, isValid }) => (
                             <View style={styles.form}>
                                 <RInput
                                     placeholder='Old Password'
@@ -128,6 +128,7 @@ const ChangePassword = () => {
                                     onPressButton={handleSubmit}
                                     styleBtn={styles.btn}
                                     isSubmitting={isLoading}
+                                    disable={isLoading || !isValid}
                                 />
                             </View>
                         )}

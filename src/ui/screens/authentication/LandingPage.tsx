@@ -119,7 +119,7 @@ export default function LandingScreen() {
                 badge="Visit Website"
                 desc="Smart Skills Centres"
                 onPress={() =>
-                  Linking.openURL("https://glittery-pony-b3e00d.netlify.app/")
+                  Linking.openURL("https://ssc.chieta.org.za/")
                 }
                 color={colors.primary[700] || "#6d28d9"}
               />
@@ -132,6 +132,7 @@ export default function LandingScreen() {
                 disabled
                 color="#9ca3af"
               />
+
               <Card
                 icon="briefcase"
                 title="Careers"

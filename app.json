@@ -23,6 +23,7 @@
       "bundleIdentifier": "com.danielkarabo.Chieta"
     },
     "android": {
+      "backgroundColor": "#FFFFFF",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"

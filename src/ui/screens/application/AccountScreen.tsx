@@ -14,12 +14,16 @@ import { RootState } from '@/store/store'
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
 import { useGetPersonByUserIdQuery } from '@/store/api/api'
 import { moderateScale, scale } from '@/utils/responsive'
+import { useNavigation, NavigationProp } from '@react-navigation/native'
+import { navigationTypes } from '@/core/types/navigationTypes'
 
 const AccountScreen = () => {
     const { account, privacy, support, changePassword, linkedOrganizations } = usePageTransition();
     const { logout, deleteAccount } = UseAuth();
+    const navigation = useNavigation<NavigationProp<navigationTypes>>();
 
     const [visible, setVisible] = useState(false);
+    const [isSigningOut, setIsSigningOut] = useState(false);
     const prevErrorRef = useRef<typeof error>(null);
 
     const { error, isLoading, user } = useSelector((state: RootState) => state.auth);
@@ -56,12 +60,18 @@ const AccountScreen = () => {
 
     async function handleContinue() {
         setVisible(false);
+        setIsSigningOut(true);
         try {
             await logout();
-            showToast({ message: "Successfully logout of your account.", type: "success", title: "Sign out", position: "top" })
-        } catch (error) {
-            console.error('Failed to logout:', error)
-            showToast({ message: "Failed to logout. Please try again.", type: "error", title: "Error", position: "top" })
+            showToast({ message: "Successfully signed out of your account.", type: "success", title: "Sign out", position: "top" });
+            // Navigate directly — do not rely on the useEffect in RootStack to avoid
+            // the Android "dark blank screen" race condition between Redux state clearing
+            // and the navigation reset completing.
+            navigation.reset({ index: 0, routes: [{ name: 'login' }] });
+        } catch (err) {
+            setIsSigningOut(false);
+            console.error('Failed to logout:', err);
+            showToast({ message: "Failed to sign out. Please try again.", type: "error", title: "Error", position: "top" });
         }
     }
 
@@ -82,6 +92,13 @@ const AccountScreen = () => {
 
     return (
         <SafeArea>
+            {/* White overlay during sign-out — eliminates the Android dark-blank-screen
+                that occurs between Redux state clearing and navigation.reset() completing */}
+            {isSigningOut && (
+                <View pointerEvents="none" style={[StyleSheet.absoluteFill, styles.signOutOverlay]}>
+                    <RLoaderAnimation />
+                </View>
+            )}
             {/* Profile hero card */}
             <Animated.View entering={FadeInDown.duration(500).springify()} style={styles.heroCard}>
                 <View style={styles.avatarRing}>
@@ -260,5 +277,11 @@ const styles = StyleSheet.create({
     },
     itemDivider: {
         marginLeft: 66,
+    },
+    signOutOverlay: {
+        backgroundColor: '#FFFFFF',
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: 9999,
     },
 })

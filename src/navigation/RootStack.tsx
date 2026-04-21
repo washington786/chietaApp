@@ -98,7 +98,7 @@ const RootStackNavigator = () => {
 
     return (
         <Stack.Navigator
-            screenOptions={{ headerShown: false }}
+            screenOptions={{ headerShown: false, contentStyle: { backgroundColor: '#FFFFFF' } }}
             initialRouteName={isAuthenticated ? "app" : "landing"}
         >
             {/* Landing Screen */}
