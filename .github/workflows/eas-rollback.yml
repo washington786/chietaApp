@@ -1,0 +1,71 @@
+name: EAS Rollback (OTA)
+
+on:
+  workflow_dispatch:
+    inputs:
+      channel:
+        description: "Channel to rollback"
+        required: true
+        default: "production"
+        type: choice
+        options:
+          - production
+          - preview
+      reason:
+        description: "Reason for rollback (for audit trail)"
+        required: true
+        default: "Reverting due to issues with latest update"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: eas-rollback-${{ github.event.inputs.channel }}
+  cancel-in-progress: false
+
+jobs:
+  rollback:
+    name: "⏪ Rollback OTA → ${{ github.event.inputs.channel }}"
+    runs-on: ubuntu-latest
+    env:
+      EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Setup Expo & EAS
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Rollback to previous update
+        run: |
+          eas update:rollback \
+            --channel "${{ github.event.inputs.channel }}" \
+            --non-interactive
+
+      - name: Summary
+        run: |
+          echo "## ⏪ EAS Rollback complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Field | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Channel | \`${{ github.event.inputs.channel }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Reason | ${{ github.event.inputs.reason }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Triggered by | @${{ github.actor }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Commit | \`${{ github.sha }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "View updates: https://expo.dev/accounts/washington786/projects/Chieta/updates" >> $GITHUB_STEP_SUMMARY
