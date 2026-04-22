@@ -182,6 +182,7 @@ const AddNewDgApplicationPage = () => {
                     removeClippedSubviews={false}
                     initialNumToRender={10}
                     maxToRenderPerBatch={10}
+                    contentContainerStyle={{ paddingBottom: 60 }}
                     windowSize={21}
                     ListEmptyComponent={<REmpty title='No Applications Found' subtitle={`Applications available in the cycle will appear here.`} />}
                 />
