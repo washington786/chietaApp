@@ -622,11 +622,18 @@ const deleteAccount = createAsyncThunk<
 
 /**
  * Logout current user and clear secure storage
+ * This is optimistic - the auth state is cleared immediately in the reducer,
+ * while secure store clearing happens in the background to prevent blocking
+ * the main thread on Android.
  */
 const logout = createAsyncThunk<void, void>(
     'auth/logout',
     async () => {
-        await clearCredentialsFromSecureStore()
+        // Fire-and-forget: don't wait for secure store operations to complete.
+        // They should complete but won't block navigation on Android.
+        clearCredentialsFromSecureStore().catch((err) => {
+            console.error('[Logout] Failed to clear secure store:', err)
+        })
     }
 )
 
@@ -938,9 +945,13 @@ const authSlice = createSlice({
             })
             .addCase(logout.fulfilled, (state) => {
                 resetAuthState(state)
+                // Ensure loading is false explicitly
+                state.isLoading = false
             })
             .addCase(logout.rejected, (state) => {
                 resetAuthState(state)
+                // Even on rejection, ensure we're logged out and loading is false
+                state.isLoading = false
             })
 
         // Restore Session

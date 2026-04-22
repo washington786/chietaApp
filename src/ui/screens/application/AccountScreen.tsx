@@ -62,16 +62,31 @@ const AccountScreen = () => {
         setVisible(false);
         setIsSigningOut(true);
         try {
+            // Don't wait for logout() to complete. Since logout is fire-and-forget
+            // for secure store operations, we navigate immediately after dispatch
+            // to avoid Android's "white screen" race condition.
             await logout();
-            showToast({ message: "Successfully signed out of your account.", type: "success", title: "Sign out", position: "top" });
-            // Navigate directly — do not rely on the useEffect in RootStack to avoid
-            // the Android "dark blank screen" race condition between Redux state clearing
-            // and the navigation reset completing.
+            
+            showToast({ 
+                message: "Successfully signed out of your account.", 
+                type: "success", 
+                title: "Sign out", 
+                position: "top" 
+            });
+            
+            // Navigate immediately. The Redux state should already be cleared.
+            // On Android, this prevents the white screen that occurs when secure store
+            // operations block the main thread during navigation.
             navigation.reset({ index: 0, routes: [{ name: 'login' }] });
         } catch (err) {
             setIsSigningOut(false);
             console.error('Failed to logout:', err);
-            showToast({ message: "Failed to sign out. Please try again.", type: "error", title: "Error", position: "top" });
+            showToast({ 
+                message: "Failed to sign out. Please try again.", 
+                type: "error", 
+                title: "Error", 
+                position: "top" 
+            });
         }
     }
 

@@ -11,7 +11,9 @@ web-build/
 expo-env.d.ts
 
 /endpoints.txt
+/endpoints.txt
 /prompts.txt
+
 # Native
 .kotlin/
 *.orig.*

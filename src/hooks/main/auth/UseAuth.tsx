@@ -111,9 +111,16 @@ const UseAuth = () => {
     /**
      * Logout user and clear authentication state
      * Clears user, token, and auth state
+     * Note: This doesn't throw errors even if secure store operations fail,
+     * because the auth state is cleared regardless (see AuthSlice logout handlers).
      */
     const logout = async () => {
-        await dispatch(logoutThunk()).unwrap()
+        const result = await dispatch(logoutThunk())
+        // We don't call unwrap() because secure store errors shouldn't prevent
+        // the logout flow. The auth state is cleared in both fulfilled and rejected cases.
+        if (result.type.endsWith('/rejected')) {
+            console.warn('[UseAuth] Logout completed but secure store may have failed')
+        }
     }
 
     /**
